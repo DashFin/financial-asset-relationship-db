@@ -316,7 +316,7 @@ class TestWorkflowComments:
                         if line.strip().startswith("#")]
         
         # Workflows should have at least minimal documentation
-        assert len(comment_lines) >= 0, "Workflows benefit from comments"
+        assert len(comment_lines) > 0, "Workflows benefit from comments"
 
 
 if __name__ == "__main__":
