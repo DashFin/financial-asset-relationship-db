@@ -68,7 +68,7 @@ class TestWorkflowSyntaxValidation:
                 assert version and version.lower() not in {"main", "master", "latest", "head"}, \
                     f"Action should use immutable version/tag/sha, not @{version}: {uses}"
                 # Discourage moving tags like vLatest; allow semantic tags or SHAs
-                assert not re.fullmatch(r"[A-Za-z]+", version), \
+                assert not re.fullmatch(r"[A-Za-z]+", version) or re.fullmatch(r"[0-9a-fA-F]{7,40}", version), \
                     f"Action version appears to be a branch-like ref: {version} in {uses}"
     
     def test_pr_agent_secrets_properly_referenced(self, pr_agent_workflow):
