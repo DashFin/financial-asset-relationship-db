@@ -1199,15 +1199,20 @@ class TestWorkflowEnvAndSecrets:
 
         # Check job-level env
         for job_name, job_details in config.get("jobs", {}).items():
-            invalid = check_env_vars(job_details.get("env", {}))
-            if invalid:
-                invalid_entries.append((f"job '{job_name}'", invalid))
+            if isinstance(job_details, dict):
+                invalid = check_env_vars(job_details.get("env", {}))
+                if invalid:
+                    invalid_entries.append((f"job '{job_name}'", invalid))
 
+        violations = {location: invalid_keys for location, invalid_keys in invalid_entries}
         assert not invalid_entries, (
             "MAINTAINABILITY: Workflow {workflow} has environment variables that don't follow "
             "UPPER_CASE convention: {violations}. This can reduce readability and consistency "
             "across workflows."
-        ).format(workflow=workflow_file.name, violations=dict(invalid_entries))
+        ).format(
+            workflow=workflow_file.name,
+            violations=violations,
+        )
 
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_secrets_not_in_env_values(self, workflow_file: Path):
