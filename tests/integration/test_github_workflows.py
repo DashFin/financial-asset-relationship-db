@@ -336,7 +336,7 @@ class TestPrAgentWorkflow:
         ]
 
         for step in checkout_steps:
-            step_with = step.get("with", {}) or {}
+            step_with = step.get("with", {})
             token = step_with.get("token")
             if token is not None:
                 assert isinstance(token, str) and token.strip(), (
