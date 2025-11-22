@@ -1199,9 +1199,10 @@ class TestWorkflowEnvAndSecrets:
 
         # Check job-level env
         for job_name, job_details in config.get("jobs", {}).items():
-            invalid = check_env_vars(job_details.get("env", {}))
-            if invalid:
-                invalid_entries.append((f"job '{job_name}'", invalid))
+            if isinstance(job_details, dict):
+                invalid = check_env_vars(job_details.get("env", {}))
+                if invalid:
+                    invalid_entries.append((f"job '{job_name}'", invalid))
 
         assert not invalid_entries, (
             "MAINTAINABILITY: Workflow {workflow} has environment variables that don't follow "
