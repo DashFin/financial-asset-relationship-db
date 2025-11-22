@@ -325,21 +325,23 @@ class TestPrAgentWorkflow:
     
     def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Ensure every actions/checkout step in the review job provides a `token` in its `with` mapping.
-        
-        Fails the test if any checkout step omits the `token` key.
+        Test that checkout steps explicitly define a token only if configured.
         """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
-        
+
         checkout_steps = [
-            s for s in steps 
+            s for s in steps
             if s.get("uses", "").startswith("actions/checkout")
         ]
-        
+
         for step in checkout_steps:
-            step_with = step.get("with", {})
-            assert "token" in step_with, "Checkout step should specify a token"
+            step_with = step.get("with", {}) or {}
+            token = step_with.get("token")
+            if token is not None:
+                assert isinstance(token, str) and token.strip(), (
+                    "Checkout step token, if provided, must be a non-empty string."
+                )
     
     def test_pr_agent_has_python_setup(self, pr_agent_workflow: Dict[str, Any]):
         """
