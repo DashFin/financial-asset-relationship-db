@@ -307,15 +307,14 @@ class TestDocumentationCleanup:
     
     def test_no_orphaned_test_summaries(self):
         """Check for test summary documentation files."""
-        # This is informational - summary files should eventually be consolidated
         summary_files = list(Path(".").glob("*TEST*SUMMARY*.md"))
         summary_files.extend(list(Path(".").glob("*TEST*GENERATION*.md")))
         
-        # Just document what exists, don't fail
         if summary_files:
-            print(f"\nFound {len(summary_files)} test summary files:")
-            for f in summary_files[:10]:
-                print(f"  - {f.name}")
+            file_list = "\n".join(f"  - {f.name}" for f in summary_files[:10])
+            pytest.fail(
+                f"Found {len(summary_files)} orphaned test summary files that should be removed:\n{file_list}"
+            )
 
 
 if __name__ == "__main__":
