@@ -9,7 +9,7 @@ duplicate keys, invalid syntax, and missing required fields.
 import pytest
 import yaml
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List
 
 
 # Path to workflows directory
@@ -349,26 +349,19 @@ class TestPrAgentWorkflow:
     
     def test_pr_agent_has_python_setup(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Asserts the workflow's "review" job includes at least one step that uses actions/setup-python.
+        Asserts the workflow's "pr-agent-trigger" job includes at least one step that uses actions/setup-python.
         
-def test_pr_agent_has_python_setup(self, pr_agent_workflow: Dict[str, Any]):
-    """
-    Asserts the workflow's "pr-agent-trigger" job includes at least one step that uses actions/setup-python.
-    
-    Parameters:
-        pr_agent_workflow (Dict[str, Any]): Parsed YAML mapping for the pr-agent workflow; expected to contain a "jobs" mapping with a "pr-agent-trigger" job.
-    """
-    trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-            pr_agent_workflow (Dict[str, Any]): Parsed YAML mapping for the pr-agent workflow; expected to contain a "jobs" mapping with a "review" job.
+        Parameters:
+            pr_agent_workflow (Dict[str, Any]): Parsed YAML mapping for the pr-agent workflow; expected to contain a "jobs" mapping with a "pr-agent-trigger" job.
         """
-        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-        steps = review_job.get("steps", [])
+        trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        steps = trigger_job.get("steps", [])
         
         python_steps = [
             s for s in steps 
             if s.get("uses", "").startswith("actions/setup-python")
         ]
-        assert len(python_steps) > 0, "Review job must set up Python"
+        assert len(python_steps) > 0, "PR agent trigger job must set up Python"
     
     def test_pr_agent_has_node_setup(self, pr_agent_workflow: Dict[str, Any]):
         """Test that review job sets up Node.js."""
@@ -425,24 +418,15 @@ def test_pr_agent_has_python_setup(self, pr_agent_workflow: Dict[str, Any]):
     
     def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Ensure checkout steps in the PR Agent review job have valid fetch-depth values.
+        Ensure checkout steps in the PR Agent trigger job have valid fetch-depth values.
         
-        Checks each step in `jobs.review` that uses `actions/checkout`; if the step's `with` mapping contains `fetch-depth` the value must be an integer or exactly 0, otherwise an assertion fails.
+        Checks each step in `jobs.pr-agent-trigger` that uses `actions/checkout`; if the step's `with` mapping contains `fetch-depth` the value must be an integer or exactly 0, otherwise an assertion fails.
         
-def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
-    """
-    Ensure checkout steps in the PR Agent trigger job have valid fetch-depth values.
-    
-    Checks each step in `jobs.pr-agent-trigger` that uses `actions/checkout`; if the step's `with` mapping contains `fetch-depth` the value must be an integer or exactly 0, otherwise an assertion fails.
-    
-    Parameters:
-        pr_agent_workflow (Dict[str, Any]): Parsed workflow mapping for the PR Agent workflow.
-    """
-    trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        Parameters:
             pr_agent_workflow (Dict[str, Any]): Parsed workflow mapping for the PR Agent workflow.
         """
-        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-        steps = review_job.get("steps", [])
+        trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        steps = trigger_job.get("steps", [])
         
         checkout_steps = [
             s for s in steps 
@@ -1164,12 +1148,12 @@ def test_workflow_env_vars_naming_convention(workflow_file: Path):
         if not isinstance(env_dict, dict):
             return []
         invalid = []
-            for key in env_dict.keys():
-                # Ensure all characters are either alphanumeric or underscore
-                is_valid_chars = all(c.isalnum() or c == '_' for c in key)
-                if not key.isupper() or not is_valid_chars:
-                    invalid.append(key)
-            return invalid
+        for key in env_dict.keys():
+            # Ensure all characters are either alphanumeric or underscore
+            is_valid_chars = all(c.isalnum() or c == '_' for c in key)
+            if not key.isupper() or not is_valid_chars:
+                invalid.append(key)
+        return invalid
         
         # Check top-level env
         if "env" in config:
