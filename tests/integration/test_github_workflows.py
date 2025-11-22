@@ -1207,10 +1207,7 @@ class TestWorkflowEnvAndSecrets:
             "MAINTAINABILITY: Workflow {workflow} has environment variables that don't follow "
             "UPPER_CASE convention: {violations}. This can reduce readability and consistency "
             "across workflows."
-        ).format(
-            workflow=workflow_file.name,
-            violations={location: invalid_keys for location, invalid_keys in invalid_entries},
-        )
+        ).format(workflow=workflow_file.name, violations=dict(invalid_entries))
 
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_secrets_not_in_env_values(self, workflow_file: Path):
