@@ -48,17 +48,25 @@ class TestWorkflowSyntaxValidation:
                     f"Job {job_name} should have issues permission"
     
     def test_pr_agent_uses_specific_action_versions(self, pr_agent_workflow):
-        """Verify actions use pinned versions (not @main or @master)."""
+        """Verify actions use pinned versions (not branches like @main/@master) and not unpinned."""
         jobs = pr_agent_workflow.get("jobs", {})
-        
         for job_name, job_config in jobs.items():
             steps = job_config.get("steps", [])
             for step in steps:
-                uses = step.get("uses", "")
-                if uses and "@" in uses:
-                    version = uses.split("@")[1]
-                    assert version not in ["main", "master"], \
-                        f"Action should use specific version, not @{version}: {uses}"
+                uses = step.get("uses")
+                if not uses:
+                    continue
+                # Allow local actions and docker images without '@'
+                if uses.startswith("./") or uses.startswith("docker://"):
+                    continue
+                assert "@" in uses, f"Action must pin a version with '@': {uses}"
+                # Take last '@' in case of '@' appearing in org/name
+                version = uses.rsplit("@", 1)[1].strip()
+                assert version and version.lower() not in {"main", "master", "latest", "head"}, \
+                    f"Action should use immutable version/tag/sha, not @{version}: {uses}"
+                # Discourage moving tags like vLatest; allow semantic tags or SHAs
+                assert not re.fullmatch(r"[A-Za-z]+", version), \
+                    f"Action version appears to be a branch-like ref: {version} in {uses}"
     
     def test_pr_agent_secrets_properly_referenced(self, pr_agent_workflow):
         """Ensure tokens are referenced correctly using supported contexts."""
