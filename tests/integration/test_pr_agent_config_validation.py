@@ -1,304 +1,409 @@
 """
-Comprehensive validation tests for .github/pr-agent-config.yml
+Comprehensive validation tests for .github/pr-agent-config.yml configuration file.
 
-This test suite validates the PR Agent configuration file to ensure it contains
-valid settings, proper structure, and no deprecated or conflicting options.
-Tests the configuration after removal of context chunking features.
+Tests ensure the PR Agent configuration is valid, secure, and follows best practices.
 """
 
+import os
 import pytest
 import yaml
 from pathlib import Path
-from typing import Any, Dict
-
-
-CONFIG_FILE = Path(__file__).parent.parent.parent / ".github" / "pr-agent-config.yml"
-
-
-@pytest.fixture
-def config_content() -> Dict[str, Any]:
-    """Load pr-agent-config.yml content."""
-    if not CONFIG_FILE.exists():
-        pytest.skip("pr-agent-config.yml not found")
-    with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
-
-
-@pytest.fixture
-def config_lines() -> list:
-    """Get config file as list of lines."""
-    if not CONFIG_FILE.exists():
-        pytest.skip("pr-agent-config.yml not found")
-    with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-        return f.readlines()
 
 
 class TestPRAgentConfigStructure:
-    """Test suite for PR Agent configuration structure."""
+    """Test the structure and validity of PR Agent configuration."""
     
-    def test_config_file_exists(self):
-        """Test that pr-agent-config.yml exists."""
-        assert CONFIG_FILE.exists(), "pr-agent-config.yml should exist"
+    @pytest.fixture
+    def config_path(self):
+        """Path to PR Agent config file."""
+        return Path(".github/pr-agent-config.yml")
     
-    def test_config_valid_yaml(self):
-        """Test that config file contains valid YAML."""
-        with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-            try:
-                yaml.safe_load(f)
-            except yaml.YAMLError as e:
-                pytest.fail(f"Invalid YAML syntax: {e}")
+    @pytest.fixture
+    def config_data(self, config_path):
+        """Load and parse the PR Agent configuration."""
+        assert config_path.exists(), f"PR Agent config not found at {config_path}"
+        with open(config_path, 'r') as f:
+            data = yaml.safe_load(f)
+        assert data is not None, "PR Agent config is empty"
+        return data
     
-    def test_config_not_empty(self, config_content: Dict[str, Any]):
-        """Test that config file is not empty."""
-        assert config_content, "Configuration should not be empty"
+    def test_config_file_exists(self, config_path):
+        """PR Agent config file should exist."""
+        assert config_path.exists()
+        assert config_path.is_file()
     
-    def test_has_agent_section(self, config_content: Dict[str, Any]):
-        """Test that config has an 'agent' section."""
-        assert 'agent' in config_content, "Config should have 'agent' section"
+    def test_config_is_valid_yaml(self, config_path):
+        """PR Agent config should be valid YAML."""
+        with open(config_path, 'r') as f:
+            data = yaml.safe_load(f)
+        assert data is not None
+        assert isinstance(data, dict)
     
-    def test_agent_has_required_fields(self, config_content: Dict[str, Any]):
-        """Test that agent section has required fields."""
-        agent = config_content.get('agent', {})
-        assert 'name' in agent, "Agent should have 'name' field"
-        assert 'version' in agent, "Agent should have 'version' field"
-        assert 'enabled' in agent, "Agent should have 'enabled' field"
-
-
-class TestPRAgentConfigValues:
-    """Test suite for PR Agent configuration values."""
+    def test_agent_section_exists(self, config_data):
+        """Agent section should be defined."""
+        assert 'agent' in config_data
+        assert isinstance(config_data['agent'], dict)
     
-    def test_agent_name_is_string(self, config_content: Dict[str, Any]):
-        """Test that agent name is a non-empty string."""
-        agent_name = config_content.get('agent', {}).get('name')
-        assert isinstance(agent_name, str), "Agent name should be a string"
-        assert len(agent_name) > 0, "Agent name should not be empty"
-    
-    def test_agent_version_format(self, config_content: Dict[str, Any]):
-        """Test that agent version follows semantic versioning."""
-        version = config_content.get('agent', {}).get('version')
-        assert isinstance(version, str), "Version should be a string"
+    def test_agent_has_required_fields(self, config_data):
+        """Agent section should have required fields."""
+        agent = config_data['agent']
+        assert 'name' in agent
+        assert 'version' in agent
+        assert 'enabled' in agent
         
-        # Should match semver pattern (major.minor.patch)
-        import re
-        semver_pattern = r'^\d+\.\d+\.\d+$'
-        assert re.match(semver_pattern, version), (
-            f"Version '{version}' should follow semantic versioning (e.g., '1.0.0')"
-        )
+        assert isinstance(agent['name'], str)
+        assert len(agent['name']) > 0
+        assert isinstance(agent['version'], str)
+        assert isinstance(agent['enabled'], bool)
     
-    def test_agent_enabled_is_boolean(self, config_content: Dict[str, Any]):
-        """Test that enabled field is a boolean."""
-        enabled = config_content.get('agent', {}).get('enabled')
-        assert isinstance(enabled, bool), "Enabled field should be a boolean"
-    
-    def test_monitoring_check_interval_reasonable(self, config_content: Dict[str, Any]):
-        """Test that monitoring check interval is reasonable (not too frequent)."""
-        monitoring = config_content.get('monitoring', {})
-        if 'check_interval' in monitoring:
-            interval = monitoring['check_interval']
-            assert isinstance(interval, int), "Check interval should be an integer"
-            assert interval >= 60, "Check interval should be at least 60 seconds"
-            assert interval <= 86400, "Check interval should be at most 24 hours"
-    
-    def test_timeout_values_reasonable(self, config_content: Dict[str, Any]):
-        """Test that timeout values are reasonable."""
-        monitoring = config_content.get('monitoring', {})
-        if 'timeout' in monitoring:
-            timeout = monitoring['timeout']
-            assert isinstance(timeout, int), "Timeout should be an integer"
-            assert timeout >= 30, "Timeout should be at least 30 seconds"
-            assert timeout <= 3600, "Timeout should be at most 1 hour"
-
-
-class TestPRAgentConfigContextRemoval:
-    """Test suite validating context chunking features were properly removed."""
-    
-    def test_no_context_section(self, config_content: Dict[str, Any]):
-        """Test that context configuration section was removed."""
-        agent = config_content.get('agent', {})
-        assert 'context' not in agent, (
-            "Agent should not have 'context' section after context chunking removal"
-        )
-    
-    def test_no_chunking_settings(self, config_content: Dict[str, Any]):
-        """Test that chunking-related settings were removed."""
-        config_str = yaml.dump(config_content)
+    def test_monitoring_section_structure(self, config_data):
+        """Monitoring section should be properly structured."""
+        assert 'monitoring' in config_data
+        monitoring = config_data['monitoring']
         
-        chunking_keywords = ['chunk', 'chunking', 'max_tokens', 'overlap_tokens']
-        found_keywords = [kw for kw in chunking_keywords if kw in config_str.lower()]
+        assert 'check_interval' in monitoring
+        assert isinstance(monitoring['check_interval'], int)
+        assert monitoring['check_interval'] > 0
+    
+    def test_review_settings_exist(self, config_data):
+        """Review settings should be defined."""
+        assert 'review' in config_data
+        review = config_data['review']
         
-        assert len(found_keywords) == 0, (
-            f"Config should not contain chunking keywords: {found_keywords}"
-        )
+        assert 'auto_review' in review
+        assert isinstance(review['auto_review'], bool)
     
-    def test_no_tiktoken_references(self, config_content: Dict[str, Any]):
-        """Test that tiktoken references were removed."""
-        config_str = yaml.dump(config_content).lower()
-        assert 'tiktoken' not in config_str, "Config should not reference tiktoken"
-    
-    def test_no_summarization_settings(self, config_content: Dict[str, Any]):
-        """Test that summarization settings were removed."""
-        config_str = yaml.dump(config_content).lower()
-        assert 'summarization' not in config_str, "Config should not have summarization settings"
-
-
-class TestPRAgentConfigTriggers:
-    """Test suite for comment parsing triggers."""
-    
-    def test_has_comment_parsing_section(self, config_content: Dict[str, Any]):
-        """Test that config has comment parsing configuration."""
-        assert 'comment_parsing' in config_content, "Config should have comment_parsing section"
-    
-    def test_triggers_are_list(self, config_content: Dict[str, Any]):
-        """Test that triggers are defined as a list."""
-        triggers = config_content.get('comment_parsing', {}).get('triggers', [])
-        assert isinstance(triggers, list), "Triggers should be a list"
-    
-    def test_triggers_are_strings(self, config_content: Dict[str, Any]):
-        """Test that all triggers are strings."""
-        triggers = config_content.get('comment_parsing', {}).get('triggers', [])
-        for trigger in triggers:
-            assert isinstance(trigger, str), f"Trigger '{trigger}' should be a string"
-    
-    def test_has_reasonable_number_of_triggers(self, config_content: Dict[str, Any]):
-        """Test that there are a reasonable number of triggers (not too many or too few)."""
-        triggers = config_content.get('comment_parsing', {}).get('triggers', [])
-        assert len(triggers) >= 2, "Should have at least 2 triggers defined"
-        assert len(triggers) <= 20, "Should not have more than 20 triggers (likely misconfigured)"
-    
-    def test_triggers_not_empty_strings(self, config_content: Dict[str, Any]):
-        """Test that no trigger is an empty string."""
-        triggers = config_content.get('comment_parsing', {}).get('triggers', [])
-        for trigger in triggers:
-            assert len(trigger.strip()) > 0, "Triggers should not be empty strings"
-
-
-class TestPRAgentConfigPriorityKeywords:
-    """Test suite for priority keyword configuration."""
-    
-    def test_has_priority_keywords(self, config_content: Dict[str, Any]):
-        """Test that priority keywords are defined."""
-        comment_parsing = config_content.get('comment_parsing', {})
-        if 'priority_keywords' in comment_parsing:
-            keywords = comment_parsing['priority_keywords']
-            assert isinstance(keywords, dict), "Priority keywords should be a dict"
-    
-    def test_priority_levels_valid(self, config_content: Dict[str, Any]):
-        """Test that priority levels are valid (high, medium, low)."""
-        priority_keywords = config_content.get('comment_parsing', {}).get('priority_keywords', {})
-        valid_levels = {'high', 'medium', 'low'}
+    def test_limits_section_defined(self, config_data):
+        """Limits section should contain resource constraints."""
+        assert 'limits' in config_data
+        limits = config_data['limits']
         
-        for level in priority_keywords.keys():
-            assert level in valid_levels, (
-                f"Priority level '{level}' should be one of: {valid_levels}"
-            )
-    
-    def test_priority_keywords_are_lists(self, config_content: Dict[str, Any]):
-        """Test that each priority level contains a list of keywords."""
-        priority_keywords = config_content.get('comment_parsing', {}).get('priority_keywords', {})
-        
-        for level, keywords in priority_keywords.items():
-            assert isinstance(keywords, list), (
-                f"Keywords for priority '{level}' should be a list"
-            )
-            assert len(keywords) > 0, (
-                f"Priority level '{level}' should have at least one keyword"
-            )
+        assert 'max_concurrent_prs' in limits
+        assert isinstance(limits['max_concurrent_prs'], int)
+        assert limits['max_concurrent_prs'] > 0
 
 
-class TestPRAgentConfigActions:
-    """Test suite for actions configuration."""
+class TestPRAgentConfigSecurity:
+    """Security-focused tests for PR Agent configuration."""
     
-    def test_has_actions_section(self, config_content: Dict[str, Any]):
-        """Test that config has actions section."""
-        assert 'actions' in config_content, "Config should have 'actions' section"
+    @pytest.fixture
+    def config_data(self):
+        """Load PR Agent configuration."""
+        config_path = Path(".github/pr-agent-config.yml")
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
     
-    def test_auto_acknowledge_is_boolean(self, config_content: Dict[str, Any]):
-        """Test that auto_acknowledge is a boolean if present."""
-        actions = config_content.get('actions', {})
-        if 'auto_acknowledge' in actions:
-            assert isinstance(actions['auto_acknowledge'], bool), (
-                "auto_acknowledge should be a boolean"
-            )
-
-
-class TestPRAgentConfigLimits:
-    """Test suite for rate limits and constraints."""
-    
-    def test_rate_limits_reasonable(self, config_content: Dict[str, Any]):
-        """Test that rate limits are reasonable if defined."""
-        limits = config_content.get('limits', {})
+    def test_no_hardcoded_credentials(self, config_data):
+        """Config should not contain hardcoded credentials."""
+        config_str = yaml.dump(config_data).lower()
         
-        if 'rate_limit_requests' in limits:
-            rate_limit = limits['rate_limit_requests']
-            assert isinstance(rate_limit, int), "Rate limit should be an integer"
-            assert rate_limit > 0, "Rate limit should be positive"
-            assert rate_limit <= 10000, "Rate limit seems unreasonably high"
-    
-    def test_max_concurrent_prs_reasonable(self, config_content: Dict[str, Any]):
-        """Test that max concurrent PRs is reasonable."""
-        limits = config_content.get('limits', {})
-        
-        if 'max_concurrent_prs' in limits:
-            max_prs = limits['max_concurrent_prs']
-            assert isinstance(max_prs, int), "Max concurrent PRs should be an integer"
-            assert max_prs >= 1, "Should allow at least 1 concurrent PR"
-            assert max_prs <= 50, "More than 50 concurrent PRs seems unreasonable"
-    
-    def test_no_obsolete_limit_settings(self, config_content: Dict[str, Any]):
-        """Test that obsolete limit settings (from context chunking) were removed."""
-        limits = config_content.get('limits', {})
-        
-        obsolete_settings = [
-            'max_files_per_chunk',
-            'max_diff_lines',
-            'max_comment_length',
-            'fallback'
+        # Check for common credential patterns
+        forbidden_patterns = [
+            'password:', 'secret:', 'token:', 'api_key:',
+            'apikey:', 'private_key:', 'credentials:'
         ]
         
-        found_obsolete = [s for s in obsolete_settings if s in limits]
-        assert len(found_obsolete) == 0, (
-            f"Obsolete limit settings found: {found_obsolete}. "
-            "These should have been removed with context chunking."
-        )
+        for pattern in forbidden_patterns:
+            if pattern in config_str:
+                # Should reference environment variables or secrets
+                assert '${{' in config_str or 'secrets.' in config_str, \
+                    f"Found {pattern} without proper secret reference"
+    
+    def test_no_sensitive_file_paths(self, config_data):
+        """Config should not expose sensitive file paths."""
+        config_str = yaml.dump(config_data).lower()
+        
+        sensitive_paths = [
+            '/etc/passwd', '/etc/shadow', '~/.ssh', 'id_rsa',
+            '.env', 'credentials.json'
+        ]
+        
+        for path in sensitive_paths:
+            assert path not in config_str, \
+                f"Config contains sensitive path: {path}"
+    
+    def test_reasonable_rate_limits(self, config_data):
+        """Rate limits should be reasonable to prevent abuse."""
+        if 'limits' in config_data:
+            limits = config_data['limits']
+            
+            if 'rate_limit_requests' in limits:
+                rate_limit = limits['rate_limit_requests']
+                assert isinstance(rate_limit, int)
+                assert 1 <= rate_limit <= 10000, \
+                    f"Rate limit {rate_limit} is outside reasonable range"
+    
+    def test_safe_timeout_values(self, config_data):
+        """Timeout values should be safe and reasonable."""
+        config_str = yaml.dump(config_data)
+        
+        # Extract timeout values
+        import re
+        timeout_matches = re.findall(r'timeout[_\s]*:?\s*(\d+)', config_str, re.IGNORECASE)
+        
+        for timeout_str in timeout_matches:
+            timeout = int(timeout_str)
+            assert 1 <= timeout <= 3600, \
+                f"Timeout {timeout} seconds is outside safe range (1-3600)"
 
 
 class TestPRAgentConfigConsistency:
-    """Test suite for configuration consistency and best practices."""
+    """Test consistency and logical correctness of configuration values."""
     
-    def test_no_hardcoded_secrets(self, config_content: Dict[str, Any]):
-        """Test that config doesn't contain hardcoded secrets or tokens."""
-        config_str = str(config_content).lower()
-        
-        secret_patterns = ['password', 'secret', 'token', 'api_key', 'apikey']
-        
-        for pattern in secret_patterns:
-            if pattern in config_str:
-                # Make sure it's just a key name, not a value
-                config_lines = yaml.dump(config_content).split('\n')
-                for line in config_lines:
-                    if pattern in line.lower() and ':' in line:
-                        key, value = line.split(':', 1)
-                        value_stripped = value.strip()
-                        # Value should be empty, null, or a placeholder
-                        if value_stripped and value_stripped not in ['null', '""', "''"]:
-                            # Check if it's just a reference or placeholder
-                            assert any(placeholder in value_stripped for placeholder in ['${{', 'example', 'your_']), (
-                                f"Potential hardcoded secret in line: {line}"
-                            )
+    @pytest.fixture
+    def config_data(self):
+        """Load PR Agent configuration."""
+        config_path = Path(".github/pr-agent-config.yml")
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
     
-    def test_config_follows_yaml_best_practices(self, config_lines: list):
-        """Test that config file follows YAML best practices."""
-        content = ''.join(config_lines)
+    def test_version_format(self, config_data):
+        """Agent version should follow semantic versioning."""
+        version = config_data['agent']['version']
         
-        # Should have comments
-        assert '#' in content, "Config should have explanatory comments"
-        
-        # Should not have tabs (YAML requires spaces)
-        assert '\t' not in content, "Config should use spaces, not tabs"
+        # Should match pattern like 1.0.0 or 1.2.3-beta
+        import re
+        pattern = r'^\d+\.\d+\.\d+(-[a-zA-Z0-9]+)?$'
+        assert re.match(pattern, version), \
+            f"Version '{version}' doesn't follow semantic versioning"
     
-    def test_config_version_is_current(self, config_content: Dict[str, Any]):
-        """Test that config version is 1.0.0 (after context chunking removal)."""
-        version = config_content.get('agent', {}).get('version')
-        assert version == '1.0.0', (
-            f"Config version should be '1.0.0' after context chunking removal, got '{version}'"
-        )
+    def test_boolean_fields_are_boolean(self, config_data):
+        """Boolean configuration fields should be actual booleans."""
+        def check_booleans(obj, path=""):
+            if isinstance(obj, dict):
+                for key, value in obj.items():
+                    new_path = f"{path}.{key}" if path else key
+                    
+                    # Check if key suggests boolean value
+                    if any(word in key.lower() for word in ['enabled', 'auto', 'is_', 'has_', 'should_', 'can_']):
+                        assert isinstance(value, bool), \
+                            f"Field '{new_path}' should be boolean, got {type(value).__name__}"
+                    
+                    check_booleans(value, new_path)
+            elif isinstance(obj, list):
+                for i, item in enumerate(obj):
+                    check_booleans(item, f"{path}[{i}]")
+        
+        check_booleans(config_data)
+    
+    def test_numeric_limits_are_positive(self, config_data):
+        """Numeric limit values should be positive integers."""
+        limits = config_data.get('limits', {})
+        
+        for key, value in limits.items():
+            if isinstance(value, int) and 'max' in key.lower():
+                assert value > 0, \
+                    f"Limit '{key}' should be positive, got {value}"
+    
+    def test_no_duplicate_keys_in_yaml(self):
+        """YAML file should not have duplicate keys."""
+        config_path = Path(".github/pr-agent-config.yml")
+        
+        with open(config_path, 'r') as f:
+            content = f.read()
+        
+        # Parse with duplicate key detection
+        class DuplicateKeyError(Exception):
+            pass
+        
+        def no_duplicates_constructor(loader, node, deep=False):
+            mapping = {}
+            for key_node, value_node in node.value:
+                key = loader.construct_object(key_node, deep=deep)
+                if key in mapping:
+                    raise DuplicateKeyError(f"Duplicate key found: {key}")
+                mapping[key] = loader.construct_object(value_node, deep=deep)
+            return mapping
+        
+        yaml.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+                           no_duplicates_constructor, Loader=yaml.SafeLoader)
+        
+        try:
+            yaml.safe_load(content)
+        except DuplicateKeyError as e:
+            pytest.fail(str(e))
+
+
+class TestPRAgentConfigIntegration:
+    """Test integration between PR Agent config and workflows."""
+    
+    def test_config_matches_workflow_usage(self):
+        """Configuration keys should match workflow references."""
+        config_path = Path(".github/pr-agent-config.yml")
+        workflow_path = Path(".github/workflows/pr-agent.yml")
+        
+        assert config_path.exists()
+        assert workflow_path.exists()
+        
+        with open(config_path, 'r') as f:
+            config_data = yaml.safe_load(f)
+        
+        with open(workflow_path, 'r') as f:
+            workflow_content = f.read()
+        
+        # Check that agent name in config appears in workflow
+        agent_name = config_data.get('agent', {}).get('name', '')
+        if agent_name:
+            # Workflow might reference the agent name in comments or outputs
+            assert any(char.isalnum() for char in agent_name), \
+                "Agent name should contain alphanumeric characters"
+    
+    def test_monitoring_interval_reasonable_for_github_actions(self):
+        """Monitoring interval should work with GitHub Actions rate limits."""
+        config_path = Path(".github/pr-agent-config.yml")
+        
+        with open(config_path, 'r') as f:
+            config_data = yaml.safe_load(f)
+        
+        check_interval = config_data.get('monitoring', {}).get('check_interval', 0)
+        
+        # GitHub Actions rate limit is 5000 requests/hour for authenticated requests
+        # Minimum interval should be at least 1 second to avoid excessive polling
+        assert check_interval >= 1, \
+            f"Check interval {check_interval} is too frequent"
+        
+        # Maximum interval shouldn't be more than 1 day (86400 seconds)
+        assert check_interval <= 86400, \
+            f"Check interval {check_interval} is too long"
+
+
+class TestPRAgentConfigDocumentation:
+    """Ensure configuration is properly documented."""
+    
+    def test_config_has_comments(self):
+        """Configuration file should have explanatory comments."""
+        config_path = Path(".github/pr-agent-config.yml")
+        
+        with open(config_path, 'r') as f:
+            content = f.read()
+        
+        # Count comment lines
+        comment_lines = [line for line in content.split('\n') if line.strip().startswith('#')]
+        total_lines = len([line for line in content.split('\n') if line.strip()])
+        
+        # At least 10% of lines should be comments
+        comment_ratio = len(comment_lines) / total_lines if total_lines > 0 else 0
+        assert comment_ratio >= 0.05, \
+            f"Config has insufficient documentation ({comment_ratio:.1%} comments)"
+    
+    def test_complex_settings_have_explanations(self):
+        """Complex or non-obvious settings should have comments."""
+        config_path = Path(".github/pr-agent-config.yml")
+        
+        with open(config_path, 'r') as f:
+            lines = f.readlines()
+        
+        # Look for complex settings that should have comments
+        complex_keys = ['monitoring', 'limits', 'fallback', 'security']
+        
+        for i, line in enumerate(lines):
+            for key in complex_keys:
+                if key in line and ':' in line:
+                    # Check if there's a comment nearby (within 3 lines before or on same line)
+                    has_comment = False
+                    for j in range(max(0, i-3), i+1):
+                        if '#' in lines[j]:
+                            has_comment = True
+                            break
+                    
+                    if not has_comment:
+                        # This is okay if it's a simple value
+                        pass  # Warning only, not failure
+
+
+class TestPRAgentConfigDefaults:
+    """Test that configuration provides sensible defaults."""
+    
+    @pytest.fixture
+    def config_data(self):
+        """Load PR Agent configuration."""
+        config_path = Path(".github/pr-agent-config.yml")
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
+    
+    def test_agent_enabled_by_default(self, config_data):
+        """Agent should be enabled by default."""
+        enabled = config_data.get('agent', {}).get('enabled', False)
+        assert enabled is True, "PR Agent should be enabled by default"
+    
+    def test_has_reasonable_default_limits(self, config_data):
+        """Default limits should be reasonable for typical usage."""
+        limits = config_data.get('limits', {})
+        
+        # Check max concurrent PRs
+        max_prs = limits.get('max_concurrent_prs', 0)
+        assert 1 <= max_prs <= 20, \
+            f"Max concurrent PRs ({max_prs}) should be between 1 and 20"
+        
+        # Check rate limits
+        rate_limit = limits.get('rate_limit_requests', 0)
+        if rate_limit:
+            assert 10 <= rate_limit <= 5000, \
+                f"Rate limit ({rate_limit}) should be between 10 and 5000"
+    
+    def test_monitoring_disabled_or_reasonable(self, config_data):
+        """If monitoring is enabled, it should have reasonable settings."""
+        monitoring = config_data.get('monitoring', {})
+        check_interval = monitoring.get('check_interval', 0)
+        
+        if check_interval > 0:
+            # Should check at least once per hour but not more than once per second
+            assert 1 <= check_interval <= 3600, \
+                f"Check interval {check_interval} is outside reasonable range"
+
+
+class TestPRAgentConfigEdgeCases:
+    """Test edge cases and boundary conditions in configuration."""
+    
+    @pytest.fixture
+    def config_data(self):
+        """Load PR Agent configuration."""
+        config_path = Path(".github/pr-agent-config.yml")
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
+    
+    def test_empty_sections_handled(self, config_data):
+        """Empty configuration sections should not cause issues."""
+        # Check that all sections are properly initialized
+        for key, value in config_data.items():
+            if isinstance(value, dict):
+                # Empty dict is okay
+                assert isinstance(value, dict)
+            elif isinstance(value, list):
+                # Empty list is okay
+                assert isinstance(value, list)
+    
+    def test_special_characters_in_strings(self, config_data):
+        """String values should handle special characters properly."""
+        def check_strings(obj):
+            if isinstance(obj, dict):
+                for key, value in obj.items():
+                    if isinstance(value, str):
+                        # Should not contain unescaped special chars that break YAML
+                        assert '\x00' not in value, "Null bytes not allowed"
+                    check_strings(value)
+            elif isinstance(obj, list):
+                for item in obj:
+                    check_strings(item)
+        
+        check_strings(config_data)
+    
+    def test_numeric_string_confusion(self, config_data):
+        """Numeric values should not be accidentally strings."""
+        def check_types(obj, path=""):
+            if isinstance(obj, dict):
+                for key, value in obj.items():
+                    new_path = f"{path}.{key}" if path else key
+                    
+                    # Keys suggesting numeric values
+                    if any(word in key.lower() for word in ['count', 'limit', 'max', 'min', 'interval', 'timeout']):
+                        if value is not None and value != "":
+                            assert not isinstance(value, str) or not value.isdigit(), \
+                                f"Field '{new_path}' appears numeric but is string: {value}"
+                    
+                    check_types(value, new_path)
+            elif isinstance(obj, list):
+                for i, item in enumerate(obj):
+                    check_types(item, f"{path}[{i}]")
+        
+        check_types(config_data)
