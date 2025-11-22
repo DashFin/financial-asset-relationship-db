@@ -339,9 +339,13 @@ class TestPrAgentWorkflow:
             step_with = step.get("with", {})
             token = step_with.get("token")
             if token is not None:
-                assert isinstance(token, str) and token.strip(), (
-                    "Checkout step token, if provided, must be a non-empty string."
-                )
+                assert isinstance(token, str), "Checkout step token, if provided, must be a string."
+                token_stripped = token.strip()
+                # Accept common GitHub Actions expressions like ${{ ... }}
+                if token_stripped.startswith("${{") and token_stripped.endswith("}}"):
+                    assert len(token_stripped) > 4, "Checkout step token expression must not be empty."
+                else:
+                    assert token_stripped, "Checkout step token, if provided, must be a non-empty string."
     
     def test_pr_agent_has_python_setup(self, pr_agent_workflow: Dict[str, Any]):
         """
