@@ -28,13 +28,13 @@ class TestWorkflowSyntaxValidation:
             workflow_content = f.read()
         
         # Check that the workflow has the required event triggers
-        assert "pull_request:" in workflow_content or "pull_request" in workflow_content, \
+        assert re.search(r'\bpull_request:', workflow_content), \
             "Should have pull_request trigger"
-        assert "pull_request_review:" in workflow_content or "pull_request_review" in workflow_content, \
+        assert re.search(r'\bpull_request_review:', workflow_content), \
             "Should have pull_request_review trigger"
-        assert "issue_comment:" in workflow_content or "issue_comment" in workflow_content, \
+        assert re.search(r'\bissue_comment:', workflow_content), \
             "Should have issue_comment trigger"
-        assert "check_suite:" in workflow_content or "check_suite" in workflow_content, \
+        assert re.search(r'\bcheck_suite:', workflow_content), \
             "Should have check_suite trigger"
     
     def test_pr_agent_jobs_have_permissions(self, pr_agent_workflow):
