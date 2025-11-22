@@ -134,12 +134,36 @@ class TestWorkflowSimplification:
         with open(workflow_path) as f:
             content = f.read()
         
-        # Parse and re-serialize to check for duplicates
+        duplicates = []
+        
+        class DuplicateKeySafeLoader(yaml.SafeLoader):
+            pass
+        
+        def constructor_with_dup_check(loader, node):
+            mapping = {}
+            for key_node, value_node in node.value:
+                key = loader.construct_object(key_node, deep=False)
+                if key in mapping:
+                    duplicates.append(key)
+                mapping[key] = loader.construct_object(value_node, deep=False)
+            return mapping
+        
+        DuplicateKeySafeLoader.add_constructor(
+            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+            constructor_with_dup_check
+        )
+        
         try:
-            workflow = yaml.safe_load(content)
-            assert workflow is not None
-        except yaml.YAMLError as e:
-            pytest.fail(f"YAML parsing error (possible duplicate keys): {e}")
+            yaml.load(content, Loader=DuplicateKeySafeLoader)
+        except yaml.YAMLError:
+            pass
+        
+        if duplicates:
+            pytest.fail(
+                f"Found duplicate YAML keys in pr-agent.yml: {duplicates}. "
+                "Duplicate keys can cause unexpected behavior as YAML will "
+                "silently overwrite earlier values."
+            )
     
     def test_apisec_scan_workflow_credentials_handling(self):
         """Verify apisec-scan.yml properly handles missing credentials."""
