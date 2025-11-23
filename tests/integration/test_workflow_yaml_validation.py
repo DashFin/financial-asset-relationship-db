@@ -60,7 +60,17 @@ class TestWorkflowYAMLSyntax:
         
         for workflow_file in workflow_files:
             with open(workflow_file, 'r') as f:
-                data = yaml.safe_load(f)
+                for workflow_file in workflow_files:
+                    with open(workflow_file, 'r') as f:
+                        data = yaml.safe_load(f)
+    
+                    if data is None:
+                        pytest.fail(f"{workflow_file.name} is empty or invalid YAML")
+    
+                    missing_keys = required_keys - set(data.keys())
+                    assert not missing_keys, (
+                        f"{workflow_file.name} missing required keys: {missing_keys}"
+                    )
             
             missing_keys = required_keys - set(data.keys())
             assert not missing_keys, (
