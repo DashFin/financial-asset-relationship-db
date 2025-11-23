@@ -334,7 +334,7 @@ class TestWorkflowSecurityBestPractices:
                     if 'uses' in step:
                         action = step['uses']
                         # GitHub official actions can use @v4, @v5, etc.
-                        if action.startswith('actions/'):
+                        if action.startswith(('actions/', './', '../')):
                             continue
                         
                         # Third-party actions should be pinned to SHA or @v1, @v2, etc.
