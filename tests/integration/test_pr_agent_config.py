@@ -175,27 +175,55 @@ class TestPRAgentConfigSecurity:
             return yaml.safe_load(f)
     
     def test_no_hardcoded_secrets(self, config: Dict[str, Any]):
-        """Test that no secrets are hardcoded in config."""
-        config_str = str(config).lower()
-        
-        # Common secret patterns
-        secret_patterns = ['password', 'api_key', 'token', 'secret']
-        
-        for pattern in secret_patterns:
-            if pattern in config_str:
-                # Make sure it's not a value, just a key
-                config_yaml = yaml.dump(config)
-                lines_with_pattern = [line for line in config_yaml.split('\n') 
-                                     if pattern in line.lower()]
-                
-                for line in lines_with_pattern:
-                    if ':' in line:
-                        value = line.split(':')[1].strip()
-                        # Value should be empty, a reference, or a placeholder
-                        if value and not any(x in value for x in ['${{', '${', 'PLACEHOLDER']):
-                            pytest.fail(
-                                f"Potential hardcoded secret in config: {line}"
-                            )
+        """Test that no secrets are hardcoded in config using recursive inspection."""
+        import re
+        secret_key_patterns = ['password', 'api_key', 'apikey', 'token', 'secret', 'auth', 'credential', 'key']
+        safe_markers = ('${{', '${', 'PLACEHOLDER', '<placeholder>')
+        # Simple regexes for suspicious values (not exhaustive)
+        long_token_re = re.compile(r'[A-Za-z0-9_\-]{32,}')
+        base64_like_re = re.compile(r'^[A-Za-z0-9+/]{32,}={0,2}$')
+
+        def is_safe_placeholder(val: str) -> bool:
+            v = val.strip()
+            if any(m in v for m in safe_markers):
+                return True
+            # Common dummy values
+            if v.lower() in {'', 'none', 'null', 'changeme', 'example', 'sample'}:
+                return True
+            return False
+
+        def value_looks_secret(val: str) -> bool:
+            if not val or is_safe_placeholder(val):
+                return False
+            # Disallow obvious inline literals that look like secrets
+            if long_token_re.search(val) or base64_like_re.match(val):
+                return True
+            return False
+
+        def contains_hardcoded_secret(obj) -> bool:
+            if isinstance(obj, dict):
+                for k, v in obj.items():
+                    k_l = str(k).lower()
+                    # If key name suggests secret, ensure value is not a literal
+                    if any(p in k_l for p in secret_key_patterns):
+                        if isinstance(v, str) and value_looks_secret(v):
+                            return True
+                        # Non-string values for secret-like keys should typically be empty/None
+                        if v not in (None, '') and not isinstance(v, (str, dict, list)):
+                            return True
+                    if contains_hardcoded_secret(v):
+                        return True
+            elif isinstance(obj, list):
+                for item in obj:
+                    if contains_hardcoded_secret(item):
+                        return True
+            else:
+                # Scalar at top-level or within structures: only flag if it strongly looks like a secret
+                if isinstance(obj, str) and value_looks_secret(obj):
+                    return True
+            return False
+
+        assert not contains_hardcoded_secret(config), "Potential hardcoded secret detected in config"
     
     def test_debug_mode_is_disabled(self, config: Dict[str, Any]):
         """Test that debug mode is disabled in production config."""
