@@ -183,18 +183,28 @@ class TestWorkflowSecurity:
                 content = f.read()
             
             for pattern in dangerous_patterns:
-                if pattern in content:
-                    # Check if it's in a comment or properly using secrets
-                    lines_with_pattern = [
-                        line for line in content.split('\n') 
-                        if pattern in line
-                    ]
-                    
+                    import re
+                    secret_ref_re = re.compile(r'\$\{\{\s*secrets\.[A-Za-z0-9_]+\s*\}\}')
+                    # Allow occurrences only if the dangerous pattern is entirely within a proper secret reference.
                     for line in lines_with_pattern:
-                        if not line.strip().startswith('#'):
-                            # Should be using ${{ secrets.* }}
-                            assert 'secrets.' in line or '${{' in line, \
-                                f"{workflow_file.name} may contain hardcoded secret: {pattern}"
+                        stripped = line.strip()
+                        if stripped.startswith('#'):
+                            continue
+                        # If the line contains a valid secret reference, ensure no dangerous pattern appears outside it.
+                        valid_refs = list(secret_ref_re.finditer(line))
+                        if valid_refs:
+                            # Mask valid secret reference spans, then check remaining text for dangerous patterns
+                            masked = list(line)
+                            for m in valid_refs:
+                                for i in range(m.start(), m.end()):
+                                    masked[i] = ' '
+                            remaining = ''.join(masked)
+                            assert pattern not in remaining, \
+                                f"{workflow_file.name} may contain hardcoded secret outside secrets.* reference: {pattern}"
+                        else:
+                            # No valid secret reference present; any dangerous pattern is a failure.
+                            assert False, \
+                                f"{workflow_file.name} may contain hardcoded secret without secrets.* reference: {pattern}"
     
     def test_pull_request_safe_checkout(self, workflow_files):
         """PR workflows should checkout safely (not HEAD of PR)."""
@@ -219,8 +229,12 @@ class TestWorkflowSecurity:
                             # If no ref specified, it's okay (checks out merge commit)
                             # If ref specified, shouldn't be dangerous
                             if ref and 'head' in ref.lower() and 'sha' not in ref.lower():
-                                pytest.warn(
-                                    f"{workflow_file.name} job '{job_name}' "
+import os
+import pytest
+import warnings
+import yaml
+from pathlib import Path
+from typing import Dict, Any, List
                                     f"checks out PR HEAD (potential security risk)"
                                 )
     
@@ -416,8 +430,10 @@ class TestWorkflowMaintainability:
                     # Check if there's a comment nearby
                     start = max(0, match.start() - 200)
                     context = content[start:match.end()]
-                    
+                    context_lines = context.split('\n')
+
                     # Should have explanation
-                    if '#' not in context.split('\n')[-2]:
+                    explanation_line = context_lines[-2] if len(context_lines) >= 2 else ''
+                    if '#' not in explanation_line:
                         # Warning only, not failure
                         pass
