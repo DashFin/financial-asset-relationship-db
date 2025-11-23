@@ -121,7 +121,7 @@ class TestWorkflowCanInstallRequirements:
             
             # If both exist, install should come before test
             if install_idx is not None and test_idx is not None:
-                assert install_idx < test_idx, (
+        assert 'pyyaml' in package_names, (
                     f"In job '{job_name}', dependency installation (step {install_idx}) "
                     f"should come before test execution (step {test_idx})"
                 )

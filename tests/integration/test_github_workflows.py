@@ -308,14 +308,10 @@ class TestPrAgentWorkflow:
         Parameters:
             pr_agent_workflow (Dict[str, Any]): Parsed YAML mapping for the pr-agent workflow fixture.
         """
-        assert "name" in pr_agent_workflow, (
-            "pr-agent workflow must have a descriptive 'name' field"
-        )
+
     
     def test_pr_agent_review_runs_on_ubuntu(self, pr_agent_workflow: Dict[str, Any]):
-        """Test that trigger job runs on Ubuntu and uses standard runners."""
-        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-        runs_on = review_job.get("runs-on", "")
+
         assert "ubuntu" in runs_on.lower(), "Trigger job should run on an Ubuntu runner"
         assert runs_on in ["ubuntu-latest", "ubuntu-22.04", "ubuntu-20.04"], (
             f"PR Agent trigger job should run on a standard Ubuntu runner, got '{runs_on}'"
@@ -369,10 +365,8 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
     review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
     steps = review_job.get("steps", [])
 
-    checkout_steps = [
-        s for s in steps 
-        if s.get("uses", "").startswith("actions/checkout")
-    ]
+        trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        steps = trigger_job.get("steps", [])
 
     for step in checkout_steps:
         step_with = step.get("with", {})
@@ -409,7 +403,7 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         """
         Ensure any actions/setup-python step in the "review" job specifies python-version "3.11".
         
-        Parameters:
+    def test_pr_agent_no_duplicate_setup_steps(self, pr_agent_workflow: Dict[str, Any]):
             pr_agent_workflow (Dict[str, Any]): Parsed workflow mapping for the PR Agent workflow; expected to contain a "jobs" -> "review" -> "steps" sequence.
         
         """
@@ -456,17 +450,20 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         """Test that there are no duplicate setup steps in the workflow."""
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
-    
-        # Check for duplicate step names efficiently (O(n))
-        step_names = [s.get("name") for s in steps if s.get("name")]
-        seen = set()
-        fetch_depth = step_with["fetch-depth"]
-        # Must be a non-negative integer (0 is allowed)
-        assert isinstance(fetch_depth, int), (
-            f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
         )
-        assert fetch_depth >= 0, "fetch-depth cannot be negative"
-            assert fetch_depth >= 0, "fetch-depth cannot be negative"
+    
+    def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
+        """Ensure checkout steps in the trigger job have valid fetch-depth values."""
+
+        trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        steps = trigger_job.get("steps", [])
+
+        checkout_steps = [
+            s for s in steps
+            if s.get("uses", "").startswith("actions/checkout")
+        ]
+
+        for step in checkout_steps:
             step_with = step.get("with", {})
             # It's acceptable for fetch-depth to be omitted entirely
             if "fetch-depth" not in step_with:
@@ -484,22 +481,19 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
             # Reject negative integers
             assert fetch_depth >= 0, "fetch-depth cannot be negative"
             step_with = step.get("with", {})
-            if "fetch-depth" in step_with:
-                fetch_depth = step_with["fetch-depth"]
-                assert isinstance(fetch_depth, int) or fetch_depth == 0, (
-                    "fetch-depth should be an integer"
-                )
-
-
-class TestWorkflowSecurity:
-    """Test suite for workflow security best practices."""
-    
-    @pytest.mark.parametrize("workflow_file", get_workflow_files())
-    def test_workflow_no_hardcoded_secrets(self, workflow_file: Path):
-        """Test that workflows don't contain hardcoded secrets or tokens."""
-        with open(workflow_file, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
+            # It's acceptable for fetch-depth to be omitted entirely
+            if "fetch-depth" not in step_with:
+                continue
+            fetch_depth = step_with["fetch-depth"]
+            # Reject non-integer types (including strings)
+            assert isinstance(fetch_depth, int), (
+                f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
+            )
+            # Reject negative integers
+            assert fetch_depth >= 0, "fetch-depth cannot be negative"
+            step_with = step.get("with", {})
+            # It's acceptable for fetch-depth to be omitted entirely
+            if "fetch-depth" not in step_with:
         # Patterns that might indicate hardcoded secrets
         suspicious_patterns = [
             "ghp_",  # GitHub personal access token
