@@ -430,10 +430,11 @@ class TestWorkflowMaintainability:
                     # Check if there's a comment nearby
                     start = max(0, match.start() - 200)
                     context = content[start:match.end()]
-                    context_lines = context.split('\n')
 
+                    import warnings
                     # Should have explanation
-                    explanation_line = context_lines[-2] if len(context_lines) >= 2 else ''
-                    if '#' not in explanation_line:
+                    lines = context.split('\n')
+                    if len(lines) < 2 or '#' not in lines[-2]:
+                        line_num = content[:match.start()].count('\n') + 1
+                        warnings.warn(f"{workflow_file.name}: complex expression at line {line_num} lacks explanation: {match.group()}")
                         # Warning only, not failure
-                        pass
