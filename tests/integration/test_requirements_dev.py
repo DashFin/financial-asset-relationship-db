@@ -53,7 +53,6 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                 requirements.append((pkg.strip(), version_spec))
     
     return requirements
-
 class TestRequirementsFileExists:
     """Test that requirements-dev.txt exists and is readable."""
     
