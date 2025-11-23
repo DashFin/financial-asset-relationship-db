@@ -14,18 +14,7 @@ from typing import Any, Dict, List
 yaml = pytest.importorskip("yaml")
 
 # Define workflows directory path used across tests
-    WORKFLOWS_DIR = Path(".github") / "workflows"
-
-# Path to workflows directory
-def test_pr_agent_has_trigger_job(pr_agent_workflow: Dict[str, Any]):
-    """Test that pr-agent workflow has the trigger job."""
-    jobs = pr_agent_workflow.get("jobs", {})
-    assert "pr-agent-trigger" in jobs, (
-        "pr-agent workflow must define the 'pr-agent-trigger' job"
-    )
-    assert isinstance(jobs["pr-agent-trigger"], dict), (
-        "'pr-agent-trigger' job must be a mapping"
-    )
+WORKFLOWS_DIR = Path(".github") / "workflows"
 
 
 def get_workflow_files() -> List[Path]:
@@ -402,45 +391,18 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         """
         Ensure any actions/setup-python step in the "review" job specifies python-version "3.11".
         
-    def test_pr_agent_no_duplicate_setup_steps(self, pr_agent_workflow: Dict[str, Any]):
+        Parameters:
             pr_agent_workflow (Dict[str, Any]): Parsed workflow mapping for the PR Agent workflow; expected to contain a "jobs" -> "review" -> "steps" sequence.
-        
         """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
-    def test_pr_agent_no_duplicate_setup_steps(self, pr_agent_workflow: Dict[str, Any]):
-        """Test that there are no duplicate setup steps in the workflow."""
-        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-        steps = review_job.get("steps", [])
-    
-        # Check for duplicate step names efficiently (O(n))
-        step_names = [s.get("name") for s in steps if s.get("name")]
-        seen = set()
-        duplicate_names = {name for name in step_names if name in seen or seen.add(name)}
-    
-        assert not duplicate_names, (
-            f"Found duplicate step names: {duplicate_names}. "
-            "Each step should have a unique name."
-        )
+        
         python_steps = [
             s for s in steps 
             if s.get("uses", "").startswith("actions/setup-python")
         ]
-        trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-        steps = trigger_job.get("steps", [])
-        """Test that there are no duplicate setup steps in the workflow."""
-        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-        steps = review_job.get("steps", [])
-    
-        # Check for duplicate step names efficiently (O(n))
-        step_names = [s.get("name") for s in steps if s.get("name")]
-        seen = set()
-        duplicate_names = {name for name in step_names if name in seen or seen.add(name)}
-    
-        assert not duplicate_names, (
-            f"Found duplicate step names: {duplicate_names}. "
-            "Each step should have a unique name."
-        )
+        
+        for step in python_steps:
             step_with = step.get("with", {})
             assert "python-version" in step_with, (
                 "Python setup should specify a version"
@@ -448,20 +410,20 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
             assert step_with["python-version"] == "3.11", (
                 "Python version should be 3.11"
             )
-            assert fetch_depth >= 0, "fetch-depth cannot be negative"
-        steps = review_job.get("steps", [])
-        
-            assert fetch_depth >= 0, "fetch-depth cannot be negative"
+    
     def test_pr_agent_no_duplicate_setup_steps(self, pr_agent_workflow: Dict[str, Any]):
         """Test that there are no duplicate setup steps in the workflow."""
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
-        )
     
-    def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
-        """Ensure checkout steps in the trigger job have valid fetch-depth values."""
-
-        trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        # Check for duplicate step names efficiently (O(n))
+        step_names = [s.get("name") for s in steps if s.get("name")]
+        seen = set()
+        duplicate_names = {name for name in step_names if name in seen or seen.add(name)}
+    
+        assert not duplicate_names, (
+            f"Found duplicate step names: {duplicate_names}. "
+            "Each step should have a unique name."
         )
     
     def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
