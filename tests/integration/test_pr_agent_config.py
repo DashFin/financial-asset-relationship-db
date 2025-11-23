@@ -32,8 +32,11 @@ class TestPRAgentConfigStructure:
     @pytest.fixture
     def config(self, config_path: Path) -> Dict[str, Any]:
         """Load PR agent configuration."""
-        with open(config_path, 'r') as f:
-            return yaml.safe_load(f)
+        try:
+            with open(config_path, 'r') as f:
+                return yaml.safe_load(f)
+        except Exception as e:
+            pytest.fail(f"Failed to load pr-agent-config.yml: {e}")
     
     def test_config_file_exists(self, config_path: Path):
         """Test that PR agent config file exists."""
