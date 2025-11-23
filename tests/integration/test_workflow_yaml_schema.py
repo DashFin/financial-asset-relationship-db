@@ -6,6 +6,10 @@ for all workflow files in .github/workflows/
 """
 
 import os
+import warnings
+from pathlib import Path
+from typing import Dict, Any, List
+
 import pytest
 import yaml
 from pathlib import Path
@@ -223,11 +227,10 @@ class TestWorkflowSecurity:
                     for step in steps:
                         if step.get('uses', '').startswith('actions/checkout'):
                             # Should specify ref or not checkout HEAD
-                            with_data = step.get('with', {})
-                            ref = with_data.get('ref', '')
-                            
                             # If no ref specified, it's okay (checks out merge commit)
                             # If ref specified, shouldn't be dangerous
+                            with_data = step.get('with', {})
+                            ref = with_data.get('ref', '')
                             if ref and 'head' in ref.lower() and 'sha' not in ref.lower():
 import os
 import pytest
@@ -237,6 +240,7 @@ from pathlib import Path
 from typing import Dict, Any, List
                                     f"checks out PR HEAD (potential security risk)"
                                 )
+
     
     def test_restricted_permissions(self, workflow_files):
         """Workflows should use minimal required permissions."""
@@ -282,16 +286,14 @@ class TestWorkflowBestPractices:
             
             for job_name, job_data in jobs.items():
                 steps = job_data.get('steps', [])
-                
-                for i, step in enumerate(steps):
-                    uses = step.get('uses', '')
                     if uses:
                         # Should not use @main or @master
                         if '@main' in uses or '@master' in uses:
-                            pytest.warn(
+                            warnings.warn(
                                 f"{filename} job '{job_name}' step {i} "
                                 f"uses unstable version: {uses}"
                             )
+
     
     def test_steps_have_names(self, workflow_data):
         """Steps should have descriptive names."""
@@ -323,7 +325,7 @@ class TestWorkflowBestPractices:
                 if len(steps) > 5:
                     # Check for timeout-minutes
                     if 'timeout-minutes' not in job_data:
-                        pytest.warn(
+                        warnings.warn(
                             f"{filename} job '{job_name}' has many steps "
                             f"but no timeout defined"
                         )
@@ -365,7 +367,7 @@ class TestWorkflowCrossPlatform:
                             unix_commands = ['grep', 'sed', 'awk', 'find']
                             for cmd in unix_commands:
                                 if cmd in run_command:
-                                    pytest.warn(
+                                    warnings.warn(
                                         f"{filename} job '{job_name}' uses Unix command "
                                         f"'{cmd}' on Windows"
                                     )
