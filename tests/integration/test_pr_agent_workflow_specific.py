@@ -416,15 +416,29 @@ class TestPRAgentWorkflowSecurityBestPractices:
                 f"Found hardcoded token pattern: {pattern}"
     
     def test_uses_pinned_action_versions(self, workflow_raw: str):
-        """Test that GitHub Actions are pinned to specific versions."""
-        # Find all uses: statements
-        uses_pattern = r'uses:\s+([^\s]+)$'
+        """Test that GitHub Actions are pinned to specific immutable versions."""
+        # Capture the action reference after 'uses:' regardless of trailing content
+        uses_pattern = r'^\s*uses:\s*([^\s@]+)@([^\s#]+)'
         uses_statements = re.findall(uses_pattern, workflow_raw, re.MULTILINE)
-        
-        for action in uses_statements:
-            if action.startswith('actions/'):
-                assert '@v' in action or '@' in action, \
-                    f"Action '{action}' should be pinned to a version"
+
+        assert uses_statements, "No 'uses:' statements found to validate"
+
+        for owner_repo, ref in uses_statements:
+            # Exclude local or docker actions
+            if not owner_repo or '/' not in owner_repo:
+                continue
+
+            # Disallow refs that are clearly mutable (branches or unversioned)
+            mutable_refs = {'main', 'master', 'HEAD', 'latest'}
+            assert ref not in mutable_refs, f"Action '{owner_repo}@{ref}' should not use a mutable ref"
+
+            # Accept either a full SHA or a semantic version tag (vX or vX.Y[.Z])
+            is_sha = bool(re.fullmatch(r'[0-9a-fA-F]{40}', ref))
+            is_semver_tag = bool(re.fullmatch(r'v?\d+(\.\d+){0,2}', ref))
+
+            assert is_sha or is_semver_tag, (
+                f"Action '{owner_repo}@{ref}' should be pinned to a commit SHA or a specific version tag"
+            )
     
     def test_checkout_has_fetch_depth(self, workflow_raw: str):
         """Test that checkout action specifies fetch-depth."""
