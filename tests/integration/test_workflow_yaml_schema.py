@@ -416,9 +416,11 @@ class TestWorkflowMaintainability:
                     # Check if there's a comment nearby
                     start = max(0, match.start() - 200)
                     context = content[start:match.end()]
-                    
+
                     # Should have explanation
                     lines = context.split('\n')
-                    if len(lines) >= 2 and '#' not in lines[-2]:
+                    # Scan up to 5 previous lines for a comment explaining the expression
+                    has_nearby_comment = any('#' in l for l in lines[-6:-1]) if len(lines) > 1 else False
+                    if not has_nearby_comment:
                         # Warning only, not failure
                         pass
