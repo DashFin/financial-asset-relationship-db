@@ -54,7 +54,6 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
     
     return requirements
 
-
 class TestRequirementsFileExists:
     """Test that requirements-dev.txt exists and is readable."""
     
@@ -272,8 +271,8 @@ class TestSpecificChanges:
     
     def test_existing_packages_preserved(self, requirements: List[Tuple[str, str]]):
         """Test that existing packages are still present."""
-        package_names = [pkg for pkg, _ in requirements]
-        expected_packages = [
+        package_names = {pkg for pkg, _ in requirements}
+        expected_packages = {
             'pytest',
             'pytest-cov',
             'pytest-asyncio',
@@ -285,7 +284,8 @@ class TestSpecificChanges:
             'pre-commit',
             'PyYAML',
             'types-PyYAML',
-        ]
+        }
 
-        for expected_pkg in expected_packages:
-            assert expected_pkg in package_names
+        missing_packages = expected_packages - package_names
+        assert not missing_packages, \
+            f"The following packages are missing from requirements-dev.txt: {', '.join(sorted(missing_packages))}"

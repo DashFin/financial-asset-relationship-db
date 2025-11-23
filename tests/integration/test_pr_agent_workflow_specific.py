@@ -7,7 +7,7 @@ import pytest
 import yaml
 import re
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 
 class TestPRAgentWorkflowDuplicateKeyRegression:
