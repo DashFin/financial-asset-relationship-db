@@ -19,7 +19,7 @@ The current branch includes several workflow simplifications:
 
 **File**: `tests/integration/test_workflow_simplifications.py`
 - **Lines**: 672
-- **Test Classes**: 8
+- **Test Classes**: 7
 - **Test Methods**: 35
 - **Focus**: Validates workflow simplifications and prevents regression
 
