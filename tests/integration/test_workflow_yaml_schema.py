@@ -7,6 +7,7 @@ for all workflow files in .github/workflows/
 
 import os
 import pytest
+import warnings
 import yaml
 from pathlib import Path
 from typing import Dict, Any, List
@@ -219,7 +220,7 @@ class TestWorkflowSecurity:
                             # If no ref specified, it's okay (checks out merge commit)
                             # If ref specified, shouldn't be dangerous
                             if ref and 'head' in ref.lower() and 'sha' not in ref.lower():
-                                pytest.warn(
+                                warnings.warn(
                                     f"{workflow_file.name} job '{job_name}' "
                                     f"checks out PR HEAD (potential security risk)"
                                 )
@@ -274,7 +275,7 @@ class TestWorkflowBestPractices:
                     if uses:
                         # Should not use @main or @master
                         if '@main' in uses or '@master' in uses:
-                            pytest.warn(
+                            warnings.warn(
                                 f"{filename} job '{job_name}' step {i} "
                                 f"uses unstable version: {uses}"
                             )
@@ -309,7 +310,7 @@ class TestWorkflowBestPractices:
                 if len(steps) > 5:
                     # Check for timeout-minutes
                     if 'timeout-minutes' not in job_data:
-                        pytest.warn(
+                        warnings.warn(
                             f"{filename} job '{job_name}' has many steps "
                             f"but no timeout defined"
                         )
@@ -351,7 +352,7 @@ class TestWorkflowCrossPlatform:
                             unix_commands = ['grep', 'sed', 'awk', 'find']
                             for cmd in unix_commands:
                                 if cmd in run_command:
-                                    pytest.warn(
+                                    warnings.warn(
                                         f"{filename} job '{job_name}' uses Unix command "
                                         f"'{cmd}' on Windows"
                                     )
