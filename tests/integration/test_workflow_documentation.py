@@ -40,27 +40,44 @@ class TestDocumentationExists:
         assert DOC_FILE.suffix == ".md", "Documentation file should have .md extension"
 
 
-class TestDocumentationStructure:
-    """Test the structure and formatting of the documentation."""
-    
-    @pytest.fixture(scope='session')
-    @pytest.fixture(scope='session')
-    def doc_content() -> str:
-        """Load the documentation content once per test session."""
+@pytest.fixture(scope='session')
+def doc_content() -> str:
+    """Load the documentation content once per test session."""
+    try:
         with open(DOC_FILE, 'r', encoding='utf-8') as f:
             return f.read()
+    except FileNotFoundError:
+        pytest.fail(f"Documentation file not found: {DOC_FILE}")
+    except Exception as e:
+        pytest.fail(f"Could not read documentation file {DOC_FILE}: {e}")
 
-    @pytest.fixture(scope='session')
-    # Move this fixture to module level (outside the class)
-    @pytest.fixture(scope='session')
-    def doc_lines(doc_content: str) -> List[str]:
-        """Provide the documentation as a list of lines once per session."""
-        return doc_content.splitlines(keepends=True)
-    
-    @pytest.fixture(scope='session')
-    def section_headers(doc_lines: List[str]) -> List[str]:
-        """Extract markdown section headers from the documentation lines."""
-        return [line.strip() for line in doc_lines if line.lstrip().startswith('#')]
+
+@pytest.fixture(scope='session')
+def doc_lines(doc_content: str) -> List[str]:
+    """Provide the documentation as a list of lines once per session."""
+    if not doc_content:
+        pytest.fail("Loaded documentation content is empty.")
+    return doc_content.splitlines(keepends=True)
+
+
+@pytest.fixture(scope='session')
+def section_headers(doc_lines: List[str]) -> List[str]:
+    """Extract markdown section headers from the documentation lines."""
+    headers = []
+    in_code_block = False
+    for line in doc_lines:
+        stripped = line.lstrip()
+        if stripped.startswith('```'):
+            in_code_block = not in_code_block
+            continue
+        if in_code_block:
+            continue
+        if stripped.startswith('#'):
+            headers.append(stripped.strip())
+    return headers
+
+
+from typing import List, Set
 
     def test_has_overview(self, section_headers: List[str]):
         """Test that there's an Overview section."""
