@@ -438,4 +438,3 @@ class TestWorkflowMaintainability:
                         line_num = content[:match.start()].count('\n') + 1
                         warnings.warn(f"{workflow_file.name}: complex expression at line {line_num} lacks explanation: {match.group()}")
                         # Warning only, not failure
-                        pass
