@@ -219,14 +219,14 @@ class TestWorkflowSecurity:
                             # Should specify ref or not checkout HEAD
                             # If no ref specified, it's okay (checks out merge commit)
                             # If ref specified, shouldn't be dangerous
+                            with_data = step.get('with', {})
+                            ref = with_data.get('ref', '')
                             if ref and 'head' in ref.lower() and 'sha' not in ref.lower():
                                 warnings.warn(
                                     f"{workflow_file.name} job '{job_name}' "
                                     f"checks out PR HEAD (potential security risk)"
                                 )
-                                    f"{workflow_file.name} job '{job_name}' "
-                                    f"checks out PR HEAD (potential security risk)"
-                                )
+
     
     def test_restricted_permissions(self, workflow_files):
         """Workflows should use minimal required permissions."""
@@ -279,9 +279,7 @@ class TestWorkflowBestPractices:
                                 f"{filename} job '{job_name}' step {i} "
                                 f"uses unstable version: {uses}"
                             )
-                                f"{filename} job '{job_name}' step {i} "
-                                f"uses unstable version: {uses}"
-                            )
+
     
     def test_steps_have_names(self, workflow_data):
         """Steps should have descriptive names."""
