@@ -16,6 +16,8 @@ from typing import Any
 WORKFLOWS_DIR = Path(__file__).parent.parent.parent / ".github" / "workflows"
 
 
+from typing import Any, List, Dict  # at top of file
+
 def get_workflow_files() -> List[Path]:
     """
     List workflow YAML files in the repository's .github/workflows directory.
