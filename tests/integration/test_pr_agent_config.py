@@ -267,6 +267,11 @@ class TestPRAgentConfigPerformance:
                 "Cache should have TTL configured"
             )
             
+            if 'ttl' in cache:
+                ttl = cache['ttl']
+                assert 60 <= ttl <= 86400, (
+                    f"Cache TTL should be between 1 min and 24 hours: {ttl}"
+                )
             if 'ttl_seconds' in cache:
                 ttl = cache['ttl_seconds']
                 assert 60 <= ttl <= 86400, (
