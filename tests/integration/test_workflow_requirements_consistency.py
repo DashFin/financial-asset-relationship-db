@@ -40,11 +40,7 @@ class TestWorkflowRequirementsConsistency:
             pytest.fail(f"requirements-dev.txt not found at {req_path}")
         except Exception as e:
             pytest.fail(f"Failed to read or parse requirements-dev.txt at {req_path}: {e}")
-                line = line.strip()
-                if line and not line.startswith('#'):
-                    # Extract package name
-                    pkg_name = line.split('==')[0].split('>=')[0].split('[')[0].strip().lower()
-                    packages.add(pkg_name)
+                # Removed unreachable duplicate parsing block
         
         return packages
     
