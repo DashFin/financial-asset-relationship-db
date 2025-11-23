@@ -63,7 +63,7 @@ class TestPRAgentWorkflowSimplification:
         job = pr_agent_workflow['jobs']['pr-agent-trigger']
         setup_python_steps = [
             step for step in job['steps']
-            if step.get('name') == 'Setup Python'
+            if 'setup' in step.get('name', '').lower() and 'python' in step.get('name', '').lower()
         ]
         assert len(setup_python_steps) == 1, "Should have exactly one 'Setup Python' step"
     
