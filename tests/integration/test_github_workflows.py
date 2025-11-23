@@ -456,6 +456,12 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         """Ensure checkout steps in the trigger job have valid fetch-depth values."""
 
         trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        )
+    
+    def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
+        """Ensure checkout steps in the trigger job have valid fetch-depth values."""
+
+        trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = trigger_job.get("steps", [])
 
         checkout_steps = [
@@ -494,12 +500,6 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
             step_with = step.get("with", {})
             # It's acceptable for fetch-depth to be omitted entirely
             if "fetch-depth" not in step_with:
-            "ghr_",  # GitHub refresh token
-        ]
-        
-        for pattern in suspicious_patterns:
-            assert pattern not in content, (
-                f"Workflow {workflow_file.name} may contain hardcoded secret "
                 f"(found pattern: {pattern}). Use secrets context instead."
             )
     
