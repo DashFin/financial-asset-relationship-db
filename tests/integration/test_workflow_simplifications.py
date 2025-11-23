@@ -498,14 +498,6 @@ class TestPRAgentConfigSimplification:
 class TestDeletedFilesVerification:
     """Verify that files meant to be deleted are actually gone."""
     
-    def test_labeler_config_deleted(self):
-        """Test that .github/labeler.yml has been deleted."""
-        labeler_config = Path(__file__).parent.parent.parent / '.github' / 'labeler.yml'
-        
-        assert not labeler_config.exists(), (
-            ".github/labeler.yml should be deleted as part of simplification"
-        )
-    
     def test_context_chunker_script_deleted(self):
         """Test that .github/scripts/context_chunker.py has been deleted."""
         chunker_script = Path(__file__).parent.parent.parent / '.github' / 'scripts' / 'context_chunker.py'
@@ -550,9 +542,6 @@ class TestWorkflowRegressionPrevention:
                 content = f.read()
             
             # Should not reference deleted files
-            assert 'labeler.yml' not in content, (
-                f"{workflow_file.name} should not reference deleted labeler.yml"
-            )
             assert 'context_chunker.py' not in content, (
                 f"{workflow_file.name} should not reference deleted context_chunker.py"
             )

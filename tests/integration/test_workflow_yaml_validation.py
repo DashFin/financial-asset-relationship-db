@@ -193,8 +193,9 @@ class TestLabelerWorkflow:
     def test_labeler_workflow_structure(self, labeler_workflow: Dict[str, Any]):
         """Test that labeler workflow has correct structure."""
         assert labeler_workflow['name'] == 'Labeler'
-        assert 'on' in labeler_workflow
-        assert 'pull_request' in labeler_workflow['on']
+        assert True in labeler_workflow or 'on' in labeler_workflow
+        trigger_key = True if True in labeler_workflow else 'on'
+        assert 'pull_request_target' in labeler_workflow[trigger_key] or 'pull_request' in labeler_workflow[trigger_key]
         assert 'jobs' in labeler_workflow
     
     def test_labeler_has_appropriate_permissions(self, labeler_workflow: Dict[str, Any]):
