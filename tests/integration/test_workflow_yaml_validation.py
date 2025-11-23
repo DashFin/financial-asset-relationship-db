@@ -5,10 +5,9 @@ This module tests the structure, syntax, and best practices of all
 GitHub Actions workflow files, with special focus on recent changes:
 - Simplified greetings workflow
 - Simplified labeler workflow  
-- Simplified APIse
-
-c scan workflow
+- Simplified APIsec scan workflow
 - Simplified PR agent workflow
+"""
 
 Tests cover:
 - YAML syntax validation
