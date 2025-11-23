@@ -63,7 +63,7 @@ class TestPRAgentWorkflowSimplification:
         job = pr_agent_workflow['jobs']['pr-agent-trigger']
         setup_python_steps = [
             step for step in job['steps']
-            if step.get('name') == 'Setup Python'
+            if 'setup' in step.get('name', '').lower() and 'python' in step.get('name', '').lower()
         ]
         assert len(setup_python_steps) == 1, "Should have exactly one 'Setup Python' step"
     
@@ -93,7 +93,7 @@ class TestPRAgentWorkflowSimplification:
         # Check that the script doesn't reference chunking
         script = parse_step.get('run', '')
         assert 'context_chunker.py' not in script
-        assert 'chunked' not in script.lower() or 'chunk' not in script.lower()
+        assert 'chunked' not in script.lower() and 'chunk' not in script.lower()
         assert 'CONTEXT_SIZE' not in script
     
     def test_no_pyyaml_installation_in_dependencies(self, pr_agent_workflow: Dict[str, Any]):
@@ -319,9 +319,12 @@ class TestWorkflowConsistency:
         for wf_file in workflow_files:
             with open(wf_file, 'r', encoding='utf-8') as f:
                 try:
-                    yaml.safe_load(f)
-                except yaml.YAMLError as e:
-                    pytest.fail(f"Invalid YAML in {wf_file.name}: {e}")
+                    try:
+                        content = f.read()
+                        yaml.safe_load(content)
+                    except yaml.YAMLError as e:
+                        lines_preview = "\n".join(content.splitlines()[:10])
+                        pytest.fail(f"Invalid YAML in {wf_file.name}: {e}\nFirst 10 lines:\n{lines_preview}")
     
     def test_no_broken_references(self, pr_agent_workflow: Dict[str, Any]):
         """Verify no steps reference removed features."""
@@ -398,8 +401,8 @@ class TestRequirementsDevUpdates:
                 content = f.read()
             
             # Should not be in main requirements
-            assert 'PyYAML' not in content or 'pyyaml' not in content.lower()
-    
+            assert 'pyyaml' not in content.lower()
+            assert 'PyYAML' not in content and 'pyyaml' not in content.lower()
     def test_all_dev_requirements_have_versions(self):
         """Verify all dev requirements have version specifiers."""
         req_file = Path(__file__).parent.parent.parent / "requirements-dev.txt"

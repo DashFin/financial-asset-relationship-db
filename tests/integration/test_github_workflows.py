@@ -300,6 +300,11 @@ class TestPrAgentWorkflow:
     def test_pr_agent_review_runs_on_ubuntu(self, pr_agent_workflow: Dict[str, Any]):
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         runs_on = review_job.get("runs-on", "")
+        assert "ubuntu" in runs_on.lower(), (
+            f"PR Agent trigger job should run on Ubuntu runner, got '{runs_on}'"
+        )
+        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        runs_on = review_job.get("runs-on", "")
         assert runs_on in ["ubuntu-latest", "ubuntu-22.04", "ubuntu-20.04"], (
             f"PR Agent trigger job should run on standard Ubuntu runner, got '{runs_on}'"
         )
@@ -381,26 +386,27 @@ class TestPrAgentWorkflow:
 
         step_names = [s.get("name") for s in steps if s.get("name")]
         seen = set()
-        duplicate_names = {
-            name for name in step_names
-            if name in seen or seen.add(name)
-        }
+        duplicate_names = []
+        for name in step_names:
+            if name in seen:
+                duplicate_names.append(name)
+            else:
+                seen.add(name)
+        duplicate_names = set(duplicate_names)
 
         assert not duplicate_names, (
             f"Found duplicate step names: {duplicate_names}. "
             "Each step should have a unique name."
         )
 
-    @staticmethod
-    def _assert_valid_fetch_depth(step_with: Dict[str, Any]) -> None:
-        """Validate checkout fetch-depth value."""
-        if "fetch-depth" not in step_with:
-            return
-
-        fetch_depth = step_with["fetch-depth"]
-        assert isinstance(fetch_depth, int), (
-            f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
+    if isinstance(fetch_depth, str):
+        assert fetch_depth.isdigit(), (
+            f"fetch-depth should be numeric, got '{fetch_depth}'"
         )
+        fetch_depth = int(fetch_depth)
+    assert isinstance(fetch_depth, int), (
+        f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
+    )
         assert fetch_depth >= 0, "fetch-depth cannot be negative"
 
     def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
@@ -425,8 +431,11 @@ class TestPrAgentWorkflow:
             self._assert_valid_fetch_depth({"fetch-depth": invalid_fetch_depth})
 
     def test_pr_agent_fetch_depth_allows_absent(self):
-        """Missing fetch-depth is permitted for checkout steps."""
-
+            """Missing fetch-depth is permitted for checkout steps."""
+            # Test empty configuration
+            self._assert_valid_fetch_depth({})
+            # Test configuration with other parameters but no fetch-depth
+            self._assert_valid_fetch_depth({"token": "${{ secrets.GITHUB_TOKEN }}"})
         self._assert_valid_fetch_depth({})
 class TestWorkflowSecurity:
     """Test suite for workflow security best practices."""
@@ -1088,7 +1097,7 @@ class TestWorkflowEnvAndSecrets:
             key
             for key in env_dict.keys()
             if not key or not all(c.isupper() or c.isdigit() or c == "_" for c in key)
-        ]
+        if not isinstance(key, str) or not key or not all(c.isupper() or c.isdigit() or c == "_" for c in key)
 
     @staticmethod
     def _env_scopes(config: Dict[str, Any], workflow_name: str) -> List[Tuple[str, Dict[str, Any]]]:

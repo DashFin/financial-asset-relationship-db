@@ -66,11 +66,11 @@ class TestDeletedContextChunker:
             with open(req_dev, 'r') as f:
                 content = f.read()
             
-            # If chunker is removed, these shouldn't be required anymore
-            # (unless used elsewhere)
-            if 'tiktoken' in content:
-                # This is okay if it's optional or used elsewhere
-                pass
+            chunking_dependencies = ['tiktoken']
+            
+            for dep in chunking_dependencies:
+                assert dep not in content, \
+                    f"requirements-dev.txt still contains chunking dependency: {dep}"
     
     def test_scripts_directory_exists_or_empty(self):
         """Scripts directory should either not exist or not be referenced."""
@@ -244,9 +244,17 @@ class TestWorkflowConfigConsistency:
             # Config should not have chunking settings if workflow doesn't use them
             workflow_content = yaml.dump(workflow)
             
-            if 'chunking' not in workflow_content and 'chunk' not in workflow_content:
-                # Config might still have it, but it shouldn't be actively referenced
-                pass  # Just documenting the relationship
+# Check for chunking settings using parsed structure rather than string matching
+if 'chunking' not in workflow and not any('chunk' in str(key).lower() for key in workflow.keys()):
+    assert 'chunking' not in config and not any('chunk' in str(key).lower() for key in config.keys()), \
+        "PR Agent config contains chunking settings but workflow doesn't use them"
+            
+# More comprehensive YAML structure validation
+assert isinstance(config, dict), "PR Agent config should parse to a dictionary"
+assert isinstance(workflow, dict), "PR Agent workflow should parse to a dictionary"
+            
+            # Workflow should have required jobs
+            assert 'jobs' in workflow, "PR Agent workflow should define jobs"
     
     def test_no_missing_config_files_referenced(self):
         """Workflows should not reference missing configuration files."""
