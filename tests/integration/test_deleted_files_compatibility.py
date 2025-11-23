@@ -229,8 +229,16 @@ class TestWorkflowConfigConsistency:
             workflow_content = yaml.dump(workflow)
             
             if 'chunking' not in workflow_content and 'chunk' not in workflow_content:
-                # Config might still have it, but it shouldn't be actively referenced
-                pass  # Just documenting the relationship
+                config_content = yaml.dump(config)
+                assert 'chunking' not in config_content and 'chunk' not in config_content, \
+                    "PR Agent config contains chunking settings but workflow doesn't use them"
+            
+            # Both config and workflow should be valid YAML
+            assert config is not None, "PR Agent config should be valid YAML"
+            assert workflow is not None, "PR Agent workflow should be valid YAML"
+            
+            # Workflow should have required jobs
+            assert 'jobs' in workflow, "PR Agent workflow should define jobs"
     
     def test_no_missing_config_files_referenced(self):
         """Workflows should not reference missing configuration files."""
