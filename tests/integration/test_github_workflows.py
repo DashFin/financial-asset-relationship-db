@@ -409,7 +409,7 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
-        
+    def test_pr_agent_no_duplicate_setup_steps(self, pr_agent_workflow: Dict[str, Any]):
         python_steps = [
             s for s in steps 
             if s.get("uses", "").startswith("actions/setup-python")
@@ -436,13 +436,7 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
             assert step_with["python-version"] == "3.11", (
                 "Python version should be 3.11"
             )
-
-# [Lines 397-435 containing the malformed block should be completely removed]
-# The previous test (test_pr_agent_python_version) ends before line 397
-# and the next test (test_pr_agent_no_duplicate_setup_steps) should follow directly
-    def test_pr_agent_no_duplicate_setup_steps(self, pr_agent_workflow: Dict[str, Any]):
-        """Test that there are no duplicate setup steps in the workflow."""
-        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+            assert fetch_depth >= 0, "fetch-depth cannot be negative"
         steps = review_job.get("steps", [])
         
             assert fetch_depth >= 0, "fetch-depth cannot be negative"
@@ -450,6 +444,12 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         """Test that there are no duplicate setup steps in the workflow."""
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
+        )
+    
+    def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
+        """Ensure checkout steps in the trigger job have valid fetch-depth values."""
+
+        trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         )
     
     def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
@@ -494,12 +494,6 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
             step_with = step.get("with", {})
             # It's acceptable for fetch-depth to be omitted entirely
             if "fetch-depth" not in step_with:
-        # Patterns that might indicate hardcoded secrets
-        suspicious_patterns = [
-            "ghp_",  # GitHub personal access token
-            "gho_",  # GitHub OAuth token
-            "ghu_",  # GitHub user token
-            "ghs_",  # GitHub server token
             "ghr_",  # GitHub refresh token
         ]
         
