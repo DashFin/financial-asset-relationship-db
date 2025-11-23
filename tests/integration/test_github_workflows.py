@@ -461,51 +461,12 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         # Check for duplicate step names efficiently (O(n))
         step_names = [s.get("name") for s in steps if s.get("name")]
         seen = set()
-        duplicate_names = {name for name in step_names if name in seen or seen.add(name)}
-    
-        assert not duplicate_names, (
-            f"Found duplicate step names: {duplicate_names}. "
-            "Each step should have a unique name."
+        fetch_depth = step_with["fetch-depth"]
+        # Must be a non-negative integer (0 is allowed)
+        assert isinstance(fetch_depth, int), (
+            f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
         )
-    
-    def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
-        """Ensure checkout steps in the trigger job have valid fetch-depth values."""
-
-        trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-        steps = trigger_job.get("steps", [])
-
-        checkout_steps = [
-            s for s in steps
-            if s.get("uses", "").startswith("actions/checkout")
-        ]
-
-        for step in checkout_steps:
-            step_with = step.get("with", {})
-            # It's acceptable for fetch-depth to be omitted entirely
-            if "fetch-depth" not in step_with:
-                continue
-            fetch_depth = step_with["fetch-depth"]
-            # Reject non-integer types (including strings)
-            assert isinstance(fetch_depth, int), (
-                f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
-            )
-            # Reject negative integers
-            assert fetch_depth >= 0, "fetch-depth cannot be negative"
-            assert isinstance(fetch_depth, int), (
-                f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
-            )
-            # Reject negative integers
-            assert fetch_depth >= 0, "fetch-depth cannot be negative"
-            step_with = step.get("with", {})
-            # It's acceptable for fetch-depth to be omitted entirely
-            if "fetch-depth" not in step_with:
-                continue
-            fetch_depth = step_with["fetch-depth"]
-            # Reject non-integer types (including strings)
-            assert isinstance(fetch_depth, int), (
-                f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
-            )
-            # Reject negative integers
+        assert fetch_depth >= 0, "fetch-depth cannot be negative"
             assert fetch_depth >= 0, "fetch-depth cannot be negative"
             step_with = step.get("with", {})
             # It's acceptable for fetch-depth to be omitted entirely
