@@ -308,18 +308,14 @@ class TestPrAgentWorkflow:
         assert isinstance(jobs["pr-agent-trigger"], dict), (
             "'pr-agent-trigger' job must be a mapping"
         )
-        assert isinstance(jobs["pr-agent-trigger"], dict), (
-            "'pr-agent-trigger' job must be a mapping"
-        )
     
     def test_pr_agent_review_runs_on_ubuntu(self, pr_agent_workflow: Dict[str, Any]):
-assert runs_on in ["ubuntu-latest", "ubuntu-22.04", "ubuntu-20.04"], (
-    f"PR Agent trigger job should run on standard Ubuntu runner, got '{runs_on}'"
-)
+        """Ensure the trigger job runs on a standard Ubuntu runner."""
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         runs_on = review_job.get("runs-on", "")
-        assert "ubuntu" in runs_on.lower(), (
-            "Review job should run on Ubuntu runner"
+
+        assert runs_on in ["ubuntu-latest", "ubuntu-22.04", "ubuntu-20.04"], (
+            f"PR Agent trigger job should run on standard Ubuntu runner, got '{runs_on}'"
         )
     
     def test_pr_agent_has_checkout_step(self, pr_agent_workflow: Dict[str, Any]):
@@ -349,29 +345,16 @@ assert runs_on in ["ubuntu-latest", "ubuntu-22.04", "ubuntu-20.04"], (
         
         for step in checkout_steps:
             step_with = step.get("with", {})
-def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
-    """Test that checkout steps explicitly define a non-empty token."""
-    review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-    steps = review_job.get("steps", [])
-
-    checkout_steps = [
-        s for s in steps 
-        if s.get("uses", "").startswith("actions/checkout")
-    ]
-
-    for step in checkout_steps:
-        step_with = step.get("with", {})
-        token = step_with.get("token")
-        assert isinstance(token, str) and token.strip(), (
-            "Checkout step must specify a non-empty token for better security. "
-            "Use ${{ secrets.GITHUB_TOKEN }} or similar."
-        )
+            token = step_with.get("token")
+            assert isinstance(token, str) and token.strip(), (
+                "Checkout step must specify a non-empty token for better security. "
+                "Use ${{ secrets.GITHUB_TOKEN }} or similar."
+            )
     
     def test_pr_agent_has_python_setup(self, pr_agent_workflow: Dict[str, Any]):
-        """Asserts the workflow's trigger job includes a setup-python step."""
-
-        ]
-        assert len(python_steps) > 0, "pr-agent-trigger job must set up Python"
+        """Assert the trigger job includes a setup-python step."""
+        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        steps = review_job.get("steps", [])
 
         python_steps = [
             s for s in steps
@@ -416,20 +399,6 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
             )
 
 # [Lines 397-435 containing the malformed block should be completely removed]
-# The previous test (test_pr_agent_python_version) ends before line 397
-# and the next test (test_pr_agent_no_duplicate_setup_steps) should follow directly
-    def test_pr_agent_no_duplicate_setup_steps(self, pr_agent_workflow: Dict[str, Any]):
-        """Test that there are no duplicate setup steps in the workflow."""
-        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-        steps = review_job.get("steps", [])
-        
-        # Check for duplicate step names
-        step_names = [s.get("name", "") for s in steps if s.get("name")]
-        duplicate_names = [name for name in step_names if step_names.count(name) > 1]
-        
-        assert not duplicate_names, (
-            f"Found duplicate step names: {set(duplicate_names)}. "
-            "Each step should have a unique name."
     def test_pr_agent_no_duplicate_setup_steps(self, pr_agent_workflow: Dict[str, Any]):
         """Test that there are no duplicate setup steps in the workflow."""
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
@@ -468,44 +437,6 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
             )
             # Reject negative integers
             assert fetch_depth >= 0, "fetch-depth cannot be negative"
-            assert isinstance(fetch_depth, int), (
-                f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
-            )
-            # Reject negative integers
-            assert fetch_depth >= 0, "fetch-depth cannot be negative"
-            step_with = step.get("with", {})
-            # It's acceptable for fetch-depth to be omitted entirely
-            if "fetch-depth" not in step_with:
-                continue
-            fetch_depth = step_with["fetch-depth"]
-            # Reject non-integer types (including strings)
-            assert isinstance(fetch_depth, int), (
-                f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
-            )
-            # Reject negative integers
-            assert fetch_depth >= 0, "fetch-depth cannot be negative"
-            step_with = step.get("with", {})
-            # It's acceptable for fetch-depth to be omitted entirely
-            if "fetch-depth" not in step_with:
-                continue
-            fetch_depth = step_with["fetch-depth"]
-            # Reject non-integer types (including strings)
-            assert isinstance(fetch_depth, int), (
-                f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
-            )
-            # Reject negative integers
-            assert fetch_depth >= 0, "fetch-depth cannot be negative"
-            assert isinstance(fetch_depth, int), (
-                f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
-            )
-            # Reject negative integers
-            assert fetch_depth >= 0, "fetch-depth cannot be negative"
-            step_with = step.get("with", {})
-            if "fetch-depth" in step_with:
-                fetch_depth = step_with["fetch-depth"]
-                assert isinstance(fetch_depth, int) or fetch_depth == 0, (
-                    "fetch-depth should be an integer"
-                )
 
 
 class TestWorkflowSecurity:
@@ -1185,86 +1116,16 @@ class TestWorkflowEnvAndSecrets:
                 return []
             invalid = []
             for key in env_dict.keys():
-                if not key.isupper() or not key.replace("_", "").isalnum():
+                # Allow uppercase letters, digits, and underscores only
+                if not key.isupper() or not all(c.isalnum() or c == '_' for c in key):
                     invalid.append(key)
             return invalid
 
-        # Check top-level env
-        if "env" in config:
-            invalid = check_env_vars(config["env"])
-@pytest.mark.parametrize("workflow_file", get_workflow_files())
-def test_workflow_env_vars_naming_convention(workflow_file: Path):
-    """
-    Ensure environment variable names in a workflow file are uppercase and contain only letters, digits or underscores.
-    
-    Checks environment variables at both the top-level workflow `env` and each job's `env`, and fails the test if any variable names do not match the required naming convention.
-    """
-    config = load_yaml_safe(workflow_file)
-    
-    def check_env_vars(env_dict):
-        """
-        Identify environment variable names that do not follow the convention of using only upper-case letters, digits and underscores.
-        
-        Parameters:
-            env_dict (dict): Mapping of environment variable names to their values. If a non-dict is provided it is treated as absent and no invalid names are returned.
-        
-        Returns:
-            invalid_keys (List[str]): List of keys from `env_dict` that are not composed solely of upper-case letters, digits and underscores.
-        """
-        if not isinstance(env_dict, dict):
-            return []
-        invalid = []
-    def check_env_vars(env_dict):
-        """
-        Identify environment variable names that do not follow the convention of using only upper-case letters, digits and underscores.
-    
-        Parameters:
-            env_dict (dict): Mapping of environment variable names to their values. If a non-dict is provided it is treated as absent and no invalid names are returned.
-    
-        Returns:
-            invalid_keys (List[str]): List of keys from `env_dict` that are not composed solely of upper-case letters, digits and underscores.
-        """
-        if not isinstance(env_dict, dict):
-            return []
-        invalid = []
-        for key in env_dict.keys():
-            # Ensure all characters are either alphanumeric or underscore
-            is_valid_chars = all(c.isalnum() or c == '_' for c in key)
-            if not key.isupper() or not is_valid_chars:
-                invalid.append(key)
-        return invalid
-
-    # Check top-level env
-    if "env" in config:
-        invalid = check_env_vars(config["env"])
-        assert not invalid, (
-            f"Workflow {workflow_file.name} has invalid env var names: {invalid}"
-        )
-
-    # Check job-level env
-    jobs = config.get("jobs", {})
-    for job_name, job_config in jobs.items():
-        if "env" in job_config:
-            invalid = check_env_vars(job_config["env"])
-            assert not invalid, (
-                f"Job '{job_name}' in {workflow_file.name} has invalid env var names: {invalid}"
-            )
-        
-        # Check top-level env
         if "env" in config:
             invalid = check_env_vars(config["env"])
             assert not invalid, (
                 f"Workflow {workflow_file.name} has invalid env var names: {invalid}"
             )
-        
-        # Check job-level env
-        jobs = config.get("jobs", {})
-        for job_name, job_config in jobs.items():
-            if "env" in job_config:
-                invalid = check_env_vars(job_config["env"])
-                assert not invalid, (
-                    f"Job '{job_name}' in {workflow_file.name} has invalid env var names: {invalid}"
-                )
 
         # Check job-level env
         jobs = config.get("jobs", {})
