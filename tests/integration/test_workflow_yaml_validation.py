@@ -59,23 +59,17 @@ class TestWorkflowYAMLSyntax:
         required_keys = {'name', 'on', 'jobs'}
         
         for workflow_file in workflow_files:
-            with open(workflow_file, 'r') as f:
-                for workflow_file in workflow_files:
-                    with open(workflow_file, 'r') as f:
-                        data = yaml.safe_load(f)
-    
-                    if data is None:
-                        pytest.fail(f"{workflow_file.name} is empty or invalid YAML")
-    
-                    missing_keys = required_keys - set(data.keys())
-                    assert not missing_keys, (
-                        f"{workflow_file.name} missing required keys: {missing_keys}"
-                    )
-            
-            missing_keys = required_keys - set(data.keys())
-            assert not missing_keys, (
-                f"{workflow_file.name} missing required keys: {missing_keys}"
-            )
+    for workflow_file in workflow_files:
+        with open(workflow_file, 'r') as f:
+            data = yaml.safe_load(f)
+
+        if data is None:
+            pytest.fail(f"{workflow_file.name} is empty or invalid YAML")
+
+        missing_keys = required_keys - set(data.keys())
+        assert not missing_keys, (
+            f"{workflow_file.name} missing required keys: {missing_keys}"
+        )
     
     def test_workflow_names_are_descriptive(self, workflow_files: List[Path]):
         """Test that workflow names are descriptive and not empty."""
@@ -345,23 +339,13 @@ class TestWorkflowSecurityBestPractices:
     """Test security best practices across all workflows."""
     
     @pytest.fixture
+    @pytest.fixture
     def all_workflows(self) -> Dict[str, Dict[str, Any]]:
         """Load all workflow files."""
-        @pytest.fixture(scope="module")
-        def all_workflows() -> Dict[str, Dict[str, Any]]:
-            """Load all workflow files once per module."""
-            workflows_dir = Path(__file__).parent.parent.parent / '.github' / 'workflows'
-            workflows: Dict[str, Dict[str, Any]] = {}
-
-            # Gather both .yml and .yaml files
-            workflow_files = list(workflows_dir.glob('*.yml')) + list(workflows_dir.glob('*.yaml'))
-            for workflow_file in workflow_files:
-                with open(workflow_file, 'r') as f:
-                    workflows[workflow_file.name] = yaml.safe_load(f)
-
-            return workflows
-        workflows = {}
+        workflows_dir = Path(__file__).parent.parent.parent / '.github' / 'workflows'
+        workflows: Dict[str, Dict[str, Any]] = {}
         
+        # Gather both .yml and .yaml files
         workflow_files = list(workflows_dir.glob('*.yml')) + list(workflows_dir.glob('*.yaml'))
         for workflow_file in workflow_files:
             with open(workflow_file, 'r') as f:
