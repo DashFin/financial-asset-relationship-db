@@ -308,16 +308,6 @@ class TestPrAgentWorkflow:
         assert isinstance(jobs["pr-agent-trigger"], dict), (
             "'pr-agent-trigger' job must be a mapping"
         )
-        assert isinstance(jobs["pr-agent-trigger"], dict), (
-            "'pr-agent-trigger' job must be a mapping"
-def test_pr_agent_has_trigger_job(self, pr_agent_workflow: Dict[str, Any]):
-    jobs = pr_agent_workflow.get("jobs", {})
-    assert "pr-agent-trigger" in jobs, (
-        "pr-agent workflow must define the 'pr-agent-trigger' job"
-    )
-    assert isinstance(jobs["pr-agent-trigger"], dict), (
-        "'pr-agent-trigger' job must be a mapping"
-    )
     
     def test_pr_agent_review_runs_on_ubuntu(self, pr_agent_workflow: Dict[str, Any]):
         """Ensure the trigger job runs on a standard Ubuntu runner."""
@@ -1180,15 +1170,6 @@ class TestWorkflowEnvAndSecrets:
                     invalid.append(key)
             return invalid
 
-def check_env_vars(env_dict):
-    if not isinstance(env_dict, dict):
-        return []
-    invalid = []
-    for key in env_dict.keys():
-        # Allow uppercase letters, digits, and underscores only
-        if not key.isupper() or not all(c.isalnum() or c == '_' for c in key):
-            invalid.append(key)
-    return invalid
         if "env" in config:
             invalid = check_env_vars(config["env"])
             assert not invalid, (
