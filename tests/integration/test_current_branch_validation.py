@@ -22,7 +22,10 @@ class TestWorkflowModifications:
         
         # Should not reference chunking
         assert 'context_chunker' not in content
-        assert 'chunking' not in content.lower() or '# chunking' in content.lower()  # Allow in comments
+        content_lower = content.lower()
+        if 'chunking' in content_lower:
+            assert content_lower.count('chunking') == content_lower.count('# chunking'), \
+                "Found 'chunking' references outside of comments"
         assert 'tiktoken' not in content
     
     def test_pr_agent_workflow_has_simplified_parsing(self):
