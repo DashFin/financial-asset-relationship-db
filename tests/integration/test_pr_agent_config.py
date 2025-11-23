@@ -227,7 +227,7 @@ class TestPRAgentConfigPerformance:
         
         # This is informational - timeouts may be in workflow instead
         if not has_timeout_config:
-            print("Info: No timeout configuration found in PR agent config")
+            pytest.fail("Config should define at least one timeout configuration")
     
     def test_caching_strategy_if_present(self, config: Dict[str, Any]):
         """Test that caching configuration is reasonable if present."""
