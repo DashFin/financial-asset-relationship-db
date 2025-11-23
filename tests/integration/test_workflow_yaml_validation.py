@@ -7,7 +7,6 @@ GitHub Actions workflow files, with special focus on recent changes:
 - Simplified labeler workflow  
 - Simplified APIsec scan workflow
 - Simplified PR agent workflow
-"""
 
 Tests cover:
 - YAML syntax validation
