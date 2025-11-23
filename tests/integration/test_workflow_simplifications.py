@@ -545,7 +545,8 @@ class TestWorkflowRegressionPrevention:
         """
         workflows_dir = Path(__file__).parent.parent.parent / '.github' / 'workflows'
         
-        for workflow_file in workflows_dir.glob('*.yml'):
+        workflow_files = list(workflows_dir.glob('*.yml')) + list(workflows_dir.glob('*.yaml'))
+        for workflow_file in workflow_files:
             with open(workflow_file, 'r') as f:
                 content = f.read()
             
@@ -568,7 +569,8 @@ class TestWorkflowRegressionPrevention:
         """
         workflows_dir = Path(__file__).parent.parent.parent / '.github' / 'workflows'
         
-        for workflow_file in workflows_dir.glob('*.yml'):
+        workflow_files = list(workflows_dir.glob('*.yml')) + list(workflows_dir.glob('*.yaml'))
+        for workflow_file in workflow_files:
             duplicates = self._check_duplicate_keys(workflow_file)
             
             assert len(duplicates) == 0, (
@@ -612,7 +614,8 @@ class TestWorkflowRegressionPrevention:
         """
         workflows_dir = Path(__file__).parent.parent.parent / '.github' / 'workflows'
         
-        for workflow_file in workflows_dir.glob('*.yml'):
+        workflow_files = list(workflows_dir.glob('*.yml')) + list(workflows_dir.glob('*.yaml'))
+        for workflow_file in workflow_files:
             with open(workflow_file, 'r') as f:
                 try:
                     yaml.safe_load(f)

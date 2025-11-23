@@ -349,7 +349,8 @@ class TestWorkflowSecurityBestPractices:
         workflows_dir = Path(__file__).parent.parent.parent / '.github' / 'workflows'
         workflows = {}
         
-        for workflow_file in workflows_dir.glob('*.yml'):
+        workflow_files = list(workflows_dir.glob('*.yml')) + list(workflows_dir.glob('*.yaml'))
+        for workflow_file in workflow_files:
             with open(workflow_file, 'r') as f:
                 workflows[workflow_file.name] = yaml.safe_load(f)
         
@@ -424,7 +425,8 @@ class TestWorkflowPerformance:
         workflows_dir = Path(__file__).parent.parent.parent / '.github' / 'workflows'
         workflows = {}
         
-        for workflow_file in workflows_dir.glob('*.yml'):
+        workflow_files = list(workflows_dir.glob('*.yml')) + list(workflows_dir.glob('*.yaml'))
+        for workflow_file in workflow_files:
             with open(workflow_file, 'r') as f:
                 workflows[workflow_file.name] = yaml.safe_load(f)
         
