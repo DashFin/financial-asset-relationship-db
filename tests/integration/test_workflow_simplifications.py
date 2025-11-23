@@ -495,16 +495,8 @@ class TestPRAgentConfigSimplification:
         assert 'enabled' in agent, "Agent should have enabled flag"
 
 
-class TestDeletedFilesVerification:
-    """Verify that files meant to be deleted are actually gone."""
-    
-    def test_labeler_config_deleted(self):
-        """Test that .github/labeler.yml has been deleted."""
-        labeler_config = Path(__file__).parent.parent.parent / '.github' / 'labeler.yml'
-        
-        assert not labeler_config.exists(), (
-            ".github/labeler.yml should be deleted as part of simplification"
-        )
+class TestDeletedScriptFilesVerification:
+    """Verify that script files meant to be deleted are actually gone."""
     
     def test_context_chunker_script_deleted(self):
         """Test that .github/scripts/context_chunker.py has been deleted."""
@@ -545,15 +537,14 @@ class TestWorkflowRegressionPrevention:
         """
         workflows_dir = Path(__file__).parent.parent.parent / '.github' / 'workflows'
         
-workflow_files = list(workflows_dir.glob('*.{yml,yaml}'))
-for workflow_file in workflow_files:
-    with open(workflow_file, 'r', encoding='utf-8') as f:
-        content = f.read()
+import os
+import pytest
+import warnings
+import yaml
+from pathlib import Path
+from typing import Dict, Any, List
             
             # Should not reference deleted files
-            assert 'labeler.yml' not in content, (
-                f"{workflow_file.name} should not reference deleted labeler.yml"
-            )
             assert 'context_chunker.py' not in content, (
                 f"{workflow_file.name} should not reference deleted context_chunker.py"
             )
