@@ -6,8 +6,11 @@ for all workflow files in .github/workflows/
 """
 
 import os
-import pytest
 import warnings
+from pathlib import Path
+from typing import Dict, Any, List
+
+import pytest
 import yaml
 from pathlib import Path
 from typing import Dict, Any, List
