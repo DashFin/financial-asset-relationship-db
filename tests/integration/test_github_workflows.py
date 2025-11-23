@@ -406,7 +406,20 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
             if s.get("uses", "").startswith("actions/setup-python")
         ]
         
-        for step in python_steps:
+    def test_pr_agent_no_duplicate_setup_steps(self, pr_agent_workflow: Dict[str, Any]):
+        """Test that there are no duplicate setup steps in the workflow."""
+        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        steps = review_job.get("steps", [])
+    
+        # Check for duplicate step names efficiently (O(n))
+        step_names = [s.get("name") for s in steps if s.get("name")]
+        seen = set()
+        duplicate_names = {name for name in step_names if name in seen or seen.add(name)}
+    
+        assert not duplicate_names, (
+            f"Found duplicate step names: {duplicate_names}. "
+            "Each step should have a unique name."
+        )
             step_with = step.get("with", {})
             assert "python-version" in step_with, (
                 "Python setup should specify a version"
