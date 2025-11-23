@@ -10,6 +10,11 @@ import pytest
 from pathlib import Path
 from typing import Any, Dict, List
 
+# Skip this module if PyYAML is not installed
+yaml = pytest.importorskip("yaml")
+
+# Define workflows directory path used across tests
+WORKFLOWS_DIR = Path(".github") / "workflows"
 yaml = pytest.importorskip("yaml")
 
 # Path to workflows directory
