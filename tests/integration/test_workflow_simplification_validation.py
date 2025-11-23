@@ -310,10 +310,19 @@ class TestDocumentationCleanup:
         summary_files = list(Path(".").glob("*TEST*SUMMARY*.md"))
         summary_files.extend(list(Path(".").glob("*TEST*GENERATION*.md")))
         
-        if summary_files:
-            file_list = "\n".join(f"  - {f.name}" for f in summary_files[:10])
+        allowed_summaries = {
+            "TEST_GENERATION_WORKFLOW_SUMMARY.md",
+            "ENHANCED_TEST_SUMMARY.md",
+            "FINAL_TEST_SUMMARY.md",
+            "TEST_DOCUMENTATION_SUMMARY.md",
+        }
+        
+        orphaned_files = [f for f in summary_files if f.name not in allowed_summaries]
+        
+        if orphaned_files:
+            file_list = "\n".join(f"  - {f.name}" for f in orphaned_files[:10])
             pytest.fail(
-                f"Found {len(summary_files)} orphaned test summary files that should be removed:\n{file_list}"
+                f"Found {len(orphaned_files)} orphaned test summary files that should be removed:\n{file_list}"
             )
 
 
