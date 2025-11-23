@@ -77,7 +77,7 @@ class TestWorkflowGitHubActionsSchema:
         workflow_dir = Path(".github/workflows")
         workflows = {}
         
-        for workflow_file in workflow_dir.glob("*.yml"):
+        for workflow_file in list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml")):
             with open(workflow_file, 'r') as f:
                 workflows[workflow_file.name] = yaml.safe_load(f)
         
@@ -168,7 +168,7 @@ class TestWorkflowSecurity:
     def workflow_files(self):
         """Get all workflow files."""
         workflow_dir = Path(".github/workflows")
-        return list(workflow_dir.glob("*.yml"))
+        return list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml"))
     
     def test_no_hardcoded_secrets(self, workflow_files):
         """Workflows should not contain hardcoded secrets."""
@@ -255,7 +255,7 @@ class TestWorkflowBestPractices:
         workflow_dir = Path(".github/workflows")
         workflows = {}
         
-        for workflow_file in workflow_dir.glob("*.yml"):
+        for workflow_file in list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml")):
             with open(workflow_file, 'r') as f:
                 workflows[workflow_file.name] = yaml.safe_load(f)
         
@@ -324,7 +324,7 @@ class TestWorkflowCrossPlatform:
         workflow_dir = Path(".github/workflows")
         workflows = {}
         
-        for workflow_file in workflow_dir.glob("*.yml"):
+        for workflow_file in list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml")):
             with open(workflow_file, 'r') as f:
                 workflows[workflow_file.name] = yaml.safe_load(f)
         
@@ -380,7 +380,7 @@ class TestWorkflowMaintainability:
         """Workflows should have explanatory comments."""
         workflow_dir = Path(".github/workflows")
         
-        for workflow_file in workflow_dir.glob("*.yml"):
+        for workflow_file in list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml")):
             with open(workflow_file, 'r') as f:
                 content = f.read()
             
@@ -398,7 +398,7 @@ class TestWorkflowMaintainability:
         """Complex expressions should have explanatory comments."""
         workflow_dir = Path(".github/workflows")
         
-        for workflow_file in workflow_dir.glob("*.yml"):
+        for workflow_file in list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml")):
             with open(workflow_file, 'r') as f:
                 content = f.read()
             
