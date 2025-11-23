@@ -1096,7 +1096,7 @@ class TestWorkflowEnvAndSecrets:
             key
             for key in env_dict.keys()
             if not key or not all(c.isupper() or c.isdigit() or c == "_" for c in key)
-        ]
+        if not isinstance(key, str) or not key or not all(c.isupper() or c.isdigit() or c == "_" for c in key)
 
     @staticmethod
     def _env_scopes(config: Dict[str, Any], workflow_name: str) -> List[Tuple[str, Dict[str, Any]]]:
