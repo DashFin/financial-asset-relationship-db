@@ -388,6 +388,11 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         assert len(node_steps) > 0, "Review job must set up Node.js"
     
     def test_pr_agent_python_version(self, pr_agent_workflow: Dict[str, Any]):
+"""
+        Ensure any actions/setup-python step in the "pr-agent-trigger" job specifies python-version "3.11".
+        
+        Parameters:
+            pr_agent_workflow (Dict[str, Any]): Parsed workflow mapping for the PR Agent workflow; expected to contain a "jobs" -> "pr-agent-trigger" -> "steps" sequence.
         """
         Ensure any actions/setup-python step in the "review" job specifies python-version "3.11".
         
