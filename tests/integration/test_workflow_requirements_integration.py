@@ -103,25 +103,25 @@ class TestWorkflowCanInstallRequirements:
         
         for job_name, job in workflow.get('jobs', {}).items():
             steps = job.get('steps', [])
-            
+
             install_idx = None
             test_idx = None
-            
+
             for i, step in enumerate(steps):
                 run_cmd = step.get('run', '').lower()
                 step_name = step.get('name', '').lower()
-                
+
                 if 'pip install' in run_cmd or 'requirements' in run_cmd:
                     if install_idx is None:
                         install_idx = i
-                
+
                 if 'pytest' in run_cmd or 'test' in step_name:
                     if test_idx is None:
                         test_idx = i
-            
+
             # If both exist, install should come before test
             if install_idx is not None and test_idx is not None:
-        assert 'pyyaml' in package_names, (
+                assert install_idx < test_idx, (
                     f"In job '{job_name}', dependency installation (step {install_idx}) "
                     f"should come before test execution (step {test_idx})"
                 )
@@ -136,7 +136,7 @@ class TestPyYAMLAvailability:
         
         requirements = parse_requirements(REQUIREMENTS_FILE)
         package_names = [pkg.lower() for pkg, _ in requirements]
-        assert 'PyYAML' in package_names, (
+        assert 'pyyaml' in package_names, (
             "PyYAML must be in requirements-dev.txt because test_github_workflows.py "
             "uses it to parse and validate workflow YAML files"
         )

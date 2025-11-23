@@ -166,10 +166,7 @@ class TestVersionSpecifications:
         for pkg, ver_spec in requirements:
             if ver_spec:
                 try:
-                    SpecifierSet(ver_spec)
-                except InvalidSpecifier as e:
-                    assert False, f"Invalid version specifier for {pkg}: {ver_spec} ({e})"
-            if ver_spec:
+
                 try:
                     SpecifierSet(ver_spec)
                 except Exception as e:

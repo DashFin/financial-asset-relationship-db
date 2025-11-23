@@ -14,8 +14,7 @@ from typing import Any, Dict, List
 yaml = pytest.importorskip("yaml")
 
 # Define workflows directory path used across tests
-WORKFLOWS_DIR = Path(".github") / "workflows"
-yaml = pytest.importorskip("yaml")
+    WORKFLOWS_DIR = Path(".github") / "workflows"
 
 # Path to workflows directory
 def test_pr_agent_has_trigger_job(pr_agent_workflow: Dict[str, Any]):
@@ -320,10 +319,7 @@ class TestPrAgentWorkflow:
             "'pr-agent-trigger' job must be a mapping"
         )
         assert isinstance(jobs["pr-agent-trigger"], dict), (
-            "'pr-agent-trigger' job must be a mapping"
-        )
-    
-    def test_pr_agent_review_runs_on_ubuntu(self, pr_agent_workflow: Dict[str, Any]):
+
 assert runs_on in ["ubuntu-latest", "ubuntu-22.04", "ubuntu-20.04"], (
     f"PR Agent trigger job should run on standard Ubuntu runner, got '{runs_on}'"
 )
@@ -362,11 +358,13 @@ assert runs_on in ["ubuntu-latest", "ubuntu-22.04", "ubuntu-20.04"], (
             step_with = step.get("with", {})
 def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
     """Test that checkout steps explicitly define a non-empty token."""
-    review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-    steps = review_job.get("steps", [])
+    trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+    steps = trigger_job.get("steps", [])
 
-        trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-        steps = trigger_job.get("steps", [])
+    checkout_steps = [
+        s for s in steps
+        if s.get("uses", "").startswith("actions/checkout")
+    ]
 
     for step in checkout_steps:
         step_with = step.get("with", {})
@@ -378,10 +376,9 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
     
     def test_pr_agent_has_python_setup(self, pr_agent_workflow: Dict[str, Any]):
         """Asserts the workflow's trigger job includes a setup-python step."""
-
-        ]
-        assert len(python_steps) > 0, "pr-agent-trigger job must set up Python"
-
+        trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        steps = trigger_job.get("steps", [])
+    
         python_steps = [
             s for s in steps
             if s.get("uses", "").startswith("actions/setup-python")
@@ -454,13 +451,6 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
     
     def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
         """Ensure checkout steps in the trigger job have valid fetch-depth values."""
-
-        trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-        )
-    
-    def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
-        """Ensure checkout steps in the trigger job have valid fetch-depth values."""
-
         trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = trigger_job.get("steps", [])
 
@@ -481,27 +471,6 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
             )
             # Reject negative integers
             assert fetch_depth >= 0, "fetch-depth cannot be negative"
-            assert isinstance(fetch_depth, int), (
-                f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
-            )
-            # Reject negative integers
-            assert fetch_depth >= 0, "fetch-depth cannot be negative"
-            step_with = step.get("with", {})
-            # It's acceptable for fetch-depth to be omitted entirely
-            if "fetch-depth" not in step_with:
-                continue
-            fetch_depth = step_with["fetch-depth"]
-            # Reject non-integer types (including strings)
-            assert isinstance(fetch_depth, int), (
-                f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
-            )
-            # Reject negative integers
-            assert fetch_depth >= 0, "fetch-depth cannot be negative"
-            step_with = step.get("with", {})
-            # It's acceptable for fetch-depth to be omitted entirely
-            if "fetch-depth" not in step_with:
-                f"(found pattern: {pattern}). Use secrets context instead."
-            )
     
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_uses_secrets_context(self, workflow_file: Path):
