@@ -545,10 +545,10 @@ class TestWorkflowRegressionPrevention:
         """
         workflows_dir = Path(__file__).parent.parent.parent / '.github' / 'workflows'
         
-        workflow_files = list(workflows_dir.glob('*.yml')) + list(workflows_dir.glob('*.yaml'))
-        for workflow_file in workflow_files:
-            with open(workflow_file, 'r') as f:
-                content = f.read()
+workflow_files = list(workflows_dir.glob('*.{yml,yaml}'))
+for workflow_file in workflow_files:
+    with open(workflow_file, 'r', encoding='utf-8') as f:
+        content = f.read()
             
             # Should not reference deleted files
             assert 'labeler.yml' not in content, (
