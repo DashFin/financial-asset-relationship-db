@@ -217,13 +217,13 @@ class TestWorkflowSecurity:
                     for step in steps:
                         if step.get('uses', '').startswith('actions/checkout'):
                             # Should specify ref or not checkout HEAD
-                            with_data = step.get('with', {})
-                            ref = with_data.get('ref', '')
-                            
                             # If no ref specified, it's okay (checks out merge commit)
                             # If ref specified, shouldn't be dangerous
                             if ref and 'head' in ref.lower() and 'sha' not in ref.lower():
                                 warnings.warn(
+                                    f"{workflow_file.name} job '{job_name}' "
+                                    f"checks out PR HEAD (potential security risk)"
+                                )
                                     f"{workflow_file.name} job '{job_name}' "
                                     f"checks out PR HEAD (potential security risk)"
                                 )
