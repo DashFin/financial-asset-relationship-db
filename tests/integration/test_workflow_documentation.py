@@ -55,7 +55,9 @@ def doc_content() -> str:
 @pytest.fixture(scope='session')
 def doc_lines(doc_content: str) -> List[str]:
     """Provide the documentation as a list of lines once per session."""
-    return doc_content.splitlines()
+    if not doc_content:
+        pytest.fail("Loaded documentation content is empty.")
+    return doc_content.splitlines(keepends=True)
 
 
 @pytest.fixture(scope='session')
