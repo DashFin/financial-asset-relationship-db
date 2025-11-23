@@ -130,20 +130,29 @@ class TestSimplificationConsistency:
         with open(greetings_path, 'r') as f:
             data = yaml.safe_load(f)
         
-        steps = data['jobs']['greeting']['steps']
-        
+        jobs = data.get('jobs') or {}
+        assert isinstance(jobs, dict) and jobs, "greetings.yml is missing 'jobs' section"
+
+        greeting_job = jobs.get('greeting') or {}
+        assert isinstance(greeting_job, dict) and greeting_job, "greetings.yml is missing 'jobs.greeting' section"
+
+        steps = greeting_job.get('steps') or []
+        assert isinstance(steps, list) and steps, "greetings.yml 'jobs.greeting.steps' is missing or empty"
+
         for step in steps:
-            if 'uses' in step and 'first-interaction' in step['uses']:
-                issue_msg = step['with']['issue-message']
-                pr_msg = step['with']['pr-message']
-                
+            if 'uses' in step and 'first-interaction' in step.get('uses', ''):
+                with_section = step.get('with') or {}
+                assert isinstance(with_section, dict) and with_section, "first-interaction step is missing 'with' section"
+        
+                issue_msg = with_section.get('issue-message')
+                pr_msg = with_section.get('pr-message')
+        
+                assert isinstance(issue_msg, str) and issue_msg, "first-interaction 'issue-message' is missing or not a string"
+                assert isinstance(pr_msg, str) and pr_msg, "first-interaction 'pr-message' is missing or not a string"
+        
                 # Messages should be simplified (not multi-paragraph)
-                assert len(issue_msg) < 200, (
-                    "Issue message should be simplified"
-                )
-                assert len(pr_msg) < 200, (
-                    "PR message should be simplified"
-                )
+                assert len(issue_msg) < 200, "Issue message should be simplified"
+                assert len(pr_msg) < 200, "PR message should be simplified"
 
 
 if __name__ == '__main__':
