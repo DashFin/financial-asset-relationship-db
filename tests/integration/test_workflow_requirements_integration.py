@@ -24,7 +24,7 @@ def find_project_root(start: Path) -> Path:
         if markers & entries:
             return parent
     # Fallback to three-level parent to preserve previous behavior
-    return Path(__file__).resolve().parents[3]
+    return Path(__file__).resolve().parents[2]
 
 PROJECT_ROOT = find_project_root(Path(__file__).parent)
 WORKFLOWS_DIR = PROJECT_ROOT / ".github" / "workflows"
