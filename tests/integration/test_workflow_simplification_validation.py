@@ -412,7 +412,7 @@ class TestRequirementsDevUpdates:
             # Should have version specifier
             assert '>=' in line or '==' in line or '~=' in line, \
                 f"Requirement '{line}' should have a version specifier"
-class TestBackwardCompatibility:
+                f"Requirement '{line}' should have a version specifier"
     """Test suite ensuring changes don't break existing functionality."""
     
     def test_pr_agent_still_triggered_on_events(self, pr_agent_workflow: Dict[str, Any]):
