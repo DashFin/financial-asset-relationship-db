@@ -187,7 +187,7 @@ class TestWorkflowStepDependencies:
             if 'id' in step and step['id'] == 'parse-comments':
                 parse_index = i
             
-            if 'steps.parse-comments.outputs.action_items' in step.get('run', ''):
+            if 'steps.parse-comments.outputs.action_items' in (step.get('run', '') + step.get('with', {}).get('script', '')):
                 if usage_index is None:
                     usage_index = i
         

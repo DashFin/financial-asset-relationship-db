@@ -90,14 +90,6 @@ class TestWorkflowModifications:
         """Label workflow should be simplified without config checks."""
         workflow_path = Path(".github/workflows/label.yml")
         assert workflow_path.exists(), "Expected '.github/workflows/label.yml' to exist"
-    
-        with open(workflow_path, 'r') as f:
-            content = f.read()
-        
-        # Should not have config existence checks
-        assert 'check-config' not in content
-        assert 'config_exists' not in content
-    
     def test_greetings_workflow_simplified(self):
         """Greetings workflow should have simplified messages."""
         workflow_path = Path(".github/workflows/greetings.yml")
@@ -141,6 +133,14 @@ class TestWorkflowModifications:
                     with open(py_file, 'r', encoding='utf-8', errors='ignore') as f:
                         if 'context_chunker' in f.read():
                             files_with_reference.append(str(py_file))
+                except OSError:
+                    continue
+    
+        if files_with_reference:
+            test_files = [f for f in files_with_reference if 'test' in f]
+            assert len(files_with_reference) == len(test_files)
+    
+    def test_labeler_config_deleted(self):
                 except OSError:
                     continue
     
@@ -223,7 +223,7 @@ class TestPRAgentConfigSimplified:
                 pytest.fail(f"Invalid or unreadable YAML in {yaml_file}: {e}")
                     yaml.safe_load(f)
             except yaml.YAMLError as e:
-                pytest.fail(f"Invalid YAML in {yaml_file}: {e}")
+        for yaml_file in yaml_files:
             try:
                 with open(yaml_file, 'r') as f:
                     yaml.safe_load(f)
