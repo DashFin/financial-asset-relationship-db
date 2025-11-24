@@ -1095,7 +1095,7 @@ class TestWorkflowEnvAndSecrets:
             key
             for key in env_dict.keys()
             if not key or not (any(c.isupper() for c in key) and all(c.isupper() or c.isdigit() or c == "_" for c in key))
-        ]
+        if not isinstance(key, str) or not key or not all(c.isupper() or c.isdigit() or c == "_" for c in key)
 
             scopes.append((f"workflow:{workflow_name}", config["env"]))
 
