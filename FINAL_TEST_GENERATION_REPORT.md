@@ -15,7 +15,7 @@ Following the **bias-for-action principle**, additional validation tests were cr
 ## New Test File Created
 
 ### `tests/integration/test_workflow_yaml_validation.py`
-- **Lines**: 92
+- **Lines**: 97
 - **Test Classes**: 2
 - **Test Methods**: 5
 - **Status**: ✅ Syntax validated
