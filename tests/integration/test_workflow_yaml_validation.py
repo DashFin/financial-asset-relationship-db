@@ -84,7 +84,8 @@ class TestRequirementsDevChanges:
         with open(path, 'r') as f:
             content = f.read()
         
-        assert any(
+        lines = [line.strip() for line in content.splitlines() if line.strip() and not line.strip().startswith('#')]
+        assert any(line.lower().startswith('pyyaml') for line in lines), \
             ln for ln in (
                 line.strip() for line in content.splitlines()
             )
