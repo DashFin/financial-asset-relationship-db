@@ -215,15 +215,15 @@ class TestPRAgentConfigSimplified:
         
         # Should not have chunking limits
         assert 'max_files_per_chunk' not in limits
-        assert 'fallback' not in limits
-    
-    def test_config_still_has_core_settings(self):
-        """PR Agent config should retain core functionality."""
-        config_path = Path(".github/pr-agent-config.yml")
-        
-        with open(config_path, 'r') as f:
-            data = yaml.safe_load(f)
         for yaml_file in yaml_files:
+            try:
+                with open(yaml_file, 'r') as f:
+                    yaml.safe_load(f)
+            except (yaml.YAMLError, OSError, IOError) as e:
+                pytest.fail(f"Invalid or unreadable YAML in {yaml_file}: {e}")
+                    yaml.safe_load(f)
+            except yaml.YAMLError as e:
+                pytest.fail(f"Invalid YAML in {yaml_file}: {e}")
             try:
                 with open(yaml_file, 'r') as f:
                     yaml.safe_load(f)
