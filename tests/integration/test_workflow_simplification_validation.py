@@ -401,6 +401,7 @@ class TestRequirementsDevUpdates:
             assert 'PyYAML' not in content and 'pyyaml' not in content.lower()
     def test_all_dev_requirements_have_versions(self):
     def test_all_dev_requirements_have_versions(self):
+    def test_all_dev_requirements_have_versions(self):
         """Verify all dev requirements have version specifiers."""
         for line in lines:
             # Skip empty lines and comments (including indented comments)
@@ -412,7 +413,6 @@ class TestRequirementsDevUpdates:
             # Should have version specifier
             assert '>=' in line or '==' in line or '~=' in line, \
                 f"Requirement '{line}' should have a version specifier"
-    """Test suite ensuring changes don't break existing functionality."""
     
     def test_pr_agent_still_triggered_on_events(self, pr_agent_workflow: Dict[str, Any]):
         """Verify PR agent workflow still triggers on correct events."""
