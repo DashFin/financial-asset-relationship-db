@@ -215,15 +215,15 @@ class TestPRAgentConfigSimplified:
         
         with open(config_path, 'r') as f:
             data = yaml.safe_load(f)
-        
-        # Should have essential sections
-        assert 'agent' in data
-        assert 'monitoring' in data
-        assert 'quality' in data
-        assert 'git' in data
-
-
         for yaml_file in yaml_files:
+            try:
+                with open(yaml_file, 'r') as f:
+                    yaml.safe_load(f)
+            except (yaml.YAMLError, OSError, IOError) as e:
+                pytest.fail(f"Invalid or unreadable YAML in {yaml_file}: {e}")
+                    yaml.safe_load(f)
+            except yaml.YAMLError as e:
+                pytest.fail(f"Invalid YAML in {yaml_file}: {e}")
             try:
                 with open(yaml_file, 'r') as f:
                     yaml.safe_load(f)

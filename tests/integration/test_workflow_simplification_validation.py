@@ -53,7 +53,6 @@ def label_workflow() -> Dict[str, Any]:
     workflow_path = WORKFLOWS_DIR / "label.yml"
     with open(workflow_path, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f)
-class TestPRAgentWorkflowSimplification:
     """Test suite for the simplified PR Agent workflow."""
     
     def test_no_duplicate_setup_python_key(self, pr_agent_workflow: Dict[str, Any]):
@@ -401,6 +400,7 @@ class TestRequirementsDevUpdates:
             assert 'pyyaml' not in content.lower()
             assert 'PyYAML' not in content and 'pyyaml' not in content.lower()
     def test_all_dev_requirements_have_versions(self):
+    def test_all_dev_requirements_have_versions(self):
         """Verify all dev requirements have version specifiers."""
         for line in lines:
             # Skip empty lines and comments (including indented comments)
@@ -411,7 +411,6 @@ class TestRequirementsDevUpdates:
             
             # Should have version specifier
             assert '>=' in line or '==' in line or '~=' in line, \
-                f"Requirement '{line}' should have a version specifier"
                 f"Requirement '{line}' should have a version specifier"
     """Test suite ensuring changes don't break existing functionality."""
     

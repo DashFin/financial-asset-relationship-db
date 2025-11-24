@@ -25,7 +25,7 @@ Following a **bias-for-action approach**, comprehensive unit and integration tes
 
 **Location**: `tests/integration/test_workflow_env_vars_and_dependencies.py`  
 **Lines**: 496  
-**Test Classes**: 11  
++**Test Classes**: 9
 **Test Methods**: 40+
 
 **Coverage Areas**:
@@ -83,7 +83,7 @@ Following a **bias-for-action approach**, comprehensive unit and integration tes
 ### 2. test_requirements_dev_yaml_dependencies.py
 
 **Location**: `tests/integration/test_requirements_dev_yaml_dependencies.py`  
-**Lines**: 394  
++**Lines**: 349
 **Test Classes**: 8  
 **Test Methods**: 35+
 
@@ -230,7 +230,7 @@ The repository already has comprehensive test coverage:
 | Metric | Value |
 |--------|-------|
 | **New Test Files** | 2 |
-| **New Lines of Test Code** | 890 |
++| **New Lines of Test Code** | 844 |
 | **New Test Classes** | 19 |
 | **New Test Methods** | 75+ |
 | **Files Tested** | 6 (workflows + config + requirements) |
