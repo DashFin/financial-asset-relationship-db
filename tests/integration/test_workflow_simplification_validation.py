@@ -173,10 +173,12 @@ class TestWorkflowSimplification:
                 mapping[key] = loader.construct_object(value_node)
             return mapping
         
-        DuplicateKeySafeLoader.add_constructor(
+        loader = DuplicateKeySafeLoader(content)
+        loader.add_constructor(
             yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
             constructor_with_dup_check
         )
+        yaml.load(content, Loader=lambda stream: loader)
         
         try:
             yaml.load(content, Loader=DuplicateKeySafeLoader)
