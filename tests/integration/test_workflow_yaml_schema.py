@@ -181,34 +181,37 @@ class TestWorkflowSecurity:
             'AKIA', 'ASIA',  # AWS keys
             '-----BEGIN', '-----BEGIN RSA PRIVATE KEY',  # Private keys
         ]
-        
+    
+        import re
+        secret_ref_re = re.compile(r'\$\{\{\s*secrets\.[A-Za-z0-9_]+\s*\}\}')
+    
         for workflow_file in workflow_files:
             with open(workflow_file, 'r') as f:
                 content = f.read()
-            
-            for pattern in dangerous_patterns:
-                    import re
-                    secret_ref_re = re.compile(r'\$\{\{\s*secrets\.[A-Za-z0-9_]+\s*\}\}')
-                    # Allow occurrences only if the dangerous pattern is entirely within a proper secret reference.
-                    for line in lines_with_pattern:
-                        stripped = line.strip()
-                        if stripped.startswith('#'):
-                            continue
-                        # If the line contains a valid secret reference, ensure no dangerous pattern appears outside it.
+        
+            lines = content.splitlines()
+            for i, line in enumerate(lines, start=1):
+                stripped = line.strip()
+                # Skip commented lines
+                if stripped.startswith('#'):
+                    continue
+                for pattern in dangerous_patterns:
+                    if pattern in line:
                         valid_refs = list(secret_ref_re.finditer(line))
                         if valid_refs:
                             # Mask valid secret reference spans, then check remaining text for dangerous patterns
                             masked = list(line)
                             for m in valid_refs:
-                                for i in range(m.start(), m.end()):
-                                    masked[i] = ' '
+                                for idx in range(m.start(), m.end()):
+                                    masked[idx] = ' '
                             remaining = ''.join(masked)
-                            assert pattern not in remaining, \
-                                f"{workflow_file.name} may contain hardcoded secret outside secrets.* reference: {pattern}"
+                            assert pattern not in remaining, (
+                                f"{workflow_file.name}:{i} may contain hardcoded secret outside secrets.* reference: {pattern}"
+                            )
                         else:
-                            # No valid secret reference present; any dangerous pattern is a failure.
-                            assert False, \
-                                f"{workflow_file.name} may contain hardcoded secret without secrets.* reference: {pattern}"
+                            pytest.fail(
+                                f"{workflow_file.name}:{i} may contain hardcoded secret without secrets.* reference: {pattern}"
+                            )
     
     def test_pull_request_safe_checkout(self, workflow_files):
         """PR workflows should checkout safely (not HEAD of PR)."""

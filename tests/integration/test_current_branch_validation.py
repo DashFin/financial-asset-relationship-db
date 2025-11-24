@@ -44,20 +44,29 @@ class TestWorkflowModifications:
         assert any('parse' in name.lower() and 'comment' in name.lower() for name in step_names)
     
     def test_apisec_workflow_no_credential_checks(self):
-        """APIsec workflow should not have removed credential pre-checks."""
+        """APIsec workflow should not include credential pre-check steps (simplified)."""
         workflow_path = Path(".github/workflows/apisec-scan.yml")
-        
+    
         with open(workflow_path, 'r') as f:
             data = yaml.safe_load(f)
-        
+    
         # Workflow should exist and be valid
+        assert isinstance(data, dict)
         assert 'jobs' in data
         assert 'Trigger_APIsec_scan' in data['jobs']
+    
+        # Ensure no credential pre-check steps are present
+        job = data['jobs']['Trigger_APIsec_scan']
+        steps = job.get('steps', [])
+        step_names = [str(step.get('name', '')).lower() for step in steps if isinstance(step, dict)]
+        assert not any('credential' in name or 'secret' in name for name in step_names), \
+            "Found credential pre-check steps; these should be removed in the simplified workflow"
     
     def test_label_workflow_simplified(self):
         """Label workflow should be simplified without config checks."""
         workflow_path = Path(".github/workflows/label.yml")
-        
+        assert workflow_path.exists(), "Expected '.github/workflows/label.yml' to exist"
+    
         with open(workflow_path, 'r') as f:
             content = f.read()
         
@@ -87,19 +96,30 @@ class TestDeletedFilesNoReferences:
     def test_no_context_chunker_imports(self):
         """No Python files should import context_chunker."""
         import subprocess
-        
-        result = subprocess.run(
-            ['rg', '-l', 'context_chunker', '--type', 'py'],
-            capture_output=True,
-            text=True,
-            cwd=Path(__file__).parent.parent.parent
-        )
-        
-        # Should only appear in test files documenting the deletion
-        if result.stdout:
-            files_with_reference = result.stdout.strip().split('\n')
+        repo_root = Path(__file__).parent.parent.parent
+        try:
+            result = subprocess.run(
+                ['rg', '-l', 'context_chunker', '--type', 'py'],
+                capture_output=True,
+                text=True,
+                cwd=repo_root,
+                check=False,
+            )
+            output = result.stdout or ""
+            files_with_reference = output.strip().split('\n') if output.strip() else []
+        except FileNotFoundError:
+            # Fallback: scan python files without ripgrep
+            files_with_reference = []
+            for py_file in repo_root.rglob('*.py'):
+                try:
+                    with open(py_file, 'r', encoding='utf-8', errors='ignore') as f:
+                        if 'context_chunker' in f.read():
+                            files_with_reference.append(str(py_file))
+                except OSError:
+                    continue
+    
+        if files_with_reference:
             test_files = [f for f in files_with_reference if 'test' in f]
-            # All references should be in test files
             assert len(files_with_reference) == len(test_files)
     
     def test_labeler_config_deleted(self):
@@ -185,16 +205,12 @@ class TestPRAgentConfigSimplified:
         assert 'git' in data
 
 
-class TestBranchIntegration:
-    """Test overall branch integration and consistency."""
-    
-    def test_all_yaml_files_valid(self):
-        """All YAML files in the branch should be valid."""
-        yaml_files = list(Path('.github').rglob('*.yml')) + list(Path('.github').rglob('*.yaml'))
-        
         for yaml_file in yaml_files:
             try:
                 with open(yaml_file, 'r') as f:
+                    yaml.safe_load(f)
+            except (yaml.YAMLError, OSError, IOError) as e:
+                pytest.fail(f"Invalid or unreadable YAML in {yaml_file}: {e}")
                     yaml.safe_load(f)
             except yaml.YAMLError as e:
                 pytest.fail(f"Invalid YAML in {yaml_file}: {e}")
@@ -209,7 +225,7 @@ class TestBranchIntegration:
             
             # Check for references to deleted files
             assert '.github/scripts/context_chunker.py' not in content
-            assert '.github/labeler.yml' not in content or 'labeler.yml' in str(workflow_file)
+            assert '.github/labeler.yml' not in content
     
     def test_python_dependencies_installable(self):
         """Python dependencies should be installable."""
@@ -233,10 +249,10 @@ class TestDocumentationConsistency:
             'COMPREHENSIVE_BRANCH_TEST_GENERATION_SUMMARY.md'
         ]
         
-for summary_file in summary_files:
-    path = Path(summary_file)
-    assert path.is_file(), f"Required summary file '{summary_file}' does not exist or is not a file"
-    assert path.stat().st_size > 0, f"Summary file '{summary_file}' is empty"
+        for summary_file in summary_files:
+            path = Path(summary_file)
+            assert path.is_file(), f"Required summary file '{summary_file}' does not exist or is not a file"
+            assert path.stat().st_size > 0, f"Summary file '{summary_file}' is empty"
     
     def test_no_misleading_documentation(self):
         """Documentation should not reference removed features as active."""

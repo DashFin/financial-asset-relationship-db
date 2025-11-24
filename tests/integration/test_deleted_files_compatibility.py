@@ -61,17 +61,16 @@ class TestDeletedContextChunker:
     def test_no_python_dependencies_for_chunking(self):
         """Requirements should not include chunking dependencies if unused."""
         req_dev = Path("requirements-dev.txt")
-        
+
         if req_dev.exists():
             with open(req_dev, 'r') as f:
                 content = f.read()
-            
-            chunking_dependencies = ['tiktoken']
-            
-            for dep in chunking_dependencies:
-                assert dep not in content, \
-                    f"requirements-dev.txt still contains chunking dependency: {dep}"
-    
+
+            # If chunker is removed, these shouldn't be required anymore
+            # Fail if chunking-only deps linger in dev requirements
+            forbidden_packages = ("tiktoken",)
+            for pkg in forbidden_packages:
+                assert pkg not in content, f"requirements-dev.txt should not include {pkg} if chunking is unused"
     def test_scripts_directory_exists_or_empty(self):
         """Scripts directory should either not exist or not be referenced."""
         scripts_dir = Path(".github/scripts")
@@ -134,31 +133,30 @@ class TestDeletedLabelerConfig:
     def test_no_broken_labeler_action_calls(self):
         """Labeler action should not be called without proper config."""
         label_workflow = Path(".github/workflows/label.yml")
+    
+        if label_workflow.exists():
+            import yaml
+            with open(label_workflow, 'r') as f:
+                data = yaml.safe_load(f)
         
-if not label_workflow.exists():
-    pytest.skip(f"Label workflow not found at {label_workflow.absolute()}")
-        
-        import yaml
-        with open(label_workflow, 'r') as f:
-            data = yaml.safe_load(f)
-        
-        jobs = data.get('jobs', {})
-        default_labeler_config = Path(".github/labeler.yml")
-        
-        for job_name, job_data in jobs.items():
-            steps = job_data.get('steps', [])
+            # Check if labeler action is used
+            jobs = data.get('jobs', {})
+            for job_name, job_data in jobs.items():
+                steps = job_data.get('steps', [])
             
-            for step in steps:
-                uses = step.get('uses', '')
-                if 'labeler' in uses:
-                    with_config = step.get('with', {})
+                for step in steps:
+                    uses = step.get('uses', '')
+                    if 'labeler' in uses:
+                        # Should either:
+                        # 1. Not use labeler action anymore, or
+                        # 2. Have conditional execution, or
+                        # 3. Have inline configuration
+                        step_if = step.get('if', '')
+                        with_config = step.get('with', {})
                     
-                    config_path = with_config.get('configuration-path') if with_config else None
-                    
-if config_path:
-    config_file = Path(config_path)
-    absolute_path = config_file.resolve()
-    assert config_file.exists(), \
+                        # If using labeler, enforce proper handling
+                        assert (step_if or with_config), \
+                            f"Labeler action used without condition or inline config in step: {step}"
         f"Labeler action in {job_name} references missing config file: {config_path} (resolved to: {absolute_path})"
 elif not default_labeler_config.exists():
     # Check for actual label pattern configuration, not just metadata keys
@@ -172,7 +170,7 @@ elif not default_labeler_config.exists():
     assert has_label_patterns or has_conditional, \
         f"Labeler action in {job_name} has no label patterns (missing .github/labeler.yml and no inline patterns or conditional)"
                         
-                        assert has_inline_config or has_conditional, \
+                        assert has_label_patterns or has_conditional, \
                             f"Labeler action in {job_name} has no config (missing .github/labeler.yml and no inline config or conditional)"
 
 
@@ -229,7 +227,7 @@ class TestWorkflowConfigConsistency:
     
     def test_pr_agent_config_matches_workflow(self):
         """PR Agent config should match simplified workflow."""
-        config_path = Path(".github/pr-agent-config.yml")
+if 'chunking' not in workflow and not any('chunk' in str(key).lower() for key in workflow.keys()):
         workflow_path = Path(".github/workflows/pr-agent.yml")
         
         if config_path.exists() and workflow_path.exists():

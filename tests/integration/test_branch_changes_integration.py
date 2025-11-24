@@ -21,8 +21,10 @@ class TestWorkflowConfigurationIntegration:
         
         for workflow_file in list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml")):
             with open(workflow_file, 'r') as f:
-                data = yaml.safe_load(f)
-            
+                try:
+                    data = yaml.safe_load(f)
+                except yaml.YAMLError as e:
+                    pytest.fail(f"Malformed YAML in {workflow_file.name}: {e}")
             # Check if workflow needs secrets (contains secrets.*)
             content = yaml.dump(data)
             
@@ -190,9 +192,10 @@ class TestRequirementsConsistency:
                     packages.append(package.lower())
             
             # Check for duplicates
-            duplicates = [pkg for pkg in packages if packages.count(pkg) > 1]
-            assert len(set(duplicates)) == 0, \
-                f"{req_file} has duplicate packages: {set(duplicates)}"
+            from collections import Counter
+            pkg_counts = Counter(packages)
+            duplicates = [pkg for pkg, count in pkg_counts.items() if count > 1]
+            assert not duplicates, f"{req_file} has duplicate packages: {set(duplicates)}"
 
 
 class TestDocumentationConsistency:

@@ -299,11 +299,7 @@ class TestPrAgentWorkflow:
 
     def test_pr_agent_review_runs_on_ubuntu(self, pr_agent_workflow: Dict[str, Any]):
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-        runs_on = review_job.get("runs-on", "")
-        assert "ubuntu" in runs_on.lower(), (
-            f"PR Agent trigger job should run on Ubuntu runner, got '{runs_on}'"
-        )
-        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+
         runs_on = review_job.get("runs-on", "")
         assert runs_on in ["ubuntu-latest", "ubuntu-22.04", "ubuntu-20.04"], (
             f"PR Agent trigger job should run on standard Ubuntu runner, got '{runs_on}'"
@@ -333,15 +329,15 @@ class TestPrAgentWorkflow:
             step_with = step.get("with", {})
             token = step_with.get("token")
             assert isinstance(token, str) and token.strip(), (
-                "Checkout step must specify a non-empty token for better security. "
-                "Use ${{ secrets.GITHUB_TOKEN }} or similar."
-            )
-
     def test_pr_agent_has_python_setup(self, pr_agent_workflow: Dict[str, Any]):
         """Asserts the workflow's trigger job includes a setup-python step."""
 
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
+
+        python_steps = [
+            s for s in steps
+            if s.get("uses", "").startswith("actions/setup-python")
 
         python_steps = [
             s for s in steps
