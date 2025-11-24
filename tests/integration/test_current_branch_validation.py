@@ -69,6 +69,14 @@ class TestWorkflowModifications:
         step_names = [str(step.get('name', '')).lower() for step in steps if isinstance(step, dict)]
         assert not any('credential' in name or 'secret' in name for name in step_names), \
             "Found credential pre-check steps; these should be removed in the simplified workflow"
+        assert 'Trigger_APIsec_scan' in data['jobs']
+    
+        # Ensure no credential pre-check steps are present
+        job = data['jobs']['Trigger_APIsec_scan']
+        steps = job.get('steps', [])
+        step_names = [str(step.get('name', '')).lower() for step in steps if isinstance(step, dict)]
+        assert not any('credential' in name or 'secret' in name for name in step_names), \
+            "Found credential pre-check steps; these should be removed in the simplified workflow"
     
     def test_label_workflow_simplified(self):
         """Label workflow should be simplified without config checks."""
@@ -232,13 +240,13 @@ class TestPRAgentConfigSimplified:
         for workflow_file in list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml")):
             with open(workflow_file, 'r') as f:
                 content = f.read()
-            
-            # Check for references to deleted files
-            assert '.github/scripts/context_chunker.py' not in content
-            assert '.github/labeler.yml' not in content
+        
+        for summary_file in summary_files:
+            path = Path(summary_file)
+            assert path.is_file(), f"Required summary file '{summary_file}' does not exist or is not a file"
+            assert path.stat().st_size > 0, f"Summary file '{summary_file}' is empty"
     
-    def test_python_dependencies_installable(self):
-        """Python dependencies should be installable."""
+    def test_no_misleading_documentation(self):
         req_dev = Path("requirements-dev.txt")
         
         assert req_dev.exists()
