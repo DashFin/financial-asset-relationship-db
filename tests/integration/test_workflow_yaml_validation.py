@@ -82,9 +82,9 @@ class TestRequirementsDevChanges:
         """Verify PyYAML is in requirements-dev.txt."""
         path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
         with open(path, 'r') as f:
-            content = f.read().lower()
+            content = f.read()
         
-        assert 'pyyaml' in content or 'yaml' in content, \
+        assert any(line.strip().lower().startswith('pyyaml') for line in content.splitlines()), \
             "PyYAML should be in requirements-dev.txt for workflow validation"
 
 
