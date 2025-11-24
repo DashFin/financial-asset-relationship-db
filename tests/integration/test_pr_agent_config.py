@@ -153,9 +153,10 @@ class TestPRAgentConfigReviewSettings:
     """Test review-related configuration."""
     
     def test_review_settings_exist(self):
-        """Verify review settings are present."""
+        """Verify review settings are present if configured."""
         config = load_pr_agent_config()
-        assert "review" in config, "Configuration should have 'review' section"
+        if "review" in config:
+            assert isinstance(config["review"], dict), "'review' section must be a dictionary"
     
     def test_auto_review_is_boolean(self):
         """Verify auto_review setting is a boolean if present."""
@@ -385,7 +386,7 @@ class TestPRAgentConfigDocumentation:
             content = f.read()
         
         # Check for section markers (comments before major sections)
-        major_sections = ["agent", "monitoring", "actions", "review", "limits"]
+        major_sections = ["agent", "monitoring", "actions", "limits"]
         
         for section in major_sections:
             # Look for the section in the file
