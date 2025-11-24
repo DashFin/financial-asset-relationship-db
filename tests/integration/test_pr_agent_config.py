@@ -143,7 +143,7 @@ class TestPRAgentConfigActions:
         valid_types = ["review", "comment", "label", "merge", "test"]
         
         for action_name, action_config in actions.items():
-            if "type" in action_config:
+            if isinstance(action_config, dict) and "type" in action_config:
                 action_type = action_config["type"]
                 assert action_type in valid_types, \
                     f"Action '{action_name}' has invalid type '{action_type}'"
