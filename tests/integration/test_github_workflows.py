@@ -297,7 +297,12 @@ class TestPrAgentWorkflow:
             "'pr-agent-trigger' job must be a mapping"
         )
 
-    def test_pr_agent_review_runs_on_ubuntu(self, pr_agent_workflow: Dict[str, Any]):
+def test_pr_agent_review_runs_on_ubuntu(self, pr_agent_workflow: Dict[str, Any]):
+        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        runs_on = review_job.get("runs-on", "")
+        assert "ubuntu" in runs_on.lower(), (
+            f"PR Agent trigger job should run on Ubuntu runner, got '{runs_on}'"
+        )
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
 
         runs_on = review_job.get("runs-on", "")
@@ -333,11 +338,11 @@ class TestPrAgentWorkflow:
         """Asserts the workflow's trigger job includes a setup-python step."""
 
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
-        steps = review_job.get("steps", [])
+    def test_pr_agent_has_python_setup(self, pr_agent_workflow: Dict[str, Any]):
+        """Asserts the workflow's trigger job includes a setup-python step."""
 
-        python_steps = [
-            s for s in steps
-            if s.get("uses", "").startswith("actions/setup-python")
+        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        steps = review_job.get("steps", [])
 
         python_steps = [
             s for s in steps
@@ -429,7 +434,7 @@ class TestWorkflowSecurity:
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_no_hardcoded_secrets(self, workflow_file: Path):
         """Test that workflows don't contain hardcoded secrets or tokens."""
-        with open(workflow_file, 'r', encoding='utf-8') as f:
+        self._assert_valid_fetch_depth({})
             content = f.read()
         
         # Patterns that might indicate hardcoded secrets
@@ -1085,11 +1090,13 @@ class TestWorkflowEnvAndSecrets:
             if not isinstance(key, str) or not key or not all(c.isupper() or c.isdigit() or c == "_" for c in key)
         ]
 
-    @staticmethod
-    def _env_scopes(config: Dict[str, Any], workflow_name: str) -> List[Tuple[str, Dict[str, Any]]]:
-        """Collect workflow-level and job-level env mappings."""
-        scopes: List[Tuple[str, Dict[str, Any]]] = []
-        if "env" in config:
+
+        return [
+            key
+            for key in env_dict.keys()
+            if not key or not (any(c.isupper() for c in key) and all(c.isupper() or c.isdigit() or c == "_" for c in key))
+        ]
+
             scopes.append((f"workflow:{workflow_name}", config["env"]))
 
         scopes.extend(

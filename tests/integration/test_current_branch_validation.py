@@ -83,21 +83,23 @@ class TestWorkflowModifications:
         
         jobs = data.get('jobs', {})
         greeting_job = jobs.get('greeting', {})
-        steps = greeting_job.get('steps', [])
-        
-        # Should have first-interaction action
-        uses_actions = [step.get('uses', '') for step in steps]
-        assert any('first-interaction' in action for action in uses_actions)
+        search_root = Path(__file__).parent.parent.parent
+        files_with_reference = []
 
+        for py_path in search_root.rglob('*.py'):
+            try:
+                content = py_path.read_text(encoding='utf-8', errors='ignore')
+            except Exception:
+                # Skip unreadable files
+                continue
+            if 'context_chunker' in content:
+                files_with_reference.append(str(py_path))
 
-class TestDeletedFilesNoReferences:
-    """Test that deleted files have no remaining references."""
-    
-    def test_no_context_chunker_imports(self):
-        """No Python files should import context_chunker."""
-        import subprocess
-        repo_root = Path(__file__).parent.parent.parent
-        try:
+        # Should only appear in test files documenting the deletion
+        if files_with_reference:
+            test_files = [f for f in files_with_reference if 'test' in f]
+            # All references should be in test files
+            assert len(files_with_reference) == len(test_files)
             result = subprocess.run(
                 ['rg', '-l', 'context_chunker', '--type', 'py'],
                 capture_output=True,

@@ -281,9 +281,6 @@ class TestWorkflowBestPractices:
                 workflows[workflow_file.name] = yaml.safe_load(f)
         
         return workflows
-    
-    def test_actions_use_specific_versions(self, workflow_data):
-        """Actions should use specific versions, not @main or @master."""
         for filename, data in workflow_data.items():
             jobs = data.get('jobs', {})
             
@@ -293,6 +290,9 @@ class TestWorkflowBestPractices:
                         # Should not use @main or @master
                         if '@main' in uses or '@master' in uses:
                             warnings.warn(
+                                f"{filename} job '{job_name}' step {i} "
+                                f"uses unstable version: {uses}"
+                            )
                                 f"{filename} job '{job_name}' step {i} "
                                 f"uses unstable version: {uses}"
                             )

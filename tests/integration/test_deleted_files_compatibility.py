@@ -131,6 +131,7 @@ class TestDeletedLabelerConfig:
         assert 'jobs' in data
     
     def test_no_broken_labeler_action_calls(self):
+    def test_no_broken_labeler_action_calls(self):
         """Labeler action should not be called without proper config."""
         label_workflow = Path(".github/workflows/label.yml")
     
@@ -157,8 +158,6 @@ class TestDeletedLabelerConfig:
                         # If using labeler, enforce proper handling
                         assert (step_if or with_config), \
                             f"Labeler action used without condition or inline config in step: {step}"
-        f"Labeler action in {job_name} references missing config file: {config_path} (resolved to: {absolute_path})"
-elif not default_labeler_config.exists():
     # Check for actual label pattern configuration, not just metadata keys
     has_label_patterns = with_config and any(
         key not in ['sync-labels', 'dot', 'pr-number', 'configuration-path'] 
