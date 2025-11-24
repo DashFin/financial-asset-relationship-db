@@ -332,7 +332,7 @@ class TestPRAgentWorkflowPermissions:
             "Workflow should have 'contents: read' permission"
         job = workflow_content['jobs']['pr-agent-trigger']
         permissions = job.get('permissions', {})
-        assert permissions.get('issues') == 'write', \
+        assert permissions.get('issues') == 'write', "pr-agent-trigger job should have 'issues: write' permission"
         job = workflow_content['jobs']['pr-agent-trigger']
         permissions = job.get('permissions', {})
         assert permissions.get('issues') == 'write', \
