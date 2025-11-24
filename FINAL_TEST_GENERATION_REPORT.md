@@ -17,7 +17,7 @@ Following the **bias-for-action principle**, additional validation tests were cr
 ### `tests/integration/test_workflow_yaml_validation.py`
 - **Lines**: 92
 - **Test Classes**: 2
-- **Test Methods**: 6
+- **Test Methods**: 5
 - **Status**: ✅ Syntax validated
 
 **Test Coverage**:
