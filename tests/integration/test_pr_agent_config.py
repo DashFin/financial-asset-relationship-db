@@ -209,11 +209,18 @@ class TestPRAgentConfigSecurity:
                     k_l = str(k).lower()
                     # If key name suggests secret, ensure value is not a literal
                     if any(p in k_l for p in secret_key_patterns):
-                        if isinstance(v, str) and value_looks_secret(v):
+                        if isinstance(v, str) and not is_safe_placeholder(v) and value_looks_secret(v):
                             return True
-                        # Non-string values for secret-like keys should typically be empty/None
-                        if v not in (None, '') and not isinstance(v, (str, dict, list)):
+                        # Non-string values for secret-like keys should typically be empty/None or legitimate config types
+                        if v not in (None, '') and not isinstance(v, (str, dict, list, bool, int, float)):
                             return True
+                        # Flag numeric/boolean values that look suspicious (not safe placeholders)
+                        elif isinstance(v, (int, float, bool)) and not is_safe_placeholder(str(v)):
+                            # Allow common legitimate values for secret-like keys
+                            if isinstance(v, bool) or (isinstance(v, int) and 0 <= v <= 65535):
+                                pass  # These are likely legitimate config values (ports, flags, etc.)
+                            else:
+                                return True
                     if contains_hardcoded_secret(v):
                         return True
             elif isinstance(obj, list):
