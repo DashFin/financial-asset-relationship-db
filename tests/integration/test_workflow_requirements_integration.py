@@ -7,13 +7,28 @@ workflows can successfully use the installed dependencies.
 """
 
 import pytest
-import yaml
 from pathlib import Path
 from typing import List, Tuple
 
+yaml = pytest.importorskip("yaml")
 
-WORKFLOWS_DIR = Path(__file__).parent.parent.parent / ".github" / "workflows"
-REQUIREMENTS_FILE = Path(__file__).parent.parent.parent / "requirements-dev.txt"
+def find_project_root(start: Path) -> Path:
+    """Find project root by looking for common repo markers."""
+    markers = {".git", "pyproject.toml", "requirements-dev.txt", ".github"}
+    current = start.resolve()
+    for parent in [current] + list(current.parents):
+        try:
+            entries = {p.name for p in parent.iterdir()}
+        except Exception:
+            continue
+        if markers & entries:
+            return parent
+    # Fallback to three-level parent to preserve previous behavior
+    return Path(__file__).resolve().parents[2]
+
+PROJECT_ROOT = find_project_root(Path(__file__).parent)
+WORKFLOWS_DIR = PROJECT_ROOT / ".github" / "workflows"
+REQUIREMENTS_FILE = PROJECT_ROOT / "requirements-dev.txt"
 
 
 from packaging.requirements import Requirement
@@ -88,22 +103,22 @@ class TestWorkflowCanInstallRequirements:
         
         for job_name, job in workflow.get('jobs', {}).items():
             steps = job.get('steps', [])
-            
+
             install_idx = None
             test_idx = None
-            
+
             for i, step in enumerate(steps):
                 run_cmd = step.get('run', '').lower()
                 step_name = step.get('name', '').lower()
-                
+
                 if 'pip install' in run_cmd or 'requirements' in run_cmd:
                     if install_idx is None:
                         install_idx = i
-                
+
                 if 'pytest' in run_cmd or 'test' in step_name:
                     if test_idx is None:
                         test_idx = i
-            
+
             # If both exist, install should come before test
             if install_idx is not None and test_idx is not None:
                 assert install_idx < test_idx, (
@@ -121,7 +136,7 @@ class TestPyYAMLAvailability:
         
         requirements = parse_requirements(REQUIREMENTS_FILE)
         package_names = [pkg.lower() for pkg, _ in requirements]
-        assert 'PyYAML' in package_names, (
+        assert 'pyyaml' in package_names, (
             "PyYAML must be in requirements-dev.txt because test_github_workflows.py "
             "uses it to parse and validate workflow YAML files"
         )

@@ -159,7 +159,7 @@ class TestVersionSpecifications:
     def test_all_packages_have_versions(self, requirements: List[Tuple[str, str]]):
         """Test that all packages specify version constraints."""
         packages_without_versions = [pkg for pkg, ver in requirements if not ver]
-        assert len(packages_without_versions) == 0
+        assert len(packages_without_versions) == 0, f"Packages without version constraints: {packages_without_versions}"
     
     def test_version_format_valid(self, requirements: List[Tuple[str, str]]):
         """Test that version specifications use valid PEP 440 format."""
@@ -303,16 +303,20 @@ class TestRequirementsFileFormatting:
         with open(REQUIREMENTS_FILE, 'r') as f:
             lines = [line.strip() for line in f if line.strip() and not line.startswith('#')]
         
-        # Find lines that start with either PyYAML or types-PyYAML
-        pyyaml_lines = [line for line in lines if line.startswith('PyYAML') or line.startswith('types-PyYAML')]
+        # Find lines that start with PyYAML or types-PyYAML
+        pyyaml_lines = [line for line in lines if line.startswith('PyYAML') and not line.startswith('types-PyYAML')]
+        types_pyyaml_lines = [line for line in lines if line.startswith('types-PyYAML')]
         
-        assert len(pyyaml_lines) == 2, (
-            f"Should have exactly 2 separate lines for PyYAML dependencies, found {len(pyyaml_lines)}"
+        assert len(pyyaml_lines) == 1, (
+            f"Should have exactly 1 line for PyYAML, found {len(pyyaml_lines)}"
+        )
+        assert len(types_pyyaml_lines) == 1, (
+            f"Should have exactly 1 line for types-PyYAML, found {len(types_pyyaml_lines)}"
         )
         
         # Verify both are present
         has_pyyaml = any(line.startswith('PyYAML>=') for line in pyyaml_lines)
-        has_types = any(line.startswith('types-PyYAML>=') for line in pyyaml_lines)
+        has_types = any(line.startswith('types-PyYAML>=') for line in types_pyyaml_lines)
         
         assert has_pyyaml, "Should have PyYAML>=6.0"
         assert has_types, "Should have types-PyYAML>=6.0"
@@ -373,7 +377,6 @@ class TestRequirementsPackageIntegrity:
         types_version = None
         
         for line in content.split('\n'):
-            line = line.strip()
             if line.startswith('PyYAML>='):
                 pyyaml_version = line.split('>=')[1].strip()
             elif line.startswith('types-PyYAML>='):
@@ -464,11 +467,10 @@ class TestPyYAMLIntegration:
         """
         assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
         
-        with open(REQUIREMENTS_FILE, 'r') as f:
-            content = f.read()
+        requirements = parse_requirements(REQUIREMENTS_FILE)
+        package_names = [pkg for pkg, _ in requirements]
         
-        # PyYAML should be present (case-insensitive check)
-        assert 'pyyaml' in content.lower(), (
+        assert 'PyYAML' in package_names, (
             "PyYAML must be in requirements-dev.txt as it's needed for workflow validation tests"
         )
         
