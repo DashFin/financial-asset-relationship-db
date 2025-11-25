@@ -242,12 +242,12 @@ if action.startswith(("./", "../")):
                     f"Pinning action versions is a critical security best practice."
                 )
                 # Disallow floating branches like @main or @master
+                # Disallow floating branches like @main or @master
                 ref = action.split("@", 1)[1].strip()
                 assert ref and ref.lower() not in {"main", "master", "latest", "stable"}, (
                     f"Step {idx} in job '{job_name}' of {workflow_file.name} "
                     f"uses a floating branch '{ref}' for action '{action}'. Use a tagged release or commit SHA."
                 )
-                # Informational: if pinned by full SHA, recommend considering semver tags for maintainability
                 if len(ref) == 40 and all(c in "0123456789abcdef" for c in ref.lower()):
                     print(
                         f"Info: Step {idx} in job '{job_name}' of {workflow_file.name} "
