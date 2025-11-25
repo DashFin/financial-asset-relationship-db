@@ -399,18 +399,19 @@ class TestRequirementsDevUpdates:
             # Should not be in main requirements
             assert 'pyyaml' not in content.lower()
             assert 'PyYAML' not in content and 'pyyaml' not in content.lower()
-    def test_all_dev_requirements_have_versions(self):
-    def test_all_dev_requirements_have_versions(self):
+    
     def test_all_dev_requirements_have_versions(self):
         """Verify all dev requirements have version specifiers."""
+        req_file = Path(__file__).parent.parent.parent / "requirements-dev.txt"
+        
+        with open(req_file, 'r', encoding='utf-8') as f:
+            lines = f.read().strip().split('\n')
+        
         for line in lines:
-            # Skip empty lines and comments (including indented comments)
-            if not line or line.lstrip().startswith('#'):
-                continue
+            line = line.strip()
             if not line or line.startswith('#'):
                 continue
             
-            # Should have version specifier
             assert '>=' in line or '==' in line or '~=' in line, \
                 f"Requirement '{line}' should have a version specifier"
     
