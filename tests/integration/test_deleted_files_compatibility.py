@@ -172,7 +172,6 @@ class TestDeletedLabelerConfig:
                         assert (step_if or with_config), \
                             f"Labeler action used without condition or inline config in step: {step}"
 
-                            assert has_label_patterns or has_conditional, \
     """Validate that scripts README removal doesn't leave broken documentation."""
     
     def test_main_docs_dont_reference_scripts_readme(self):
