@@ -230,10 +230,9 @@ class TestWorkflowActions:
                 if "uses" not in step:
                     continue
                 
-                action = step["uses"]
-                
-                # Skip local actions
-                if action.startswith(("./", ".github/")):
+# Skip local actions (relative paths)
+if action.startswith(("./", "../")):
+    continue
                     continue
                 
                 # Action should have a version tag (e.g., @v1, @v3.5.2, or @<commit-sha>)
@@ -329,10 +328,11 @@ class TestPrAgentWorkflow:
             "pr-agent workflow must trigger on pull_request events"
         )
     
-    def test_pr_agent_trigger_runs_on_ubuntu(self, pr_agent_workflow: Dict[str, Any]):
+def test_pr_agent_trigger_runs_on_ubuntu(self, pr_agent_workflow: Dict[str, Any]):
         """Test that pr-agent-trigger job runs on Ubuntu."""
-        # Rely on test_pr_agent_has_trigger_job for job existence
-        trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        jobs = pr_agent_workflow.get("jobs", {})
+        assert "pr-agent-trigger" in jobs, "Missing pr-agent-trigger job"
+        trigger_job = jobs["pr-agent-trigger"]
         runs_on = trigger_job.get("runs-on", "")
         # Be more specific about expected runner format
         assert runs_on in ["ubuntu-latest", "ubuntu-22.04", "ubuntu-20.04"], (
