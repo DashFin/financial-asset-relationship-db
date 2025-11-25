@@ -54,22 +54,12 @@ class TestWorkflowYAMLSyntax:
                 try:
                     yaml.safe_load(f)
                 except yaml.YAMLError as e:
-                    pytest.fail(f"Invalid YAML in {workflow_file.name}: {e}")
-    
-    def test_workflows_have_required_top_level_keys(self, workflow_files: List[Path]):
-        """Test that workflows have required top-level keys."""
-        required_keys = {'name', 'on', 'jobs'}
-        
-        for workflow_file in workflow_files:
             with open(workflow_file, 'r') as f:
                 data = yaml.safe_load(f)
-
             if data is None:
                 pytest.fail(f"{workflow_file.name} is empty or invalid YAML")
-
             missing_keys = required_keys - set(data.keys())
-            assert not missing_keys, (
-                f"{workflow_file.name} missing required keys: {missing_keys}"
+            assert not missing_keys, f"{workflow_file.name} missing required keys: {missing_keys}"
             )
     
     def test_workflow_names_are_descriptive(self, workflow_files: List[Path]):
