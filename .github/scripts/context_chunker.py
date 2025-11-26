@@ -1,8 +1,40 @@
-        self.config: Dict = {}
+#!/usr/bin/env python3
+"""
+Context Chunker for PR Agent
+
+This module provides intelligent context chunking to handle large PRs
+without hitting token limits. It reads PR context from stdin and outputs
+processed/chunked content to stdout.
+"""
+
+import json
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
+
+try:
+    import yaml
+    YAML_AVAILABLE = True
+except ImportError:
+    YAML_AVAILABLE = False
+
+try:
+    import tiktoken
+    TIKTOKEN_AVAILABLE = True
+except ImportError:
+    TIKTOKEN_AVAILABLE = False
+
+
+class ContextChunker:
+    """Handles chunking of PR context to fit within token limits."""
+
+    def __init__(self, config_path: str = ".github/pr-agent-config.yml") -> None:
+        """Initialize the context chunker with configuration."""
+        self.config: Dict[str, Any] = {}
 
         # Load configuration if available
         cfg_file = Path(config_path)
-        if cfg_file.exists():
+        if cfg_file.exists() and YAML_AVAILABLE:
             try:
                 with cfg_file.open("r", encoding="utf-8") as f:
                     self.config = yaml.safe_load(f) or {}
@@ -15,7 +47,9 @@
         self.max_tokens: int = int(agent_cfg.get("max_tokens", 32000))
         self.chunk_size: int = int(agent_cfg.get("chunk_size", max(1, self.max_tokens - 4000)))
         self.overlap_tokens: int = int(agent_cfg.get("overlap_tokens", 2000))
-        self.summarization_threshold: int = int(agent_cfg.get("summarization_threshold", int(self.max_tokens * 0.9)))
+        self.summarization_threshold: int = int(
+            agent_cfg.get("summarization_threshold", int(self.max_tokens * 0.9))
+        )
 
         # Prepare priority order
         limits_cfg = (self.config.get("limits") or {}).get("fallback") or {}
@@ -33,42 +67,153 @@
         self._encoder = None
         if TIKTOKEN_AVAILABLE:
             try:
-                # Use a common 32k context model encoding if available; fallback to cl100k_base
                 self._encoder = tiktoken.get_encoding("cl100k_base")
             except Exception as e:
                 print(f"Warning: failed to initialize tiktoken encoder: {e}", file=sys.stderr)
                 self._encoder = None
 
-        # Precompiled regexes or any other helpers
-        processed_content = self._build_limited_content(chunks)
-        return processed_content, True
+    def count_tokens(self, text: str) -> int:
+        """Count tokens in text using tiktoken or estimate."""
+        if self._encoder:
+            return len(self._encoder.encode(text))
+        # Fallback: rough estimate of 4 chars per token
+        return len(text) // 4
 
-        def main():
-            """Example usage"""
-            chunker = ContextChunker()
-    
-            # Example PR data
-            example_pr = {
-                'reviews': [
-                    {
-                        'user': {'login': 'reviewer1'},
-                        'state': 'changes_requested',
-                        'body': 'Please fix the bug in the database connection and add tests.'
-                    }
-                ],
-                'files': [
-                    {
-                        'filename': 'src/data/database.py',
-                        'additions': 50,
-                        'deletions': 20,
-                        'patch': '@@ -1,5 +1,10 @@\n-old code\n+new code'
-                    }
-                ]
-            }
-    
-            processed, chunked = chunker.process_context(example_pr)
-            print(f"Chunked: {chunked}")
-            print(f"\nProcessed content:\n{processed}")
+    def process_context(self, pr_data: Dict[str, Any]) -> Tuple[str, bool]:
+        """
+        Process PR context data and return chunked content.
 
-        if __name__ == "__main__":
-            main()
+        Args:
+            pr_data: Dictionary containing PR information (reviews, files, etc.)
+
+        Returns:
+            Tuple of (processed_content, was_chunked)
+        """
+        processed_content = self._build_limited_content(pr_data)
+        token_count = self.count_tokens(processed_content)
+        was_chunked = token_count > self.chunk_size
+        return processed_content, was_chunked
+
+    def _build_limited_content(self, pr_data: Dict[str, Any]) -> str:
+        """Build size-limited content from PR data based on priority."""
+        sections: List[Tuple[int, str, str]] = []  # (priority, name, content)
+
+        # Extract reviews
+        reviews = pr_data.get("reviews", [])
+        if reviews:
+            review_text = self._format_reviews(reviews)
+            sections.append((self.priority_map.get("review_comments", 0), "reviews", review_text))
+
+        # Extract check runs (test failures)
+        check_runs = pr_data.get("check_runs", [])
+        if check_runs:
+            checks_text = self._format_check_runs(check_runs)
+            sections.append((self.priority_map.get("test_failures", 1), "check_runs", checks_text))
+
+        # Extract files
+        files = pr_data.get("files", [])
+        if files:
+            files_text = self._format_files(files)
+            sections.append((self.priority_map.get("changed_files", 2), "files", files_text))
+
+        # Sort by priority and build content
+        sections.sort(key=lambda x: x[0])
+
+        result_parts: List[str] = []
+        total_tokens = 0
+
+        for _, name, content in sections:
+            content_tokens = self.count_tokens(content)
+            if total_tokens + content_tokens <= self.max_tokens:
+                result_parts.append(f"## {name.replace('_', ' ').title()}\n{content}")
+                total_tokens += content_tokens
+            else:
+                # Truncate content to fit
+                remaining_tokens = self.max_tokens - total_tokens
+                if remaining_tokens > 100:
+                    truncated = self._truncate_to_tokens(content, remaining_tokens - 50)
+                    result_parts.append(f"## {name.replace('_', ' ').title()} (truncated)\n{truncated}")
+                break
+
+        return "\n\n".join(result_parts) if result_parts else json.dumps(pr_data, indent=2)
+
+    def _format_reviews(self, reviews: List[Dict[str, Any]]) -> str:
+        """Format review comments."""
+        lines: List[str] = []
+        for review in reviews:
+            user = review.get("user", {}).get("login", "unknown") if isinstance(review.get("user"), dict) else review.get("user", "unknown")
+            state = review.get("state", "unknown")
+            body = review.get("body", "")
+            lines.append(f"- **{user}** ({state}): {body[:500]}")
+        return "\n".join(lines)
+
+    def _format_check_runs(self, check_runs: List[Dict[str, Any]]) -> str:
+        """Format check run results."""
+        lines: List[str] = []
+        for check in check_runs:
+            name = check.get("name", "unknown")
+            conclusion = check.get("conclusion", "unknown")
+            output = check.get("output", {})
+            summary = output.get("summary", "") if isinstance(output, dict) else ""
+            lines.append(f"- **{name}**: {conclusion}")
+            if summary:
+                lines.append(f"  {summary[:200]}")
+        return "\n".join(lines)
+
+    def _format_files(self, files: List[Dict[str, Any]]) -> str:
+        """Format changed files."""
+        lines: List[str] = []
+        for f in files:
+            filename = f.get("filename", "unknown")
+            additions = f.get("additions", 0)
+            deletions = f.get("deletions", 0)
+            lines.append(f"- `{filename}` (+{additions}/-{deletions})")
+        return "\n".join(lines)
+
+    def _truncate_to_tokens(self, text: str, max_tokens: int) -> str:
+        """Truncate text to approximately max_tokens."""
+        if self._encoder:
+            tokens = self._encoder.encode(text)
+            if len(tokens) <= max_tokens:
+                return text
+            truncated_tokens = tokens[:max_tokens]
+            return self._encoder.decode(truncated_tokens) + "..."
+        # Fallback: estimate 4 chars per token
+        max_chars = max_tokens * 4
+        if len(text) <= max_chars:
+            return text
+        return text[:max_chars] + "..."
+
+
+def main() -> None:
+    """Main entry point - reads from stdin, writes to stdout."""
+    chunker = ContextChunker()
+
+    try:
+        # Read JSON from stdin
+        input_data = sys.stdin.read()
+        if not input_data.strip():
+            print("{}", file=sys.stdout)
+            return
+
+        pr_data = json.loads(input_data)
+        processed, chunked = chunker.process_context(pr_data)
+
+        # Output processed content as JSON
+        output = {
+            "content": processed,
+            "chunked": chunked,
+            "original_keys": list(pr_data.keys()) if isinstance(pr_data, dict) else [],
+        }
+        print(json.dumps(output, indent=2), file=sys.stdout)
+
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON input: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error processing context: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

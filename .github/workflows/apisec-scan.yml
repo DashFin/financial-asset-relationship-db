@@ -74,8 +74,8 @@ permissions:
 jobs:
 
   Trigger_APIsec_scan:
-    # Skip if APIsec credentials are not configured
-    if: ${{ secrets.apisec_username != '' && secrets.apisec_password != '' }}
+    # Note: Credential check is performed in the first step since secrets context
+    # is not available in job-level 'if' conditions
     concurrency:
       group: apisec-${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
