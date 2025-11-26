@@ -247,12 +247,12 @@ class TestWorkflowConfigConsistency:
                         return True
             elif isinstance(obj, str):
                 if 'chunk' in obj.lower():
-                    return True
-            return False
-
-        if not contains_chunking(workflow):
-            assert not contains_chunking(config), \
-                for k, v in obj.items():
+            # Extract file paths mentioned in workflow
+            import re
+            file_patterns = re.findall(r'\.github/[^\s\'"]+', content)
+            for file_path in file_patterns:
+                file_path = file_path.rstrip(',')
+                path = Path(file_path)
                     if 'chunk' in str(k).lower():
                         return True
                     if contains_chunking_setting(v):
