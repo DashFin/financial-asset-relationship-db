@@ -45,7 +45,15 @@
 
 
     def _build_limited_content(self, chunks):
-        """Placeholder for building limited content."""
+        """
+        Build limited content from chunks (placeholder implementation).
+
+        Parameters:
+            chunks: Collection of content chunks to process.
+
+        Returns:
+            str: Empty string placeholder; to be implemented.
+        """
         return ""
         """Placeholder for building limited content."""
         return ""
