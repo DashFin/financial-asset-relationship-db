@@ -136,7 +136,9 @@ class ContextChunker:
                     if "\n" in truncated:
                         truncated = truncated.rsplit("\n", 1)[0]
                     truncated += "\n\n[... truncated due to context size limits ...]"
-                    result_parts.append(f"## {name.replace('_', ' ').title()} (truncated)\n{truncated}")
+                    truncated_section = f"## {name.replace('_', ' ').title()} (truncated)\n{truncated}"
+                    result_parts.append(truncated_section)
+                    total_tokens += self.count_tokens(truncated_section)
                     was_truncated = True
                 break
 
