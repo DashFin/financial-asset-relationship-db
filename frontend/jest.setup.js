@@ -4,14 +4,24 @@ import '@testing-library/jest-dom'
 const originalConsoleError = console.error
 const originalConsoleWarn = console.warn
 
+
 console.error = (...args) => {
   // Keep stack traces available while preventing noisy test output
+  const message = args[0]?.toString() || ''
+  if (message.includes('some-pattern-to-ignore')) {
+    return
+  }
   originalConsoleError(...args)
 }
 
 console.warn = (...args) => {
+  const message = args[0]?.toString() || ''
+  if (message.includes('some-pattern-to-ignore')) {
+    return
+  }
   originalConsoleWarn(...args)
 }
+
 
 // Provide default environment values used throughout the app
 afterAll(() => {
