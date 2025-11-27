@@ -193,7 +193,18 @@ def main() -> None:
     """Main entry point - reads from stdin, writes to stdout."""
     chunker = ContextChunker()
 
+def main() -> None:
+    """Main entry point - reads from stdin, writes to stdout."""
+    chunker = ContextChunker()
+
     try:
+        # Read JSON from stdin
+        input_data = sys.stdin.read()
+        if not input_data.strip():
+            print(json.dumps({}), file=sys.stdout)
+            return
+
+        pr_data = json.loads(input_data)
         # Read JSON from stdin
         input_data = sys.stdin.read()
         if not input_data.strip():
