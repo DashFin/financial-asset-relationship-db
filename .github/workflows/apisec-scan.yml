@@ -69,11 +69,10 @@ on:
 
 
 permissions:
-  contents: read
-
-jobs:
-
   Trigger_APIsec_scan:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    # Note: Credential check is performed in the first step since secrets context
+    # is not available in job-level 'if' conditions
     concurrency:
       group: apisec-${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
