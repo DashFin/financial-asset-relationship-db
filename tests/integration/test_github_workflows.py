@@ -358,7 +358,8 @@ class TestPrAgentWorkflow:
         """
         Validate the pr-agent workflow defines a pr-agent-trigger job and that it runs on a supported Ubuntu runner.
         
-        @param pr_agent_workflow: Parsed YAML mapping for the pr-agent workflow file.
+        Parameters:
+            pr_agent_workflow (Dict[str, Any]): Parsed YAML mapping for the pr-agent workflow file.
         """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         runs_on = review_job.get("runs-on", "")
