@@ -156,7 +156,7 @@ class ContextChunker:
                 user = str(user_data) if user_data else "unknown"
             state = review.get("state", "unknown")
             body = review.get("body", "")
-            lines.append(f"- **{user}** ({state}): {body[:500]}")
+            lines.append(f"- **{user}** ({state}): {(body or '(no comment)')[:500]}")
         return "\n".join(lines)
 
     def _format_check_runs(self, check_runs: List[Dict[str, Any]]) -> str:
