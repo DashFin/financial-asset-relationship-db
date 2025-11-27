@@ -195,10 +195,7 @@ def main() -> None:
 
     try:
         # Read JSON from stdin
-        input_data = sys.stdin.read()
-if not input_data.strip():
-    print(json.dumps({}), file=sys.stdout)
-    return
+input_data = sys.stdin.read()
 if not input_data.strip():
     print(json.dumps({}), file=sys.stdout)
     return
