@@ -47,6 +47,8 @@
     def _build_limited_content(self, chunks):
         """Placeholder for building limited content."""
         return ""
+        """Placeholder for building limited content."""
+        return ""
 
         def main():
             """Example usage"""
