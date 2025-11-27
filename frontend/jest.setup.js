@@ -1,7 +1,8 @@
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
 
-const originalConsoleError = console.error
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
 const originalConsoleWarn = console.warn
 
 
