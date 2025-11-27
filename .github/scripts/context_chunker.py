@@ -254,7 +254,6 @@ input_data = sys.stdin.read()
 if not input_data.strip():
     print(json.dumps({}), file=sys.stdout)
     return
-            return
 
         pr_data = json.loads(input_data)
         processed, chunked = chunker.process_context(pr_data)
