@@ -17,6 +17,8 @@ try:
     YAML_AVAILABLE = True
 except ImportError:
     YAML_AVAILABLE = False
+    print("Warning: PyYAML not available. Using default configuration. "
+          "Install with: pip install pyyaml", file=sys.stderr)
 
 try:
     import tiktoken
