@@ -3,7 +3,6 @@ import '@testing-library/jest-dom'
 
 const originalConsoleError = console.error;
 const originalConsoleWarn = console.warn;
-const originalConsoleWarn = console.warn
 
 
 console.error = (...args) => {
