@@ -212,7 +212,7 @@ def main() -> None:
         # Output processed content as JSON
         output = {
             "content": processed,
-            "chunked": was_truncated,
+            "was_truncated": was_truncated,
             "original_keys": list(pr_data.keys()) if isinstance(pr_data, dict) else [],
         }
         print(json.dumps(output, indent=2), file=sys.stdout)
