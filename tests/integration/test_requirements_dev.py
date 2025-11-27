@@ -175,8 +175,9 @@ class TestVersionSpecifications:
         Return the parsed list of (package_name, version_spec) pairs from the development requirements file.
         
         Each tuple contains the package name and a single version specifier string; the version spec is an empty string when no specifier is present.
+        
         Returns:
-            requirements (List[Tuple[str, str]]): Parsed requirements as (package_name, version_spec) pairs.
+            List[Tuple[str, str]]: Parsed requirements as (package_name, version_spec) pairs.
         """
         return parse_requirements(REQUIREMENTS_FILE)
 
