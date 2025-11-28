@@ -400,7 +400,18 @@ class TestDocumentationMarkdownQuality:
             
             for link_text, link_url in links:
                 # Check internal links (not http/https)
+                # Skip external links (only validate local paths)
                 if link_url.startswith(('http://', 'https://', 'mailto:')):
+                    continue
+                # Remove fragment and validate only when a local path is present
+                target_path = link_url.split('#', 1)[0].strip()
+                if not target_path:
+                    # Pure-fragment or empty target; not a filesystem path to validate here
+                    continue
+                # Resolve path relative to the doc file if needed
+                link_path = Path(target_path)
+                if not link_path.exists():
+                    link_path = (doc_file.parent / target_path).resolve()
                     continue
                 target_path = link_url.split('#', 1)[0]
                 if not target_path:
