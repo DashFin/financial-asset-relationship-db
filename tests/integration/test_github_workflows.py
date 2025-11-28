@@ -296,7 +296,7 @@ class TestPrAgentWorkflow:
     def test_pr_agent_name(self, pr_agent_workflow: Dict[str, Any]):
         """
         Check the pr-agent workflow's top-level "name" field.
-        
+
         Parameters:
             pr_agent_workflow (Dict[str, Any]): Parsed YAML mapping for the pr-agent workflow fixture.
         """
@@ -305,6 +305,9 @@ class TestPrAgentWorkflow:
         )
         assert isinstance(pr_agent_workflow["name"], str) and pr_agent_workflow["name"].strip(), (
             "pr-agent workflow 'name' field must be a non-empty string"
+        )
+        assert pr_agent_workflow["name"] == "PR Agent Workflow", (
+            "pr-agent workflow 'name' must exactly equal 'PR Agent Workflow'"
         )
     
     def test_pr_agent_triggers_on_pull_request(self, pr_agent_workflow: Dict[str, Any]):
