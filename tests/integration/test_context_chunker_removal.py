@@ -65,7 +65,7 @@ class TestContextChunkerRemoval:
             
             assert 'context_chunker.py' not in content, \
                 f"{workflow_file.name} references context_chunker.py"
-            assert 'context_chunker' not in content.lower() or 'context' not in content.lower(), \
+            assert 'context_chunker' not in content.lower() and 'context chunker' not in content.lower(), \
                 f"{workflow_file.name} may reference context chunking functionality"
 
 
