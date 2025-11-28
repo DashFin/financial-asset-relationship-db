@@ -102,7 +102,11 @@ class TestMarkdownFormatting:
         assert open_block is False, "Code blocks not properly closed or mismatched triple backticks detected"
     
     def test_lists_properly_formatted(self, summary_lines: List[str]):
-        """Test that bullet lists use consistent markers."""
+        """
+        Ensure bullet list items use an indentation that is an even multiple of two spaces.
+        
+        Scans lines that start with '-', '*' or '+' and asserts that each list item's leading spaces are divisible by 2. Raises AssertionError naming the offending line when a list item has odd indentation.
+        """
         list_lines = [line for line in summary_lines if re.match(r'^\s*[-*+] ', line)]
         if list_lines:
             # Check that indentation is consistent
@@ -174,7 +178,14 @@ class TestCodeExamples:
             assert 'pytest' in cmd, "pytest command should contain 'pytest'"
     
     def test_file_paths_in_examples_exist(self, summary_content: str):
-        """Test that referenced file paths in examples actually exist."""
+        """
+        Verify that file paths to integration tests referenced in examples exist within the repository.
+        
+        Scans the provided document content for occurrences of paths matching the pattern `tests/integration/test_*.py` and asserts that each referenced file exists relative to the repository root. If any referenced files are missing the test fails once with a consolidated message listing each missing reference and its resolved filesystem path to help update the documentation.
+        
+        Parameters:
+        	summary_content (str): The text content of the summary/document to scan for referenced file paths.
+        """
         # Look for test file references
         test_file_pattern = r'tests/integration/test_\w+\.py'
         mentioned_files = re.findall(test_file_pattern, summary_content)
@@ -199,7 +210,12 @@ class TestDocumentCompleteness:
     """Test suite for document completeness."""
     
     def test_has_summary_statistics(self, summary_content: str):
-        """Test that document includes statistics about tests."""
+        """
+        Assert the document contains numeric statistics referencing tests or test classes.
+        
+        Parameters:
+            summary_content (str): The full markdown content to inspect.
+        """
         # Should mention numbers of tests, classes, etc.
         has_numbers = re.search(r'\d+\s+(tests?|class(?:es)?)', summary_content, re.IGNORECASE)
         assert has_numbers is not None, \
@@ -261,10 +277,35 @@ class TestLinkValidation:
     """Test suite for link validation."""
 
     def test_internal_links_valid(self, summary_lines: List[str], summary_content: str):
+        """
+        Validate that every internal Markdown link (of the form [text](#anchor)) points to an existing header anchor.
+        
+        This test derives valid anchors from document headers using GitHub Flavoured Markdown-like rules:
+        normalises Unicode (removing diacritics), lowercases, removes punctuation except hyphens, replaces
+        whitespace with single hyphens, collapses repeated hyphens and trims leading/trailing hyphens.
+        It then extracts internal links from the full content and asserts each referenced anchor exists.
+        
+        Parameters:
+            summary_lines (List[str]): The document split into lines; used to extract header texts.
+            summary_content (str): The full document content; used to locate internal link targets.
+        
+        Raises:
+            AssertionError: If an internal link references a non-existent header anchor. The failure message
+            will include the missing anchor (e.g. "Internal link to #missing-anchor references non-existent header").
+        """
         import unicodedata
 
         def _to_gfm_anchor(text: str) -> str:
             # Lowercase
+            """
+            Convert a header text into a GitHub‑Flavored Markdown (GFM) anchor string.
+            
+            Parameters:
+            	text (str): Header text to convert into an anchor.
+            
+            Returns:
+            	anchor (str): A GFM-compatible anchor: lowercased, unicode diacritics removed, punctuation removed (except hyphens), whitespace collapsed to single hyphens, multiple hyphens collapsed, and leading/trailing hyphens stripped.
+            """
             s = text.strip().lower()
             # Normalize unicode to NFKD and remove diacritics
             s = unicodedata.normalize('NFKD', s)
@@ -349,7 +390,11 @@ class TestEdgeCases:
             "Document should not contain replacement characters (encoding issues)"
     
     def test_utf8_encoding(self):
-        """Test that file is properly UTF-8 encoded."""
+        """
+        Verify the SUMMARY_FILE can be decoded as UTF-8.
+        
+        Fails the test if reading the file raises a UnicodeDecodeError.
+        """
         try:
             with open(SUMMARY_FILE, 'r', encoding='utf-8') as f:
                 f.read()
@@ -357,7 +402,11 @@ class TestEdgeCases:
             pytest.fail("File should be valid UTF-8")
     
     def test_consistent_line_endings(self):
-        """Test that file uses consistent line endings throughout."""
+        """
+        Check that the summary file uses a single, recognised line-ending style.
+        
+        Skips the check if the file is empty. Fails the test if multiple line-ending styles are present or if the file only uses the classic Mac `CR` style; the accepted styles are `LF` or `CRLF`.
+        """
         with open(SUMMARY_FILE, 'rb') as f:
             content = f.read()
 
