@@ -432,13 +432,13 @@ class TestDocumentationMarkdownQuality:
     def test_code_blocks_have_language(self):
         """Ensure code blocks specify language for syntax highlighting."""
         summary_files = list(Path('.').glob('*SUMMARY.md')) + list(Path('.').glob('TEST_*.md'))
-        
+
         for doc_file in summary_files:
             content = doc_file.read_text()
-            
-            # Find code blocks
+
+            # Find code blocks - match complete blocks to only capture opening fence language
             import re
-            code_blocks = re.findall(r'```(\w*)\n', content)
+            code_blocks = re.findall(r'```(\w*)\n.*?```', content, re.DOTALL)
             
             if code_blocks:
                 # At least 80% should have language specified
