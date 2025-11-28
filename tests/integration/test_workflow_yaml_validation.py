@@ -116,12 +116,14 @@ class TestWorkflowStructure:
         jobs = workflow_content.get('jobs', {})
         
         for job_name, job_config in jobs.items():
+            if not isinstance(job_config, dict):
+                pytest.fail(f"Job '{job_name}' in {workflow_file.name} is not a dictionary")
+
             if 'uses' in job_config:
                 continue
 
             assert 'runs-on' in job_config, \
                 f"Job '{job_name}' in {workflow_file.name} missing 'runs-on'"
-    
     def test_jobs_have_steps(self, workflow_content, workflow_file):
         """Each job should have steps defined."""
         jobs = workflow_content.get('jobs', {})
