@@ -42,7 +42,14 @@ class TestDocumentationExists:
 
 @pytest.fixture(scope='session')
 def doc_content() -> str:
-    """Load the documentation content once per test session."""
+    """
+    Read the project's documentation file and return its entire contents.
+    
+    If the file does not exist or cannot be read the test run is failed via pytest.fail with an explanatory message.
+    
+    Returns:
+        The full contents of the documentation file as a string.
+    """
     try:
         with open(DOC_FILE, 'r', encoding='utf-8') as f:
             return f.read()
@@ -54,7 +61,18 @@ def doc_content() -> str:
 
 @pytest.fixture(scope='session')
 def doc_lines(doc_content: str) -> List[str]:
-    """Provide the documentation as a list of lines once per session."""
+    """
+    Split the documentation content into a list of lines, preserving original line endings.
+    
+    Parameters:
+        doc_content (str): Entire documentation text to split.
+    
+    Returns:
+        List[str]: Lines from the documentation, each including its original line ending where present.
+    
+    Raises:
+        pytest.Fail: Fails the pytest run if `doc_content` is empty.
+    """
     if not doc_content:
         pytest.fail("Loaded documentation content is empty.")
     return doc_content.splitlines(keepends=True)
@@ -62,7 +80,15 @@ def doc_lines(doc_content: str) -> List[str]:
 
 @pytest.fixture(scope='session')
 def section_headers(doc_lines: List[str]) -> List[str]:
-    """Extract markdown section headers from the documentation lines."""
+    """
+    Extract markdown section headers from the provided lines, ignoring content inside fenced code blocks.
+    
+    Parameters:
+        doc_lines (List[str]): Lines of a markdown document, including line endings.
+    
+    Returns:
+        List[str]: The header lines (leading whitespace removed) for each markdown header found outside fenced code blocks.
+    """
     headers = []
     in_code_block = False
     for line in doc_lines:
@@ -100,4 +126,3 @@ class TestDocumentationContent:
         """Test that document has sufficient number of sections."""
         assert len(section_headers) >= 5, \
             f"Document should have at least 5 major sections, found {len(section_headers)}"
-

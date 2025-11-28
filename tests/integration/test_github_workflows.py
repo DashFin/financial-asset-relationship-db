@@ -155,9 +155,9 @@ class TestWorkflowStructure:
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_has_triggers(self, workflow_file: Path):
         """
-        Ensure the workflow defines at least one trigger via a top-level "on" field.
-    
-        Asserts that the loaded workflow mapping contains a top-level "on" key.
+        Ensure a workflow file declares at least one trigger using the top-level "on" field.
+        
+        Asserts that the parsed workflow is a mapping and contains the "on" key; on failure the assertion message identifies the workflow file.
         """
         config = load_yaml_safe(workflow_file)
         assert isinstance(config, dict), (
@@ -219,7 +219,14 @@ class TestWorkflowActions:
     
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_actions_have_versions(self, workflow_file: Path):
-        """Test that all GitHub Actions specify a version/tag and flag floating branches."""
+        """
+        Ensure every `uses` action in the workflow is pinned to a specific version and that floating branch refs are disallowed.
+        
+        Asserts that non-local actions (those not starting with `./`) include a `@` ref (for example `@v1`, `@v3.5.2`, or `@<commit-sha>`). Fails the test if an action is unpinned or if the ref is a floating branch like `main`, `master`, `latest`, or `stable`. Prints an informational message when an action is pinned by a 40-character commit SHA to encourage considerating semantic version tags for maintainability.
+        
+        Parameters:
+            workflow_file (Path): Path to the workflow YAML file under test.
+        """
         config = load_yaml_safe(workflow_file)
         jobs = config.get("jobs", {})
 
@@ -253,10 +260,10 @@ class TestWorkflowActions:
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_steps_have_names_or_uses(self, workflow_file: Path):
         """
-        Ensure each step in every job defines at least one of 'name', 'uses' or 'run'.
+        Validate that every step in each job defines at least one of 'name', 'uses' or 'run'.
         
         Parameters:
-            workflow_file (Path): Path to the workflow YAML file being validated.
+            workflow_file (Path): Path to the workflow YAML file whose jobs' steps are being validated.
         """
         config = load_yaml_safe(workflow_file)
         jobs = config.get("jobs", {})
@@ -295,7 +302,7 @@ class TestPrAgentWorkflow:
     
     def test_pr_agent_name(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Check the pr-agent workflow's top-level "name" field.
+        Validate that the pr-agent workflow declares a non-empty top-level `name`.
         
         Parameters:
             pr_agent_workflow (Dict[str, Any]): Parsed YAML mapping for the pr-agent workflow fixture.
@@ -308,7 +315,14 @@ class TestPrAgentWorkflow:
         )
     
     def test_pr_agent_triggers_on_pull_request(self, pr_agent_workflow: Dict[str, Any]):
-        """Test that pr-agent workflow triggers on pull_request events."""
+        """
+        Verify the pr-agent workflow is configured to trigger on the `pull_request` event.
+        
+        Normalises the workflow's `on` field (string, list or mapping) to determine the set of event names and asserts that `pull_request` is present in that set.
+        
+        Parameters:
+            pr_agent_workflow (dict): Parsed workflow mapping for pr-agent.yml.
+        """
         raw_triggers = pr_agent_workflow.get("on", {})
 
         # Normalize triggers to a set of explicit event names
@@ -352,7 +366,14 @@ class TestPrAgentWorkflow:
         assert "pr-agent-trigger" in jobs, "pr-agent workflow must have pr-agent-trigger job"
     
     def test_pr_agent_review_runs_on_ubuntu(self, pr_agent_workflow: Dict[str, Any]):
-        """Test that pr-agent-trigger job runs on Ubuntu."""
+        """
+        Validates the pr-agent workflow contains a 'pr-agent-trigger' job and that it runs on a supported Ubuntu runner.
+        
+        Checks that the workflow mapping includes a job named 'pr-agent-trigger' and that the job's `runs-on` value is one of: 'ubuntu-latest', 'ubuntu-22.04', or 'ubuntu-20.04'.
+        
+        Parameters:
+            pr_agent_workflow (dict): Parsed workflow YAML as a mapping.
+        """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         runs_on = review_job.get("runs-on", "")
         # Be more specific about expected runner format
@@ -373,7 +394,11 @@ class TestPrAgentWorkflow:
         )
     
     def test_pr_agent_has_checkout_step(self, pr_agent_workflow: Dict[str, Any]):
-        """Test that pr-agent-trigger job checks out the code."""
+        """
+        Ensure the 'pr-agent-trigger' job includes at least one step that uses actions/checkout.
+        
+        Asserts that the workflow's 'pr-agent-trigger' job has a step with a `uses` value beginning with `actions/checkout`.
+        """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
         
@@ -385,9 +410,12 @@ class TestPrAgentWorkflow:
     
     def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Ensure every actions/checkout step in the pr-agent-trigger job provides a `token` in its `with` mapping.
+        Ensure every actions/checkout step in the "pr-agent-trigger" job includes a non-empty `token` in its `with` mapping.
         
-        Fails the test if any checkout step omits the `token` key.
+        Asserts that each checkout step's `with.token` is a non-empty string (for example `\${{ secrets.GITHUB_TOKEN }}`).
+        
+        Parameters:
+            pr_agent_workflow (dict): Parsed YAML mapping for pr-agent.yml representing the workflow contents.
         """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
@@ -472,7 +500,14 @@ class TestPrAgentWorkflow:
             )
     
     def test_pr_agent_no_duplicate_setup_steps(self, pr_agent_workflow: Dict[str, Any]):
-        """Test that there are no duplicate setup steps in the workflow."""
+        """
+        Warns if the `pr-agent-trigger` job contains steps with duplicate names.
+        
+        Scans the `pr-agent-trigger` job in the provided workflow mapping for step `name` values and prints a warning listing any names that appear more than once.
+        
+        Parameters:
+            pr_agent_workflow (Dict[str, Any]): Parsed workflow mapping for `pr-agent.yml`.
+        """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
         
@@ -673,9 +708,12 @@ class TestWorkflowEdgeCases:
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_consistent_indentation(self, workflow_file: Path):
         """
-        Check if all non-empty, non-comment lines in the workflow file use indentation in multiples of two spaces.
+        Validate that non-empty, non-comment lines in a workflow file use indentation in multiples of two spaces.
         
-        This test checks the leading-space count of significant lines and prints a warning if any line's indentation is not a multiple of 2.
+        If inconsistent indentation levels are detected, prints a formatting warning listing the observed indentation levels and the workflow file name.
+        
+        Parameters:
+            workflow_file (Path): Path to the workflow YAML file to inspect.
         """
         with open(workflow_file, 'r', encoding='utf-8') as f:
             lines = f.readlines()
@@ -1137,7 +1175,11 @@ class TestWorkflowStepConfiguration:
     
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_steps_continue_on_error_usage(self, workflow_file: Path):
-        """Test that continue-on-error is used sparingly and intentionally."""
+        """
+        Verify steps using `continue-on-error` include a descriptive name.
+        
+        Prints a recommendation when a step in any job has `continue-on-error: true` but lacks a `name`, encouraging an explicit explanation for the tolerant failure.
+        """
         config = load_yaml_safe(workflow_file)
         jobs = config.get("jobs", {})
         
@@ -1158,13 +1200,21 @@ class TestWorkflowEnvAndSecrets:
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_env_vars_naming_convention(self, workflow_file: Path):
         """
-        Validate that environment variables in workflow files follow UPPER_CASE naming convention.
-
+        Validate that workflow environment variable names use UPPER_CASE and contain only letters, digits or underscores.
+        
+        Checks environment variable mappings at the workflow level and within each job; prints a maintainability warning listing any offending variable names and the workflow file when violations are found.
+        
         Parameters:
-            workflow_file (Path): Path to the workflow YAML file being tested.
-
-        Notes:
-            Checks environment variables at both workflow level and job level for proper naming.
+            workflow_file (Path): Path to the workflow YAML file being checked.
+        """
+        """
+        Return a list of environment variable names from a mapping that do not consist solely of uppercase letters, digits or underscores.
+        
+        Parameters:
+            env_dict (dict): Mapping of environment variable names to values. Non-dict values are treated as absent.
+        
+        Returns:
+            invalid_keys (List[str]): List of keys from `env_dict` that violate the naming convention.
         """
         config = load_yaml_safe(workflow_file)
 
@@ -1914,7 +1964,11 @@ class TestTestSuiteCompleteness:
             assert wf.suffix in ['.yml', '.yaml'], f"Workflow file {wf} should be YAML"
     
     def test_test_coverage_is_comprehensive(self):
-        """Ensure we have multiple test categories."""
+        """
+        Ensure the test suite defines a broad set of test classes covering multiple categories.
+        
+        Asserts that the current module contains at least 15 test classes whose names start with "Test"; fails with a message stating the found count if the requirement is not met.
+        """
         # Count test classes in this module
         import sys
         import inspect
@@ -2257,7 +2311,11 @@ class TestWorkflowSecurityEnhancements:
                         )
 
     def test_workflows_no_code_execution_in_untrusted_context(self):
-        """Test that workflows don't execute untrusted code directly."""
+        """
+        Ensure workflow files do not contain patterns that could execute untrusted event data as shell commands.
+        
+        Scans .github/workflows/*.yml for occurrences of dangerous patterns (for example: piping GitHub event fields into `bash`/`sh`, or using `eval` with event-derived values) and fails the test if any match is found.
+        """
         workflow_dir = Path(".github/workflows")
         assert workflow_dir.exists(), "Workflows directory not found"
         
@@ -2347,7 +2405,17 @@ class TestRequirementsDevValidation:
             pytest.skip("Both requirements files needed for this test")
         
         def parse_requirements(file_path):
-            """Parse package names from requirements file."""
+            """
+            Parse package requirement lines from a requirements-style file into a mapping keyed by package name.
+            
+            Ignores blank lines and lines beginning with '#' and normalises package keys by removing extras (square-bracket markers) and any simple version specifiers beginning with '==', '>=' or '<='; the original requirement line is preserved as the value.
+            
+            Parameters:
+                file_path (str | Path): Path to the requirements file to parse.
+            
+            Returns:
+                dict: Mapping from lowercased package name (without extras or the recognised version operators) to the original requirement line.
+            """
             packages = {}
             with open(file_path, 'r') as f:
                 for line in f:
@@ -2451,7 +2519,11 @@ class TestModifiedWorkflowsValidation:
             )
 
     def test_greetings_workflow_simplified_messages(self):
-        """Test that greetings.yml has valid simplified message format."""
+        """
+        Validate that greetings.yml defines non-empty simplified messages for the actions/first-interaction step.
+        
+        Skips the test if .github/workflows/greetings.yml is not present. Asserts the workflow contains a top-level `jobs` mapping and, for any step that uses `actions/first-interaction`, verifies that `issue-message` and `pr-message` in the step's `with` mapping (when present) are strings with length greater than zero.
+        """
         workflow_file = WORKFLOWS_DIR / "greetings.yml"
         
         if not workflow_file.exists():
@@ -2717,7 +2789,11 @@ class TestRequirementsDevPyYAML:
     """Additional tests for PyYAML dependencies added to requirements-dev.txt."""
 
     def test_pyyaml_version_specified(self):
-        """Test that PyYAML has version constraint."""
+        """
+        Verify that PyYAML is listed with a version constraint in requirements-dev.txt.
+        
+        Skips the test if requirements-dev.txt is not present. Fails if no line referencing PyYAML is found or if the PyYAML requirement line does not include a version comparator such as '>=' or '=='.
+        """
         req_file = Path("requirements-dev.txt")
         
         if not req_file.exists():
@@ -2765,7 +2841,11 @@ class TestRequirementsDevPyYAML:
             pytest.skip("PyYAML not installed in test environment")
 
     def test_pyyaml_version_compatibility(self):
-        """Test that installed PyYAML version is compatible."""
+        """
+        Verify the installed PyYAML supports modern safe load/dump APIs and can parse a simple mapping.
+        
+        Asserts that the `yaml` module is importable and exposes `safe_load` and `safe_dump`, and that `safe_load` parses a simple YAML mapping into a Python dict. If PyYAML is not installed the test is skipped.
+        """
         try:
             import yaml
             

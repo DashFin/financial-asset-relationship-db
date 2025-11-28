@@ -15,18 +15,36 @@ class TestPRAgentWorkflowDuplicateKeyRegression:
     
     @pytest.fixture
     def workflow_file(self) -> Path:
-        """Return path to pr-agent.yml workflow file."""
+        """
+        Resolve the path to the pr-agent.yml workflow file.
+        
+        Returns:
+            Path: Path to the .github/workflows/pr-agent.yml workflow file.
+        """
         return Path('.github/workflows/pr-agent.yml')
     
     @pytest.fixture
     def workflow_content(self, workflow_file: Path) -> Dict[str, Any]:
-        """Load and parse the workflow YAML content."""
+        """
+        Load and parse a GitHub Actions workflow YAML file.
+        
+        Parameters:
+            workflow_file (Path): Path to the workflow YAML file to load.
+        
+        Returns:
+            dict: Parsed workflow content as a dictionary mapping YAML keys to Python objects.
+        """
         with open(workflow_file, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
     
     @pytest.fixture
     def workflow_raw(self, workflow_file: Path) -> str:
-        """Load raw workflow content for text-based validation."""
+        """
+        Load the workflow YAML as raw text for text-based validations.
+        
+        Returns:
+            raw (str): Contents of the workflow file decoded as UTF-8 text.
+        """
         with open(workflow_file, 'r', encoding='utf-8') as f:
             return f.read()
     
@@ -85,7 +103,12 @@ class TestPRAgentWorkflowStructureValidation:
     
     @pytest.fixture
     def workflow_content(self) -> Dict[str, Any]:
-        """Load workflow content."""
+        """
+        Parse and return the '.github/workflows/pr-agent.yml' workflow file as a dictionary.
+        
+        Returns:
+            workflow (Dict[str, Any]): Parsed YAML content of the workflow file.
+        """
         with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
     
@@ -137,7 +160,12 @@ class TestPRAgentWorkflowSetupSteps:
     
     @pytest.fixture
     def pr_agent_job(self) -> Dict[str, Any]:
-        """Get the pr-agent-trigger job configuration."""
+        """
+        Retrieve the configuration for the 'pr-agent-trigger' job from the PR agent workflow.
+        
+        Returns:
+            job_config (Dict[str, Any]): Mapping representing the 'pr-agent-trigger' job configuration extracted from .github/workflows/pr-agent.yml.
+        """
         with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
             workflow = yaml.safe_load(f)
         return workflow['jobs']['pr-agent-trigger']
@@ -217,7 +245,12 @@ class TestPRAgentWorkflowDependencyInstallation:
     
     @pytest.fixture
     def pr_agent_job(self) -> Dict[str, Any]:
-        """Get the pr-agent-trigger job configuration."""
+        """
+        Retrieve the configuration for the 'pr-agent-trigger' job from the PR agent workflow.
+        
+        Returns:
+            job_config (Dict[str, Any]): Mapping representing the 'pr-agent-trigger' job configuration extracted from .github/workflows/pr-agent.yml.
+        """
         with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
             workflow = yaml.safe_load(f)
         return workflow['jobs']['pr-agent-trigger']
@@ -243,7 +276,15 @@ class TestPRAgentWorkflowDependencyInstallation:
             "Job should have 'Install Node dependencies' step"
     
     def test_python_install_includes_requirements_dev(self, pr_agent_job: Dict[str, Any]):
-        """Test that Python install step includes requirements-dev.txt."""
+        """
+        Verify the Python dependency installation step references requirements-dev.txt.
+        
+        Asserts that within the provided pr-agent job configuration there exists a step named
+        'Install Python dependencies' whose run script includes 'requirements-dev.txt'.
+        
+        Parameters:
+            pr_agent_job (Dict[str, Any]): Parsed job dictionary for the pr-agent-trigger job from the workflow YAML.
+        """
         steps = pr_agent_job.get('steps', [])
         for step in steps:
             if step.get('name') == 'Install Python dependencies':
@@ -269,7 +310,12 @@ class TestPRAgentWorkflowTestingSteps:
     
     @pytest.fixture
     def pr_agent_job(self) -> Dict[str, Any]:
-        """Get the pr-agent-trigger job configuration."""
+        """
+        Retrieve the configuration for the 'pr-agent-trigger' job from the PR agent workflow.
+        
+        Returns:
+            job_config (Dict[str, Any]): Mapping representing the 'pr-agent-trigger' job configuration extracted from .github/workflows/pr-agent.yml.
+        """
         with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
             workflow = yaml.safe_load(f)
         return workflow['jobs']['pr-agent-trigger']
@@ -316,7 +362,12 @@ class TestPRAgentWorkflowPermissions:
     
     @pytest.fixture
     def workflow_content(self) -> Dict[str, Any]:
-        """Load workflow content."""
+        """
+        Parse and return the '.github/workflows/pr-agent.yml' workflow file as a dictionary.
+        
+        Returns:
+            workflow (Dict[str, Any]): Parsed YAML content of the workflow file.
+        """
         with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
     
@@ -351,7 +402,12 @@ class TestPRAgentWorkflowConditionals:
     
     @pytest.fixture
     def workflow_content(self) -> Dict[str, Any]:
-        """Load workflow content."""
+        """
+        Parse and return the '.github/workflows/pr-agent.yml' workflow file as a dictionary.
+        
+        Returns:
+            workflow (Dict[str, Any]): Parsed YAML content of the workflow file.
+        """
         with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
     
@@ -394,7 +450,12 @@ class TestPRAgentWorkflowSecurityBestPractices:
     
     @pytest.fixture
     def workflow_raw(self) -> str:
-        """Load raw workflow content."""
+        """
+        Return the raw YAML text of the pr-agent GitHub Actions workflow file.
+        
+        Returns:
+            raw_workflow (str): Contents of .github/workflows/pr-agent.yml as a UTF-8 decoded string.
+        """
         with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
             return f.read()
     
@@ -419,7 +480,13 @@ class TestPRAgentWorkflowSecurityBestPractices:
                 f"Found hardcoded token pattern: {pattern}"
     
     def test_uses_pinned_action_versions(self, workflow_raw: str):
-        """Test that GitHub Actions are pinned to specific immutable versions."""
+        """
+        Validate that every external GitHub Action referenced by `uses:` in the workflow is pinned to a specific commit SHA or a semantic version tag.
+        
+        Parameters:
+            workflow_raw (str): Raw YAML text of the workflow file to scan for `uses:` statements.
+        
+        """
         # Capture the action reference after 'uses:' regardless of trailing content
         uses_pattern = r'^\s*uses:\s*([^\s@]+)@([^\s#]+)'
         uses_statements = re.findall(uses_pattern, workflow_raw, re.MULTILINE)
@@ -470,7 +537,12 @@ class TestPRAgentWorkflowGitHubScriptUsage:
     
     @pytest.fixture
     def workflow_content(self) -> Dict[str, Any]:
-        """Load workflow content."""
+        """
+        Parse and return the '.github/workflows/pr-agent.yml' workflow file as a dictionary.
+        
+        Returns:
+            workflow (Dict[str, Any]): Parsed YAML content of the workflow file.
+        """
         with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
     
@@ -489,4 +561,3 @@ class TestPRAgentWorkflowGitHubScriptUsage:
                     with_config = step.get('with', {})
                     assert 'script' in with_config, \
                         f"github-script step in job '{job_name}' should have script content"
-

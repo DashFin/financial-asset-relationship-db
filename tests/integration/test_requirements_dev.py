@@ -16,7 +16,20 @@ REQUIREMENTS_FILE = Path(__file__).parent.parent.parent / "requirements-dev.txt"
 
 
 def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
-    """Parse requirements file and return list of (package, version_spec) tuples."""
+    """
+    Parse a pip-style requirements file into package entries with their version constraints.
+    
+    Reads the file at the provided path, ignoring empty lines and full-line or inline comments, and returns each requirement as a tuple of package name and a single version specifier string. Multiple specifiers on a line (for example "pkg>=1.0,<=2.0") are preserved and joined with commas (e.g. ">=1.0,<=2.0"). If a requirement has no version specifier the returned version string is empty.
+    
+    Parameters:
+        file_path (Path): Path to the requirements file to parse.
+    
+    Returns:
+        List[Tuple[str, str]]: A list of tuples (package, version_spec). `package` is the package name as found in the file; `version_spec` is a comma-joined string of specifiers (or an empty string when no specifiers are present).
+    
+    Raises:
+        AssertionError: If a line contains a malformed package name.
+    """
     requirements = []
     
     with open(file_path, 'r', encoding='utf-8') as f:
@@ -151,7 +164,14 @@ class TestVersionSpecifications:
     
     @pytest.fixture
     def requirements(self) -> List[Tuple[str, str]]:
-        """Parse and return requirements."""
+        """
+        Return parsed package requirements from the development requirements file.
+        
+        Produces a list of package entries parsed from REQUIREMENTS_FILE. Each entry is a tuple of the package name and its version specifier string; multiple specifiers are joined with commas. If a package has no version specifier the version string is empty.
+        
+        Returns:
+            requirements (List[Tuple[str, str]]): List of (package, version_spec) tuples.
+        """
         return parse_requirements(REQUIREMENTS_FILE)
 
     def test_all_packages_have_versions(self, requirements: List[Tuple[str, str]]):

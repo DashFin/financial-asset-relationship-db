@@ -15,7 +15,12 @@ class TestCodecovWorkflowRemoval:
     
     @pytest.fixture
     def workflows_dir(self) -> Path:
-        """Return path to workflows directory."""
+        """
+        Path to the repository's .github/workflows directory.
+        
+        Returns:
+            Path: Path object pointing to the repository's .github/workflows directory (computed relative to this test file).
+        """
         return Path(__file__).parent.parent.parent / ".github" / "workflows"
     
     def test_codecov_yaml_file_removed(self, workflows_dir: Path):
@@ -25,7 +30,9 @@ class TestCodecovWorkflowRemoval:
             "codecov.yaml should have been removed from workflows"
     
     def test_codecov_yml_file_removed(self, workflows_dir: Path):
-        """Test that codecov.yml file (alternate name) is also not present."""
+        """
+        Verify that a `codecov.yml` workflow file does not exist in the repository's `.github/workflows` directory.
+        """
         codecov_file = workflows_dir / "codecov.yml"
         assert not codecov_file.exists(), \
             "codecov.yml should not exist in workflows"
@@ -36,11 +43,21 @@ class TestCoverageStillAvailable:
     
     @pytest.fixture
     def requirements_dev(self) -> Path:
-        """Return path to requirements-dev.txt."""
+        """
+        Path to the project's requirements-dev.txt file.
+        
+        Returns:
+            Path: Path pointing to the repository's requirements-dev.txt file (located two directories above the test file).
+        """
         return Path(__file__).parent.parent.parent / "requirements-dev.txt"
     
     def test_pytest_cov_in_dev_requirements(self, requirements_dev: Path):
-        """Test that pytest-cov is still in development requirements."""
+        """
+        Validate that `pytest-cov` is listed in the project's development requirements.
+        
+        Parameters:
+            requirements_dev (Path): Path to the `requirements-dev.txt` file to check.
+        """
         with open(requirements_dev, 'r', encoding='utf-8') as f:
             content = f.read()
         
@@ -84,7 +101,11 @@ class TestWorkflowCoverageAlternatives:
     """Tests for alternative coverage mechanisms."""
     
     def test_other_workflows_can_run_tests(self):
-        """Test that other workflows can still run tests."""
+        """
+        Checks that at least one GitHub Actions workflow in .github/workflows invokes pytest.
+        
+        Skips the test if the workflows directory is missing. Reads workflow YAML files and asserts that at least one file contains the string "pytest", failing the test if none do.
+        """
         workflows_dir = Path(__file__).parent.parent.parent / ".github" / "workflows"
         
         if not workflows_dir.exists():

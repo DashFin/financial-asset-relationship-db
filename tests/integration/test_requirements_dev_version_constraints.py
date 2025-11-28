@@ -17,7 +17,12 @@ class TestRequirementsDevFileStructure:
     
     @pytest.fixture
     def req_file_path(self) -> Path:
-        """Return path to requirements-dev.txt."""
+        """
+        Path to the repository's requirements-dev.txt file.
+        
+        Returns:
+            Path: Path pointing to the requirements-dev.txt file.
+        """
         return Path(__file__).parent.parent.parent / "requirements-dev.txt"
     
     def test_file_exists(self, req_file_path: Path):
@@ -25,7 +30,9 @@ class TestRequirementsDevFileStructure:
         assert req_file_path.exists(), "requirements-dev.txt should exist"
     
     def test_file_readable(self, req_file_path: Path):
-        """Test that requirements-dev.txt is readable."""
+        """
+        Verify requirements-dev.txt can be opened with UTF-8 encoding and contains at least one character.
+        """
         with open(req_file_path, 'r', encoding='utf-8') as f:
             content = f.read()
         assert len(content) > 0, "requirements-dev.txt should not be empty"
@@ -36,7 +43,14 @@ class TestTypesPyYAMLVersionConstraint:
     
     @pytest.fixture
     def requirements_dict(self) -> Dict[str, str]:
-        """Parse requirements into a dictionary."""
+        """
+        Return a mapping of package names to their version specifiers from requirements-dev.txt.
+        
+        Parses non-empty, non-comment lines from the requirements-dev.txt file located three directories above this test file and maps each package name to the trailing version specifier (the remainder of the line after the package name). Lines that are blank or start with `#` are ignored.
+        
+        Returns:
+            Dict[str, str]: A dictionary where keys are package names and values are the corresponding version specifier strings (may be empty if no specifier was present).
+        """
         path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
         reqs = {}
         
@@ -70,7 +84,9 @@ class TestTypesPyYAMLVersionConstraint:
             "types-PyYAML should require version >=6.0.0"
     
     def test_types_pyyaml_not_unpinned(self, requirements_dict: Dict[str, str]):
-        """Test that types-PyYAML is not unpinned."""
+        """
+        Assert that the 'types-PyYAML' requirement includes a non-empty version constraint.
+        """
         version_spec = requirements_dict.get('types-PyYAML', '')
         
         assert version_spec and version_spec.strip(), \
@@ -98,7 +114,14 @@ class TestSpecificDependencies:
     
     @pytest.fixture
     def requirements_dict(self) -> Dict[str, str]:
-        """Parse requirements into a dictionary."""
+        """
+        Return a mapping of package names to their version specifiers from requirements-dev.txt.
+        
+        Parses non-empty, non-comment lines from the requirements-dev.txt file located three directories above this test file and maps each package name to the trailing version specifier (the remainder of the line after the package name). Lines that are blank or start with `#` are ignored.
+        
+        Returns:
+            Dict[str, str]: A dictionary where keys are package names and values are the corresponding version specifier strings (may be empty if no specifier was present).
+        """
         path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
         reqs = {}
         
@@ -120,7 +143,12 @@ class TestSpecificDependencies:
         assert 'pytest' in requirements_dict
     
     def test_pytest_cov_present(self, requirements_dict: Dict[str, str]):
-        """Test that pytest-cov is in requirements."""
+        """
+        Verify pytest-cov is declared in the parsed requirements.
+        
+        Parameters:
+            requirements_dict (Dict[str, str]): Mapping of package names to their version specifiers parsed from requirements-dev.txt.
+        """
         assert 'pytest-cov' in requirements_dict
     
     def test_pyyaml_present(self, requirements_dict: Dict[str, str]):
@@ -149,7 +177,12 @@ class TestVersionConstraintFormat:
     
     @pytest.fixture
     def req_lines(self) -> List[str]:
-        """Get requirement lines."""
+        """
+        Read requirements-dev.txt and return its non-empty, non-comment lines.
+        
+        Returns:
+            List[str]: Requirement lines from requirements-dev.txt, each stripped of leading and trailing whitespace; excludes empty lines and lines starting with '#'.
+        """
         path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
         with open(path, 'r', encoding='utf-8') as f:
             return [
@@ -159,7 +192,12 @@ class TestVersionConstraintFormat:
             ]
     
     def test_all_lines_have_version_constraints(self, req_lines: List[str]):
-        """Test that all requirements specify version constraints."""
+        """
+        Assert every non-comment, non-empty requirement line contains a version specifier.
+        
+        Parameters:
+            req_lines (List[str]): Lines from requirements-dev.txt already stripped of whitespace and filtered to exclude empty lines and comments. The test considers a line to contain a version specifier if it includes one of the operators: '>=', '==', '~=', '>', '<', '!='.
+        """
         for line in req_lines:
             assert any(op in line for op in ['>=', '==', '~=', '>', '<', '!=']), \
                 f"Requirement '{line}' should have a version constraint"
@@ -178,7 +216,12 @@ class TestVersionConstraintFormat:
                 pytest.fail(f"Invalid version specifier in '{line}': {e}")
     
     def test_all_use_minimum_version_operator(self, req_lines: List[str]):
-        """Test that all requirements use >= operator for flexibility."""
+        """
+        Assert every non-comment, non-empty requirement line uses the '>=’ version operator.
+        
+        Parameters:
+            req_lines (List[str]): Requirement lines (stripped, non-comment) from requirements-dev.txt.
+        """
         for line in req_lines:
             assert '>=' in line, \
                 f"Package '{line}' should use >= operator for version constraint"
@@ -221,7 +264,12 @@ class TestRequirementsDevEdgeCases:
             "requirements-dev.txt should end with a newline"
     
     def test_no_trailing_whitespace(self):
-        """Test that lines don't have trailing whitespace."""
+        """
+        Assert that requirements-dev.txt contains no lines with trailing whitespace.
+        
+        Checks the repository's requirements-dev.txt and fails if any line ends with whitespace characters immediately before the line break.
+        The failure message includes the offending line numbers and their string representations.
+        """
         path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
         with open(path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
