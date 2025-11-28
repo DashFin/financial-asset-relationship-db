@@ -406,8 +406,8 @@ class TestConfigurationConsistency:
     
     def test_config_is_not_empty(self, config):
         """Configuration should not be empty."""
-        assert len(config) > 0, "Configuration file is empty"
         assert config is not None, "Configuration is None"
+        assert len(config) > 0, "Configuration file is empty"
 
 
 class TestBestPractices:
