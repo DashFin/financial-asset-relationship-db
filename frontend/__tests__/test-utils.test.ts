@@ -1318,7 +1318,7 @@ describe('Advanced Mock Data Validation - Additional Coverage', () => {
         classCounts[asset.asset_class] = (classCounts[asset.asset_class] || 0) + 1;
       });
       
-      Object.entries(mockAssetClasses).forEach(([className, count]) => {
+      Object.entries(mockAssetClasses).forEach(([className]) => {
         const actualCount = classCounts[className] || 0;
         // Counts should match (or be close if using different data subsets)
         expect(actualCount).toBeGreaterThanOrEqual(0);
