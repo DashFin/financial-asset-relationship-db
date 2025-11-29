@@ -47,7 +47,7 @@ class TestGitignoreFileStructure:
             gitignore_content (str): Full text of the .gitignore file.
         
         Returns:
-        	lines (List[str]): List of lines with surrounding whitespace removed, excluding empty lines and lines that start with `#`.
+            lines (List[str]): List of lines with surrounding whitespace removed, excluding empty lines and lines that start with `#`.
         """
         return [
             line.strip()

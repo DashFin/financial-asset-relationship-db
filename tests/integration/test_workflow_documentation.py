@@ -45,7 +45,7 @@ def doc_content() -> str:
     """
     Read the project's documentation file and return its entire contents.
     
-    If the file does not exist or cannot be read the test run is failed via pytest.fail with an explanatory message.
+    If the file does not exist or cannot be read, the test run is failed via pytest.fail with an explanatory message.
     
     Returns:
         The full contents of the documentation file as a string.
