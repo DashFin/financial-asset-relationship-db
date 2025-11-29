@@ -277,6 +277,44 @@ class ContextChunker:
         result_parts = []
         current_tokens = 0
         
+        def _omission_notice(self, chunk: ContextChunk) -> str:
+            """Generate a more informative omission notice for a chunk."""
+            details: List[str] = []
+            ct = chunk.chunk_type
+
+            if ct == "changed_files":
+                files = re.findall(r'\*\*([^*]+)\*\*', chunk.content)
+                if files:
+                    preview = ', '.join(files[:5])
+                    more = f" (+{len(files)-5} more)" if len(files) > 5 else ""
+                    details.append(f"files: {preview}{more}")
+            elif ct == "review_comments":
+                reviewers = re.findall(r'\*\*([^:*]+):\*\*', chunk.content)
+                if reviewers:
+                    preview = ', '.join(list(dict.fromkeys(reviewers))[:5])
+                    more = f" (+{len(set(reviewers))-5} more)" if len(set(reviewers)) > 5 else ""
+                    details.append(f"reviewers: {preview}{more}")
+            elif ct == "test_failures":
+                tests = re.findall(r'\*\*([^*]+)\*\*:', chunk.content)
+                if tests:
+                    preview = ', '.join(tests[:5])
+                    more = f" (+{len(tests)-5} more)" if len(tests) > 5 else ""
+                    details.append(f"tests: {preview}{more}")
+            elif ct == "ci_logs":
+                # Extract first line as a brief hint
+                first_line = chunk.content.strip().splitlines()[0] if chunk.content.strip() else ""
+                if first_line:
+                    details.append(f"log: {first_line[:80]}")
+            elif ct == "full_diff":
+                # Show a short hint about size
+                details.append("diff omitted")
+
+            # Always include token size info
+            details.append(f"~{chunk.tokens} tokens")
+
+            detail_str = " | ".join(details) if details else f"~{chunk.tokens} tokens"
+            return f"[{ct.upper()} - Omitted due to context limit: {detail_str}]"
+
         for chunk in chunks:
             if current_tokens + chunk.tokens <= self.max_tokens:
                 # Include full chunk
@@ -288,9 +326,8 @@ class ContextChunker:
                 result_parts.append(summary)
                 current_tokens += self.estimate_tokens(summary)
             else:
-                # Skip this chunk
-                result_parts.append(f"[{chunk.chunk_type.upper()} - Omitted due to context limit]")
-        
+                # Skip this chunk with detailed notice
+                result_parts.append(self._omission_notice(chunk))
         processed_content = '\n\n---\n\n'.join(result_parts)
         return processed_content, True
 
