@@ -13,6 +13,22 @@ except Exception:
 
 class ContextChunker:
     def __init__(self, config_path: str = ".github/pr-agent-config.yml") -> None:
+        """
+        Initialize a ContextChunker for PR agent context chunking.
+
+        Args:
+            config_path (str): Path to the YAML configuration file. Defaults to ".github/pr-agent-config.yml".
+                The file should contain configuration sections for 'agent.context' (chunking parameters)
+                and 'limits.fallback' (priority order for context elements).
+
+        Loads configuration sections:
+            - agent.context: Controls chunking parameters (max_tokens, chunk_size, overlap_tokens, summarization_threshold).
+            - limits.fallback: Specifies priority_order for context elements.
+
+        Exceptions:
+            - Prints a warning and uses defaults if the config file cannot be loaded or parsed.
+            - Prints a warning if tiktoken encoder initialization fails.
+        """
         self.config: Dict[str, Any] = {}
         cfg_file = Path(config_path)
         if cfg_file.exists():
