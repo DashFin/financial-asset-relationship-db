@@ -30,8 +30,13 @@ def validate_workflow(workflow_path):
             - `workflow_data`: Parsed workflow dictionary on success, or an empty dict on failure.
     """
     try:
-        with open(workflow_path, 'r') as f:
-            data = yaml.safe_load(f)
+        with open(workflow_path, 'rb') as f:
+            content_bytes = f.read()
+        # Use the fastest available YAML loader
+        if hasattr(yaml, 'CLoader'):
+            data = yaml.load(content_bytes, Loader=yaml.CLoader)
+        else:
+            data = yaml.safe_load(content_bytes)
         if not isinstance(data, dict):
             return ValidationResult(False, ["Workflow must be a dict"], {})
         if 'jobs' not in data:
