@@ -87,7 +87,7 @@ class ContextChunker:
                 - 'files': Optional[List[Dict[str, Any]]] — each dict may have a 'patch' key (str).
 
         Returns:
-            Tuple[str, bool]: A tuple containing:
+            tuple[str, bool]: A tuple containing:
                 - The processed text content (str), concatenated from review bodies and file patches.
                 - A boolean indicating if any content exists (True if non-empty, False otherwise).
 
