@@ -187,7 +187,7 @@ class TestCodeExamples:
         	summary_content (str): The text content of the summary/document to scan for referenced file paths.
         """
         # Look for test file references
-        test_file_pattern = r'tests/integration/test_\w+\.py'
+        test_file_pattern = r'tests/integration/test[^\s\'"]+\.py'
         mentioned_files = re.findall(test_file_pattern, summary_content)
 
         repo_root = Path(__file__).parent.parent.parent
