@@ -42,7 +42,7 @@ class TestWorkflowYAMLValidation:
         
         for workflow_file in modified_workflows:
             path = self.WORKFLOW_DIR / workflow_file
-            with open(path, 'r') as f:
+            with open(path) as f:
                 workflow = yaml.safe_load(f)
             
             for key in required_keys:
