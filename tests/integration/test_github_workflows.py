@@ -1207,15 +1207,6 @@ class TestWorkflowEnvAndSecrets:
         Parameters:
             workflow_file (Path): Path to the workflow YAML file being checked.
         """
-        """
-        Return a list of environment variable names from a mapping that do not consist solely of uppercase letters, digits or underscores.
-        
-        Parameters:
-            env_dict (dict): Mapping of environment variable names to values. Non-dict values are treated as absent.
-        
-        Returns:
-            invalid_keys (List[str]): List of keys from `env_dict` that violate the naming convention.
-        """
         config = load_yaml_safe(workflow_file)
 
         def check_env_vars(env_dict):
@@ -1240,13 +1231,7 @@ class TestWorkflowEnvAndSecrets:
         if "env" in config:
             invalid = check_env_vars(config["env"])
             if invalid:
-# Check top-level env
-        if "env" in config:
-            invalid = check_env_vars(config["env"])
-            if invalid:
                 print(f"MAINTAINABILITY: Workflow {workflow_file.name} has environment variables "
-                      f"that don't follow UPPER_CASE convention: {invalid}. This can reduce "
-                      f"readability and consistency across workflows.")
                       f"that don't follow UPPER_CASE convention: {invalid}. This can reduce "
                       f"readability and consistency across workflows.")
 
