@@ -12,6 +12,23 @@ except Exception:
 
 
 class ContextChunker:
+    """
+    Manages context chunking for PR (Pull Request) processing.
+
+    Responsibilities:
+        - Loads configuration from a YAML file to set chunking and token limits.
+        - Handles token management using tiktoken if available.
+        - Processes PR content (reviews, files) into text chunks for further analysis.
+        - Maintains priority ordering for different context sources.
+
+    Typical workflow:
+        1. Instantiate ContextChunker (optionally providing a config path).
+        2. Call `process_context(payload)` with a PR payload to extract and chunk relevant text.
+
+    Example:
+        chunker = ContextChunker()
+        context_text, has_content = chunker.process_context(pr_payload)
+    """
     def __init__(self, config_path: str = ".github/pr-agent-config.yml") -> None:
         """
         Initialize a ContextChunker for PR agent context chunking.
