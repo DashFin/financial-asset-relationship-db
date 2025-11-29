@@ -96,6 +96,10 @@ def section_headers(doc_lines: List[str]) -> List[str]:
         if stripped.startswith('```'):
             in_code_block = not in_code_block
             continue
+        stripped = line.lstrip()
+        if stripped.startswith('```'):
+            in_code_block = not in_code_block
+            continue
         if in_code_block:
             continue
         if stripped.startswith('#'):
