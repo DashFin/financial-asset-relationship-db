@@ -1254,9 +1254,14 @@ describe('Advanced Mock Data Validation - Additional Coverage', () => {
         expect(edge.source).not.toBe(edge.target);
       });
       
-      mockVizData.edges.forEach(edge => {
-        expect(edge.source).not.toBe(edge.target);
-      });
+      if (mockVizData && Array.isArray(mockVizData.edges)) {
+        mockVizData.edges.forEach(edge => {
+          expect(edge.source).not.toBe(edge.target);
+        });
+      } else {
+        // Fail the test if mockVizData is undefined or edges is not an array
+        throw new Error('mockVizData or mockVizData.edges is undefined');
+      }
     });
 
     it('should have bidirectional consistency if applicable', () => {
