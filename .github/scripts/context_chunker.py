@@ -11,13 +11,6 @@ class ContextChunker:
             except Exception as e:
                 print(f"Warning: failed to load config from {config_path}: {e}", file=sys.stderr)
                 self.config = {}
-        if cfg_file.exists():
-            try:
-                with cfg_file.open("r", encoding="utf-8") as f:
-                    self.config = yaml.safe_load(f) or {}
-            except Exception as e:
-                print(f"Warning: failed to load config from {config_path}: {e}", file=sys.stderr)
-                self.config = {}
 
         # Read agent context settings with safe defaults
         agent_cfg = (self.config.get("agent") or {}).get("context") or {}
