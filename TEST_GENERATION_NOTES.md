@@ -2,7 +2,7 @@
 
 ## What Was Generated
 
-This test generation session analyzed the branch `codex/fix-env-var-naming-test-in-pr-agent-workflow` and found:
+This test generation session analyzed the branch `multi-launch-WOJfOQds-1764424222058-blackbox` and found:
 
 ### Existing Test Coverage
 - **Status**: ✅ Excellent (10,000+ lines already present)
