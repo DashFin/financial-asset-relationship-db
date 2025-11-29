@@ -404,8 +404,8 @@ class TestRequirementsDevUpdates:
         """Verify all dev requirements have version specifiers."""
         req_file = Path(__file__).parent.parent.parent / "requirements-dev.txt"
         
-        with open(req_file, 'r', encoding='utf-8') as f:
-            lines = f.read().strip().split('\n')
+with open(req_file, 'r', encoding='utf-8') as f:
+    lines = f.read().strip().split('\n')
         
         for line in lines:
             line = line.strip()
