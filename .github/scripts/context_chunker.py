@@ -1,8 +1,19 @@
-class ContextChunker:
-    def __init__(self, config_path: str = ".github/pr-agent-config.yml"):
-        self.config: Dict = {}
+import sys
+from pathlib import Path
+from typing import Dict, List, Any, Optional
 
-        # Load configuration if available
+import yaml
+
+try:
+    import tiktoken  # type: ignore
+    TIKTOKEN_AVAILABLE = True
+except Exception:
+    TIKTOKEN_AVAILABLE = False
+
+
+class ContextChunker:
+    def __init__(self, config_path: str = ".github/pr-agent-config.yml") -> None:
+        self.config: Dict[str, Any] = {}
         cfg_file = Path(config_path)
         if cfg_file.exists():
             try:
@@ -11,15 +22,11 @@ class ContextChunker:
             except Exception as e:
                 print(f"Warning: failed to load config from {config_path}: {e}", file=sys.stderr)
                 self.config = {}
-
-        # Read agent context settings with safe defaults
         agent_cfg = (self.config.get("agent") or {}).get("context") or {}
         self.max_tokens: int = int(agent_cfg.get("max_tokens", 32000))
         self.chunk_size: int = int(agent_cfg.get("chunk_size", max(1, self.max_tokens - 4000)))
         self.overlap_tokens: int = int(agent_cfg.get("overlap_tokens", 2000))
         self.summarization_threshold: int = int(agent_cfg.get("summarization_threshold", int(self.max_tokens * 0.9)))
-
-        # Prepare priority order
         limits_cfg = (self.config.get("limits") or {}).get("fallback") or {}
         self.priority_order: List[str] = limits_cfg.get("priority_order", [
             "review_comments",
@@ -28,53 +35,26 @@ class ContextChunker:
             "ci_logs",
             "full_diff",
         ])
-        # Map chunk type to priority index (lower is higher priority)
         self.priority_map: Dict[str, int] = {name: i for i, name in enumerate(self.priority_order)}
-
-        # Setup tokenizer/encoder if tiktoken available
-        self._encoder = None
+        self._encoder: Optional[Any] = None
         if TIKTOKEN_AVAILABLE:
             try:
-                # Use a common 32k context model encoding if available; fallback to cl100k_base
                 self._encoder = tiktoken.get_encoding("cl100k_base")
             except Exception as e:
                 print(f"Warning: failed to initialize tiktoken encoder: {e}", file=sys.stderr)
                 self._encoder = None
 
-        # Precompiled regexes or any other helpers
-        processed_content = self._build_limited_content(chunks)
-        return processed_content, True
-
-        def main():
-            """
-            Demonstrates creating a ContextChunker and processing a sample pull request structure.
-            
-            This example constructs a ContextChunker, builds a simple pull request payload containing one review and one changed file, invokes process_context on that payload, and prints the chunking metadata and resulting processed content.
-            """
-            chunker = ContextChunker()
-    
-            # Example PR data
-            example_pr = {
-                'reviews': [
-                    {
-                        'user': {'login': 'reviewer1'},
-                        'state': 'changes_requested',
-                        'body': 'Please fix the bug in the database connection and add tests.'
-                    }
-                ],
-                'files': [
-                    {
-                        'filename': 'src/data/database.py',
-                        'additions': 50,
-                        'deletions': 20,
-                        'patch': '@@ -1,5 +1,10 @@\n-old code\n+new code'
-                    }
-                ]
-            }
-    
-            processed, chunked = chunker.process_context(example_pr)
-            print(f"Chunked: {chunked}")
-            print(f"\nProcessed content:\n{processed}")
-
-        if __name__ == "__main__":
-            main()
+    def process_context(self, payload: Dict[str, Any]) -> tuple[str, bool]:
+        text_parts: List[str] = []
+        reviews = payload.get("reviews") or []
+        files = payload.get("files") or []
+        for r in reviews:
+            body = (r or {}).get("body") or ""
+            if body:
+                text_parts.append(str(body))
+        for f in files:
+            patch = (f or {}).get("patch") or ""
+            if patch:
+                text_parts.append(str(patch))
+        result = "\n\n".join(text_parts).strip()
+        return result, bool(result)
