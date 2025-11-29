@@ -1128,7 +1128,7 @@ describe('Advanced Mock Data Validation - Additional Coverage', () => {
       ]);
       
       mockAllRelationships.forEach(rel => {
-        expect(validTypes.has(rel.type) || typeof rel.type === 'string').toBe(true);
+        expect(validTypes.has(rel.relationship_type.toLowerCase()) || typeof rel.relationship_type === 'string').toBe(true);
       });
     });
   });
