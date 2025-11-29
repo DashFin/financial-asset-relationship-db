@@ -3,7 +3,6 @@ Additional validation tests for modified workflow files.
 Tests YAML structure, required fields, and GitHub Actions syntax.
 """
 
-import os
 import yaml
 import pytest
 from pathlib import Path
