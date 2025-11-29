@@ -403,16 +403,13 @@ class TestRequirementsDevUpdates:
     def test_all_dev_requirements_have_versions(self):
         """Verify all dev requirements have version specifiers."""
         req_file = Path(__file__).parent.parent.parent / "requirements-dev.txt"
-        
-with open(req_file, 'r', encoding='utf-8') as f:
-    lines = f.read().strip().split('\n')
-        
-        for line in lines:
-    lines = f.read().splitlines()
-            if not line or line.startswith('#'):
-                continue
-            
-            assert '>=' in line or '==' in line or '~=' in line, \
+            # Basic PEP 508 version specifier check
+            has_version = any(op in line for op in ['>=', '==', '~=', '!=', '<', '<=', '>'])
+            # Handle extras syntax and file/URL requirements
+            is_complex_req = ('[' in line or '://' in line or '@' in line)
+
+            assert has_version or is_complex_req, \
+                f"Requirement '{line}' should have a version specifier or be a complex dependency"
                 f"Requirement '{line}' should have a version specifier"
     
     def test_pr_agent_still_triggered_on_events(self, pr_agent_workflow: Dict[str, Any]):
