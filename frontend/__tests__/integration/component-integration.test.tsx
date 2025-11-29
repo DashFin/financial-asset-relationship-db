@@ -251,8 +251,10 @@ describe('Component Integration Tests', () => {
       render(<Home />);
       
       await waitFor(() => {
-        fireEvent.click(screen.getByText('Metrics & Analytics'));
+        expect(screen.getByText('Metrics & Analytics')).toBeInTheDocument();
       });
+      
+      fireEvent.click(screen.getByText('Metrics & Analytics'));
       
       expect(screen.getByTestId('total-assets')).toHaveTextContent('0');
       expect(screen.getByTestId('total-relationships')).toHaveTextContent('0');
