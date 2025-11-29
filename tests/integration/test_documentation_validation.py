@@ -390,39 +390,38 @@ class TestDocumentationMarkdownQuality:
     def test_no_broken_internal_links(self):
         """Verify internal markdown links are not broken."""
         doc_files = list(Path('.').glob('*.md'))
-        
+
         for doc_file in doc_files:
-            content = doc_file.read_text()
-            
+            content = doc_file.read_text(encoding='utf-8')
+
             # Find markdown links
             import re
+            from urllib.parse import unquote
             links = re.findall(r'\[([^\]]+)\]\(([^)]+)\)', content)
-            
+
             for link_text, link_url in links:
                 # Check internal links (not http/https)
                 # Skip external links (only validate local paths)
                 if link_url.startswith(('http://', 'https://', 'mailto:')):
                     continue
-                # Remove fragment and validate only when a local path is present
-                target_path = link_url.split('#', 1)[0].strip()
+                parts = link_url.split('#', 1)
+                target_path = unquote(parts[0].strip())
                 if not target_path:
-                    # Pure-fragment or empty target; not a filesystem path to validate here
                     continue
-                # Check if file exists at absolute path first
                 link_path = Path(target_path)
-                if not link_path.exists():
-                    # Try relative to doc file
-                    link_path = (doc_file.parent / target_path).resolve()
-
+                if not link_path.is_absolute():
+                    link_path = doc_file.parent / target_path
+                else:
+                    link_path = link_path
                 assert link_path.exists(), \
-                    f"Broken link in {doc_file}: [{link_text}]({link_url})"
+                    f"Broken link in {doc_file}: [{link_text}]({link_url}) -> {link_path}"
     
     def test_consistent_heading_style(self):
         """Ensure consistent heading style (ATX style with #)."""
         summary_files = list(Path('.').glob('*SUMMARY.md'))
         
         for doc_file in summary_files:
-            content = doc_file.read_text()
+            content = doc_file.read_text(encoding='utf-8')
             lines = content.split('\n')
             
             # Should use ATX style (###) not Setext style (===)
@@ -438,7 +437,7 @@ class TestDocumentationMarkdownQuality:
         summary_files = list(Path('.').glob('*SUMMARY.md')) + list(Path('.').glob('TEST_*.md'))
 
         for doc_file in summary_files:
-            content = doc_file.read_text()
+            content = doc_file.read_text(encoding='utf-8')
 
             # Find code blocks - match complete blocks to only capture opening fence language
             import re
@@ -458,7 +457,7 @@ class TestDocumentationMarkdownQuality:
         summary_files = list(Path('.').glob('*SUMMARY.md'))
         
         for doc_file in summary_files:
-            content = doc_file.read_text()
+            content = doc_file.read_text(encoding='utf-8')
             lines = content.split('\n')
             
             for i, line in enumerate(lines, 1):
@@ -475,7 +474,7 @@ class TestDocumentationMarkdownQuality:
         doc_files = list(Path('.').glob('*SUMMARY.md'))
         
         for doc_file in doc_files:
-            content = doc_file.read_text()
+            content = doc_file.read_text(encoding='utf-8')
             lines = content.split('\n')
             
             for i, line in enumerate(lines, 1):
@@ -498,7 +497,7 @@ class TestDocumentationMarkdownQuality:
         summary_files = list(Path('.').glob('*SUMMARY.md'))
         
         for doc_file in summary_files:
-            content = doc_file.read_text()
+            content = doc_file.read_text(encoding='utf-8')
             
             # Find tables
             import re
@@ -527,7 +526,7 @@ class TestTestSummaryCompleteness:
         if not summary_file.exists():
             pytest.skip("Comprehensive summary not found")
         
-        content = summary_file.read_text()
+        content = summary_file.read_text(encoding='utf-8')
         
         # Should mention key test files
         test_files = [
@@ -554,7 +553,7 @@ class TestTestSummaryCompleteness:
             if not summary_file.exists():
                 continue
             
-            content = summary_file.read_text().lower()
+            content = summary_file.read_text(encoding='utf-8').lower()
             
             # Should have run commands
             has_instructions = any(keyword in content for keyword in [
@@ -573,7 +572,7 @@ class TestTestSummaryCompleteness:
         if not summary_file.exists():
             pytest.skip("Comprehensive summary not found")
         
-        content = summary_file.read_text()
+        content = summary_file.read_text(encoding='utf-8')
         
         # Should have statistics
         stat_indicators = ['tests', 'lines', 'coverage', 'cases']
@@ -588,7 +587,7 @@ class TestTestSummaryCompleteness:
         summary_files = list(Path('.').glob('*SUMMARY.md'))
         
         for summary_file in summary_files:
-            content = summary_file.read_text()
+            content = summary_file.read_text(encoding='utf-8')
             
             # Should have date information
             import re
@@ -613,7 +612,7 @@ class TestWorkflowDocumentationAlignment:
         if not summary_file.exists():
             pytest.skip("Workflow summary not found")
         
-        content = summary_file.read_text()
+        content = summary_file.read_text(encoding='utf-8')
         
         # Extract workflow file names mentioned
         import re
@@ -642,7 +641,7 @@ class TestWorkflowDocumentationAlignment:
         all_content = ''
         for summary_file in summary_files:
             if summary_file.exists():
-                all_content += summary_file.read_text()
+                all_content += summary_file.read_text(encoding='utf-8')
         
         if all_content:
             # Key workflows should be mentioned
@@ -651,4 +650,3 @@ class TestWorkflowDocumentationAlignment:
                 if (workflow_dir / workflow).exists():
                     assert workflow in all_content, \
                         f"Key workflow {workflow} not documented in summaries"
-
