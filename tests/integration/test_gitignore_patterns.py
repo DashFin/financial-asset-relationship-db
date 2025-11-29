@@ -75,6 +75,13 @@ class TestGitignoreFileStructure:
         for line in gitignore_lines:
             # Patterns should not have spaces unless quoted or in character class
             if ' ' in line and '[' not in line and '\\' not in line:
+            # Patterns should not have spaces unless quoted or in character classes
+            # Valid patterns can have: spaces in character classes, quoted spaces, or escaped spaces
+            if ' ' in line and not (
+                '[' in line and ']' in line or  # Character class
+                line.startswith('"') and line.endswith('"') or  # Quoted pattern
+                '\\' in line  # Escaped characters
+            ):
                 pytest.fail(f"Pattern '{line}' contains unescaped space")
     
     def test_no_duplicate_patterns(self, gitignore_lines: List[str]):
