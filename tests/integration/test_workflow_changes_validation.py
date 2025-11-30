@@ -40,7 +40,7 @@ class TestPRAgentWorkflowChanges:
     
     def test_python_dependencies_installation(self, pr_agent_workflow):
         """Verify Python dependencies are installed correctly."""
-        steps = pr_agent_workflow['jobs']['pr_agent_response']['steps']
+        steps = pr_agent_workflow['jobs']['pr-agent-trigger']['steps']
         
         # Find the dependency installation step
         install_step = None
