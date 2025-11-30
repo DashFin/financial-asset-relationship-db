@@ -65,9 +65,13 @@ class TestPyYAMLAddition:
     def test_pyyaml_present(self):
         """Verify PyYAML is in requirements."""
         with open('requirements-dev.txt', 'r') as f:
-            content = f.read().lower()
-        
-        assert 'pyyaml' in content, "PyYAML must be present in requirements-dev.txt"
+            has_pyyaml = any(
+                'pyyaml' in line.lower()
+                for line in f
+                if line.strip() and not line.lstrip().startswith('#')
+            )
+    
+        assert has_pyyaml, "PyYAML must be present in requirements-dev.txt"
     
     def test_pyyaml_version_appropriate(self):
         """Verify PyYAML version is recent and secure."""
