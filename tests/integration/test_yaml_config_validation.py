@@ -77,32 +77,24 @@ class TestYAMLSyntaxAndStructure:
             # This is a style preference but improves consistency
     
     def test_no_duplicate_keys_in_yaml(self):
-        """Verify no duplicate keys exist in YAML files."""
-        yaml_files = list(Path(".github").rglob("*.yml"))
-        
+        """Verify no duplicate keys exist in YAML files using a parser that detects duplicates."""
+        try:
+            from ruamel.yaml import YAML
+        except ImportError:
+            pytest.skip("ruamel.yaml not installed; skip strict duplicate key detection")
+    
+        yaml_files = list(Path(".github").rglob("*.yml")) + list(Path(".github").rglob("*.yaml"))
+        parser = YAML(typ="safe")
+        parse_errors = []
+    
         for yaml_file in yaml_files:
-            with open(yaml_file, 'r') as f:
-                content = f.read()
-            
-            # Check for common duplicate key patterns
-            # Note: YAML will silently overwrite duplicates, making this hard to detect
-            # We check for obvious patterns
-            lines = content.split('\n')
-            keys_at_same_indent = {}
-            
-            for line in lines:
-                if ':' in line and not line.strip().startswith('#'):
-                    indent = len(line) - len(line.lstrip(' '))
-                    key = line.split(':')[0].strip()
-                    
-                    if indent not in keys_at_same_indent:
-                        keys_at_same_indent[indent] = []
-                    
-                    if key in keys_at_same_indent[indent]:
-                        pytest.fail(f"Duplicate key '{key}' found in {yaml_file}")
-                    
-                    keys_at_same_indent[indent].append(key)
-
+            try:
+                with open(yaml_file, "r") as f:
+                    parser.load(f)
+            except Exception as e:
+                parse_errors.append(f"{yaml_file}: {e}")
+    
+        assert not parse_errors, "Duplicate keys or YAML errors detected:\n" + "\n".join(parse_errors)
 
 class TestWorkflowSchemaCompliance:
     """Tests for GitHub Actions workflow schema compliance."""
