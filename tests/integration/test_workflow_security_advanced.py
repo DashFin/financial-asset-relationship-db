@@ -27,10 +27,11 @@ class TestWorkflowInjectionPrevention:
         workflows = []
         for workflow_file in workflow_dir.glob("*.yml"):
             with open(workflow_file, 'r') as f:
+                content = f.read()
                 workflows.append({
                     'path': workflow_file,
-                    'content': yaml.safe_load(f),
-                    'raw': f.read()
+                    'content': yaml.safe_load(content),
+                    'raw': content
                 })
         return workflows
     
