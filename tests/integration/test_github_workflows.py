@@ -402,7 +402,24 @@ class TestPrAgentWorkflow:
 # The previous test (test_pr_agent_python_version) ends before line 397
 # and the next test (test_pr_agent_no_duplicate_setup_steps) should follow directly
     def test_pr_agent_no_duplicate_setup_steps(self, pr_agent_workflow: Dict[str, Any]):
+    def test_pr_agent_no_duplicate_setup_steps(self, pr_agent_workflow: Dict[str, Any]):
         """Test that there are no duplicate setup steps in the workflow."""
+        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        steps = review_job.get("steps", [])
+
+        step_names = [s.get("name") for s in steps if s.get("name")]
+        seen: set[str] = set()
+        duplicate_names: set[str] = set()
+        for name in step_names:
+            if name in seen:
+                duplicate_names.add(name)
+            else:
+                seen.add(name)
+
+        assert not duplicate_names, (
+            f"Found duplicate step names: {duplicate_names}. "
+            "Each step should have a unique name."
+        )
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
 
