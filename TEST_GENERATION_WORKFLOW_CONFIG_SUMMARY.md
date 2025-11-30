@@ -6,7 +6,7 @@ Generated comprehensive unit and validation tests for GitHub workflow configurat
 
 ## Generated Test Files
 
-### 1. test_workflow_config_changes.py (684 lines)
+### 1. test_workflow_config_changes.py (525 lines)
 **Purpose**: Tests specific configuration changes made in this branch
 
 **Test Classes** (13 classes, 50+ tests):
@@ -123,10 +123,10 @@ Generated comprehensive unit and validation tests for GitHub workflow configurat
 
 | File | Lines | Classes | Tests | Focus Area |
 |------|-------|---------|-------|------------|
-| test_workflow_config_changes.py | 684 | 13 | 50+ | Configuration Changes |
+| test_workflow_config_changes.py | 525 | 13 | 50+ | Configuration Changes |
 | test_workflow_security_advanced.py | 608 | 5 | 40+ | Security Best Practices |
 | test_yaml_config_validation.py | 457 | 5 | 30+ | Syntax & Validation |
-| **Total** | **1,749** | **23** | **120+** | **Comprehensive** |
+| **Total** | **1,590** | **23** | **120+** | **Comprehensive** |
 
 ## Key Features
 
@@ -307,7 +307,7 @@ These tests integrate seamlessly with existing CI:
 
 ## Conclusion
 
-Successfully generated **1,749 lines** of comprehensive test code covering:
+Successfully generated **1,590 lines** of comprehensive test code covering:
 
 - ✅ **120+ test cases** for workflow configurations
 - ✅ **23 test classes** organized by concern
