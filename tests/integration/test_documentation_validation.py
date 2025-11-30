@@ -609,12 +609,34 @@ class TestWorkflowDocumentationAlignment:
         
         # Extract workflow file names mentioned
         import re
-        workflow_mentions = re.findall(r'\.github/workflows/([a-z-]+\.yml)', content)
-        
-        for workflow_file in workflow_mentions:
-            workflow_path = Path(f'.github/workflows/{workflow_file}')
-            assert workflow_path.exists(), \
-                f"Documented workflow not found: {workflow_file}"
+        # Normalize and validate workflow filenames mentioned in the docs
+        raw_mentions = re.findall(r'\.github/workflows/([A-Za-z0-9_.\-]+\.ya?ml)', content)
+        normalized_mentions = []
+        for m in raw_mentions:
+            name = m.strip()
+            # Basic validation: non-empty, no path traversal, reasonable filename
+            if not name or '..' in name or name.startswith(('/', '\\')) or '/' in name or '\\' in name:
+                continue
+            normalized_mentions.append(name)
+
+        # De-duplicate mentions
+        normalized_mentions = list(dict.fromkeys(normalized_mentions))
+
+        # Collect missing files for a single, informative assertion
+        missing_workflows = []
+        for workflow_file in normalized_mentions:
+            workflow_path = Path('.github') / 'workflows' / workflow_file
+            try:
+                exists = workflow_path.exists()
+            except OSError:
+                exists = False
+            if not exists:
+                missing_workflows.append(str(workflow_path))
+
+        assert not missing_workflows, (
+            "Documented workflow(s) not found:\n"
+            + "\n".join(f"- {p}" for p in missing_workflows)
+        )
     
     def test_workflow_changes_documented(self):
         """Verify major workflow changes are documented."""
