@@ -91,7 +91,7 @@ class TestPRAgentWorkflowChanges:
         assert 'pull_request_target' in on_config or 'pull_request' in on_config
 
 
-class TestAPISec WorkflowChanges:
+class TestAPISecWorkflowChanges:
     """Test APISec scan workflow modifications."""
     
     @pytest.fixture
