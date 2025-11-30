@@ -66,7 +66,7 @@ class TestPRAgentWorkflowChanges:
     
     def test_simplified_comment_parsing(self, pr_agent_workflow):
         """Verify comment parsing step exists and is simplified."""
-        steps = pr_agent_workflow['jobs']['pr_agent_response']['steps']
+        steps = pr_agent_workflow['jobs']['pr-agent-trigger']['steps']
         
         parse_step = None
         for step in steps:
