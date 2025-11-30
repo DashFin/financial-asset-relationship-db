@@ -343,8 +343,18 @@ class TestSpecificChanges:
             'types-PyYAML',
         ]
         package_names = [pkg for pkg, _ in requirements]
-        missing = [pkg for pkg in expected_packages if pkg not in package_names]
-        assert not missing, f"Missing expected packages: {missing}"
+        # Define a minimal set of packages we expect to always be present
+        expected_packages = [
+            'pytest',
+            'pytest-cov',
+            'flake8',
+            'black',
+            'mypy',
+            'PyYAML',
+            'types-PyYAML',
+        ]
+        # Derive actual package names from the requirements
+        package_names = [pkg for pkg, _ in requirements]
         missing = [pkg for pkg in expected_packages if pkg not in package_names]
         assert not missing, f"Missing expected packages: {missing}"
 
