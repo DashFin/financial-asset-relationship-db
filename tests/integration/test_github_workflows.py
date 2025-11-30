@@ -306,6 +306,13 @@ class TestPrAgentWorkflow:
         assert isinstance(pr_agent_workflow["name"], str) and pr_agent_workflow["name"].strip(), (
             "pr-agent workflow 'name' field must be a non-empty string"
         )
+        expected_name = "PR Agent Workflow"
+        actual_name = pr_agent_workflow["name"].strip()
+        assert actual_name == expected_name, (
+            f"pr-agent workflow name mismatch. Expected: '{expected_name}', Got: '{actual_name}'"
+        )
+            "pr-agent workflow 'name' field must be a non-empty string"
+        )
         assert pr_agent_workflow["name"].strip() == "PR Agent Workflow", (
             "pr-agent workflow 'name' should match the configured workflow name"
         )
