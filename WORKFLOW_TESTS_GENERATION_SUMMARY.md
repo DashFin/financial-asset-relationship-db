@@ -168,7 +168,7 @@ Generated comprehensive unit and integration tests for GitHub workflow modificat
 | Metric | Value |
 |--------|-------|
 | **New Test Files** | 3 |
-| **Total Lines of Test Code** | 1,751 |
++| **Total Lines of Test Code** | 1,278 |
 | **Test Classes** | 23 |
 | **Test Methods** | 79 |
 | **Workflows Validated** | 4 |
