@@ -128,8 +128,8 @@ class TestPRAgentConfigYAMLValidity:
             pytest.fail(f"Duplicate keys found at paths: {', '.join(duplicates)}")
                 key = line.split(':')[0].strip()
 
-                # Skip list items (lines starting with -)
-                if key.startswith('-'):
+                # Skip list items (only when the first non-space character is '-')
+                if line.lstrip().startswith('-'):
                     continue
 
                 # Normalize indentation: expand tabs to spaces to avoid mixed indent issues
