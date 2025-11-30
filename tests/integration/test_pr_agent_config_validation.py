@@ -11,6 +11,32 @@ from pathlib import Path
 from typing import Dict, Any
 
 
+class DuplicateKeyLoader(yaml.SafeLoader):
+    """Custom YAML loader that detects duplicate keys."""
+    pass
+
+
+def _check_duplicate_keys(loader, node, deep=False):
+    """Check for duplicate keys in YAML mappings."""
+    mapping = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        if key in mapping:
+            raise yaml.constructor.ConstructorError(
+                "while constructing a mapping", node.start_mark,
+                f"found duplicate key ({key})", key_node.start_mark
+            )
+        value = loader.construct_object(value_node, deep=deep)
+        mapping[key] = value
+    return mapping
+
+
+DuplicateKeyLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+    _check_duplicate_keys
+)
+
+
 class TestPRAgentConfigSimplification:
     """Test PR Agent config simplification changes."""
     
@@ -96,23 +122,10 @@ class TestPRAgentConfigYAMLValidity:
         config_path = Path(".github/pr-agent-config.yml")
 
         with open(config_path, 'r') as f:
-            config = yaml.safe_load(f)
-
-        def find_duplicates(obj, path=""):
-            duplicates = []
-            if isinstance(obj, dict):
-                keys_seen = set()
-                for key, value in obj.items():
-                    current_path = f"{path}.{key}" if path else key
-                    if key in keys_seen:
-                        duplicates.append(current_path)
-                    keys_seen.add(key)
-                    duplicates.extend(find_duplicates(value, current_path))
-            return duplicates
-
-        duplicates = find_duplicates(config)
-        if duplicates:
-            pytest.fail(f"Duplicate keys found: {', '.join(duplicates)}")
+            try:
+                yaml.load(f, Loader=DuplicateKeyLoader)
+            except yaml.constructor.ConstructorError as e:
+                pytest.fail(f"Duplicate key found: {e}")
     
     def test_consistent_indentation(self):
         """Verify consistent 2-space indentation."""
