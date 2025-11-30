@@ -8,7 +8,7 @@ Generated Files:
 - tests/integration/test_workflow_security_advanced.py (524 lines, 18 tests)
 - tests/integration/test_yaml_config_validation.py (357 lines, 16 tests)
 
-Total: 1,323 lines, 83 tests, 21 test classes
+Total: 1,407 lines, 75 tests, 19 test classes
 
 Documentation:
 - COMPLETE_TEST_GENERATION_SUMMARY.md
