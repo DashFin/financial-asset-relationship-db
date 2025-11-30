@@ -181,12 +181,16 @@ class TestRequirementsSecurity:
         }
         
         with open('requirements-dev.txt', 'r') as f:
-            content = f.read()
-        
+            active_lines = [
+                line for line in f
+                if line.strip() and not line.lstrip().startswith('#')
+            ]
+            content = ''.join(active_lines).lower()
+    
         for package, vulnerable_versions in known_vulnerable.items():
-            if package in content.lower():
+            if package in content:
                 for vuln_version in vulnerable_versions:
-                    assert f'=={vuln_version}' not in content.lower(), \
+                    assert f'=={vuln_version}' not in content, \
                         f"Known vulnerable version {package}=={vuln_version} detected"
     
     def test_uses_version_pinning(self):
