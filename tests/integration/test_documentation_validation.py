@@ -638,30 +638,11 @@ class TestWorkflowDocumentationAlignment:
             + "\n".join(f"- {p}" for p in missing_workflows)
         )
     
-    def test_workflow_changes_documented(self):
-        """Verify major workflow changes are documented."""
-        # Get workflow files
-        workflow_dir = Path('.github/workflows')
-        if not workflow_dir.exists():
-            pytest.skip("Workflow directory not found")
-        
-        workflows = list(workflow_dir.glob('*.yml'))
-        
-        # Check if documented
-        summary_files = [
-            Path('TEST_GENERATION_WORKFLOW_SUMMARY.md'),
-            Path('COMPREHENSIVE_TEST_SUMMARY.md'),
-        ]
-        
-        all_content = ''
-        for summary_file in summary_files:
-            if summary_file.exists():
-                all_content += summary_file.read_text(encoding='utf-8')
-        
-        if all_content:
-            # Key workflows should be mentioned
-            key_workflows = ['pr-agent.yml', 'label.yml', 'greetings.yml']
-            for workflow in key_workflows:
-                if (workflow_dir / workflow).exists():
-                    assert workflow in all_content, \
-                        f"Key workflow {workflow} not documented in summaries"
+            if all_content:
+                # Key workflows should be mentioned
+                key_workflows = ['pr-agent.yml', 'label.yml', 'greetings.yml']
+                for workflow in key_workflows:
+                    if (workflow_dir / workflow).exists():
+                        pattern = rf'\b{re.escape(workflow)}\b'
+                        assert re.search(pattern, all_content) is not None, \
+                            f"Key workflow {workflow} not documented in summaries"
