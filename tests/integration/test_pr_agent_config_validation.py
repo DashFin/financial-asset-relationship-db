@@ -94,24 +94,41 @@ class TestPRAgentConfigYAMLValidity:
     def test_no_duplicate_keys(self):
         """Verify no duplicate keys in config."""
         config_path = Path(".github/pr-agent-config.yml")
-        
+
         with open(config_path, 'r') as f:
             content = f.read()
-        
-        # Check for obvious duplicate patterns
+
+        # Check for duplicate keys by tracking full hierarchical paths
         lines = content.split('\n')
-        keys_at_level = {}
-        
+        # Stack tracks (indent_level, key) tuples to build hierarchical path
+        path_stack = []
+        seen_full_paths = set()
+
         for line in lines:
             if ':' in line and not line.strip().startswith('#'):
                 # Get indentation level
                 indent = len(line) - len(line.lstrip())
                 key = line.split(':')[0].strip()
-                
-                level_key = f"{indent}:{key}"
-                if level_key in keys_at_level:
-                    pytest.fail(f"Duplicate key '{key}' at indentation {indent}")
-                keys_at_level[level_key] = True
+
+                # Skip list items (lines starting with -)
+                if key.startswith('-'):
+                    continue
+
+                # Pop stack entries that are at same or deeper indentation
+                # (we've moved back up or sideways in the hierarchy)
+                while path_stack and path_stack[-1][0] >= indent:
+                    path_stack.pop()
+
+                # Build full path from stack + current key
+                parent_path = '.'.join(item[1] for item in path_stack)
+                full_path = f"{parent_path}.{key}" if parent_path else key
+
+                if full_path in seen_full_paths:
+                    pytest.fail(f"Duplicate key at path '{full_path}'")
+                seen_full_paths.add(full_path)
+
+                # Push current key onto stack for potential children
+                path_stack.append((indent, key))
     
     def test_consistent_indentation(self):
         """Verify consistent 2-space indentation."""
