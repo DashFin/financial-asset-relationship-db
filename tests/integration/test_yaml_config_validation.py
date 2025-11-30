@@ -115,7 +115,7 @@ class TestWorkflowSchemaCompliance:
         """Verify workflow triggers use valid format."""
         for workflow in all_workflows:
             # Check for 'on' or '"on"' key
-            has_trigger = 'on' in workflow['content'] or '"on"' in workflow['content']
+            has_trigger = 'on' in workflow['content']
             assert has_trigger, f"Workflow {workflow['path']} missing trigger ('on' key)"
             
             triggers = workflow['content'].get('on') or workflow['content'].get('"on"')
