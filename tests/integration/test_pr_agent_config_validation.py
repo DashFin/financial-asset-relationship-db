@@ -114,6 +114,12 @@ class TestPRAgentConfigYAMLValidity:
                 if key.startswith('-'):
                     continue
 
+                # Normalize indentation: expand tabs to spaces to avoid mixed indent issues
+                expanded = line.expandtabs(2)
+                indent = len(expanded) - len(expanded.lstrip(' '))
+                # Ensure indentation uses only spaces (no stray tabs remain after expand)
+                if '\t' in line:
+                    pytest.fail("Tabs are not allowed for indentation in YAML config")
                 # Pop stack entries that are at same or deeper indentation
                 # (we've moved back up or sideways in the hierarchy)
                 while path_stack and path_stack[-1][0] >= indent:
