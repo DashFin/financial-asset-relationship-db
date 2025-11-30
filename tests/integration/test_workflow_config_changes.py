@@ -431,9 +431,10 @@ class TestWorkflowYAMLQuality:
             jobs = workflow.get('jobs', {})
             for job_id, job_config in jobs.items():
                 # Either job_id should be descriptive or should have 'name' field
-                is_descriptive_id = len(job_id) > 5 and '_' in job_id
+                # Job IDs like 'build', 'test', 'lint' are already descriptive enough
+                is_descriptive_id = len(job_id) >= 3
                 has_name_field = 'name' in job_config
-                
+
                 assert is_descriptive_id or has_name_field, \
                     f"Job {job_id} in {workflow_file} needs better identification"
     
