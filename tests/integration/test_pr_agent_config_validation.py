@@ -104,9 +104,27 @@ class TestPRAgentConfigYAMLValidity:
         path_stack = []
         seen_full_paths = set()
 
-        for line in lines:
+        for line_num, line in enumerate(lines, 1):
+            # Validate indentation before processing to ensure correct key paths
+            if line.strip():  # Non-empty line
+                # Check for tab characters in indentation
+                leading_whitespace = line[:len(line) - len(line.lstrip())]
+                if '\t' in leading_whitespace:
+                    pytest.fail(
+                        f"Line {line_num}: Tab character in indentation. "
+                        "YAML requires consistent space-based indentation."
+                    )
+
+                # Check for mixed spaces/inconsistent indentation
+                indent = len(leading_whitespace)
+                if indent > 0 and indent % 2 != 0:
+                    pytest.fail(
+                        f"Line {line_num}: Indentation of {indent} spaces is not "
+                        "a multiple of 2. Use consistent 2-space indentation."
+                    )
+
             if ':' in line and not line.strip().startswith('#'):
-                # Get indentation level
+                # Get indentation level (already validated above)
                 indent = len(line) - len(line.lstrip())
                 key = line.split(':')[0].strip()
 
