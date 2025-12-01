@@ -50,55 +50,100 @@ def load_yaml_safe(file_path: Path) -> Dict[str, Any]:
 
 def check_duplicate_keys(file_path: Path) -> List[str]:
     """
-    Detect duplicate mapping keys in a YAML file.
-    
+    Detect duplicate mapping keys in a YAML file, ignoring list items.
+
+    According to YAML specification, list items start with '- ' and should not be
+    treated as potential duplicate keys. This function only checks for duplicates
+    within mapping contexts.
+
     Parameters:
         file_path (Path): Path to the YAML file to inspect.
-    
+
     Returns:
         List of duplicate key names found, or an empty list if none are present.
     """
     duplicates = []
-    
+
     with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
-    # Parse with a custom constructor that detects duplicates
-    class DuplicateKeySafeLoader(yaml.SafeLoader):
-        pass
-    
-    def constructor_with_dup_check(loader, node):
-        """
-        Construct a dict from a YAML mapping node while recording duplicate keys.
-        
-        Parameters:
-            loader: YAML loader used to construct key and value objects from nodes.
-            node: YAML mapping node to convert.
-        
-        Returns:
-            dict: Mapping of constructed keys to their corresponding values.
-        
-        Notes:
-            Duplicate keys encountered are appended to the surrounding `duplicates` list.
-        """
-        mapping = {}
-        for key_node, value_node in node.value:
-            key = loader.construct_object(key_node, deep=False)
-            if key in mapping:
-                duplicates.append(key)
-            mapping[key] = loader.construct_object(value_node, deep=False)
-        return mapping
-    
-    DuplicateKeySafeLoader.add_constructor(
-        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-        constructor_with_dup_check
-    )
-    
-    try:
-        yaml.load(content, Loader=DuplicateKeySafeLoader)
-    except yaml.YAMLError:
-        pass  # Syntax errors will be caught by other tests
-    
+        lines = f.readlines()
+
+    def check_mapping_duplicates(lines_subset, indent_level=0):
+        """Recursively check for duplicate keys in a mapping context."""
+        keys_seen = set()
+        i = 0
+        while i < len(lines_subset):
+            line = lines_subset[i].rstrip()
+            if not line.strip():  # Skip empty lines
+                i += 1
+                continue
+
+            # Count leading spaces to determine indentation
+            current_indent = len(line) - len(line.lstrip(' '))
+
+            # If less indented than our mapping level, we're done with this mapping
+            if current_indent < indent_level:
+                break
+
+            # If more indented, this might be part of a nested structure
+            if current_indent > indent_level:
+                i += 1
+                continue
+
+            # Check if this is a list item (starts with '- ')
+            if line.lstrip().startswith('- '):
+                # Skip the list item and any nested content
+                list_item_indent = current_indent
+                i += 1
+                while i < len(lines_subset):
+                    next_line = lines_subset[i].rstrip()
+                    if not next_line.strip():
+                        i += 1
+                        continue
+                    next_indent = len(next_line) - len(next_line.lstrip(' '))
+                    if next_indent <= list_item_indent:
+                        break
+                    i += 1
+                continue
+
+            # This should be a mapping key
+            stripped = line.lstrip()
+            if ':' in stripped:
+                key = stripped.split(':', 1)[0].strip()
+                if key:  # Only check non-empty keys
+                    if key in keys_seen:
+                        duplicates.append(key)
+                    else:
+                        keys_seen.add(key)
+
+                # Check if there's a nested mapping after this key
+                colon_pos = stripped.find(':')
+                if colon_pos != -1 and colon_pos + 1 < len(stripped):
+                    # Inline value, no nested mapping
+                    pass
+                else:
+                    # Look for nested mapping on subsequent lines
+                    nested_start = i + 1
+                    nested_lines = []
+                    j = nested_start
+                    while j < len(lines_subset):
+                        nested_line = lines_subset[j].rstrip()
+                        if not nested_line.strip():
+                            j += 1
+                            continue
+                        nested_indent = len(nested_line) - len(nested_line.lstrip(' '))
+                        if nested_indent <= current_indent:
+                            break
+                        nested_lines.append(nested_line)
+                        j += 1
+
+                    if nested_lines:
+                        check_mapping_duplicates(nested_lines, current_indent + 2)
+
+            i += 1
+
+    # Start checking from the root level
+    check_mapping_duplicates(lines, 0)
+
     return duplicates
 
 
