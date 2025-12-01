@@ -97,29 +97,30 @@ class TestPRAgentConfigYAMLValidity:
 
         with open(config_path, 'r') as f:
             content = f.read()
+        class DuplicateKeyLoader(yaml.Loader):
+            pass
 
-        # Check for duplicate keys by tracking full hierarchical paths
-        lines = content.split('\n')
-        # Stack tracks (indent_level, key) tuples to build hierarchical path
-        path_stack = []
-        seen_full_paths = set()
+        def construct_mapping_no_dups(loader, node, deep=False):
+            if not isinstance(node, yaml.MappingNode):
+                return loader.construct_mapping(node, deep=deep)
+            mapping = {}
+            for key_node, value_node in node.value:
+                key = loader.construct_object(key_node, deep=deep)
+                if key in mapping:
+                    raise yaml.YAMLError(f"Duplicate key detected: {key}")
+                mapping[key] = loader.construct_object(value_node, deep=deep)
+            return mapping
 
-        for line in lines:
-            stripped_line = line.strip()
-            if stripped_line and ':' in stripped_line and not stripped_line.startswith('#'):
-                # Skip list items - in YAML, list items start with "- " (dash + space)
-                # Check the stripped line rather than the extracted key to properly
-                # identify list items vs keys that might contain dashes
-                if stripped_line.startswith('- '):
-                    continue
+        DuplicateKeyLoader.add_constructor(
+            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+            construct_mapping_no_dups
+        )
 
-                # Get indentation level (from original line to preserve hierarchy)
-                indent = len(line) - len(line.lstrip())
-                key = stripped_line.split(':')[0].strip()
-
-                # Pop stack entries that are at same or deeper indentation
-                # (we've moved back up or sideways in the hierarchy)
-                while path_stack and path_stack[-1][0] >= indent:
+        with open(config_path, 'r') as f:
+            try:
+                yaml.load(f, Loader=DuplicateKeyLoader)
+            except yaml.YAMLError as e:
+                pytest.fail(f"Duplicate key detected or YAML error: {e}")
                     path_stack.pop()
 
                 # Build full path from stack + current key
