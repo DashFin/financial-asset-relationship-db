@@ -103,9 +103,11 @@ def _build_limited_content(self, chunks):
 
         for ch in sorted_chunks:
             content = (ch or {}).get("content") or ""
-            if not content:
-                continue
-            # If content exceeds chunk_size, take a head segment with optional overlap
+        overlap_chars = max(0, int(len(content) * overlap_ratio))
+        # Ensure overlap does not exceed per-chunk budget approximation
+        max_chars_for_chunk = max(1, int(len(content) * (max_len_tokens / max(content_tokens, 1))))
+        slice_end = min(len(content), min(max_chars_for_chunk, take_chars + overlap_chars))
+        content = content[:slice_end]
             max_len_tokens = max(1, int(self.chunk_size))
             content_tokens = estimate_tokens(content)
             if content_tokens > max_len_tokens:
