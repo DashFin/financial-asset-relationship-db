@@ -243,7 +243,7 @@ class ContextChunker:
             additions = f.get("additions", 0)
             deletions = f.get("deletions", 0)
             patch = f.get("patch", "")
-            lines.append(f"### {filename} (+{additions}/-{deletions})")
+            lines.append(f"### {filename} (+{additions}/-{deletions})\n")
             if patch:
                 lines.append(f"```diff\n{patch}\n```")
         return "\n".join(lines)
@@ -354,8 +354,10 @@ class ContextChunker:
             return text
 
         # Estimate character count for target tokens
-        # Using conservative estimate of 3 chars per token
-        target_chars = max_tokens * 3
+        # Using conservative estimate of 3 chars per token (lower than the 4.0
+        # used in heuristic estimation to ensure we don't exceed the limit)
+        chars_per_token_conservative = 3
+        target_chars = max_tokens * chars_per_token_conservative
 
         if target_chars >= len(text):
             return text
