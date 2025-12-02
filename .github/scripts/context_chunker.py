@@ -52,9 +52,65 @@
             chunks: Collection of content chunks to process.
 
         Returns:
-            str: Empty string placeholder; to be implemented.
-        """
-        return ""
+        # Build limited content by prioritizing chunks and enforcing token limits
+        # Expect each chunk to be a dict with keys: "type" and "content"
+        def estimate_tokens(text: str) -> int:
+            if self._encoder:
+                try:
+                    return len(self._encoder.encode(text))
+                except Exception:
+                    pass
+            # Fallback heuristic: ~4 chars per token
+            return max(1, len(text) // 4)
+
+        # Sort chunks by configured priority (unknown types come last)
+        def priority_key(ch):
+            ch_type = (ch or {}).get("type", "")
+            return self.priority_map.get(ch_type, len(self.priority_map))
+
+        sorted_chunks = sorted((chunks or []), key=priority_key)
+
+        pieces = []
+        used_tokens = 0
+        limit = max(1, int(self.max_tokens))  # safety
+
+        for ch in sorted_chunks:
+            content = (ch or {}).get("content") or ""
+            if not content:
+                continue
+            # If content exceeds chunk_size, take a head segment with optional overlap
+            max_len_tokens = max(1, int(self.chunk_size))
+            content_tokens = estimate_tokens(content)
+            if content_tokens > max_len_tokens:
+                # approximate slicing by character proportion
+                ratio = max_len_tokens / max(content_tokens, 1)
+                take_chars = max(1, int(len(content) * ratio))
+                # apply overlap at end to help continuity
+                overlap_est = max(0, int(self.overlap_tokens))
+                overlap_ratio = overlap_est / max(content_tokens, 1)
+                overlap_chars = max(0, int(len(content) * overlap_ratio))
+                slice_end = min(len(content), take_chars + overlap_chars)
+                content = content[:slice_end]
+                content_tokens = estimate_tokens(content)
+
+            # Ensure we don't exceed the overall token limit
+            if used_tokens + content_tokens > limit:
+                # take a remaining slice proportionally
+                remaining = max(0, limit - used_tokens)
+                if remaining <= 0:
+                    break
+                ratio = remaining / max(content_tokens, 1)
+                take_chars = max(1, int(len(content) * ratio))
+                content = content[:take_chars]
+                content_tokens = estimate_tokens(content)
+
+            if content:
+                pieces.append(content)
+                used_tokens += content_tokens
+                if used_tokens >= limit:
+                    break
+
+        return "\n\n".join(pieces)
 
         def main():
             """Example usage"""
