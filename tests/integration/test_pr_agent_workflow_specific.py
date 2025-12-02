@@ -333,9 +333,6 @@ class TestPRAgentWorkflowPermissions:
         job = workflow_content['jobs']['pr-agent-trigger']
         permissions = job.get('permissions', {})
         assert permissions.get('issues') == 'write', "pr-agent-trigger job should have 'issues: write' permission"
-        job = workflow_content['jobs']['pr-agent-trigger']
-        permissions = job.get('permissions', {})
-        assert permissions.get('issues') == 'write', \
             "pr-agent-trigger job should have 'issues: write' permission"
     
     def test_auto_merge_job_has_pr_write(self, workflow_content: Dict[str, Any]):
