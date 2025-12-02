@@ -49,7 +49,17 @@
         Build limited content from chunks (placeholder implementation).
 
         Parameters:
+    def _build_limited_content(self, chunks):
+        """
+        Build limited content from chunks (placeholder implementation).
+
+        Parameters:
             chunks: Collection of content chunks to process.
+
+        Returns:
+            A prioritized, size-limited string assembled from provided chunks.
+        """
+        # Build limited content by prioritizing chunks and enforcing token limits
 
         Returns:
         # Build limited content by prioritizing chunks and enforcing token limits
