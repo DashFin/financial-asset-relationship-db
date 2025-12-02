@@ -509,8 +509,18 @@ class TestPRAgentWorkflowSecurityBestPractices:
         """
         # Check for common token patterns
         token_patterns = [
-            r'ghp_[a-zA-Z0-9]{36}',  # GitHub PAT
+            r'ghp_[a-zA-Z0-9]{36}',  # GitHub PAT (classic)
             r'gho_[a-zA-Z0-9]{36}',  # GitHub OAuth
+            r'github_pat_[a-zA-Z0-9]+',  # GitHub PAT (fine-grained)
+            r'ghu_[a-zA-Z0-9]+',  # GitHub user-to-server token
+            r'ghs_[a-zA-Z0-9]+',  # GitHub server-to-server token
+            r'ghr_[a-zA-Z0-9]+',  # GitHub refresh token
+            r'api_key\s*[=:]\s*["\']?[a-zA-Z0-9_\-]+["\']?',  # Generic API key
+            r'secret_key\s*[=:]\s*["\']?[a-zA-Z0-9_\-]+["\']?',  # Generic secret key
+            r'password\s*[=:]\s*["\']?[a-zA-Z0-9_\-]+["\']?',  # Hardcoded password
+            r'sk-[a-zA-Z0-9]{48}',  # OpenAI API key
+            r'xox[baprs]-[a-zA-Z0-9\-]+',  # Slack tokens
+            r'npm_[a-zA-Z0-9]{36}',  # npm access token
         ]
         
         for pattern in token_patterns:
