@@ -76,6 +76,8 @@ def _build_limited_content(self, chunks):
         # Build limited content by prioritizing chunks and enforcing token limits
 
         Returns:
+            str: Limited content assembled from the prioritized chunks.
+        """
         # Build limited content by prioritizing chunks and enforcing token limits
         # Expect each chunk to be a dict with keys: "type" and "content"
         def estimate_tokens(text: str) -> int:
