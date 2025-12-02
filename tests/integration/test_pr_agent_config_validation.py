@@ -162,6 +162,11 @@ class TestPRAgentConfigYAMLValidity:
                 yaml.load(f, Loader=DuplicateKeyLoader)
             except yaml.YAMLError as e:
                 pytest.fail(f"Duplicate key detected or YAML error: {e}")
+            else:
+                # Ensure a document exists (avoid passing on empty content)
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    if not any(line.strip() and not line.lstrip().startswith('#') for line in f):
+                        pytest.fail("YAML file is empty or contains only comments.")
                     path_stack.pop()
 
                 # Build full path from stack + current key
