@@ -158,7 +158,10 @@
                                     tokens = self._encoder.encode(block_body)
                                     if remaining < len(tokens):
                                         tokens = tokens[:remaining]
-                                        truncated_body = self._encoder.decode(tokens)
+                                        decoded = self._encoder.decode(tokens)
+                                        truncated_body = decoded if decoded.strip() else block_body[:remaining]
+                                    else:
+                                        truncated_body = block_body
                                     else:
                                         truncated_body = block_body
                                 except Exception:
