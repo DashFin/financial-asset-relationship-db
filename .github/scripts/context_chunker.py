@@ -45,7 +45,54 @@
 
 
     def _build_limited_content(self, chunks):
-        """
+        def _build_limited_content(self, chunks):
+            """
+            Build limited content from chunks.
+
+            Parameters:
+                chunks: Iterable of content chunks to process.
+
+            Returns:
+                str: Concatenated string of chunk contents, separated by newlines.
+            """
+            if not chunks:
+                return ""
+            try:
+                return "\n".join(str(chunk) for chunk in chunks)
+            except Exception:
+                return ""
+
+
+        def main():
+            """Example usage."""
+            chunker = ContextChunker()
+
+            # Example PR data
+            example_pr = {
+                'reviews': [
+                    {
+                        'user': {'login': 'reviewer1'},
+                        'state': 'changes_requested',
+                        'body': 'Please fix the bug in the database connection and add tests.'
+                    }
+                ],
+                'files': [
+                    {
+                        'filename': 'src/data/database.py',
+                        'additions': 50,
+                        'deletions': 20,
+                        'patch': '@@ -1,5 +1,10 @@\n-old code\n+new code'
+                    }
+                ]
+            }
+
+            processed, chunked = chunker.process_context(example_pr)
+            print(f"Chunked: {chunked}")
+            print(f"\nProcessed content:\n{processed}")
+
+
+        if __name__ == "__main__":
+            main()
         Build limited content from chunks (placeholder implementation).
 
         Parameters:
