@@ -107,16 +107,12 @@ class TestPRAgentConfigYAMLValidity:
                 # Ensure keys are hashable to safely detect duplicates
                 try:
                     hash(key)
-                except TypeError:
                 key = loader.construct_object(key_node, deep=deep)
                 # Ensure keys are hashable to safely detect duplicates
                 try:
                     hash(key)
-                except TypeError:
-            mapping = {}
-            # Handle YAML merge keys '<<' first to seed existing keys
-            merges = []
-            for key_node, value_node in node.value:
+                except TypeError as exc:
+                    raise yaml.YAMLError(f"Unhashable key encountered: {key!r}") from exc
                 k = loader.construct_object(key_node, deep=deep)
                 if k == '<<':
                     merges.append(value_node)
