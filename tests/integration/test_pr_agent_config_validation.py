@@ -149,6 +149,12 @@ class TestPRAgentConfigYAMLValidity:
             yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
             construct_mapping_no_dups
         )
+        # Ensure ordered mappings also use the duplicate key check if present
+        if hasattr(yaml.resolver.BaseResolver, 'DEFAULT_OMAP_TAG'):
+            DuplicateKeyLoader.add_constructor(
+                yaml.resolver.BaseResolver.DEFAULT_OMAP_TAG,
+                construct_mapping_no_dups
+            )
 
         with open(config_path, 'r') as f:
             try:
