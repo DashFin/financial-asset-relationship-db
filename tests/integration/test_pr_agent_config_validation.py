@@ -104,6 +104,11 @@ class TestPRAgentConfigYAMLValidity:
             mapping = {}
             for key_node, value_node in node.value:
                 key = loader.construct_object(key_node, deep=deep)
+                # Ensure keys are hashable to safely detect duplicates
+                try:
+                    hash(key)
+                except TypeError:
+                    raise yaml.YAMLError(f"Unhashable mapping key encountered: {key!r}")
                 if key in mapping:
                     raise yaml.YAMLError(f"Duplicate key detected: {key}")
                 mapping[key] = loader.construct_object(value_node, deep=deep)
