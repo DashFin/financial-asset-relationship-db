@@ -65,7 +65,9 @@
 
         # Sort chunks by configured priority (unknown types come last)
         def priority_key(ch):
-            ch_type = (ch or {}).get("type", "")
+            if not isinstance(ch, dict):
+                return len(self.priority_map)  # Treat as lowest priority
+            ch_type = ch.get("type", "")
             return self.priority_map.get(ch_type, len(self.priority_map))
 
         sorted_chunks = sorted((chunks or []), key=priority_key)
