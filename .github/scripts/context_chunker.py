@@ -49,9 +49,7 @@
         Build limited content from chunks (placeholder implementation).
 
         Parameters:
-    def _build_limited_content(self, chunks):
-        """
-        Build limited content from chunks (placeholder implementation).
+    # Removed duplicate method signature and docstring; single valid definition remains below
 
         Parameters:
 def _build_limited_content(self, chunks):
