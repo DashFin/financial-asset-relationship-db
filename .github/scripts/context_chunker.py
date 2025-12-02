@@ -104,6 +104,13 @@
                 content = content[:take_chars]
                 content_tokens = estimate_tokens(content)
 
+                # Final check to ensure we don't exceed the limit due to approximation
+                if content_tokens > remaining:
+                    ratio = (remaining / max(content_tokens, 1)) * 0.95 # 5% safety margin
+                    take_chars = max(1, int(len(content) * ratio))
+                    content = content[:take_chars]
+                    content_tokens = estimate_tokens(content)
+
             if content:
                 pieces.append(content)
                 used_tokens += content_tokens
