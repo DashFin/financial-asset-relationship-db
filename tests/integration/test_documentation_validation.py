@@ -296,7 +296,7 @@ class TestLinkValidation:
         """
         Validates that every GitHub-style internal link in the Markdown points to an existing header.
         
-        Checks internal links of the form [text](#anchor) in the full document content against the set of GitHub Flavoured Markdown anchors derived from the document headers; the test fails if any anchor does not match an existing header.
+        Checks internal links of the form [text](#anchor) in the full document content against the set of GitHub Flavored Markdown anchors derived from the document headers; the test fails if any anchor does not match an existing header.
         
         Parameters:
             summary_lines (List[str]): The file split into lines; used to extract headers.
