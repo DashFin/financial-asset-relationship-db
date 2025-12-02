@@ -38,9 +38,9 @@ def validate_workflow(workflow_path):
         else:
             data = yaml.safe_load(content_bytes)
         if not isinstance(data, dict):
-            return ValidationResult(False, ["Workflow must be a dict"], {})
-        if 'jobs' not in data:
-            return ValidationResult(False, ["Workflow must have jobs"], data)
+            return ValidationResult(False, [f"Workflow must be a dict, got {type(data).__name__}"], {})
+        if 'jobs' not in data or not isinstance(data['jobs'], dict):
+            return ValidationResult(False, ["Workflow must have a 'jobs' key with a dictionary value"], data)
         # Additional validations can be added here if needed
         return ValidationResult(True, [], data)
     except Exception as e:
