@@ -40,16 +40,19 @@ class TestPyYAMLDependencyAddition:
     def requirements_lines(self, requirements_content: str) -> List[str]:
         """
         Extracts the non-empty, non-comment lines from the contents of a requirements file.
-        
+
         Parameters:
             requirements_content (str): Full text of a requirements file.
-        
+
         Returns:
-            List[str]: Lines from the file with surrounding whitespace removed, excluding blank lines and lines beginning with `#`.
+            List[str]: Lines from the file with surrounding whitespace removed, excluding blank lines and lines beginning with `#` (including those with leading whitespace).
         """
         lines = []
         for line in requirements_content.split('\n'):
-            line = line.strip()
+            stripped = line.strip()
+            if stripped and not line.lstrip().startswith('#'):
+                lines.append(stripped)
+        return lines
             if line and not line.startswith('#'):
                 lines.append(line)
         return lines
