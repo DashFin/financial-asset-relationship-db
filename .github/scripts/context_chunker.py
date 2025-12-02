@@ -57,6 +57,12 @@ class ContextChunker:
             except Exception as e:
                 print(f"Warning: failed to load config from {config_path}: {e}", file=sys.stderr)
                 self.config = {}
+        # Check for required configuration sections and log warnings if missing
+        if cfg_file.exists() and self.config:
+            if "agent" not in self.config or "context" not in (self.config.get("agent") or {}):
+                print(f"Warning: 'agent.context' section missing in config file {config_path}", file=sys.stderr)
+            if "limits" not in self.config or "fallback" not in (self.config.get("limits") or {}):
+                print(f"Warning: 'limits.fallback' section missing in config file {config_path}", file=sys.stderr)
         agent_cfg = (self.config.get("agent") or {}).get("context") or {}
         self.max_tokens: int = int(agent_cfg.get("max_tokens", 32000))
         self.chunk_size: int = int(agent_cfg.get("chunk_size", max(1, self.max_tokens - 4000)))
