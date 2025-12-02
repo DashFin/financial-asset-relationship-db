@@ -54,7 +54,21 @@
         Build limited content from chunks (placeholder implementation).
 
         Parameters:
-            chunks: Collection of content chunks to process.
+def _build_limited_content(self, chunks):
+        """
+        Build a token-limited string from prioritized content chunks.
+
+        Args:
+            chunks: A collection of dictionaries. Each dict should have:
+                - "type": (str) Used for prioritization via `self.priority_map`.
+                - "content": (str) The text content to include.
+
+        Returns:
+            str: A concatenated string of chunk contents, separated by double newlines,
+                 respecting `self.max_tokens` total limit and `self.chunk_size` per-chunk limit.
+                 Chunks are processed in priority order (unknown types last).
+                 Token estimation uses `self._encoder` if available, else a 4-char heuristic.
+        """
 
         Returns:
             A prioritized, size-limited string assembled from provided chunks.
