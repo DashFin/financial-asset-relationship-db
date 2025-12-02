@@ -99,7 +99,7 @@ def _build_limited_content(self, chunks):
 
         pieces = []
         used_tokens = 0
-        limit = max(1, int(self.max_tokens))  # safety
+        limit = self.max_tokens
 
         for ch in sorted_chunks:
             content = (ch or {}).get("content") or ""
