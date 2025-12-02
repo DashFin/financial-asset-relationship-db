@@ -91,9 +91,9 @@ def _build_limited_content(self, chunks):
         # Sort chunks by configured priority (unknown types come last)
         def priority_key(ch):
             if not isinstance(ch, dict):
-                return len(self.priority_map)  # Treat as lowest priority
-            ch_type = ch.get("type", "")
-            return self.priority_map.get(ch_type, len(self.priority_map))
+        def priority_key(ch, priority_map=self.priority_map):
+            ch_type = (ch or {}).get("type", "")
+            return priority_map.get(ch_type, len(priority_map))
 
         filtered_chunks = [ch for ch in (chunks or []) if ch is not None]
         sorted_chunks = sorted(filtered_chunks, key=priority_key)
