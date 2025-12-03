@@ -75,6 +75,24 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                     # Normalize by joining with comma
                     version_spec = ','.join(specs)
                     requirements.append((pkg.strip(), version_spec))
+                name_part = parts[0]
+                # Extract package name (alphanum, -, _, . allowed) before any specifier
+                m_name = re.match(r'^([A-Za-z0-9._-]+)', name_part)
+                if not m_name:
+                    raise AssertionError(f"Malformed requirement line (invalid package name): {line}")
+                pkg = m_name.group(1)
+                # Find all specifiers across all parts
+                spec_pattern = re.compile(r'(>=|==|<=|>|<|~=)\s*([0-9A-Za-z.*+-]+(?:\.[0-9A-Za-z*+-]+)*)')
+                specs = []
+                for p in parts:
+                    specs.extend([f"{op}{ver}" for op, ver in spec_pattern.findall(p)])
+                if not specs:
+                    # No specifiers found; treat as no-version constraint explicitly
+                    requirements.append((pkg.strip(), ''))
+                else:
+                    # Normalize by joining with comma
+                    version_spec = ','.join(specs)
+                    requirements.append((pkg.strip(), version_spec))
     Raises:
         AssertionError: If a requirement line contains a malformed package name.
         OSError: If the requirements file could not be opened or read (e.g., FileNotFoundError, PermissionError).
