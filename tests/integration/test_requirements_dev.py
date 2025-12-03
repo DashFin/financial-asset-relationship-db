@@ -59,10 +59,17 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                     raise AssertionError(f"Malformed requirement line (invalid package name): {line}")
                 pkg = m_name.group(1)
                 # Find all specifiers across all parts
-                spec_pattern = re.compile(r'(>=|==|<=|>|<|~=)\s*([0-9A-Za-z.*+-]+(?:\.[0-9A-Za-z*+-]+)*)')
-                specs = []
-                for p in parts:
-                    specs.extend([f"{op}{ver}" for op, ver in spec_pattern.findall(p)])
+                from packaging.requirements import Requirement
+                try:
+                    req = Requirement(clean)
+                except Exception as e:
+                    raise AssertionError(f"Malformed requirement line: {line} ({e})")
+                pkg = req.name.strip()
+                version_spec = ",".join(sorted(set(str(s) for s in req.specifier))) if req.specifier else ''
+                if version_spec:
+                    requirements.append((pkg, version_spec))
+                else:
+                    requirements.append((pkg, ''))
                 if not specs:
                     # No specifiers found; treat as no-version constraint explicitly
                     requirements.append((pkg.strip(), ''))
