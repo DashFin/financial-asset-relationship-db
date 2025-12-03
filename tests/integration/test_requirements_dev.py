@@ -57,7 +57,11 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                 if not clean:
                     continue
                 # Match "name[extras] op version" segments; we ignore extras for name extraction here
-                parts = [p.strip() for p in clean.split(',')]
+                # Extract package name (alphanum, -, _, . allowed) and optionally ignore extras like [security]
+                m_name = re.match(r'^([A-Za-z0-9._-]+)(\[[^\]]+\])?', name_part)
+                if not m_name:
+                    raise AssertionError(f"Malformed requirement line (invalid package name): {line}")
+                pkg = m_name.group(1)
                 name_part = parts[0]
                 # Extract package name (alphanum, -, _, . allowed) before any specifier
                 m_name = re.match(r'^([A-Za-z0-9._-]+)', name_part)
