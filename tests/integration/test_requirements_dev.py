@@ -73,10 +73,9 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                     # Normalize by joining with comma
                     version_spec = ','.join(specs)
                     requirements.append((pkg.strip(), version_spec))
-    except OSError:
-        raise
-        AssertionError: If a requirement line contains a malformed package name or if the
-        requirements file could not be opened.
+    Raises:
+        AssertionError: If a requirement line contains a malformed package name.
+        OSError: If the requirements file could not be opened or read (e.g., FileNotFoundError, PermissionError).
     """
     requirements = []
     except OSError as e:
