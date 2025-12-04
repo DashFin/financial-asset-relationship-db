@@ -53,12 +53,20 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
     """
     Parse a requirements file into package/version specification pairs.
 
-    Reads the file at `file_path`, ignoring blank lines and lines that start with `#`.
-    Inline comments (text after `#`) are removed before parsing. Each non-comment line
-    may contain multiple comma-separated version specifiers (e.g., "pkg>=1.0,<=2.0").
-    The function extracts the package name (alphanumeric characters, dot, underscore or hyphen)
-    and collects all specifiers into a single comma-separated `version_spec`. If a line has no
-    version specifiers the corresponding `version_spec` is an empty string.
+    # Remove inline comments
+    clean = line.split('#', 1)[0].strip()
+    if not clean:
+        continue
+
+    # Support multiple specifiers like "pkg>=1.0,<=2.0"
+    parts = [p.strip() for p in clean.split(',')]
+    name_part = parts[0]
+
+    # Extract package name (alphanum, -, _, . allowed) before any specifier
+    m_name = re.match(r'^([A-Za-z0-9._-]+)', name_part)
+    if not m_name:
+        raise AssertionError(f"Malformed requirement line (invalid package name): {line}")
+    pkg = m_name.group(1)
 
     Parameters:
         file_path (Path): Path to the requirements file to parse.
