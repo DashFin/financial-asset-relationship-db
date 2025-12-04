@@ -44,5 +44,8 @@ def validate_workflow(workflow_path):
             return ValidationResult(False, ["Workflow must have a 'jobs' key with a dictionary value"], {})
         # Additional validations can be added here if needed
         return ValidationResult(True, [], data)
-    except Exception as e:
+    except yaml.YAMLError as e:
+        return ValidationResult(False, [f"YAML parse error: {e}"], {})
+    except OSError as e:
+        return ValidationResult(False, [f"I/O error while reading '{workflow_path}': {e.strerror or e}"], {})
         return ValidationResult(False, [str(e)], {})
