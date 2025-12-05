@@ -14,13 +14,6 @@ from packaging.specifiers import SpecifierSet
 
 
 REQUIREMENTS_FILE = Path(__file__).parent.parent.parent / "requirements-dev.txt"
-
-
-class RequirementsFileError(Exception):
-    """Raised when the requirements file cannot be opened or read."""
-    pass
-
-
 def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
     """
     Parse a requirements file into package/version specification pairs.
@@ -41,14 +34,60 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
         or an empty string when no specifiers are present.
 
     Raises:
-        AssertionError: If a requirement line is malformed or contains an invalid version specifier.
+        AssertionError: If a requirement line is malformed, contains an invalid version specifier,
+        or if a duplicate package entry is detected.
         RequirementsFileError: If the requirements file could not be opened or read (e.g., FileNotFoundError, PermissionError).
     """
 
     requirements: List[Tuple[str, str]] = []
-    seen_packages: set[str] = set()  # Track packages to detect duplicates
-    
+    seen_packages = set()
     try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            for raw_line in f:
+                line = raw_line.strip()
+                if not line or line.startswith('#'):
+                    continue
+
+                # Remove inline comments
+                clean = line.split('#', 1)[0].strip()
+                if not clean:
+                    continue
+
+                # Parse and validate requirement using packaging
+                try:
+                    req = Requirement(clean)
+                except Exception as e:
+                    raise AssertionError(f"Malformed requirement line: {line} ({e})")
+
+                # Reject environment markers to avoid conditional/partial parsing
+                if req.marker is not None:
+                    raise AssertionError(f"Environment markers are not supported: {line}")
+
+                # Use packaging library's package name extraction
+                pkg = req.name.strip()
+
+                if pkg.lower() in seen_packages:
+                    raise AssertionError(f"Duplicate package entry: {pkg}")
+                seen_packages.add(pkg.lower())
+
+                specifier_str = str(req.specifier).strip()
+                # Normalize specifier string
+                if specifier_str:
+                    specifier_str = ','.join(s.strip() for s in specifier_str.split(',') if s.strip())
+
+                if specifier_str:
+                    # Validate specifier format
+                    try:
+                        SpecifierSet(specifier_str)
+                    except Exception as e:
+                        raise AssertionError(f"Invalid version specifier for {pkg}: {specifier_str} ({e})")
+                    requirements.append((pkg, specifier_str))
+                else:
+                    requirements.append((pkg, ''))
+    except OSError as e:
+        raise RequirementsFileError(f"Could not open requirements file '{file_path}': {e}") from e
+
+    return requirements
         with open(file_path, 'r', encoding='utf-8') as f:
             for raw_line in f:
                 line = raw_line.strip()
