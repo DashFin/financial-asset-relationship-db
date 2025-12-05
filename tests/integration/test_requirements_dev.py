@@ -59,8 +59,19 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                 except Exception as e:
                     raise AssertionError(f"Malformed requirement line: {line} ({e})")
 
-                pkg = req.name.strip()
+                # Preserve the package token as written in the requirements file (preserve casing)
+                # by extracting the substring before any specifier/operator/extras/marker characters.
+                raw_pkg_token = clean.split(';', 1)[0]  # drop environment markers
+                raw_pkg_token = raw_pkg_token.split('[', 1)[0]  # drop extras
+                # split at the first occurrence of any operator character (<,>,=,!,~) or comma
+                import re as _re
+                pkg_part = _re.split(r'(?=[<>=!~,])', raw_pkg_token, 1)[0].strip()
+                pkg = pkg_part or req.name.strip()
+
                 specifier_str = str(req.specifier).strip()
+                # Normalize specifier string by removing spaces around commas so SpecifierSet accepts it consistently
+                if specifier_str:
+                    specifier_str = ','.join(s.strip() for s in specifier_str.split(',') if s.strip())
 
                 if specifier_str:
                     # Validate specifier format
