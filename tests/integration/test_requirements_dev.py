@@ -283,6 +283,63 @@ class TestFileOrganization:
     def file_lines(self) -> List[str]:
         """Load requirements file as list of lines."""
         with open(REQUIREMENTS_FILE, 'r', encoding='utf-8') as f:
+def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
+    """
+    Parse a requirements file into package/version specification pairs.
+
+    Reads the file at `file_path`, ignoring blank lines and lines that start with `#`.
+    Inline comments (text after `#`) are removed before parsing. Each non-comment line
+    is validated using packaging.Requirement to support complex requirement syntax.
+
+    Parameters:
+        file_path (Path): Path to the requirements file to parse.
+
+    Returns:
+        List[Tuple[str, str]]: A list of (package_name, version_spec) tuples. version_spec
+        is a comma-separated string of specifiers (e.g. ">=1.0,<=2.0") or an empty string
+        when no specifiers are present.
+
+    Raises:
+        AssertionError: If a requirement line is malformed or if the requirements file
+            could not be opened or read (e.g., FileNotFoundError, PermissionError).
+    """
+    from packaging.requirements import Requirement
+    from packaging.specifiers import SpecifierSet
+
+    requirements: List[Tuple[str, str]] = []
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            for raw_line in f:
+                line = raw_line.strip()
+                if not line or line.startswith('#'):
+                    continue
+
+                # Remove inline comments
+                clean = line.split('#', 1)[0].strip()
+                if not clean:
+                    continue
+
+                # Parse and validate requirement using packaging
+                try:
+                    req = Requirement(clean)
+                except Exception as e:
+                    raise AssertionError(f"Malformed requirement line: {line} ({e})")
+
+                pkg = req.name.strip()
+                specifier_str = str(req.specifier).strip()
+
+                if specifier_str:
+                    try:
+                        SpecifierSet(specifier_str)
+                    except Exception as e:
+                        raise AssertionError(f"Invalid version specifier for {pkg}: {specifier_str} ({e})")
+                    requirements.append((pkg, specifier_str))
+                else:
+                    requirements.append((pkg, ''))
+    except OSError as e:
+        raise AssertionError(f"Could not open requirements file '{file_path}': {e}")
+
+    return requirements
             return f.readlines()
     
     def test_reasonable_file_size(self, file_lines: List[str]):
