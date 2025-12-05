@@ -10,15 +10,36 @@ import re
 from pathlib import Path
 from typing import List, Tuple
 
+import pytest
+import re
+from pathlib import Path
+from typing import List, Tuple
+
 from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
-
 
 REQUIREMENTS_FILE = Path(__file__).parent.parent.parent / "requirements-dev.txt"
 
 
 def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
-    """Parse requirements file and return list of (package, version_spec) tuples."""
+    """Parse requirements file and return list of (package, version_spec) tuples.
+        Examples:
+            Input line: "requests>=2.25.0"
+            Output: ("requests", ">=2.25.0")
+
+            Input line: "pytest>=6.0,<7.0 # testing framework"
+            Output: ("pytest", ">=6.0,<7.0")
+
+            Input line: "pandas"
+            Output: ("pandas", "")
+
+            Input line: "package[extra1,extra2]>=1.0"
+            Output: ("package", ">=1.0")
+        Raises:
+            ValueError: If a requirement line is malformed.
+            OSError: If the requirements file could not be opened or read.
+        ... 
+        """
     requirements = []
     import re as _re
     
@@ -109,14 +130,16 @@ class TestRequirementsFileFormat:
 
 class TestRequiredPackages:
     """Test that required development packages are present."""
-    
+
     @pytest.fixture
-    def requirements(self) -> List[Tuple[str, str]]:
+    def requirements(self, parsed_requirements) -> List[Tuple[str, str]]:
+        return parsed_requirements
         """Parse and return requirements."""
-        return parse_requirements(REQUIREMENTS_FILE)
-    
+        return parsed_requirements
+
     @pytest.fixture
-    def package_names(self, requirements: List[Tuple[str, str]]) -> List[str]:
+    def package_names(self, parsed_requirements) -> List[str]:
+        return [pkg for pkg, _ in parsed_requirements]
         """Extract just the package names."""
         return [pkg for pkg, _ in requirements]
     
@@ -130,7 +153,7 @@ class TestRequiredPackages:
     
     def test_has_pyyaml(self, package_names: List[str]):
         """Test that PyYAML is included (added in the diff)."""
-        assert 'PyYAML' in package_names
+        assert 'pyyaml' in package_names
     
     def test_has_types_pyyaml(self, package_names: List[str]):
         """Test that types-PyYAML is included (added in the diff)."""
@@ -151,11 +174,12 @@ class TestRequiredPackages:
 
 class TestVersionSpecifications:
     """Test that version specifications are valid and reasonable."""
-    
+
     @pytest.fixture
-    def requirements(self) -> List[Tuple[str, str]]:
+    def requirements(self, parsed_requirements) -> List[Tuple[str, str]]:
+        return parsed_requirements
         """Parse and return requirements."""
-        return parse_requirements(REQUIREMENTS_FILE)
+        return parsed_requirements
     
     def test_all_packages_have_versions(self, requirements: List[Tuple[str, str]]):
         """Test that all packages specify version constraints."""
@@ -172,7 +196,7 @@ class TestVersionSpecifications:
     
     def test_pyyaml_version(self, requirements: List[Tuple[str, str]]):
         """Test that PyYAML has appropriate version constraint."""
-        pyyaml_specs = [ver for pkg, ver in requirements if pkg == 'PyYAML']
+        pyyaml_specs = [ver for pkg, ver in requirements if pkg == 'pyyaml']
         assert len(pyyaml_specs) > 0
         assert pyyaml_specs[0].startswith('>=6.0')
     
