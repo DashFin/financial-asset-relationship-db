@@ -81,7 +81,13 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
     except OSError as e:
         raise RequirementsFileError(f"Could not open requirements file '{file_path}': {e}") from e
 
-    return requirements
+                try:
+                    req = Requirement(clean)
+                except Exception as e:
+                    raise AssertionError(f"Malformed requirement line: {line} ({e})")
+                # Reject environment markers to avoid conditional/partial parsing
+                if req.marker is not None:
+                    raise AssertionError(f"Environment markers are not supported: {line}")
 
 
 class TestRequirementsFileExists:
