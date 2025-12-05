@@ -327,7 +327,9 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
     return requirements
 
     Raises:
-        AssertionError: If a requirement line is malformed or if the requirements file
+        Raises:
+            AssertionError: If a requirement line is malformed or contains an invalid version specifier.
+            RequirementsFileError: If the requirements file could not be opened or read (e.g., FileNotFoundError, PermissionError).
             could not be opened or read (e.g., FileNotFoundError, PermissionError).
     """
     from packaging.requirements import Requirement
