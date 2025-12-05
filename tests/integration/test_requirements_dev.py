@@ -68,12 +68,9 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                 if req.marker is not None:
                     raise AssertionError(f"Environment markers are not supported: {line}")
 
-                # Preserve the package token as written in the requirements file (preserve casing)
-                # by extracting the substring before any specifier/operator/extras/marker characters.
-                raw_pkg_token = clean.split(';', 1)[0]  # drop environment markers
-                raw_pkg_token = raw_pkg_token.split('[', 1)[0]  # drop extras
-                pkg_part = re.split(r'(?=[<>=!~,])', raw_pkg_token, maxsplit=1)[0].strip()
-                pkg = pkg_part or req.name.strip()
+                # Use packaging library's package name extraction for consistency and reliability
+                # The packaging library handles all edge cases correctly (extras, markers, etc.)
+                pkg = req.name.strip()
 
                 specifier_str = str(req.specifier).strip()
                 # Normalize specifier string by removing spaces around commas so SpecifierSet accepts it consistently
