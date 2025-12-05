@@ -46,6 +46,8 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
     """
 
     requirements: List[Tuple[str, str]] = []
+    seen_packages: set[str] = set()  # Track packages to detect duplicates
+    
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             for raw_line in f:
@@ -71,6 +73,12 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                 # Use packaging library's package name extraction for consistency and reliability
                 # The packaging library handles all edge cases correctly (extras, markers, etc.)
                 pkg = req.name.strip()
+                
+                # Check for duplicate package entries
+                pkg_lower = pkg.lower()
+                if pkg_lower in seen_packages:
+                    raise AssertionError(f"Duplicate package entry: {pkg}")
+                seen_packages.add(pkg_lower)
 
                 specifier_str = str(req.specifier).strip()
                 # Normalize specifier string by removing spaces around commas so SpecifierSet accepts it consistently
