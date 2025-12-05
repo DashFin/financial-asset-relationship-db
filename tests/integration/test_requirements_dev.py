@@ -44,7 +44,6 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
         AssertionError: If a requirement line is malformed or contains an invalid version specifier.
         RequirementsFileError: If the requirements file could not be opened or read (e.g., FileNotFoundError, PermissionError).
     """
-    import re as _re
 
     requirements: List[Tuple[str, str]] = []
     try:
@@ -73,7 +72,7 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                 # by extracting the substring before any specifier/operator/extras/marker characters.
                 raw_pkg_token = clean.split(';', 1)[0]  # drop environment markers
                 raw_pkg_token = raw_pkg_token.split('[', 1)[0]  # drop extras
-                pkg_part = _re.split(r'(?=[<>=!~,])', raw_pkg_token, maxsplit=1)[0].strip()
+                pkg_part = re.split(r'(?=[<>=!~,])', raw_pkg_token, maxsplit=1)[0].strip()
                 pkg = pkg_part or req.name.strip()
 
                 specifier_str = str(req.specifier).strip()
