@@ -72,8 +72,14 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                     requirements.append((pkg, specifier_str))
                 else:
                     requirements.append((pkg, ''))
+    class RequirementsFileError(Exception):
+        """Raised when the requirements file cannot be opened or read."""
+        pass
+
+    ...
+
     except OSError as e:
-        raise AssertionError(f"Could not open requirements file '{file_path}': {e}")
+        raise RequirementsFileError(f"Could not open requirements file '{file_path}': {e}") from e
 
     return requirements
 
