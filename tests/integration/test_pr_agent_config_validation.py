@@ -199,7 +199,13 @@ class TestPRAgentConfigYAMLValidity:
                 if "duplicate" in error_msg or "duplicate key" in error_msg:
                     pytest.fail(f"Duplicate key detected in YAML config: {e}")
                 else:
-                    pytest.fail(f"YAML parsing error in config: {e}")
+        if not isinstance(node, yaml.MappingNode):
+            return loader.construct_object(node, deep=deep)
+        mapping = {}
+        for key_node, value_node in node.value:
+            key = loader.construct_object(key_node, deep=deep)
+            if key is None:
+                raise yaml.YAMLError("Null (None) key detected in YAML mapping.")
 
     def test_non_hashable_keys_detected(self):
         """Verify non-hashable keys are detected and raise appropriate errors."""
