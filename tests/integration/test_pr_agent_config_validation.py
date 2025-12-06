@@ -154,20 +154,20 @@ def construct_mapping_check_hashable(loader, node, deep=False):
         if key is None:
             raise yaml.YAMLError("Null (None) key detected in YAML mapping.")
         try:
-            hash(key)
-        except TypeError:
-            raise yaml.YAMLError(
-                f"Non-hashable key detected: {key!r} (type: {type(key).__name__})"
-            )
-        if key in mapping:
-            raise yaml.YAMLError(f"Duplicate key detected: {key}")
-        mapping[key] = loader.construct_object(value_node, deep=deep)
-    return mapping
+
+        # The loader is defined in test_no_duplicate_keys and is reused here.
+        # It checks for duplicate, null, and non-hashable keys.
+        class DuplicateKeyLoader(yaml.SafeLoader):
+            pass
+
+        def construct_mapping_no_dups(loader, node, deep=False):
             if not isinstance(node, yaml.MappingNode):
                 return loader.construct_object(node, deep=deep)
             mapping = {}
             for key_node, value_node in node.value:
                 key = loader.construct_object(key_node, deep=deep)
+                if key is None:
+                    raise yaml.YAMLError("Null (None) key detected in YAML mapping.")
                 try:
                     hash(key)
                 except TypeError:
@@ -179,16 +179,20 @@ def construct_mapping_check_hashable(loader, node, deep=False):
                 mapping[key] = loader.construct_object(value_node, deep=deep)
             return mapping
 
-        NonHashableKeyLoader.add_constructor(
+        DuplicateKeyLoader.add_constructor(
             yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-            construct_mapping_check_hashable
+            construct_mapping_no_dups
         )
 
-# Test with a None key
-yaml_content_none = "? null\n: invalid_none_key\n"
-with pytest.raises(yaml.YAMLError, match="Null \\(None\\) key detected"):
-    yaml.load(yaml_content_none, Loader=NonHashableKeyLoader)
-            yaml.load(yaml_content_dict, Loader=NonHashableKeyLoader)
+        # Test with a list key (non-hashable) - uses explicit YAML tag
+        yaml_content = "? [1, 2, 3]\n: invalid_list_key\nvalid_key: value\n"
+        with pytest.raises(yaml.YAMLError, match="Non-hashable key detected"):
+            yaml.load(yaml_content, Loader=DuplicateKeyLoader)
+
+        # Test with a dict key (non-hashable) - uses explicit YAML tag
+        yaml_content_dict = "? {nested: dict}\n: invalid_dict_key\n"
+        with pytest.raises(yaml.YAMLError, match="Non-hashable key detected"):
+            yaml.load(yaml_content_dict, Loader=DuplicateKeyLoader)
 
     def test_consistent_indentation(self):
         """Verify consistent 2-space indentation."""
