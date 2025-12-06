@@ -112,6 +112,9 @@ class TestPRAgentConfigYAMLValidity:
                     raise yaml.YAMLError(
                         f"Non-hashable key detected: {key!r} (type: {type(key).__name__})"
                     )
+                    raise yaml.YAMLError(
+                        f"Non-hashable key detected: {key!r} (type: {type(key).__name__})"
+                    )
                 if key in mapping:
                     raise yaml.YAMLError(f"Duplicate key detected: {key}")
                 mapping[key] = loader.construct_object(value_node, deep=deep)
