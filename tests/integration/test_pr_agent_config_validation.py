@@ -163,7 +163,11 @@ class TestPRAgentConfigSecurity:
                             value = parts[1].strip()
                             # Should not have actual credential values
                             assert len(value) < 10 or value.startswith('$'), \
-                                f"Potential hardcoded {pattern} found"
+                            import re
+                            # Flag if value is not a placeholder (e.g., $, ***, or REDACTED)
+                            placeholder_regex = re.compile(r'^\s*(\$\S*|(\*{3,})|REDACTED)\s*$', re.IGNORECASE)
+                            assert placeholder_regex.match(value), \
+                                f"Potential hardcoded {pattern} found: {value}"
 
     def test_safe_configuration_values(self):
         """Verify configuration values are safe."""
