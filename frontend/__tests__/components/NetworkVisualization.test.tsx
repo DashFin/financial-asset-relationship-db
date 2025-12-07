@@ -209,11 +209,11 @@ describe('NetworkVisualization Component', () => {
     });
 
     // New edge case tests
-    const dataWithMissingCoords: VisualizationData = {
+    const dataWithMissingCoords2: VisualizationData = {
       nodes: [{ id: '1', name: 'N1', symbol: 'S1', asset_class: 'EQUITY' } as any], // missing x,y,z
       edges: [{ source: '1', target: '2', relationship_type: 'TEST', strength: 0.5 } as any],
     };
-    render(<NetworkVisualization data={dataWithMissingCoords} />);
+    render(<NetworkVisualization data={dataWithMissingCoords2} />);
     await waitFor(() => {
       expect(screen.getByText(/missing coordinates/i)).toBeInTheDocument();
     });
