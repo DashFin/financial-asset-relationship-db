@@ -383,6 +383,9 @@ class TestPrAgentWorkflow:
         assert runs_on in ["ubuntu-latest", "ubuntu-22.04", "ubuntu-20.04"], (
             f"PR Agent trigger job should run on standard Ubuntu runner, got '{runs_on}'"
         )
+        assert isinstance(jobs["pr-agent-trigger"], dict), (
+            "'pr-agent-trigger' job must be a mapping"
+        )
         """Test that pr-agent workflow has a pr-agent-trigger job."""
         jobs = pr_agent_workflow.get("jobs", {})
         assert "pr-agent-trigger" in jobs, "pr-agent workflow must have pr-agent-trigger job"
