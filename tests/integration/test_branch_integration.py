@@ -21,12 +21,12 @@ class TestWorkflowConsistency:
     @pytest.fixture
     def all_workflows(self) -> Dict[str, Dict]:
         """
-        Load a predefined set of GitHub Actions workflow files and parse their YAML content.
+        Load a fixed set of GitHub Actions workflow files and parse each existing file's YAML content.
         
-        Only files from the internal list are considered; files that do not exist are omitted from the result.
+        Only files from the internal list are considered; files that are not present are omitted from the result.
         
         Returns:
-            dict: Mapping from workflow file path (str) to the parsed YAML content (dict) for each existing workflow file.
+            dict: Mapping from workflow file path (str) to the parsed YAML content (dict) for each workflow file that exists.
         """
         workflow_files = [
             ".github/workflows/pr-agent.yml",
@@ -46,12 +46,12 @@ class TestWorkflowConsistency:
     
     def test_all_workflows_use_consistent_action_versions(self, all_workflows):
         """
-        Ensure actions referenced across workflows use a single version.
+        Assert that actions referenced across workflows use a single version.
         
-        Aggregates action usage by action name and version from the provided workflows and prints a warning for any action that appears with more than one version. The check allows a special-case difference for `actions/checkout` (commonly v4 vs v5).
+        Scans each workflow's jobs and steps to collect action usages and their referenced versions, and prints a warning for any action used with more than one version. A difference between versions for `actions/checkout` (for example v4 vs v5) is permitted and will not trigger a warning.
         
         Parameters:
-            all_workflows (dict): Mapping of workflow file path to parsed YAML content (each workflow represented as a dict).
+            all_workflows (dict): Mapping from workflow file path (str) to parsed YAML content (dict) for that workflow.
         """
         action_versions = {}
         
@@ -98,10 +98,10 @@ class TestWorkflowConsistency:
     
     def test_simplified_workflows_have_fewer_steps(self, all_workflows):
         """
-        Ensure the simplified workflows (.github/workflows/label.yml and .github/workflows/greetings.yml) have at most three steps per job.
+        Verify that designated simplified workflows limit each job to at most three steps.
         
         Parameters:
-            all_workflows (dict): Mapping from workflow file path to parsed YAML content.
+            all_workflows (dict): Mapping from workflow file path to its parsed YAML content; only workflows present in the mapping are checked.
         """
         # These workflows were simplified in this branch
         simplified = [
@@ -186,7 +186,11 @@ class TestRemovedFilesIntegration:
                     f"{wf_file} references removed file {removed}"
     
     def test_label_workflow_doesnt_need_labeler_config(self):
-        """Verify label workflow works without labeler.yml."""
+        """
+        Check that the label workflow does not require a separate labeler configuration file.
+        
+        Asserts that the first step of the `label` job uses `actions/labeler` and that it either does not provide a `config-path` or, if `config-path` is present, it equals `.github/labeler.yml`.
+        """
         with open(".github/workflows/label.yml", 'r') as f:
             workflow = yaml.safe_load(f)
         
@@ -217,7 +221,11 @@ class TestWorkflowSecurityConsistency:
     """Test security practices are consistent across workflows."""
     
     def test_all_workflows_avoid_pr_injection(self):
-        """Verify no workflows have PR title/body injection risks."""
+        """
+        Scan all workflow YAMLs for patterns that may allow PR title or body content to be injected into shell or command contexts.
+        
+        Searches files under .github/workflows for uses of pull request or issue title/body in contexts that could enable injection (for example, piping into shell commands or usage within command substitution) and prints any matches with the affected file path.
+        """
         workflow_files = list(Path(".github/workflows").glob("*.yml"))
         
         for wf_file in workflow_files:
@@ -238,9 +246,11 @@ class TestWorkflowSecurityConsistency:
     
     def test_workflows_use_appropriate_checkout_refs(self):
         """
-        Ensure workflows triggered by `pull_request_target` specify a safe checkout reference.
+        Verify workflows triggered by pull_request_target specify a safe checkout reference.
         
-        For each workflow in `.github/workflows/pr-agent.yml` and `.github/workflows/apisec-scan.yml`, if the workflow is triggered by `pull_request_target` the test asserts every `actions/checkout` step supplies either a `ref` or a `fetch-depth` in its `with` configuration; failure indicates an unsafe checkout configuration.
+        For .github/workflows/pr-agent.yml and .github/workflows/apisec-scan.yml, if the workflow's triggers include
+        `pull_request_target` this test asserts every `actions/checkout` step supplies either a `ref` or a `fetch-depth`
+        in its `with` configuration; failure indicates an unsafe checkout configuration.
         """
         workflow_files = [
             ".github/workflows/pr-agent.yml",
@@ -349,7 +359,11 @@ class TestBranchQuality:
     """Test overall quality of branch changes."""
     
     def test_all_modified_workflows_parse_successfully(self):
-        """Verify all workflow modifications result in valid YAML."""
+        """
+        Assert that at least one workflow file exists and that every YAML workflow in .github/workflows parses to a mapping containing a 'jobs' key.
+        
+        Raises an assertion failure if no workflow files are present or if any file fails to parse or does not produce a dict-like value with a 'jobs' entry.
+        """
         workflow_dir = Path(".github/workflows")
         workflow_files = list(workflow_dir.glob("*.yml"))
         

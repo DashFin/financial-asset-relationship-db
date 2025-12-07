@@ -15,15 +15,17 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Function to print colored output
+# print_success prints a green checkmark followed by the given message in green.
 print_success() {
     echo -e "${GREEN}✓${NC} $1"
 }
 
+# print_error prints an error message prefixed with a red cross symbol.
 print_error() {
     echo -e "${RED}✗${NC} $1"
 }
 
+# print_info prints an informational message prefixed with a yellow 'ℹ' symbol.
 print_info() {
     echo -e "${YELLOW}ℹ${NC} $1"
 }

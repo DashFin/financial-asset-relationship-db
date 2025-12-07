@@ -17,18 +17,31 @@ class TestRequirementsDevChanges:
     
     @pytest.fixture
     def requirements_dev_content(self):
-        """Load requirements-dev.txt content."""
+        """
+        Read and return the contents of requirements-dev.txt.
+        
+        Returns:
+            content (str): The full text of requirements-dev.txt.
+        """
         req_path = Path("requirements-dev.txt")
         with open(req_path, 'r') as f:
             return f.read()
     
     def test_pyyaml_added(self, requirements_dev_content):
-        """Verify PyYAML was added to requirements-dev.txt."""
+        """
+        Check that requirements-dev.txt contains an entry for PyYAML.
+        
+        This test asserts that the requirements-dev content includes a PyYAML package entry (case-insensitive).
+        """
         assert 'pyyaml' in requirements_dev_content.lower() or \
                'PyYAML' in requirements_dev_content
     
     def test_pyyaml_has_version_specifier(self, requirements_dev_content):
-        """Verify PyYAML has version constraint."""
+        """
+        Check that a PyYAML entry in requirements-dev.txt includes a version specifier.
+        
+        Searches the given requirements file content for a line mentioning PyYAML and verifies that the line contains one of the recognised version operators: >=, ==, ~=, <=, > or <.
+        """
         lines = requirements_dev_content.split('\n')
         pyyaml_line = next((l for l in lines if 'pyyaml' in l.lower()), None)
         
@@ -37,7 +50,16 @@ class TestRequirementsDevChanges:
         assert any(op in pyyaml_line for op in ['>=', '==', '~=', '<=', '>', '<'])
     
     def test_no_duplicate_packages(self, requirements_dev_content):
-        """Verify no duplicate package entries."""
+        """
+        Ensure requirements-dev.txt contains no duplicate package entries.
+        
+        This test treats each non-empty, non-comment line as a package specification and compares
+        package names case-insensitively while ignoring common version specifiers, asserting
+        that no package appears more than once.
+        
+        Parameters:
+            requirements_dev_content (str): Contents of requirements-dev.txt.
+        """
         lines = [l.strip() for l in requirements_dev_content.split('\n') 
                 if l.strip() and not l.strip().startswith('#')]
         
@@ -66,7 +88,11 @@ class TestRequirementsDependencyCompatibility:
     """Test dependency compatibility."""
     
     def test_pyyaml_compatible_with_python_version(self):
-        """Verify PyYAML version compatible with Python version."""
+        """
+        Ensure that if PyYAML appears in requirements-dev.txt the running Python version is at least 3.6.
+        
+        Reads requirements-dev.txt and asserts Python >= 3.6 when a PyYAML entry exists.
+        """
         # Check Python version
         import sys
         python_version = sys.version_info
@@ -82,7 +108,11 @@ class TestRequirementsDependencyCompatibility:
                 "PyYAML requires Python 3.6 or higher"
     
     def test_no_conflicting_versions(self):
-        """Verify no conflicting dependency versions between requirements files."""
+        """
+        Assert that the number of package-name overlaps between requirements.txt and requirements-dev.txt does not exceed two.
+        
+        Skips the test if requirements.txt is missing. Raises an assertion failure listing overlapping package names when more than two overlaps are found.
+        """
         req_path = Path("requirements.txt")
         req_dev_path = Path("requirements-dev.txt")
         
@@ -135,7 +165,11 @@ class TestRequirementsDocumentation:
     """Test requirements documentation and comments."""
     
     def test_requirements_has_helpful_comments(self):
-        """Verify requirements files have helpful comments."""
+        """
+        Ensure requirements-dev.txt contains at least one explanatory comment.
+        
+        Asserts that requirements-dev.txt includes at least one line that, after stripping leading whitespace, starts with `#`, indicating explanatory commentary for the dependencies.
+        """
         req_dev_path = Path("requirements-dev.txt")
         with open(req_dev_path, 'r') as f:
             lines = f.readlines()

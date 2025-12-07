@@ -25,12 +25,22 @@ class TestPRAgentConfigChanges:
     
     @pytest.fixture
     def config_data(self, config_path: Path) -> Dict[str, Any]:
-        """Load PR agent configuration."""
+        """
+        Load and parse the PR Agent YAML configuration file.
+        
+        Returns:
+            config (Dict[str, Any]): Mapping representing the parsed YAML configuration.
+        """
         with open(config_path, 'r') as f:
             return yaml.safe_load(f)
     
     def test_version_is_correct(self, config_data: Dict[str, Any]):
-        """Verify PR agent version is 1.0.0 (simplified version)."""
+        """
+        Check that the PR agent configuration declares agent.version equal to "1.0.0".
+        
+        Parameters:
+            config_data (dict): Parsed YAML content of .github/pr-agent-config.yml.
+        """
         assert 'agent' in config_data
         assert 'version' in config_data['agent']
         assert config_data['agent']['version'] == "1.0.0"
@@ -43,7 +53,12 @@ class TestPRAgentConfigChanges:
                 "Context chunking config should be removed in v1.0.0"
     
     def test_no_fallback_strategies(self, config_data: Dict[str, Any]):
-        """Verify fallback strategies have been removed."""
+        """
+        Assert that the PR agent config does not include any `limits.fallback` strategies.
+        
+        Parameters:
+            config_data (Dict[str, Any]): Parsed contents of `.github/pr-agent-config.yml`; when a `limits` section is present this test asserts it does not contain a `fallback` key.
+        """
         if 'limits' in config_data:
             assert 'fallback' not in config_data['limits'], \
                 "Fallback strategies should be removed"
@@ -57,7 +72,14 @@ class TestPRAgentConfigChanges:
                 f"Required section '{section}' missing from config"
     
     def test_no_complex_token_management(self, config_data: Dict[str, Any]):
-        """Verify complex token management features are removed."""
+        """
+        Check that the PR agent configuration does not contain complex token-chunking or explicit token-limit settings.
+        
+        Asserts that the configuration text does not include 'chunk_size', and that 'max_tokens' is absent unless a `limits.max_execution_time` value is present in the config.
+        
+        Parameters:
+            config_data (Dict[str, Any]): Parsed PR agent configuration data.
+        """
         config_str = str(config_data)
         
         # Should not contain references to chunking or token limits
@@ -88,7 +110,11 @@ class TestWorkflowSimplifications:
         return Path(__file__).parent.parent.parent / ".github" / "workflows"
     
     def test_pr_agent_workflow_simplified(self, workflows_dir: Path):
-        """Verify PR agent workflow has been simplified."""
+        """
+        Validate that the PR Agent GitHub Actions workflow has been simplified.
+        
+        Checks that .github/workflows/pr-agent.yml exists, does not reference `context_chunker` or inline `tiktoken` usage with nearby `pip install`, and includes a simplified Python dependency installation that references `requirements.txt`.
+        """
         workflow_file = workflows_dir / "pr-agent.yml"
         assert workflow_file.exists()
         
@@ -104,7 +130,11 @@ class TestWorkflowSimplifications:
         assert 'requirements.txt' in content
     
     def test_apisec_workflow_no_conditional_skip(self, workflows_dir: Path):
-        """Verify APIsec workflow doesn't have conditional skip logic."""
+        """
+        Ensure the APIsec workflow file exists and does not use conditional skip logic based on APIsec credentials.
+        
+        Asserts that .github/workflows/apisec-scan.yml is present and that it does not contain conditional expressions checking `apisec_username` or `apisec_password` (for example, `secrets.apisec_username != ''`).
+        """
         workflow_file = workflows_dir / "apisec-scan.yml"
         assert workflow_file.exists()
         
@@ -116,7 +146,11 @@ class TestWorkflowSimplifications:
         assert 'apisec_password != \'\'' not in content
     
     def test_label_workflow_simplified(self, workflows_dir: Path):
-        """Verify labeler workflow is simplified."""
+        """
+        Ensure the label workflow file exists and uses a simplified configuration.
+        
+        Asserts that the workflow file .github/workflows/label.yml is present and does not reference a configuration check or the message "labeler.yml not found" (i.e. it should not contain 'check-config' or 'labeler.yml not found').
+        """
         workflow_file = workflows_dir / "label.yml"
         assert workflow_file.exists()
         
@@ -153,11 +187,18 @@ class TestDeletedFilesImpact:
     
     @pytest.fixture
     def repo_root(self) -> Path:
-        """Get repository root."""
+        """
+        Locate the repository root directory.
+        
+        Returns:
+            Path to the repository root directory.
+        """
         return Path(__file__).parent.parent.parent
     
     def test_labeler_yml_removed(self, repo_root: Path):
-        """Verify labeler.yml has been removed."""
+        """
+        Assert that the repository no longer contains the .github/labeler.yml file.
+        """
         labeler_file = repo_root / ".github" / "labeler.yml"
         assert not labeler_file.exists(), "labeler.yml should be deleted"
     
@@ -205,7 +246,12 @@ class TestRequirementsDevChanges:
     
     @pytest.fixture
     def req_dev_path(self) -> Path:
-        """Get requirements-dev.txt path."""
+        """
+        Locate the repository's requirements-dev.txt file.
+        
+        Returns:
+            Path: Path to the requirements-dev.txt file at the repository root.
+        """
         return Path(__file__).parent.parent.parent / "requirements-dev.txt"
     
     def test_pyyaml_added(self, req_dev_path: Path):
@@ -217,7 +263,11 @@ class TestRequirementsDevChanges:
             "PyYAML should be in requirements-dev.txt"
     
     def test_no_tiktoken_requirement(self, req_dev_path: Path):
-        """Verify tiktoken is not in requirements (removed with chunking)."""
+        """
+        Assert that the development requirements file does not list the `tiktoken` package.
+        
+        Reads the file at the provided path and checks case-insensitively that the string `tiktoken` is not present.
+        """
         with open(req_dev_path, 'r') as f:
             content = f.read().lower()
         
@@ -242,11 +292,20 @@ class TestGitignoreChanges:
     
     @pytest.fixture
     def gitignore_path(self) -> Path:
-        """Get .gitignore path."""
+        """
+        Return the path to the repository's .gitignore file.
+        
+        Returns:
+            Path: Path to the .gitignore file at the repository root.
+        """
         return Path(__file__).parent.parent.parent / ".gitignore"
     
     def test_codacy_instructions_ignored(self, gitignore_path: Path):
-        """Verify codacy instructions are in gitignore."""
+        """
+        Ensure the repository's .gitignore lists `codacy.instructions.md`.
+        
+        This test reads the .gitignore file and asserts that the filename `codacy.instructions.md` appears in its contents.
+        """
         with open(gitignore_path, 'r') as f:
             content = f.read()
         
@@ -254,7 +313,11 @@ class TestGitignoreChanges:
             "codacy.instructions.md should be in .gitignore"
     
     def test_test_artifacts_not_ignored(self, gitignore_path: Path):
-        """Verify test artifacts are properly ignored."""
+        """
+        Assert that test database files are not listed in .gitignore.
+        
+        Checks that the pattern 'test_*.db' is absent from the .gitignore file at `gitignore_path`.
+        """
         with open(gitignore_path, 'r') as f:
             content = f.read()
         
@@ -285,11 +348,23 @@ class TestCodacyInstructionsChanges:
     
     @pytest.fixture
     def codacy_instructions_path(self) -> Path:
-        """Get codacy instructions path."""
+        """
+        Compute the path to the repository's Codacy instructions file.
+        
+        Returns:
+            Path: Path to `.github/instructions/codacy.instructions.md` within the repository.
+        """
         return Path(__file__).parent.parent.parent / ".github" / "instructions" / "codacy.instructions.md"
     
     def test_codacy_instructions_simplified(self, codacy_instructions_path: Path):
-        """Verify Codacy instructions have been simplified."""
+        """
+        Validate that the Codacy instructions file has been simplified and does not contain repository-specific or prescriptive phrases.
+        
+        If the Codacy instructions file is absent the test is skipped. The test fails if the file contains either the string 'git remote -v' or the phrase 'unless really necessary'.
+        
+        Parameters:
+            codacy_instructions_path (Path): Path to .github/instructions/codacy.instructions.md
+        """
         if not codacy_instructions_path.exists():
             pytest.skip("Codacy instructions file not present")
         

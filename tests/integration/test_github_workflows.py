@@ -290,7 +290,13 @@ class TestPrAgentWorkflow:
     
     def test_pr_agent_name(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Verify the pr-agent workflow defines a top-level "name".
+        Ensure the pr-agent workflow defines a top-level 'name' key.
+        
+        Parameters:
+            pr_agent_workflow (dict): Parsed GitHub Actions workflow mapping for the pr-agent workflow.
+        
+        Raises:
+            AssertionError: If the 'name' key is not present at the top level of the workflow mapping.
         """
         assert "name" in pr_agent_workflow, (
             "pr-agent workflow must have a descriptive 'name' field"
@@ -298,13 +304,13 @@ class TestPrAgentWorkflow:
     
     def test_pr_agent_has_trigger_job(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Verify the pr-agent workflow defines a top-level job named 'pr-agent-trigger'.
+        Assert that the pr-agent workflow defines a top-level job named "pr-agent-trigger".
         
         Parameters:
             pr_agent_workflow (dict): Parsed YAML mapping of the pr-agent workflow.
         
         Raises:
-            AssertionError: If the 'pr-agent-trigger' job is missing or is not a mapping.
+            AssertionError: If the `jobs` mapping does not contain `pr-agent-trigger` or if that job is not a mapping.
         """
         jobs = pr_agent_workflow.get("jobs", {})
         assert "pr-agent-trigger" in jobs, (
@@ -340,10 +346,10 @@ class TestPrAgentWorkflow:
     
     def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Verify each actions/checkout step in the "pr-agent-trigger" job supplies a 'token' key in its 'with' mapping.
+        Ensure each `actions/checkout` step in the `pr-agent-trigger` job provides a `token` key in its `with` mapping.
         
         Parameters:
-        	pr_agent_workflow (Dict[str, Any]): Parsed YAML of the pr-agent workflow; expected to contain a top-level "jobs" mapping with a "pr-agent-trigger" job.
+            pr_agent_workflow (dict): Parsed pr-agent workflow YAML as a mapping; expected to include a top-level `jobs` mapping containing a `pr-agent-trigger` job.
         """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
@@ -356,7 +362,14 @@ class TestPrAgentWorkflow:
         for step in checkout_steps:
             step_with = step.get("with", {})
 def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
-    """Test that checkout steps explicitly define a non-empty token."""
+    """
+    Assert that every actions/checkout step in the pr-agent-trigger job specifies a non-empty token.
+    
+    Checks the `pr-agent-trigger` job's steps for any step using `actions/checkout` and asserts its `with.token` value is a non-empty string (for example `${{ secrets.GITHUB_TOKEN }}`).
+    
+    Parameters:
+        pr_agent_workflow (Dict[str, Any]): Parsed workflow mapping expected to contain a "jobs" → "pr-agent-trigger" → "steps" sequence.
+    """
     review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
     steps = review_job.get("steps", [])
 
@@ -374,7 +387,12 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         )
     
     def test_pr_agent_has_python_setup(self, pr_agent_workflow: Dict[str, Any]):
-        """Asserts the workflow's trigger job includes a setup-python step."""
+        """
+        Verify that the pr-agent trigger job includes an actions/setup-python step.
+        
+        Parameters:
+            pr_agent_workflow (Dict[str, Any]): Parsed YAML mapping of the pr-agent workflow file.
+        """
         review_job = pr_agent_workflow["jobs"].get("pr-agent-trigger", {})
         steps = review_job.get("steps", [])
 
@@ -385,7 +403,12 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         assert len(python_steps) > 0, "pr-agent-trigger job must set up Python"
     
     def test_pr_agent_has_node_setup(self, pr_agent_workflow: Dict[str, Any]):
-        """Test that review job sets up Node.js."""
+        """
+        Ensure the pr-agent trigger job configures Node.js.
+        
+        Parameters:
+            pr_agent_workflow (dict): Parsed YAML mapping for the pr-agent workflow, expected to contain a 'jobs' -> 'pr-agent-trigger' job with its steps.
+        """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
         
@@ -397,10 +420,10 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
     
     def test_pr_agent_python_version(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Verify that any actions/setup-python step in the pr-agent-trigger job sets `python-version` to "3.11".
+        Check that every actions/setup-python step in the pr-agent-trigger job specifies python-version "3.11".
         
         Parameters:
-            pr_agent_workflow (Dict[str, Any]): Parsed workflow mapping expected to contain a "jobs" → "pr-agent-trigger" → "steps" sequence.
+            pr_agent_workflow (Dict[str, Any]): Parsed workflow mapping; should contain "jobs" → "pr-agent-trigger" with an optional "steps" sequence.
         """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
@@ -435,12 +458,12 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
     
     def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Ensure checkout steps in the `pr-agent-trigger` job have valid `fetch-depth` values.
+        Validate that any actions/checkout steps in the pr-agent-trigger job specify a non-negative integer fetch-depth when present.
         
-        Checks each `actions/checkout` step in the `pr-agent-trigger` job and asserts that when a `fetch-depth` key is present it is an integer greater than or equal to 0. Omitting `fetch-depth` is allowed.
+        If a checkout step includes a with.fetch-depth key it must be an integer greater than or equal to 0; omitting fetch-depth is allowed.
         
         Parameters:
-            pr_agent_workflow (Dict[str, Any]): Parsed YAML content of the pr-agent workflow.
+            pr_agent_workflow (dict): Parsed YAML content of the pr-agent workflow.
         """
 
         trigger_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
@@ -1156,13 +1179,21 @@ class TestWorkflowEnvAndSecrets:
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_env_vars_naming_convention(self, workflow_file: Path):
         """
-        Validate that environment variables in workflow files follow UPPER_CASE naming convention.
-
+        Ensure environment variable names in a workflow follow the UPPER_CASE naming convention.
+        
+        Checks environment mappings at the workflow and job levels and fails the test if any variable name contains characters other than letters, digits or underscores or is not entirely upper-case.
+        
         Parameters:
             workflow_file (Path): Path to the workflow YAML file being tested.
-
-        Notes:
-            Checks environment variables at both workflow level and job level for proper naming.
+        """
+        """
+        Identify environment variable names that do not match the UPPER_CASE convention (letters, digits and underscores only).
+        
+        Parameters:
+            env_dict (dict): Mapping of environment variable names to their values. If a non-dict is provided, it is treated as absent.
+        
+        Returns:
+            invalid_keys (List[str]): List of keys from `env_dict` that are not entirely upper-case or that contain characters other than letters, digits or underscores.
         """
         config = load_yaml_safe(workflow_file)
 
@@ -2450,7 +2481,11 @@ class TestWorkflowSemanticConsistency:
     """Test semantic consistency and logical ordering of workflow steps."""
     
     def test_setup_steps_in_correct_order(self):
-        """Test that setup steps appear in logical order: checkout before setup-python/setup-node."""
+        """
+        Ensure setup steps in the pr-agent workflow appear in a logical order with checkout occurring before setup-python and setup-node.
+        
+        Checks pr-agent.yml (skips the test if the file is absent). For each job, records the first occurrence of actions/checkout, actions/setup-python and actions/setup-node and asserts that the checkout step index is less than the index of each setup step when both are present, failing with a message that includes the job name and step indices.
+        """
         pr_agent_file = WORKFLOWS_DIR / "pr-agent.yml"
         if not pr_agent_file.exists():
             pytest.skip("pr-agent.yml not found")
@@ -2490,9 +2525,9 @@ class TestWorkflowSemanticConsistency:
     
     def test_python_version_matches_project_standard(self):
         """
-        Verify setup-python steps in pr-agent.yml specify a pinned Python version of at least 3.8 and not 'latest'.
+        Ensure setup-python steps in pr-agent.yml use a pinned Python version of at least 3.8 and do not specify 'latest'.
         
-        Skips the test if pr-agent.yml is not present.
+        Skips the test if pr-agent.yml is not present. For each actions/setup-python step, if a `python-version` value is provided it must not be 'latest' and must parse to major version 3 with minor version 8 or greater; unparsable version strings cause the test to fail with a clear message.
         """
         pr_agent_file = WORKFLOWS_DIR / "pr-agent.yml"
         if not pr_agent_file.exists():
@@ -2552,9 +2587,9 @@ class TestWorkflowChangeRegression:
     
     def test_pr_agent_exactly_one_setup_python_per_job(self):
         """
-        Ensure each job in pr-agent.yml defines at most one Setup Python step.
+        Ensure each job in the pr-agent workflow defines at most one Python setup step.
         
-        Loads .github/workflows/pr-agent.yml (skips the test if the file is absent) and, for each job, asserts there is at most one Setup Python step — counted both by the step name 'Setup Python' and by a 'uses' value containing 'setup-python' — and verifies those two counts match when any are present.
+        For each job in .github/workflows/pr-agent.yml (test is skipped if the file is absent) this test verifies there is at most one step that sets up Python, as determined both by a step named "Setup Python" and by a step whose `uses` string contains "setup-python". If any such steps are present, the counts by name and by `uses` must match.
         """
         pr_agent_file = WORKFLOWS_DIR / "pr-agent.yml"
         if not pr_agent_file.exists():
@@ -2593,9 +2628,9 @@ class TestWorkflowChangeRegression:
     
     def test_pr_agent_no_duplicate_yaml_keys_in_steps(self):
         """
-        Ensure the pr-agent workflow does not contain duplicate YAML keys within step definitions.
+        Check pr-agent workflow steps contain no duplicate YAML mapping keys.
         
-        Checks that .github/workflows/pr-agent.yml (if present) has no duplicated mapping keys (for example duplicate `with:` blocks) that could cause silent overwrites or malformed step structure; skips the test when the file is missing.
+        Skips the test if .github/workflows/pr-agent.yml is not present. Fails if any duplicate mapping keys are detected in the workflow (for example repeated `with:` entries within a step), listing the duplicates found.
         """
         pr_agent_file = WORKFLOWS_DIR / "pr-agent.yml"
         if not pr_agent_file.exists():
