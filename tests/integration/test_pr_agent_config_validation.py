@@ -160,7 +160,26 @@ class TestPRAgentConfigYAMLValidity:
         if hasattr(yaml.resolver.BaseResolver, 'DEFAULT_OMAP_TAG'):
             DuplicateKeyLoader.add_constructor(
                 yaml.resolver.BaseResolver.DEFAULT_OMAP_TAG,
+        DuplicateKeyLoader.add_constructor(
+            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+            construct_mapping_no_dups
+        )
+        # Ensure ordered mappings also use the duplicate key check
+        if hasattr(yaml.resolver.BaseResolver, 'DEFAULT_OMAP_TAG'):
+            DuplicateKeyLoader.add_constructor(
+                yaml.resolver.BaseResolver.DEFAULT_OMAP_TAG,
                 construct_mapping_no_dups
+            )
+
+        with open(config_path, 'r', encoding='utf-8') as f:
+            try:
+                yaml.load(f, Loader=DuplicateKeyLoader)
+            except yaml.YAMLError as e:
+                error_msg = str(e).lower()
+                if "duplicate" in error_msg or "duplicate key" in error_msg:
+                    pytest.fail(f"Duplicate key detected in YAML config: {e}")
+                else:
+                    pytest.fail(f"YAML parsing error in config: {e}")
             )
 
         with open(config_path, 'r', encoding='utf-8') as f:
