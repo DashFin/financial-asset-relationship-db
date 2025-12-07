@@ -436,5 +436,5 @@ class TestPyYAMLIntegration:
             # Successfully imported - requirement is satisfied
             assert yaml.safe_load("key: value") == {'key': 'value'}, "PyYAML import successful"
         except ImportError:
-        except ImportError:
+            pytest.fail("PyYAML is not installed in the test environment (required for workflow validation)")
             pytest.fail("PyYAML is not installed in the test environment (required for workflow validation)")
