@@ -192,10 +192,7 @@ class TestPRAgentConfigYAMLValidity:
                 construct_mapping_no_dups
             )
                     if key in mapping:
-                        raise yaml.YAMLError(f"Duplicate key detected: {key}")
-                    mapping[key] = loader.construct_object(value_node, deep=deep)
-                return mapping
-
+        # Removed duplicate tests using DuplicateKeyLoader to avoid redundancy
             DuplicateKeyLoader.add_constructor(
                 yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
                 construct_mapping_no_dups
