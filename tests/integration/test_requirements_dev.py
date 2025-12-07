@@ -332,7 +332,11 @@ class TestRequirementsFileFormatting:
         """
         Ensure PyYAML and types-PyYAML each appear on their own line in the requirements file with >=6.0 version constraints.
         
-        Reads the requirements file, ignoring empty lines and full-line comments, then asserts there are exactly two lines beginning with `PyYAML` or `types-PyYAML` and that one starts with `PyYAML>=` and the other with `types-PyYAML>=`.
+        Reads the requirements file and builds a list of non-empty, non-comment lines after stripping
+        leading and trailing whitespace from each line. Using stripped lines avoids false negatives
+        when comments or package entries contain leading spaces. The test then asserts there are
+        exactly two lines that begin with the stripped prefixes `PyYAML` or `types-PyYAML`, and that
+        one starts with `PyYAML>=` and the other with `types-PyYAML>=`.
         """
         assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
         
