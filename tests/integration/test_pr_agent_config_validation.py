@@ -186,7 +186,11 @@ class TestPRAgentConfigYAMLValidity:
                     except TypeError:
                         raise yaml.YAMLError(
                             f"Non-hashable key detected: {key!r} (type: {type(key).__name__})"
-                        )
+        if hasattr(yaml.resolver.BaseResolver, 'DEFAULT_OMAP_TAG'):
+            DuplicateKeyLoader.add_constructor(
+                yaml.resolver.BaseResolver.DEFAULT_OMAP_TAG,
+                construct_mapping_no_dups
+            )
                     if key in mapping:
                         raise yaml.YAMLError(f"Duplicate key detected: {key}")
                     mapping[key] = loader.construct_object(value_node, deep=deep)
