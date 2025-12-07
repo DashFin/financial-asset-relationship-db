@@ -388,7 +388,9 @@ class TestRequirementsPackageIntegrity:
             requirements (List[Tuple[str, str]]): Sequence of (package_name, version_spec) tuples to inspect.
         
         Returns:
-            List[str]: Lower-cased package names that appear more than once. Each repeated occurrence after the first is returned in the order encountered.
+            List[str]: A list of lower-cased package names representing each repeated occurrence
+            after the first appearance; duplicates are returned in the order they are encountered
+            in the requirements list to match the implementation behaviour.
         """
         package_names = [pkg.lower() for pkg, _ in requirements]
         seen = set()
