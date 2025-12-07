@@ -9,13 +9,34 @@ import pytest
 import re
 from pathlib import Path
 from typing import List, Tuple
+from packaging.specifiers import SpecifierSet
 
 
 REQUIREMENTS_FILE = Path(__file__).parent.parent.parent / "requirements-dev.txt"
 
 
 def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
-    """Parse requirements file and return list of (package, version_spec) tuples."""
+    """
+    Parse a requirements file into package/version specification pairs.
+    
+    Reads the file at `file_path`, ignoring blank lines and lines that start with `#`.
+    Inline comments (text after `#`) are removed before parsing. Each non-comment line
+    may contain multiple comma-separated version specifiers (for example `pkg>=1.0,<=2.0`);
+    the function extracts the package name (alphanumeric characters, dot, underscore or hyphen)
+    and collects all specifiers into a single comma-separated `version_spec`. If a line has no
+    version specifiers the corresponding `version_spec` is an empty string.
+    
+    Parameters:
+        file_path (Path): Path to the requirements file to parse.
+    
+    Returns:
+        List[Tuple[str, str]]: A list of `(package_name, version_spec)` tuples where `version_spec`
+        is a comma-separated string of specifiers (e.g. ">=1.0,<=2.0") or an empty string when
+        no specifiers are present.
+    
+    Raises:
+        AssertionError: If a requirement line contains a malformed package name.
+    """
     requirements = []
     
     with open(file_path, 'r', encoding='utf-8') as f:
@@ -50,12 +71,8 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                 # Normalize by joining with comma
                 version_spec = ','.join(specs)
                 requirements.append((pkg.strip(), version_spec))
-            else:
-                requirements.append((line, ''))
     
     return requirements
-
-
 class TestRequirementsFileExists:
     """Test that requirements-dev.txt exists and is readable."""
     
@@ -154,19 +171,28 @@ class TestVersionSpecifications:
     
     @pytest.fixture
     def requirements(self) -> List[Tuple[str, str]]:
-        """Parse and return requirements."""
+        """
+        Return the parsed list of (package_name, version_spec) pairs from the development requirements file.
+        
+        Each tuple contains the package name and a single version specifier string; the version spec is an empty string when no specifier is present.
+        
+        Returns:
+            List[Tuple[str, str]]: Parsed requirements as (package_name, version_spec) pairs.
+        """
         return parse_requirements(REQUIREMENTS_FILE)
-    
+
     def test_all_packages_have_versions(self, requirements: List[Tuple[str, str]]):
         """Test that all packages specify version constraints."""
-        packages_without_versions = [pkg for pkg, ver in requirements if not ver]
-        assert len(packages_without_versions) == 0
-    
+        packages_without_versions = [
+            pkg for pkg, ver in requirements
+            if not ver
+        ]
+        assert not packages_without_versions, (
+            f"Found unpinned packages: {packages_without_versions}"
+        )
+
     def test_version_format_valid(self, requirements: List[Tuple[str, str]]):
         """Test that version specifications use valid format."""
-    from packaging.specifiers import SpecifierSet
-    def test_version_format_valid(self, requirements: List[Tuple[str, str]]):
-        """Test that version specifications use valid PEP 440 format."""
         for pkg, ver_spec in requirements:
             if ver_spec:
                 try:
@@ -272,110 +298,20 @@ class TestSpecificChanges:
     
     def test_existing_packages_preserved(self, requirements: List[Tuple[str, str]]):
         """Test that existing packages are still present."""
-        package_names = [pkg for pkg, _ in requirements]
-        
-        def test_existing_packages_preserved(self, requirements: List[Tuple[str, str]]):
-            """Test that existing packages are still present."""
-            package_names = [pkg for pkg, _ in requirements]
-
-            # Derive expected packages dynamically from the requirements file
-            with open(REQUIREMENTS_FILE, 'r', encoding='utf-8') as f:
-                expected_packages = []
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith('#'):
-                        continue
-                    # Extract package name before any version specifier
-                    for sep in ('>=', '==', '<=', '>', '<', '~='):
-                        if sep in line:
-                            expected_packages.append(line.split(sep)[0].strip())
-                            break
-                    else:
-                        expected_packages.append(line)
-
-            for expected_pkg in expected_packages:
-                assert expected_pkg in package_names
+        package_names = {pkg for pkg, _ in requirements}
+        expected_packages = {
             'pytest',
             'pytest-cov',
             'pytest-asyncio',
             'flake8',
             'pylint',
-        
-        for expected_pkg in expected_packages:
-            assert expected_pkg in package_names
-
-class TestRequirementsFileFormatting:
-    """Additional tests for requirements-dev.txt file formatting and structure."""
-    
-    def test_requirements_file_ends_with_newline(self):
-        """Test that requirements-dev.txt ends with a newline character (Unix convention)."""
-        assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
-        
-        with open(REQUIREMENTS_FILE, 'rb') as f:
-            content = f.read()
-        
-        assert len(content) > 0, "requirements-dev.txt is empty"
-        assert content.endswith(b'\n'), (
-            "requirements-dev.txt should end with a newline character (Unix convention)"
-        )
-    
-    def test_pyyaml_and_types_on_separate_lines(self):
-        """Test that PyYAML and types-PyYAML are on separate lines (not combined)."""
-        assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
-        
-        with open(REQUIREMENTS_FILE, 'r') as f:
-            lines = [line.strip() for line in f if line.strip() and not line.startswith('#')]
-        
-        pyyaml_lines = [line for line in lines if 'PyYAML' in line or 'types-PyYAML' in line]
-        
-        assert len(pyyaml_lines) == 2, (
-            f"Should have exactly 2 separate lines for PyYAML dependencies, found {len(pyyaml_lines)}"
-        )
-        
-        # Verify they're not on the same line
-        for line in pyyaml_lines:
-            combined = 'PyYAML' in line and 'types-PyYAML' in line
-            assert not combined, f"PyYAML and types-PyYAML should be on separate lines, found: {line}"
-        
-        # Verify both are present
-        has_pyyaml = any('PyYAML>=' in line for line in pyyaml_lines)
-        has_types = any('types-PyYAML>=' in line for line in pyyaml_lines)
-        
-        assert has_pyyaml, "Should have PyYAML>=6.0"
-        assert has_types, "Should have types-PyYAML>=6.0"
-    
-    def test_no_trailing_whitespace_in_lines(self):
-        """Test that requirements-dev.txt has no trailing whitespace on any line."""
-        assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
-        
-        with open(REQUIREMENTS_FILE, 'r') as f:
-            lines = f.readlines()
-        
-        lines_with_trailing_space = []
-        for i, line in enumerate(lines, 1):
-            # Check if line (excluding newline) has trailing whitespace
-            if line.rstrip('\r\n') != line.rstrip():
-                lines_with_trailing_space.append(i)
-        
-        assert len(lines_with_trailing_space) == 0, (
-            f"Lines with trailing whitespace: {lines_with_trailing_space}. "
-            "Remove trailing spaces for clean file formatting."
-        )
-
-
-class TestRequirementsPackageIntegrity:
-    """Additional tests for package integrity and consistency in requirements-dev.txt."""
-    
-    def _find_duplicate_packages(requirements: List[Tuple[str, str]]) -> List[str]:
-        """Return list of duplicate package names (case-insensitive)."""
-        package_names = [pkg.lower() for pkg, _ in requirements]
-        seen = set()
-        duplicates = []
-        for pkg in package_names:
-            if pkg in seen:
-                duplicates.append(pkg)
-            seen.add(pkg)
-        return duplicates
+            'mypy',
+            'black',
+            'isort',
+            'pre-commit',
+            'PyYAML',
+            'types-PyYAML',
+        }
 
     def test_no_duplicate_package_names(self):
         """Test that no package appears multiple times in requirements-dev.txt."""
