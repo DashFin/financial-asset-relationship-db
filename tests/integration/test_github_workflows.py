@@ -344,7 +344,30 @@ class TestPrAgentWorkflow:
         ]
         assert len(checkout_steps) > 0, "Review job must check out the repository"
     
-    def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
+def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
+        """
+        Assert that every actions/checkout step in the pr-agent-trigger job specifies a non-empty token.
+        
+        Checks the `pr-agent-trigger` job's steps for any step using `actions/checkout` and asserts its `with.token` value is a non-empty string (for example `${{ secrets.GITHUB_TOKEN }}`).
+        
+        Parameters:
+            pr_agent_workflow (Dict[str, Any]): Parsed workflow mapping expected to contain a "jobs" → "pr-agent-trigger" → "steps" sequence.
+        """
+        review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+        steps = review_job.get("steps", [])
+        
+        checkout_steps = [
+            s for s in steps 
+            if s.get("uses", "").startswith("actions/checkout")
+        ]
+        
+        for step in checkout_steps:
+            step_with = step.get("with", {})
+            token = step_with.get("token")
+            assert isinstance(token, str) and token.strip(), (
+                "Checkout step must specify a non-empty token for better security. "
+                "Use ${{ secrets.GITHUB_TOKEN }} or similar."
+            )
         """
         Ensure each `actions/checkout` step in the `pr-agent-trigger` job provides a `token` key in its `with` mapping.
         
