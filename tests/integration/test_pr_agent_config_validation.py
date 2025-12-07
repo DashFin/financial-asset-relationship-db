@@ -185,7 +185,8 @@ class TestPRAgentConfigYAMLValidity:
                 key = loader.construct_object(key_node, deep=deep)
                 try:
                     hash(key)
-                except TypeError as exc:
+                class DuplicateKeyLoader(yaml.SafeLoader):
+                    pass
                     raise yaml.YAMLError(f"Unhashable key encountered: {key!r}") from exc
 
                 # Collect YAML merge keys to process after normal keys
