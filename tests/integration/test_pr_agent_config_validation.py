@@ -266,6 +266,9 @@ class TestPRAgentConfigYAMLValidity:
                 except TypeError:
                     raise yaml.YAMLError(
                         f"Non-hashable key detected: {key!r} (type: {type(key).__name__})"
+                        yaml_content_none = "? null\n: invalid_none_key\n"
+                        with pytest.raises(yaml.YAMLError, match="Null \\(None\\) key detected"):
+                            yaml.load(yaml_content_none, Loader=NonHashableKeyLoader)
                     )
                 if key in mapping:
                     raise yaml.YAMLError(f"Duplicate key detected: {key}")
