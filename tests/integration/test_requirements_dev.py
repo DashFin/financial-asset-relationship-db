@@ -16,7 +16,27 @@ REQUIREMENTS_FILE = Path(__file__).parent.parent.parent / "requirements-dev.txt"
 
 
 def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
-    """Parse requirements file and return list of (package, version_spec) tuples."""
+    """
+    Parse a requirements file into package/version specification pairs.
+    
+    Reads the file at `file_path`, ignoring blank lines and lines that start with `#`.
+    Inline comments (text after `#`) are removed before parsing. Each non-comment line
+    may contain multiple comma-separated version specifiers (for example `pkg>=1.0,<=2.0`);
+    the function extracts the package name (alphanumeric characters, dot, underscore or hyphen)
+    and collects all specifiers into a single comma-separated `version_spec`. If a line has no
+    version specifiers the corresponding `version_spec` is an empty string.
+    
+    Parameters:
+        file_path (Path): Path to the requirements file to parse.
+    
+    Returns:
+        List[Tuple[str, str]]: A list of `(package_name, version_spec)` tuples where `version_spec`
+        is a comma-separated string of specifiers (e.g. ">=1.0,<=2.0") or an empty string when
+        no specifiers are present.
+    
+    Raises:
+        AssertionError: If a requirement line contains a malformed package name.
+    """
     requirements = []
     
     with open(file_path, 'r', encoding='utf-8') as f:
@@ -53,8 +73,6 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                 requirements.append((pkg.strip(), version_spec))
     
     return requirements
-
-
 class TestRequirementsFileExists:
     """Test that requirements-dev.txt exists and is readable."""
     
@@ -153,17 +171,25 @@ class TestVersionSpecifications:
     
     @pytest.fixture
     def requirements(self) -> List[Tuple[str, str]]:
-        """Parse and return requirements."""
+        """
+        Return the parsed list of (package_name, version_spec) pairs from the development requirements file.
+        
+        Each tuple contains the package name and a single version specifier string; the version spec is an empty string when no specifier is present.
+        
+        Returns:
+            List[Tuple[str, str]]: Parsed requirements as (package_name, version_spec) pairs.
+        """
         return parse_requirements(REQUIREMENTS_FILE)
 
     def test_all_packages_have_versions(self, requirements: List[Tuple[str, str]]):
         """Test that all packages specify version constraints."""
-        allowed_unpinned = {'types-PyYAML'}
         packages_without_versions = [
             pkg for pkg, ver in requirements
-            if not ver and pkg not in allowed_unpinned
+            if not ver
         ]
-        assert not packages_without_versions, f"Found unpinned packages that are not in the allowed list: {packages_without_versions}"
+        assert not packages_without_versions, (
+            f"Found unpinned packages: {packages_without_versions}"
+        )
 
     def test_version_format_valid(self, requirements: List[Tuple[str, str]]):
         """Test that version specifications use valid format."""
@@ -272,8 +298,8 @@ class TestSpecificChanges:
     
     def test_existing_packages_preserved(self, requirements: List[Tuple[str, str]]):
         """Test that existing packages are still present."""
-        package_names = [pkg for pkg, _ in requirements]
-        expected_packages = [
+        package_names = {pkg for pkg, _ in requirements}
+        expected_packages = {
             'pytest',
             'pytest-cov',
             'pytest-asyncio',
@@ -285,7 +311,8 @@ class TestSpecificChanges:
             'pre-commit',
             'PyYAML',
             'types-PyYAML',
-        ]
+        }
 
-        for expected_pkg in expected_packages:
-            assert expected_pkg in package_names
+        missing_packages = expected_packages - package_names
+        assert not missing_packages, \
+            f"The following packages are missing from requirements-dev.txt: {', '.join(sorted(missing_packages))}"
