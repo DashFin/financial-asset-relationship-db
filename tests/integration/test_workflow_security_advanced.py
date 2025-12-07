@@ -60,7 +60,17 @@ class TestWorkflowInjectionPrevention:
                         run_command = step['run']
                         # Check if unquoted context variables are used
                         for pattern in dangerous_patterns:
-                            matches = re.findall(pattern, run_command)
+                            for pattern in dangerous_patterns:
+                                matches = re.findall(pattern, run_command)
+                                for match in matches:
+                                    # Only enforce quoting when the command is passed through a shell
+                                    shell_invocation = re.search(r'\b(sh|bash)\b\s+-c\b', run_command)
+                                    if shell_invocation:
+                                        quoted = re.search(r'(["\']).*?' + re.escape(match) + r'.*?\1', run_command, flags=re.DOTALL)
+                                        assert quoted, (
+                                            f"Potential unquoted context variable reaching shell in {workflow['path']} "
+                                            f"job '{job_name}' step {step_idx}: {match}"
+                                        )
                             for match in matches:
                                 # Should be within quotes
                                 for match in matches:
