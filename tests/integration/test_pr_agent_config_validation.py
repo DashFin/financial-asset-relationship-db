@@ -120,7 +120,10 @@ class TestPRAgentConfigYAMLValidity:
                     )
                     except TypeError:
                         raise yaml.YAMLError(
+                    except TypeError:
+                        raise yaml.YAMLError(
                             f"Non-hashable key detected: {key!r} (type: {type(key).__name__})"
+                        )
                         )
             return mapping
 
