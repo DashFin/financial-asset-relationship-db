@@ -1271,7 +1271,16 @@ class TestWorkflowEnvAndSecrets:
         """
         config = load_yaml_safe(workflow_file)
 
-        def check_env_vars(env_dict):
+def check_env_vars(env_dict):
+    """Identify environment variable names that do not follow UPPER_CASE convention."""
+    if not isinstance(env_dict, dict):
+        return []
+    invalid = []
+    for key in env_dict:
+        # Must be entirely uppercase and contain only letters, digits, or underscores
+        if not key.isupper() or not all(c.isalnum() or c == '_' for c in key):
+            invalid.append(key)
+    return invalid
             """Identify environment variable names that do not follow UPPER_CASE convention."""
             if not isinstance(env_dict, dict):
                 return []
