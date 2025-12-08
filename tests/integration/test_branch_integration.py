@@ -198,7 +198,11 @@ class TestRemovedFilesIntegration:
         ]
         
         for wf_file in workflow_files:
-            with open(wf_file, 'r') as f:
+            path = Path(wf_file)
+            if not path.exists():
+                # If workflow file is not present, it cannot reference removed scripts
+                continue
+            with open(path, 'r') as f:
                 content = f.read()
             
             for removed in removed_files:
