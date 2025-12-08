@@ -50,9 +50,7 @@ class TestRequirementsDevChanges:
         # Strip inline comments and whitespace before checking version specifier
         pyyaml_line_no_comment = pyyaml_line.split('#', 1)[0].strip()
         assert any(op in pyyaml_line_no_comment for op in ['>=', '==', '~=', '<=', '>', '<'])
-    pyyaml_line_no_comment = pyyaml_line.split('#', 1)[0].strip()
-    assert any(op in pyyaml_line_no_comment for op in ['>=', '==', '~=', '<=', '>', '<'])
-    
+
     def test_no_duplicate_packages(self, requirements_dev_content):
         """
         Ensure requirements-dev.txt contains no duplicate package entries.
@@ -69,8 +67,7 @@ class TestRequirementsDevChanges:
                 if l.strip() and not l.strip().startswith('#')]
 
         # Split on any common version operator to reliably extract the package name
-        package_names = [re.split(r'(?:==|~=|>=|<=|>|<)', l, maxsplit=1)[0].lower() 
-        package_names = [l.split('==')[0].split('>=')[0].split('<=')[0].lower() 
+        package_names = [re.split(r'(?:==|~=|>=|<=|>|<)', l, maxsplit=1)[0].lower()
                         for l in lines]
         
         assert len(package_names) == len(set(package_names)), \
