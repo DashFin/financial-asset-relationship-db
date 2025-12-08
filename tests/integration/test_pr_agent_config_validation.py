@@ -25,7 +25,6 @@ class TestPRAgentConfigSimplification:
             The parsed YAML content as a Python mapping or sequence (typically a dict), or `None` if the file is empty.
         """
         config_path = Path(".github/pr-agent-config.yml")
-        with open(config_path, 'r') as f:
         if not config_path.exists():
             pytest.fail(f"Config file not found: {config_path}")
         with open(config_path, 'r', encoding='utf-8') as f:
@@ -172,12 +171,12 @@ class TestPRAgentConfigSecurity:
     
     def test_no_hardcoded_credentials(self, pr_agent_config):
         """
-        """
         Perform a coarse scan for sensitive identifiers such as `password`, `secret`, `token`, `api_key`, `apikey`, `access_key`, or `private_key` anywhere in the serialized configuration text.
-        
+
         The test fails when one of these substrings is present unless the dump also contains placeholder markers like `null` or `webhook`.
         """
-        
+        config_str = yaml.dump(pr_agent_config)
+
         # Check for common credential indicators
         sensitive_patterns = [
             'password', 'secret', 'token', 'api_key', 'apikey',
