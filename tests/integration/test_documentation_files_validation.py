@@ -21,12 +21,25 @@ class TestDocumentationFilesValidation:
     
     @pytest.fixture
     def doc_root(self) -> Path:
-        """Get the repository root directory."""
+        """
+        Return the repository root directory for this test module.
+        
+        Returns:
+            Path: Path to the repository root directory.
+        """
         return Path(__file__).parent.parent.parent
     
     @pytest.fixture
     def markdown_files(self, doc_root: Path) -> List[Path]:
-        """Get all markdown files in the repository root."""
+        """
+        Collect markdown files located directly in the provided repository root, excluding README.md and LICENSE.md.
+        
+        Parameters:
+            doc_root (Path): Path to the repository root directory to search (non-recursive).
+        
+        Returns:
+            List[Path]: List of markdown file paths found directly under `doc_root`, excluding `README.md` and `LICENSE.md`.
+        """
         return [
             f for f in doc_root.glob("*.md")
             if f.name not in ["README.md", "LICENSE.md"]
@@ -41,14 +54,23 @@ class TestDocumentationFilesValidation:
             assert os.access(md_file, os.R_OK), f"File {md_file} is not readable"
     
     def test_markdown_files_not_empty(self, markdown_files: List[Path]):
-        """Verify that markdown files are not empty."""
+        """
+        Assert each markdown file contains meaningful content.
+        
+        For every Path in `markdown_files` this test asserts the file's trimmed content length is greater than 0 and that the total content length is greater than 100 characters; a failing check raises an AssertionError indicating the offending file.
+        """
         for md_file in markdown_files:
             content = md_file.read_text(encoding='utf-8')
             assert len(content.strip()) > 0, f"File {md_file.name} is empty"
             assert len(content) > 100, f"File {md_file.name} is suspiciously short ({len(content)} chars)"
     
     def test_markdown_has_proper_headings(self, markdown_files: List[Path]):
-        """Verify that markdown files have properly structured headings."""
+        """
+        Check that each markdown file contains at least one Markdown heading and that the first heading is a level 1 heading.
+        
+        Parameters:
+            markdown_files (List[Path]): Iterable of markdown file paths to validate; each file is read as UTF-8.
+        """
         heading_pattern = re.compile(r'^(#{1,6})\s+(.+)$', re.MULTILINE)
         
         for md_file in markdown_files:
@@ -64,7 +86,14 @@ class TestDocumentationFilesValidation:
                 assert first_level == 1, f"File {md_file.name} first heading is not level 1"
     
     def test_code_blocks_have_language_identifiers(self, markdown_files: List[Path]):
-        """Verify that code blocks specify language for syntax highlighting."""
+        """
+        Ensure fenced code blocks in the given markdown files include a language identifier for syntax highlighting.
+        
+        For each file that contains triple-backtick code blocks, this test fails if 50% or more of those blocks lack a language specifier (e.g. ```python). This allows occasional plain-text blocks but enforces that most blocks are typed.
+        
+        Parameters:
+            markdown_files (List[Path]): Paths to markdown files to validate.
+        """
         code_block_pattern = re.compile(r'```(\w*)\n', re.MULTILINE)
         
         for md_file in markdown_files:
@@ -138,7 +167,11 @@ class TestDocumentationFilesValidation:
                         f"File {md_file.name} links to non-existent file: {link_url}"
     
     def test_no_trailing_whitespace(self, markdown_files: List[Path]):
-        """Verify that markdown files don't have trailing whitespace."""
+        """
+        Check markdown files for trailing whitespace on non-empty lines.
+        
+        Ignores empty lines. Allows up to 4 lines with trailing whitespace; the test fails if five or more non-empty lines contain trailing spaces. The assertion message lists offending line numbers (1-based).
+        """
         for md_file in markdown_files:
             content = md_file.read_text(encoding='utf-8')
             lines = content.split('\n')
@@ -157,7 +190,14 @@ class TestDocumentationFilesValidation:
                 f"File {md_file.name} has trailing whitespace on lines: {bad_lines[:10]}"
     
     def test_test_summary_files_have_required_sections(self, doc_root: Path):
-        """Verify that test summary files contain required sections."""
+        """
+        Ensure test summary and generation markdown files include required sections.
+        
+        Reads all files matching '*TEST*SUMMARY*.md' and '*GENERATION*.md' in the repository root and asserts each file's content (case-insensitive) contains at least two of the keywords: 'test', 'coverage', 'summary'.
+        
+        Parameters:
+            doc_root (Path): Path to the repository root used to locate summary and generation files.
+        """
         summary_files = list(doc_root.glob("*TEST*SUMMARY*.md"))
         summary_files.extend(doc_root.glob("*GENERATION*.md"))
         
@@ -172,7 +212,14 @@ class TestDocumentationFilesValidation:
                 f"File {summary_file.name} doesn't appear to be a proper test summary"
     
     def test_test_reference_files_have_examples(self, doc_root: Path):
-        """Verify that test reference files contain code examples."""
+        """
+        Check that repository reference markdown files include runnable examples.
+        
+        Scans all markdown files matching '*REFERENCE*.md' under the provided repository root and asserts each file contains at least one fenced code block (```...) and at least one usage or command keyword such as 'pytest', 'npm test', 'run' or 'command'.
+        
+        Parameters:
+            doc_root (Path): Path to the repository root used to discover reference markdown files.
+        """
         reference_files = list(doc_root.glob("*REFERENCE*.md"))
         
         for ref_file in reference_files:
@@ -192,12 +239,26 @@ class TestMarkdownContentQuality:
     
     @pytest.fixture
     def test_generation_files(self) -> List[Path]:
-        """Get all test generation markdown files."""
+        """
+        Collect markdown files named with the TEST_GENERATION* pattern at the repository root.
+        
+        Returns:
+            List[Path]: Paths to files matching `TEST_GENERATION*.md` found under the repository root.
+        """
         doc_root = Path(__file__).parent.parent.parent
         return list(doc_root.glob("TEST_GENERATION*.md"))
     
     def test_test_generation_files_have_statistics(self, test_generation_files: List[Path]):
-        """Verify test generation files include statistics."""
+        """
+        Assert that each test generation markdown file contains at least three statistics-related keywords.
+        
+        Checks that each Path in `test_generation_files` (TEST_GENERATION*.md files located relative to the test file)
+        includes at least three of the keywords: "lines", "tests", "coverage", "files", "methods". Fails the test
+        if any file does not meet this requirement.
+        
+        Parameters:
+            test_generation_files (List[Path]): Paths to generation markdown files to validate.
+        """
         stats_keywords = ['lines', 'tests', 'coverage', 'files', 'methods']
         
         for gen_file in test_generation_files:
@@ -209,7 +270,13 @@ class TestMarkdownContentQuality:
                 f"File {gen_file.name} should contain test statistics"
     
     def test_comprehensive_files_are_actually_comprehensive(self):
-        """Verify files marked as 'comprehensive' have substantial content."""
+        """
+        Assert that files whose names contain "COMPREHENSIVE" are substantial and well-structured.
+        
+        Checks each `*COMPREHENSIVE*.md` file under the repository root and asserts:
+        - the file contains more than 5,000 characters, and
+        - the file has at least five major sections denoted by "##" headings.
+        """
         doc_root = Path(__file__).parent.parent.parent
         comp_files = list(doc_root.glob("*COMPREHENSIVE*.md"))
         
@@ -268,7 +335,11 @@ class TestDocumentationConsistency:
                         pass  # This is a simplified check
     
     def test_all_summaries_reference_actual_test_files(self):
-        """Verify summary files reference actual test files that exist."""
+        """
+        Ensure SUMMARY markdown files reference existing test files.
+        
+        Searches repository files matching *SUMMARY*.md for occurrences of test paths — either Python test files under `tests/...` or frontend test files under `frontend/__tests__` with extensions `.test.ts`, `.test.tsx`, `.test.js`, or `.test.jsx` — optionally wrapped in backticks, and asserts each referenced path exists relative to the repository root.
+        """
         doc_root = Path(__file__).parent.parent.parent
         summary_files = list(doc_root.glob("*SUMMARY*.md"))
         
