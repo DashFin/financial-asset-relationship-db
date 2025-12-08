@@ -172,11 +172,11 @@ class TestPRAgentConfigSecurity:
     
     def test_no_hardcoded_credentials(self, pr_agent_config):
         """
-        Ensure the configuration contains no hardcoded credentials.
-        
-        Fails the test if any sensitive identifier — `password`, `secret`, `token`, `api_key`, `apikey`, `access_key`, or `private_key` — appears in the configuration values rather than only as field names or placeholder values (for example `null` or a `webhook` reference).
         """
-        config_str = yaml.dump(pr_agent_config).lower()
+        Perform a coarse scan for sensitive identifiers such as `password`, `secret`, `token`, `api_key`, `apikey`, `access_key`, or `private_key` anywhere in the serialized configuration text.
+        
+        The test fails when one of these substrings is present unless the dump also contains placeholder markers like `null` or `webhook`.
+        """
         
         # Check for common credential indicators
         sensitive_patterns = [
