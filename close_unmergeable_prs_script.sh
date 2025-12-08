@@ -49,7 +49,7 @@ If this PR contains valuable changes, please:
 Thank you for your contribution! This closure is part of a systematic cleanup of unmergeable PRs."
 
 echo "Closing PR #$PR with comment..."
-if ! gh pr close $PR --comment "$COMMENT"; then
+if ! gh pr close "$PR" --comment "$COMMENT"; then
     echo "Error: Failed to close PR #$PR. Please check the PR number and your permissions." >&2
     exit 1
 fi

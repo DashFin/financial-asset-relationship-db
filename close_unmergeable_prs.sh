@@ -19,31 +19,24 @@ if ! command -v jq &> /dev/null; then
     exit 1
 fi
 
-# Get all open PRs with CONFLICTING status
+# Get all open PRs with CONFLICTING status and display them
+# Using a single API call to avoid N+1 pattern and rate limiting
 echo "Fetching conflicting PRs..."
-if ! gh pr list --state open --json number,title,mergeable,createdAt --limit 100 | \
-  jq -r '.[] | select(.mergeable == "CONFLICTING") | "\(.number)"' > /tmp/conflicting_prs.txt; then
+
+if ! result=$(gh pr list --state open --json number,title,mergeable,createdAt,headRefName --limit 100 | \
+  jq -r '.[] | select(.mergeable == "CONFLICTING") | "PR #\(.number):\n  Title: \(.title)\n  Branch: \(.headRefName)\n  Created: \(.createdAt)\n"'); then
     echo "Error: Failed to fetch or parse conflicting PRs." >&2
     exit 1
 fi
 
-# Check if file exists and is non-empty
-if [ ! -s /tmp/conflicting_prs.txt ]; then
+# Check if we found any conflicting PRs
+if [ -z "$result" ]; then
     echo "No conflicting PRs found."
     exit 0
 fi
 
-echo "Found $(wc -l < /tmp/conflicting_prs.txt) conflicting PRs"
-
-# For now, let's just list them - we won't auto-close without manual review
-while read pr_number; do
-    echo "PR #$pr_number:"
-    if ! gh pr view $pr_number --json title,headRefName,createdAt | \
-      jq -r '"  Title: \(.title)\n  Branch: \(.headRefName)\n  Created: \(.createdAt)"'; then
-        echo "  Error: Failed to fetch details for PR #$pr_number" >&2
-    fi
-    echo ""
-done < /tmp/conflicting_prs.txt
-
-# Cleanup
-rm -f /tmp/conflicting_prs.txt
+# Count the number of PRs (count "PR #" occurrences)
+pr_count=$(echo "$result" | grep -c "^PR #" || true)
+echo "Found $pr_count conflicting PRs"
+echo ""
+echo "$result"
