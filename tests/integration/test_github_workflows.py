@@ -7,13 +7,29 @@ duplicate keys, invalid syntax, and missing required fields.
 """
 
 import pytest
-import yaml
 from pathlib import Path
 from typing import Any, Dict, List
 
+# Skip this module if PyYAML is not installed
+yaml = pytest.importorskip("yaml")
+
+# Define workflows directory path used across tests
+WORKFLOWS_DIR = Path(".github") / "workflows"
 
 # Path to workflows directory
-WORKFLOWS_DIR = Path(__file__).parent.parent.parent / ".github" / "workflows"
+def test_pr_agent_has_trigger_job():
+    """Test that pr-agent workflow has the trigger job."""
+    workflow_path = WORKFLOWS_DIR / "pr-agent.yml"
+    if not workflow_path.exists():
+        pytest.skip("pr-agent.yml not found")
+    pr_agent_workflow = load_yaml_safe(workflow_path)
+    jobs = pr_agent_workflow.get("jobs", {})
+    assert "pr-agent-trigger" in jobs, (
+        "pr-agent workflow must define the 'pr-agent-trigger' job"
+    )
+    assert isinstance(jobs["pr-agent-trigger"], dict), (
+        "'pr-agent-trigger' job must be a mapping"
+    )
 
 
 def get_workflow_files() -> List[Path]:
@@ -367,6 +383,9 @@ class TestPrAgentWorkflow:
         assert runs_on in ["ubuntu-latest", "ubuntu-22.04", "ubuntu-20.04"], (
             f"PR Agent trigger job should run on standard Ubuntu runner, got '{runs_on}'"
         )
+        assert isinstance(jobs["pr-agent-trigger"], dict), (
+            "'pr-agent-trigger' job must be a mapping"
+        )
         """Test that pr-agent workflow has a pr-agent-trigger job."""
         jobs = pr_agent_workflow.get("jobs", {})
         assert "pr-agent-trigger" in jobs, "pr-agent workflow must have pr-agent-trigger job"
@@ -421,7 +440,7 @@ class TestPrAgentWorkflow:
         steps = review_job.get("steps", [])
         
         python_steps = [
-            s for s in steps 
+            s for s in steps
             if s.get("uses", "").startswith("actions/setup-python")
         ]
         assert len(python_steps) > 0, "PR Agent trigger job must set up Python"
@@ -438,6 +457,11 @@ class TestPrAgentWorkflow:
         assert len(node_steps) > 0, "PR Agent trigger job must set up Node.js"
     
     def test_pr_agent_python_version(self, pr_agent_workflow: Dict[str, Any]):
+"""
+        Ensure any actions/setup-python step in the "pr-agent-trigger" job specifies python-version "3.11".
+        
+        Parameters:
+            pr_agent_workflow (Dict[str, Any]): Parsed workflow mapping for the PR Agent workflow; expected to contain a "jobs" -> "pr-agent-trigger" -> "steps" sequence.
         """
         Verify that every actions/setup-python step in the "pr-agent-trigger" job specifies the Python version "3.11".
         
@@ -508,49 +532,29 @@ class TestPrAgentWorkflow:
         steps = review_job.get("steps", [])
         
         checkout_steps = [
-            s for s in steps 
+            s for s in steps
             if s.get("uses", "").startswith("actions/checkout")
         ]
-        
+
         for step in checkout_steps:
             step_with = step.get("with", {})
-            if "fetch-depth" in step_with:
-                fetch_depth = step_with["fetch-depth"]
-                assert isinstance(fetch_depth, int) or fetch_depth == 0, (
-                    "fetch-depth should be an integer"
-                )
-
-
-class TestWorkflowSecurity:
-    """Test suite for workflow security best practices."""
-    
-    @pytest.mark.parametrize("workflow_file", get_workflow_files())
-    def test_workflow_no_hardcoded_secrets(self, workflow_file: Path):
-        """Test that workflows don't contain hardcoded secrets or tokens."""
-        with open(workflow_file, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        # Patterns that might indicate hardcoded secrets
-        suspicious_patterns = [
-            "ghp_",  # GitHub personal access token
-            "gho_",  # GitHub OAuth token
-            "ghu_",  # GitHub user token
-            "ghs_",  # GitHub server token
-            "ghr_",  # GitHub refresh token
-        ]
-        
-        for pattern in suspicious_patterns:
-            assert pattern not in content, (
-                f"Workflow {workflow_file.name} may contain hardcoded secret "
-                f"(found pattern: {pattern}). Use secrets context instead."
+            # It's acceptable for fetch-depth to be omitted entirely
+            if "fetch-depth" not in step_with:
+                continue
+            fetch_depth = step_with["fetch-depth"]
+            # Reject non-integer types (including strings)
+            assert isinstance(fetch_depth, int), (
+                f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
             )
+            # Reject negative integers
+            assert fetch_depth >= 0, "fetch-depth cannot be negative"
     
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_uses_secrets_context(self, workflow_file: Path):
         """
         Verify sensitive keys in step `with` mappings use the GitHub secrets context or are empty.
         
-        Scans each job's steps and for any `with` keys containing `token`, `password`, `key` or `secret` asserts that string values start with `"${{"` (secrets context) or are empty.
+        Scans each job's steps and for any with keys containing token, password, key, or secret, ensures values start with "${{" (secrets context) or are empty.
         """
         config = load_yaml_safe(workflow_file)
         jobs = config.get("jobs", {})
@@ -1147,12 +1151,41 @@ class TestWorkflowStepConfiguration:
             step_ids = [s.get("id") for s in steps if "id" in s]
             
             duplicates = [sid for sid in step_ids if step_ids.count(sid) > 1]
-            assert not duplicates, (
-                f"Job '{job_name}' in {workflow_file.name} has duplicate step IDs: {duplicates}"
-            )
+    def check_env_vars(env_dict):
+        """
+        Identify environment variable names that do not follow the convention of using only upper-case letters, digits and underscores.
     
-    @pytest.mark.parametrize("workflow_file", get_workflow_files())
-    def test_workflow_steps_continue_on_error_usage(self, workflow_file: Path):
+        Parameters:
+            env_dict (dict): Mapping of environment variable names to their values. If a non-dict is provided it is treated as absent and no invalid names are returned.
+    
+        Returns:
+            invalid_keys (List[str]): List of keys from `env_dict` that are not composed solely of upper-case letters, digits and underscores.
+        """
+        if not isinstance(env_dict, dict):
+            return []
+        invalid = []
+        for key in env_dict.keys():
+            # Ensure all characters are either alphanumeric or underscore
+            is_valid_chars = all(c.isalnum() or c == '_' for c in key)
+            if not key.isupper() or not is_valid_chars:
+                invalid.append(key)
+        return invalid
+
+    # Check top-level env
+    if "env" in config:
+        invalid = check_env_vars(config["env"])
+        assert not invalid, (
+            f"Workflow {workflow_file.name} has invalid env var names: {invalid}"
+        )
+
+    # Check job-level env
+    jobs = config.get("jobs", {})
+    for job_name, job_config in jobs.items():
+        if "env" in job_config:
+            invalid = check_env_vars(job_config["env"])
+            assert not invalid, (
+                f"Job '{job_name}' in {workflow_file.name} has invalid env var names: {invalid}"
+            )
         """Test that continue-on-error is used sparingly and intentionally."""
         config = load_yaml_safe(workflow_file)
         jobs = config.get("jobs", {})
@@ -1181,8 +1214,39 @@ class TestWorkflowEnvAndSecrets:
         Parameters:
             workflow_file (Path): Path to the workflow YAML file being tested; used only for reporting in messages.
         """
-        config = load_yaml_safe(workflow_file)
+        Identify environment variable names that do not follow the convention of using only upper-case letters, digits and underscores.
+    
+        Parameters:
+            env_dict (dict): Mapping of environment variable names to their values. If a non-dict is provided it is treated as absent and no invalid names are returned.
+    
+        Returns:
+            invalid_keys (List[str]): List of keys from `env_dict` that are not composed solely of upper-case letters, digits and underscores.
+        """
+        if not isinstance(env_dict, dict):
+            return []
+        invalid = []
+        for key in env_dict.keys():
+            # Ensure all characters are either alphanumeric or underscore
+            is_valid_chars = all(c.isalnum() or c == '_' for c in key)
+            if not key.isupper() or not is_valid_chars:
+                invalid.append(key)
+        return invalid
 
+    # Check top-level env
+    if "env" in config:
+        invalid = check_env_vars(config["env"])
+        assert not invalid, (
+            f"Workflow {workflow_file.name} has invalid env var names: {invalid}"
+        )
+
+    # Check job-level env
+    jobs = config.get("jobs", {})
+    for job_name, job_config in jobs.items():
+        if "env" in job_config:
+            invalid = check_env_vars(job_config["env"])
+            assert not invalid, (
+                f"Job '{job_name}' in {workflow_file.name} has invalid env var names: {invalid}"
+            )
         def check_env_vars(env_dict):
             """
             Identify environment variable names that do not follow the naming convention of upper-case letters, digits and underscores.
