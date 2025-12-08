@@ -175,7 +175,7 @@ class TestPRAgentConfigSecurity:
 
         The test fails when one of these substrings is present unless the dump also contains placeholder markers like `null` or `webhook`.
         """
-        config_str = yaml.dump(pr_agent_config)
+        config_str = yaml.dump(pr_agent_config).lower()
 
         # Check for common credential indicators
         sensitive_patterns = [
