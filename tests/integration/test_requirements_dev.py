@@ -71,8 +71,6 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                 requirements.append((pkg.strip(), version_spec))
     
     return requirements
-
-
 class TestRequirementsFileExists:
     """Test that requirements-dev.txt exists and is readable."""
     
@@ -171,14 +169,26 @@ class TestVersionSpecifications:
     
     @pytest.fixture
     def requirements(self) -> List[Tuple[str, str]]:
-        """Parse and return requirements."""
+        """
+        Return the parsed list of (package_name, version_spec) pairs from the development requirements file.
+        
+        Each tuple contains the package name and a single version specifier string; the version spec is an empty string when no specifier is present.
+        
+        Returns:
+            List[Tuple[str, str]]: Parsed requirements as (package_name, version_spec) pairs.
+        """
         return parse_requirements(REQUIREMENTS_FILE)
-    
+
     def test_all_packages_have_versions(self, requirements: List[Tuple[str, str]]):
         """Test that all packages specify version constraints."""
-        packages_without_versions = [pkg for pkg, ver in requirements if not ver]
-        assert len(packages_without_versions) == 0
-    
+        packages_without_versions = [
+            pkg for pkg, ver in requirements
+            if not ver
+        ]
+        assert not packages_without_versions, (
+            f"Found unpinned packages: {packages_without_versions}"
+        )
+
     def test_version_format_valid(self, requirements: List[Tuple[str, str]]):
         """
         Validate that each non-empty version specification conforms to PEP 440 using
