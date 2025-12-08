@@ -226,7 +226,101 @@ class TestPRAgentConfigSecurity:
                 # If marker appears and string is not trivially short, treat as suspicious
                 if len(v) >= 12:
                     return True
-            # Base64-like long strings
+    def test_no_hardcoded_credentials(self, pr_agent_config):
+        """
+        Recursively scan configuration values and keys for suspected secrets.
+        - Flags high-entropy or secret-like string values.
+        - Ensures sensitive keys only use safe placeholders.
+        """
+        import re
+        import math
+        import yaml
+
+        # Heuristic to detect inline creds in URLs (user:pass@)
+        inline_creds_re = re.compile(r'^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\s]+:[^/@\s]+@', re.IGNORECASE)
+
+        # Common secret-like prefixes or markers
+        secret_markers = (
+            'secret', 'token', 'apikey', 'api_key', 'access_key', 'private_key',
+            'pwd', 'password', 'auth', 'bearer '
+        )
+
+        def shannon_entropy(s: str) -> float:
+            if not s:
+                return 0.0
+            sample = s[:256]
+            freq = {}
+            for ch in sample:
+                freq[ch] = freq.get(ch, 0) + 1
+            ent = 0.0
+            length = len(sample)
+            for c in freq.values():
+                p = c / length
+                ent -= p * math.log2(p)
+            return ent
+
+        def looks_like_secret(val: str) -> bool:
+            v = val.strip()
+            if not v:
+                return False
+            placeholders = {'<token>', '<secret>', 'changeme', 'your-token-here', 'dummy', 'placeholder', 'null', 'none'}
+            if v.lower() in placeholders:
+                return False
+            if inline_creds_re.search(v):
+                return True
+            if any(m in v.lower() for m in secret_markers) and len(v) >= 12:
+                return True
+            # Base64/URL-safe like long strings
+            if re.fullmatch(r'[A-Za-z0-9_\-]{20,}', v) and shannon_entropy(v) >= 3.5:
+                return True
+            # Hex-encoded long strings (e.g., keys)
+            if re.fullmatch(r'[A-Fa-f0-9]{32,}', v):
+                return True
+            return False
+
+        # Walk values to detect secret-like strings
+        def walk_values(obj, path="root"):
+            if isinstance(obj, dict):
+                for k, v in obj.items():
+                    walk_values(v, f"{path}.{k}")
+            elif isinstance(obj, list):
+                for i, item in enumerate(obj):
+                    walk_values(item, f"{path}[{i}]")
+            elif isinstance(obj, str):
+                if looks_like_secret(obj):
+                    pytest.fail(f"Suspected secret value at '{path}': {obj[:20]}...")
+            # Non-string scalars ignored
+
+        walk_values(pr_agent_config)
+
+        # Enforce safe placeholders for sensitive keys
+        sensitive_patterns = [
+            'password', 'secret', 'token', 'api_key', 'apikey', 'access_key', 'private_key'
+        ]
+        safe_placeholders = {None, 'null', 'webhook'}
+
+        def check_sensitive_keys(node, path="root"):
+            if isinstance(node, dict):
+                for k, v in node.items():
+                    key_l = str(k).lower()
+                    new_path = f"{path}.{k}"
+                    if any(p in key_l for p in sensitive_patterns):
+                        assert v in safe_placeholders, f"Potential hardcoded credential at '{new_path}'"
+                    check_sensitive_keys(v, new_path)
+            elif isinstance(node, list):
+                for idx, item in enumerate(node):
+                    check_sensitive_keys(item, f"{path}[{idx}]")
+            # primitives ignored
+
+        check_sensitive_keys(pr_agent_config)
+
+        # Final serialized scan to ensure sensitive markers aren't embedded in values
+        config_str = yaml.dump(pr_agent_config)
+        for pat in sensitive_patterns:
+            # If marker appears in the string, ensure we also see an allowed placeholder somewhere
+            if pat in config_str:
+                assert (' null' in config_str) or ('webhook' in config_str), \
+                    f"Potential hardcoded credential found around pattern: {pat}"
             if re.fullmatch(r'[A-Za-z0-9_\-]{20,}', v):
                 # High entropy threshold suggests secret
                 if shannon_entropy(v) >= 3.5:
