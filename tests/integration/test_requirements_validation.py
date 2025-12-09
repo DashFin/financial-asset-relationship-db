@@ -47,12 +47,17 @@ class TestRequirementsDevChanges:
         pyyaml_line = next((l for l in lines if 'pyyaml' in l.lower() and not l.strip().startswith('#')), None)
 
         assert pyyaml_line is not None
+        # Find all non-comment lines containing 'pyyaml'
+        pyyaml_lines = [l for l in lines if 'pyyaml' in l.lower() and not l.strip().startswith('#')]
+        # Assert exactly one active PyYAML requirement exists
+        assert len(pyyaml_lines) == 1, f"Expected exactly one active PyYAML line, found {len(pyyaml_lines)}"
+        pyyaml_line = pyyaml_lines[0]
         # Strip inline comments and whitespace before checking version specifier
         pyyaml_line_no_comment = pyyaml_line.split('#', 1)[0].strip()
         assert any(op in pyyaml_line_no_comment for op in ['>=', '==', '~=', '<=', '>', '<'])
-    pyyaml_line_no_comment = pyyaml_line.split('#', 1)[0].strip()
-    assert any(op in pyyaml_line_no_comment for op in ['>=', '==', '~=', '<=', '>', '<'])
-    
+        pyyaml_line_no_comment = pyyaml_line.split('#', 1)[0].strip()
+        assert any(op in pyyaml_line_no_comment for op in ['>=', '==', '~=', '<=', '>', '<'])
+
     def test_no_duplicate_packages(self, requirements_dev_content):
         """
         Ensure requirements-dev.txt contains no duplicate package entries.
@@ -69,9 +74,8 @@ class TestRequirementsDevChanges:
                 if l.strip() and not l.strip().startswith('#')]
 
         # Split on any common version operator to reliably extract the package name
-        package_names = [re.split(r'(?:==|~=|>=|<=|>|<)', l, maxsplit=1)[0].lower() 
-        package_names = [l.split('==')[0].split('>=')[0].split('<=')[0].lower() 
-                        for l in lines]
+        from packaging.requirements import Requirement
+        package_names = [Requirement(l).name.lower() for l in lines]
         
         assert len(package_names) == len(set(package_names)), \
             "Duplicate packages found in requirements-dev.txt"
