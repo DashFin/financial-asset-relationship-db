@@ -118,7 +118,10 @@ class TestPRAgentConfigYAMLValidity:
             try:
                 yaml.load(f, Loader=DuplicateKeyLoader)
             except yaml.YAMLError as e:
-                pytest.fail(f"Duplicate key detected or YAML error: {e}")
+                if "Duplicate key detected" in str(e):
+                    pytest.fail(f"Duplicate key detected: {e}")
+                else:
+                    pytest.fail(f"YAML syntax error: {e}")
     
     def test_consistent_indentation(self):
         """Verify consistent 2-space indentation."""
