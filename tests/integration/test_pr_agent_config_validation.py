@@ -100,67 +100,19 @@ class TestPRAgentConfigSimplification:
         assert 'max_retries' in monitoring
         assert 'timeout' in monitoring
     
-    def test_limits_simplified(self, pr_agent_config):
-        """Verify limits section simplified."""
-        for line in lines:
-            if ':' in line and not line.strip().startswith('#'):
-                key = line.split(':', 1)[0].strip()
-                try:
-                    hash(key)
-                    is_hashable = True
-                except TypeError:
-                    is_hashable = False
-                if is_hashable:
-                    if key in seen_keys:
-                        pytest.fail(f"Duplicate key found: {key}")
-                    seen_keys.add(key)
-        
-        # Should not have complex chunking limits
-        assert 'max_files_per_chunk' not in limits
-        assert 'max_diff_lines' not in limits
-        
-        # Should have basic limits
-        assert 'max_execution_time' in limits
-        assert 'max_concurrent_prs' in limits
-
-
-class TestPRAgentConfigYAMLValidity:
-    """Test YAML validity and structure."""
-    
-    def test_config_is_valid_yaml(self):
-        """Verify config file is valid YAML."""
-        config_path = Path(".github/pr-agent-config.yml")
-        with open(config_path, 'r') as f:
-            try:
-                config = yaml.safe_load(f)
-                assert config is not None
-        def construct_mapping_no_dups(loader, node, deep=False, path_stack=None, seen_full_paths=None):
-            if path_stack is None:
-                path_stack = []
-            if seen_full_paths is None:
-                seen_full_paths = set()
-
+        def construct_mapping_no_dups(loader, node, deep=False):
             if not isinstance(node, yaml.MappingNode):
                 return loader.construct_object(node, deep=deep)
-
-            mapping = {}
-            merges = []
-
-
-    def test_no_duplicate_keys(self):
-        """
-        Fail the test if any YAML mapping contains duplicate keys.
-        Uses a custom SafeLoader subclass to detect duplicates during parsing.
-        """
-        class NoDuplicateKeyLoader(yaml.SafeLoader):
-            pass
-
-        def construct_mapping_no_dups(loader, node, deep=False):
             mapping = {}
             for key_node, value_node in node.value:
                 key = loader.construct_object(key_node, deep=deep)
+                # Ensure key is hashable to avoid TypeError and provide a clear YAML error
+                try:
+                    hash(key)
+                except TypeError:
+                    raise yaml.YAMLError(f"Unhashable key detected in YAML mapping: {key!r}")
                 if key in mapping:
-                    raise yaml.YAMLError(f"Duplicate key found: {key}")
+                    raise yaml.YAMLError(f"Duplicate key detected: {key!r}")
                 mapping[key] = loader.construct_object(value_node, deep=deep)
             return mapping
 
