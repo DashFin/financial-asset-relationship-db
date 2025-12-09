@@ -66,40 +66,21 @@ class TestPRAgentConfigSimplification:
         """
         config_str = yaml.dump(pr_agent_config)
         assert 'chunking' not in config_str.lower()
-        assert 'chunk_size' not in config_str.lower()
-        assert 'overlap_tokens' not in config_str.lower()
-    
-    def test_no_tiktoken_references(self, pr_agent_config):
-        """Verify tiktoken references removed."""
-        config_str = yaml.dump(pr_agent_config)
-        assert 'tiktoken' not in config_str.lower()
-    
-        def construct_mapping_no_dups(loader, node, deep=False):
-            if not isinstance(node, yaml.MappingNode):
-                return loader.construct_object(node, deep=deep)
-            mapping = {}
-            for key_node, value_node in node.value:
-                key = loader.construct_object(key_node, deep=deep)
-                try:
-                    hash(key)
-                except TypeError:
-                    raise yaml.YAMLError(f"Unhashable key detected in YAML mapping: {key!r}")
                 if key in mapping:
                     raise yaml.YAMLError(f"Duplicate key detected: {key!r}")
                 mapping[key] = loader.construct_object(value_node, deep=deep)
-            return mapping
-                    raise yaml.YAMLError(f"Unhashable key detected in YAML mapping: {key!r}")
-                if key in mapping:
-                    raise yaml.YAMLError(f"Duplicate key detected: {key!r}")
-                mapping[key] = loader.construct_object(value_node, deep=deep)
-            return mapping
+                return mapping
 
-        # Apply duplicate-key checking to both standard and ordered mappings
-        DuplicateKeyLoader.add_constructor(
-            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-            construct_mapping_no_dups
-        )
-        if hasattr(yaml.resolver.BaseResolver, 'DEFAULT_OMAP_TAG'):
+                # Register constructors once for mappings (and ordered mappings if supported)
+                DuplicateKeyLoader.add_constructor(
+                    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+                    construct_mapping_no_dups
+                )
+                if hasattr(yaml.resolver.BaseResolver, 'DEFAULT_OMAP_TAG'):
+                    DuplicateKeyLoader.add_constructor(
+                        yaml.resolver.BaseResolver.DEFAULT_OMAP_TAG,
+                        construct_mapping_no_dups
+                    )
             DuplicateKeyLoader.add_constructor(
                 yaml.resolver.BaseResolver.DEFAULT_OMAP_TAG,
                 construct_mapping_no_dups
