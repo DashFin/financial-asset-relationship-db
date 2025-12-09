@@ -132,7 +132,44 @@ class TestPRAgentConfigSimplification:
                 key = loader.construct_object(key_node, deep=deep)
                 try:
                     hash(key)
+        class DuplicateKeyLoader(yaml.SafeLoader):
+            pass
+
+        def construct_mapping_no_dups(loader, node, deep=False):
+            if not isinstance(node, yaml.MappingNode):
+                return loader.construct_object(node, deep=deep)
+            mapping = {}
+            for key_node, value_node in node.value:
+                key = loader.construct_object(key_node, deep=deep)
+                try:
+                    hash(key)
                 except TypeError:
+                    raise yaml.YAMLError(f"Unhashable key detected in YAML mapping: {key!r}")
+                if key in mapping:
+                    raise yaml.YAMLError(f"Duplicate key detected: {key!r}")
+                mapping[key] = loader.construct_object(value_node, deep=deep)
+            return mapping
+
+        # Apply duplicate-key checking to both standard and ordered mappings
+        DuplicateKeyLoader.add_constructor(
+            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+            construct_mapping_no_dups
+        )
+        if hasattr(yaml.resolver.BaseResolver, 'DEFAULT_OMAP_TAG'):
+            DuplicateKeyLoader.add_constructor(
+                yaml.resolver.BaseResolver.DEFAULT_OMAP_TAG,
+                construct_mapping_no_dups
+            )
+
+        with open(config_path, 'r', encoding='utf-8') as f:
+            try:
+                yaml.load(f, Loader=DuplicateKeyLoader)
+            except yaml.YAMLError as e:
+                error_msg = str(e).lower()
+                if "duplicate" in error_msg:
+                    pytest.fail(f"Duplicate key detected in YAML config: {e}")
+                else:
+                    pytest.fail(f"YAML parsing error in config: {e}")
                     raise yaml.YAMLError(f"Unhashable key detected in YAML mapping: {key!r}")
                 if key in mapping:
                     raise yaml.YAMLError(f"Duplicate key detected: {key!r}")
