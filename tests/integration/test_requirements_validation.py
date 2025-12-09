@@ -47,7 +47,14 @@ class TestRequirementsDevChanges:
         pyyaml_line = next((l for l in lines if 'pyyaml' in l.lower() and not l.strip().startswith('#')), None)
 
         assert pyyaml_line is not None
+        # Find all non-comment lines containing 'pyyaml'
+        pyyaml_lines = [l for l in lines if 'pyyaml' in l.lower() and not l.strip().startswith('#')]
+        # Assert exactly one active PyYAML requirement exists
+        assert len(pyyaml_lines) == 1, f"Expected exactly one active PyYAML line, found {len(pyyaml_lines)}"
+        pyyaml_line = pyyaml_lines[0]
         # Strip inline comments and whitespace before checking version specifier
+        pyyaml_line_no_comment = pyyaml_line.split('#', 1)[0].strip()
+        assert any(op in pyyaml_line_no_comment for op in ['>=', '==', '~=', '<=', '>', '<'])
         pyyaml_line_no_comment = pyyaml_line.split('#', 1)[0].strip()
         assert any(op in pyyaml_line_no_comment for op in ['>=', '==', '~=', '<=', '>', '<'])
 
