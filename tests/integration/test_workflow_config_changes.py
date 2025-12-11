@@ -777,10 +777,11 @@ class TestWorkflowEdgeCases:
         
         for workflow_file in workflow_dir.glob("*.yml"):
             with open(workflow_file, 'r') as f:
-                workflow = yaml.safe_load(f)
-            
+                content = f.read()
+                workflow = yaml.safe_load(content)
+    
             # Check for 'on' or 'true' (which is quoted 'on')
-            has_trigger = 'on' in workflow or '"on"' in open(workflow_file).read()
+            has_trigger = 'on' in workflow or '"on"' in content
             
             assert has_trigger, \
                 f"{workflow_file.name} should have trigger definition ('on' field)"
