@@ -63,7 +63,15 @@ class TestDocumentationStructure:
             List[str]: Lines from `doc_content`; each element retains its original line ending when present.
         """
         return doc_content.splitlines(keepends=True)
+    @pytest.fixture(scope='session')
     def doc_lines(doc_content: str) -> List[str]:
+        """
+        Return the documentation content split into lines while preserving original line endings.
+        
+        Returns:
+            List[str]: Lines from `doc_content`; each element retains its original line ending when present.
+        """
+        return doc_content.splitlines(keepends=True)
         """
         Return the documentation content split into lines while preserving original line endings.
         
