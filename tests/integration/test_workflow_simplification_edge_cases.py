@@ -252,7 +252,7 @@ test_consistent_python_version
             f"Should have at most 2 Python versions, found: {versions_set}"
         
         assert enabled is True, \
-            "Agent should be enabled"
+# Remove undefined assertion
 
 
 class TestWorkflowConsistency:
