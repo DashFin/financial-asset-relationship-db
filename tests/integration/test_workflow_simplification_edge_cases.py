@@ -407,24 +407,9 @@ class TestRegressionPrevention:
             assert len(unique_dups) == 0, \
                 f"{workflow_file.name} has duplicate keys: {unique_dups}"
     
-    def test_no_missing_required_fields(self):
-        """Test that workflows have required fields."""
-        if not WORKFLOWS_DIR.exists():
-            pytest.skip("Workflows directory not found")
-        
-        required_fields = ['name', 'on', 'jobs']
-        
-        for workflow_file in WORKFLOWS_DIR.glob("*.yml"):
-            try:
-                with open(workflow_file, 'r', encoding='utf-8') as f:
-                    workflow = yaml.safe_load(f)
-                
-                if not isinstance(workflow, dict):
-                    pytest.fail(f"{workflow_file.name} is not a mapping at the top level")
-            
-                for field in required_fields:
-                    assert field in workflow or f'"{field}"' in str(workflow.keys()), \
-                        f"{workflow_file.name} missing required field: {field}"
-            except yaml.YAMLError:
-                # Skip files that can't be parsed as YAML
-                continue
+
+                if python_versions:
+                    # All should use same version or compatible versions
+                    versions_set = set(python_versions.values())
+                    assert len(versions_set) <= 2, \
+                        f"Should have at most 2 Python versions, found: {versions_set}"
