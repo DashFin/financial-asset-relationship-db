@@ -1,15 +1,16 @@
 import yaml
 
 
-"""
-Initialize a ValidationResult with a validity flag, a list of error messages and the parsed workflow data.
-
-Parameters:
-    is_valid (bool): True when the workflow passed validation, False otherwise.
-    errors (list[str]): List of error messages describing validation failures; empty when `is_valid` is True.
-    workflow_data (dict): Parsed YAML workflow data when available, otherwise an empty dict.
-"""
-        """
+class ValidationResult:
+    """
+    Initialize a ValidationResult with a validity flag, a list of error messages and the parsed workflow data.
+    
+    Parameters:
+        is_valid (bool): True when the workflow passed validation, False otherwise.
+        errors (list[str]): List of error messages describing validation failures; empty when `is_valid` is True.
+        workflow_data (dict): Parsed YAML workflow data when available, otherwise an empty dict.
+    """
+    def __init__(self, is_valid, errors, workflow_data):
         self.is_valid = is_valid
         self.errors = errors
         self.workflow_data = workflow_data
