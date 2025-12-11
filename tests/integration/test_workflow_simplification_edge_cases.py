@@ -237,32 +237,7 @@ class TestPRAgentConfigEdgeCases:
     def test_agent_enabled(self, config: Dict[str, Any]):
         """Test that agent is enabled."""
         agent_config = config.get('agent', {})
-# Removed duplicate and malformed test_consistent_python_version block.
-# The valid implementation exists in class TestWorkflowConsistency below.
-# Remove undefined assertion
-
-
-class TestWorkflowConsistency:
-    """Test consistency across multiple workflows."""
-    
-import re
-    PY_VERSION_PATTERN = re.compile(r'python-version\s*:\s*["\']?([0-9.]+)["\']?')
-
-    def test_consistent_python_version(self):
-        """Test that Python version is consistent across workflows."""
-        python_versions = {}
-    
-        if not WORKFLOWS_DIR.exists():
-            pytest.skip("Workflows directory not found")
-    
-        for workflow_file in WORKFLOWS_DIR.glob("*.yml"):
-            with open(workflow_file, 'r', encoding='utf-8') as f:
-                content = f.read()
-        
-            versions = PY_VERSION_PATTERN.findall(content)
-            if versions:
-                python_versions[workflow_file.name] = versions[0]
-        """Test that Python version is consistent across workflows."""
+# Duplicate and malformed TestWorkflowConsistency block removed
 import re
 
 class TestWorkflowConsistency:
