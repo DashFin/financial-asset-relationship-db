@@ -433,13 +433,23 @@ class TestNoOrphanedReferences:
                 assert 'removed' in content.lower() or 'deleted' in content.lower(), \
                     f"{doc_file.name} references labeler.yml but doesn't indicate removal"
     
-    def test_no_context_chunker_imports(self):
-        """Test that context_chunker is not imported anywhere."""
-        python_files = list(PROJECT_ROOT.rglob("*.py"))
-        
+
         for py_file in python_files:
             # Skip test files
             if 'test' in py_file.name.lower():
+                continue
+
+        def test_no_context_chunker_references_anywhere(self):
+            """Test that context_chunker is not referenced in any file type."""
+            all_files = list(PROJECT_ROOT.rglob("*"))
+
+            for file_path in all_files:
+                if file_path.is_file() and file_path.suffix in ['.py', '.yml', '.yaml', '.md', '.sh']:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+
+                    assert 'context_chunker' not in content, \
+                        f"{file_path} should not reference context_chunker"
                 continue
             
             with open(py_file, 'r', encoding='utf-8') as f:
