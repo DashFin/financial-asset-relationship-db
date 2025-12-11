@@ -197,7 +197,60 @@ class TestPRAgentWorkflowCleaned:
 
 class TestCodecovWorkflowRemoved:
     """Test that codecov workflow removal didn't break CI."""
-    
+class TestNoOrphanedReferences:
+    """Test that deleted files are not referenced anywhere."""
+
+    def test_no_labeler_references_in_docs(self):
+        """Labeler mentions in docs must indicate removal."""
+        for doc_file in PROJECT_ROOT.glob("*.md"):
+            with open(doc_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            if 'labeler.yml' in content:
+                assert 'removed' in content.lower() or 'deleted' in content.lower(), \
+                    f"{doc_file.name} references labeler.yml but doesn't indicate removal"
+
+    def test_no_context_chunker_imports(self):
+        """context_chunker should not be imported in Python files (excluding tests)."""
+        for py_file in PROJECT_ROOT.rglob("*.py"):
+            if 'test' in py_file.name.lower():
+                continue
+            with open(py_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            assert 'context_chunker' not in content, \
+                f"{py_file} should not import context_chunker"
+
+    def test_no_codecov_config_files(self):
+        """Legacy Codecov config files should not exist or be for Actions usage."""
+        codecov_configs = [
+            PROJECT_ROOT / ".codecov.yml",
+            PROJECT_ROOT / "codecov.yml",
+            PROJECT_ROOT / ".codecov.yaml",
+        ]
+        for config_file in codecov_configs:
+            if config_file.exists():
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                assert 'uses: codecov/' not in content.lower(), \
+                    "Legacy Codecov GitHub Action usage should not be present in config files"
+
+    def test_no_labeler_references_in_workflows(self):
+        """Workflows must not reference deleted .github/labeler.yml."""
+        if not WORKFLOWS_DIR.exists():
+            pytest.skip("Workflows directory not found")
+        for workflow_file in WORKFLOWS_DIR.glob("*.yml"):
+            with open(workflow_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            assert '.github/labeler.yml' not in content, \
+                f"{workflow_file.name} should not reference deleted .github/labeler.yml"
+
+    def test_no_context_chunker_references_anywhere(self):
+        """context_chunker should not be referenced in common text/code files."""
+        for file_path in PROJECT_ROOT.rglob("*"):
+            if file_path.is_file() and file_path.suffix in {'.py', '.yml', '.yaml', '.md', '.sh'}:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                assert 'context_chunker' not in content, \
+                    f"{file_path} should not reference context_chunker"
     def test_codecov_workflow_gone(self):
         """Test that codecov.yaml is removed."""
         codecov_path = WORKFLOWS_DIR / "codecov.yaml"
