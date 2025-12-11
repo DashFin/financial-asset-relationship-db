@@ -12,7 +12,8 @@ from typing import Dict, Any, List
 
 
 WORKFLOWS_DIR = Path(__file__).parent.parent.parent / ".github" / "workflows"
-CONFIG_FILE = Path(__file__).parent.parent.parent / ".github" / "pr-agent-config.yml"
+    with open(workflow_path, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
 
 
 def load_workflow(workflow_name: str) -> Dict[str, Any]:
