@@ -56,8 +56,18 @@ class TestWorkflowConsistency:
                         action_versions[action_name][action_version].append(wf_file)
         
         # Check for inconsistencies
-if action == 'actions/checkout':
-    continue
+        # Check for inconsistencies
+        inconsistencies = []
+        for action, versions in action_versions.items():
+            if len(versions) > 1:
+                # Allow v4 and v5 for actions/checkout (common upgrade path)
+                if action == 'actions/checkout':
+                    continue
+                # Record inconsistent versions
+                inconsistencies.append(f"{action} uses multiple versions: {list(versions.keys())}")
+
+        assert not inconsistencies, \
+            f"Inconsistent action versions found:\n" + "\n".join(inconsistencies)
         for action, versions in action_versions.items():
             if len(versions) > 1:
                 # Allow v4 and v5 for actions/checkout (common upgrade path)
