@@ -107,7 +107,21 @@ class TestPRAgentConfigYAMLValidity:
                 pytest.fail(f"YAML error: {e}")
     
     def test_consistent_indentation(self):
-        """Verify consistent 2-space indentation."""
+        """Verify consistent 2-space indentation and no tabs."""
+        config_path = Path(".github/pr-agent-config.yml")
+
+        with open(config_path, 'r') as f:
+            lines = f.readlines()
+
+        for i, line in enumerate(lines, 1):
+            # Disallow tabs anywhere (especially in indentation)
+            assert '\t' not in line, f"Line {i}: Tab character found; tabs are not allowed"
+
+            # If line starts with spaces, ensure multiple of 2 indentation
+            if line.strip() and line[0] == ' ':
+                spaces = len(line) - len(line.lstrip(' '))
+                assert spaces % 2 == 0, \
+                    f"Line {i}: Inconsistent indentation (not multiple of 2)"
         config_path = Path(".github/pr-agent-config.yml")
         
         with open(config_path, 'r') as f:
