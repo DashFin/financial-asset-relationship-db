@@ -832,15 +832,16 @@ class TestWorkflowEdgeCases:
                     assert has_identification, \
                         f"{workflow_file.name} job '{job_id}' step {i} needs name, uses, or run"
     
-    def test_no_hardcoded_secrets_in_workflows(self):
-        """Verify no hardcoded secrets in workflow files."""
-        workflow_dir = Path(".github/workflows")
-        
-        # Patterns that might indicate hardcoded secrets
-        secret_patterns = [
-            r'password:\s*["\'](?!.*\$\{)',  # password: "value" (not variable)
-            r'token:\s*["\'](?!.*\$\{)',     # token: "value" (not variable)
-            r'api[_-]?key:\s*["\'](?!.*\$\{)',  # api_key: "value" (not variable)
+# Enhanced secret patterns
+secret_patterns = [
+    r'password:\s*["\'](?!.*\$\{)',
+    r'token:\s*["\'](?!.*\$\{)',
+    r'api[_-]?key:\s*["\'](?!.*\$\{)',
+    r'secret[_-]?key:\s*["\'](?!.*\$\{)',
+    r'aws[_-]?(?:access[_-]?key|secret[_-]?key):\s*["\'](?!.*\$\{)',
+    r'gh[_-]?token:\s*["\'](?!.*\$\{)',
+    r'["\'][A-Za-z0-9+/]{40,}["\']',  # Base64-like long strings
+]
         ]
         
         import re
