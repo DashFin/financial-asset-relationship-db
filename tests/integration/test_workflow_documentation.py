@@ -55,8 +55,14 @@ class TestDocumentationStructure:
             return f.read()
 
     @pytest.fixture(scope='session')
-    # Move this fixture to module level (outside the class)
-    @pytest.fixture(scope='session')
+    def doc_lines(doc_content: str) -> List[str]:
+        """
+        Return the documentation content split into lines while preserving original line endings.
+    
+        Returns:
+            List[str]: Lines from `doc_content`; each element retains its original line ending when present.
+        """
+        return doc_content.splitlines(keepends=True)
     def doc_lines(doc_content: str) -> List[str]:
         """
         Return the documentation content split into lines while preserving original line endings.
