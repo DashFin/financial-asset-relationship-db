@@ -35,9 +35,13 @@ class TestPRAgentWorkflowEdgeCases:
     
     def test_on_key_properly_quoted(self, workflow: Dict[str, Any]):
         """Test that 'on' key is properly quoted (bug fix from diff)."""
-        # The workflow should have either 'on' or '"on"' as a key
-        assert 'on' in workflow or '"on"' in workflow, \
-            "Workflow should have 'on' trigger key"
+        # Verify the workflow file has "on": (quoted) in the source
+        workflow_path = WORKFLOWS_DIR / "pr-agent.yml"
+        with open(workflow_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        # Should have quoted "on": to avoid YAML parsing issues
+        assert '"on":' in content or "'on':" in content, \
+            "'on' key should be quoted in YAML"
         
         # Verify the workflow file has "on": (quoted) in the source
         workflow_path = WORKFLOWS_DIR / "pr-agent.yml"
