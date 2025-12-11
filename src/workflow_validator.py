@@ -20,7 +20,18 @@ def validate_workflow(workflow_path):
     """
     Validate a workflow YAML file at the given filesystem path.
     
+    """
+    Validate a workflow YAML file at the given filesystem path.
+    
     Performs YAML parsing and checks that the top-level structure is a mapping and that it contains a 'jobs' key. On success returns the parsed workflow data. On failure, returns error messages and:
+    - an empty dict ({}) when parsing fails or the top-level structure is not a mapping
+    - the parsed dict when parsing succeeds but required keys (e.g., 'jobs') are missing
+    
+    Parameters:
+        workflow_path (str): Filesystem path to the workflow YAML file.
+    Returns:
+        ValidationResult: `is_valid` is `True` if the file parsed as a mapping and contains a 'jobs' key, `False` otherwise; `errors` is a list of diagnostic messages; `workflow_data` is the parsed YAML mapping on success, `{}` when parsing fails or the top-level structure is not a mapping, or the parsed dict when required keys (e.g., 'jobs') are missing.
+    """
     - an empty dict ({}) when parsing fails or the top-level structure is not a mapping
     - the parsed dict when parsing succeeds but required keys (e.g., 'jobs') are missing
     
