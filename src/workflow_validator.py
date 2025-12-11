@@ -30,6 +30,7 @@ def validate_workflow(workflow_path):
         ValidationResult: `is_valid` is `True` if the file parsed as a mapping and contains a 'jobs' key, `False` otherwise; `errors` is a list of diagnostic messages; `workflow_data` is the parsed YAML mapping on success, `{}` when parsing fails or the top-level structure is not a mapping, or the parsed dict when required keys (e.g., 'jobs') are missing.
     Returns:
         ValidationResult: `is_valid` is `True` if the file parsed as a mapping and contains a 'jobs' key, `False` otherwise; `errors` is a list of diagnostic messages; `workflow_data` is the parsed YAML mapping on success or `{}` on failure.
+        ValidationResult: `is_valid` is `True` if the file parsed as a mapping and contains a 'jobs' key, `False` otherwise; `errors` is a list of diagnostic messages; `workflow_data` is the parsed YAML mapping on success or `{}` on failure.
     """
     try:
         with open(workflow_path, 'r', encoding='utf-8') as f:
