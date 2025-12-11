@@ -258,7 +258,7 @@ test_consistent_python_version
 class TestWorkflowConsistency:
     """Test consistency across multiple workflows."""
     
-    import re
+import re
     PY_VERSION_PATTERN = re.compile(r'python-version\s*:\s*["\']?([0-9.]+)["\']?')
 
     def test_consistent_python_version(self):
