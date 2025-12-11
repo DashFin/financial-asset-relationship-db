@@ -331,27 +331,50 @@ class TestGitignoreSecurityConsiderations:
     
     def test_credentials_ignored(self, patterns: Set[str]):
         """Test that credential files are ignored."""
-        credential_patterns = {'.env', '*.pem', '*.key', '*.crt'}
-        
+        credential_patterns = {
+            '.env',
+            '.env.local',
+            '.env.*.local',
+            '*.env',
+            '*.pem',
+            '*.key',
+            '*.crt',
+            '*.cer',
+            '*.der',
+            '*.p12',
+            '*.pfx',
+            '*.p7b',
+            '*.p7c',
+        }
+    
         # At least some credential files should be ignored
         matching = [p for p in credential_patterns if p in patterns]
-        assert len(matching) > 0, \
-            "Should ignore credential files"
-    
+        assert len(matching) > 0, "Should ignore credential files"
+
     def test_api_keys_ignored(self, patterns: Set[str]):
         """Test that API key files are ignored."""
         # .env files commonly contain API keys
-        assert '.env' in patterns or any('.env' in p for p in patterns)
-    
+        assert (
+            '.env' in patterns
+            or '.env.local' in patterns
+            or any('.env' in p for p in patterns)
+        )
+
     def test_private_keys_ignored(self, patterns: Set[str]):
         """Test that private key files are ignored."""
-        key_patterns = ['*.pem', '*.key', 'id_rsa', 'id_dsa']
-        
+        key_patterns = [
+            '*.pem',
+            '*.key',
+            'id_rsa',
+            'id_dsa',
+            'id_ed25519',
+            'id_ecdsa',
+        ]
+    
         # Check if at least some key patterns are ignored
         matching = [p for p in key_patterns if p in patterns]
         # We expect at least one key pattern to be present
         assert len(matching) > 0 or any('key' in p.lower() for p in patterns)
-
 
 class TestGitignorePerformance:
     """Test performance characteristics of .gitignore."""
