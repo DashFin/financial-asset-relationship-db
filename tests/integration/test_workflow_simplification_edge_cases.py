@@ -274,7 +274,56 @@ class TestWorkflowConsistency:
                 versions = re.findall(r"python-version:\s*['\"]?([0-9.]+)", content)
                 if versions:
                     python_versions[workflow_file.name] = versions[0]
-        
+class TestWorkflowConsistency:
+    """Test consistency across multiple workflows."""
+
+    def test_consistent_python_version(self):
+        """Ensure Python versions are consistent across workflows."""
+        python_versions = {}
+
+        if not WORKFLOWS_DIR.exists():
+            pytest.skip("Workflows directory not found")
+
+        for workflow_file in WORKFLOWS_DIR.glob("*.yml"):
+            with open(workflow_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            versions = PY_VERSION_PATTERN.findall(content)
+            if versions:
+                python_versions[workflow_file.name] = versions[0]
+
+        if python_versions:
+            versions_set = set(python_versions.values())
+            assert len(versions_set) <= 2, \
+                f"Should have at most 2 Python versions, found: {versions_set}"
+
+    def test_consistent_action_versions(self):
+        """Ensure common actions (e.g., checkout) use consistent versions."""
+        checkout_versions = {}
+
+        if not WORKFLOWS_DIR.exists():
+            pytest.skip("Workflows directory not found")
+
+        for workflow_file in WORKFLOWS_DIR.glob("*.yml"):
+            try:
+                with open(workflow_file, 'r', encoding='utf-8') as f:
+                    workflow = yaml.safe_load(f)
+
+                jobs = workflow.get('jobs', {}) if isinstance(workflow, dict) else {}
+                for job_config in jobs.values():
+                    steps = job_config.get('steps', [])
+                    for step in steps:
+                        if isinstance(step, dict) and 'uses' in step:
+                            uses = step['uses']
+                            if isinstance(uses, str) and 'checkout' in uses.lower():
+                                checkout_versions[workflow_file.name] = uses
+            except Exception:
+                continue
+
+        if checkout_versions:
+            v4_count = sum(1 for v in checkout_versions.values() if '@v4' in v)
+            total_count = len(checkout_versions)
+            assert v4_count >= total_count * 0.7, "Most workflows should use checkout@v4"
         if python_versions:
             # All should use same version or compatible versions
             versions_set = set(python_versions.values())
