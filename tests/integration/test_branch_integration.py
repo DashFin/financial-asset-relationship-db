@@ -208,8 +208,12 @@ class TestWorkflowSecurityConsistency:
                 if matches:
                     injection_risks.append(f"{wf_file}: {matches}")
 
-        assert not injection_risks, \
-            f"Potential PR injection risks found:\n" + "\n".join(injection_risks)
+assert not injection_risks, (
+    f"Potential PR injection risks found in workflow files:\n"
+    f"{chr(10).join(injection_risks)}\n"
+    f"These patterns may allow arbitrary code execution via PR titles/bodies.\n"
+    f"Consider using environment variables or validated inputs instead."
+)
     
     def test_workflows_use_appropriate_checkout_refs(self):
         """Verify checkout actions use safe refs."""
