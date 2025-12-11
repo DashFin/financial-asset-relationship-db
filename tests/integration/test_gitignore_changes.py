@@ -8,7 +8,7 @@ file patterns and junit.xml.
 
 import pytest
 from pathlib import Path
-from typing import List, Set
+from typing import Set
 
 
 GITIGNORE_FILE = Path(__file__).parent.parent.parent / ".gitignore"
