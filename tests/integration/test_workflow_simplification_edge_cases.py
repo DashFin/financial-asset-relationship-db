@@ -276,7 +276,12 @@ import re
             if versions:
                 python_versions[workflow_file.name] = versions[0]
         """Test that Python version is consistent across workflows."""
-        python_versions = {}
+import re
+
+class TestWorkflowConsistency:
+    """Test consistency across multiple workflows."""
+    
+    PY_VERSION_PATTERN = re.compile(r'python-version\s*:\s*["\']?([0-9.]+)["\']?')
         
         if not WORKFLOWS_DIR.exists():
             pytest.skip("Workflows directory not found")
