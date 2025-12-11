@@ -522,8 +522,6 @@ class TestRequirementsDevChanges:
         assert len(duplicates) == 0, f"Duplicate dependencies found: {set(duplicates)}"
 
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--tb=short"])
 
 class TestAPISecScanWorkflowChanges:
     """Tests for apisec-scan.yml workflow configuration changes."""
