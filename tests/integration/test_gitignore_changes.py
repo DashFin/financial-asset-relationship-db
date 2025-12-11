@@ -172,7 +172,7 @@ class TestGitignoreProjectSpecific:
         """Test that Python package metadata is ignored."""
     def test_no_duplicate_patterns(self):
         """Test that no equivalent pattern appears multiple times (handles dir/ vs dir and negations)."""
-        patterns = []
+        normalized_patterns = []
 
         with open(GITIGNORE_FILE, 'r', encoding='utf-8') as f:
             for line in f:
@@ -183,14 +183,12 @@ class TestGitignoreProjectSpecific:
                     # Normalize directory patterns by removing trailing slashes
                     normalized_core = core.rstrip('/') if core.endswith('/') else core
                     normalized = f'!{normalized_core}' if is_negated else normalized_core
-                    patterns.append(normalized)
+                    normalized_patterns.append(normalized)
 
-        duplicates = [p for p in patterns if patterns.count(p) > 1]
+        duplicates = [p for p in normalized_patterns if normalized_patterns.count(p) > 1]
         unique_duplicates = list(set(duplicates))
 
-        assert len(unique_duplicates) == 0, \
-            f"Found duplicate patterns: {unique_duplicates}"
-        assert any(p in patterns for p in egg_patterns)
+        assert len(unique_duplicates) == 0, f"Found duplicate patterns: {unique_duplicates}"
 
 
 class TestGitignoreEdgeCases:
