@@ -297,7 +297,7 @@ class TestGreetingsWorkflowSimplified:
         assert len(pr_msg) < 100, \
             "PR message should be concise"
 
-
+# Remove the duplicate TestNoOrphanedReferences class
 class TestAPISecWorkflowSimplified:
     """Test that APISec workflow was simplified."""
     
