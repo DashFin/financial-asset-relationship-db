@@ -360,8 +360,6 @@ class TestAPISecWorkflowSimplified:
 
 class TestNoOrphanedReferences:
     """Test that deleted files are not referenced anywhere."""
-
-    def test_no_labeler_references_in_docs(self):
         """Test that labeler.yml is not referenced in documentation."""
         doc_files = list(PROJECT_ROOT.glob("*.md"))
         for doc_file in doc_files:
