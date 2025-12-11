@@ -857,23 +857,26 @@ class TestWorkflowEdgeCases:
     def test_checkout_actions_use_v4_or_newer(self):
         """Verify checkout actions use v4 or newer."""
         workflow_dir = Path(".github/workflows")
-        
+    
         for workflow_file in workflow_dir.glob("*.yml"):
             with open(workflow_file, 'r') as f:
                 workflow = yaml.safe_load(f)
-            
+        
             jobs = workflow.get('jobs', {})
             for job_id, job_config in jobs.items():
                 steps = job_config.get('steps', [])
                 for step in steps:
                     uses = step.get('uses', '')
                     if 'actions/checkout' in uses:
-                        # Extract version
+                        # Extract version safely
                         if '@v' in uses:
-                            version_str = uses.split('@v')[1].split('.')[0]
-                            version = int(version_str)
-                            assert version >= 4, \
-                                f"{workflow_file.name} uses outdated checkout action"
+                            try:
+                                version_str = uses.split('@v')[1].split('.')[0]
+                                version = int(version_str)
+                                assert version >= 4, \
+                                    f"{workflow_file.name} uses outdated checkout action"
+                            except (IndexError, ValueError):
+                                pytest.fail(f"Could not parse checkout action version in {workflow_file.name}: '{uses}'")
 
 
 class TestPRAgentConfigurationRobustness:
