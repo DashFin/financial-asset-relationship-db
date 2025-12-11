@@ -382,7 +382,7 @@ class TestRegressionPrevention:
     def test_no_duplicate_keys_in_workflows(self):
         """Test that workflows don't have duplicate keys."""
         if not WORKFLOWS_DIR.exists():
-            pytest.skip("Workflows directory not found")
+import re
         
         for workflow_file in WORKFLOWS_DIR.glob("*.yml"):
             # This would fail in yaml.safe_load if there were duplicates
