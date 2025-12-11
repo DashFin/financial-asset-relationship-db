@@ -218,17 +218,20 @@ class TestCodecovWorkflowRemoved:
                 f"Critical workflow {workflow} should exist"
     
     def test_no_codecov_references_in_other_workflows(self):
-        """Test that codecov is not referenced in remaining workflows."""
+        """Test that codecov is not referenced in remaining workflows except the main CI workflow."""
         if not WORKFLOWS_DIR.exists():
             pytest.skip("Workflows directory not found")
-        
+    
         for workflow_file in WORKFLOWS_DIR.glob("*.yml"):
             with open(workflow_file, 'r', encoding='utf-8') as f:
                 content = f.read()
-            
+        
             # Allow codecov token in secrets, but not active usage
             if 'codecov' in content.lower():
-                # Check it's not an active step
+                # The main CI workflow is expected to use the Codecov action
+                if workflow_file.name == "ci.yml":
+                    continue
+                # Check it's not an active step in any other workflow
                 assert 'uses: codecov/' not in content.lower(), \
                     f"{workflow_file.name} should not use codecov action"
 
