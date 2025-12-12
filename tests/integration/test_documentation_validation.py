@@ -255,7 +255,7 @@ class TestDocumentMaintainability:
         """
         Validate the document contains a clear hierarchical heading structure.
         
-        Ensures the content includes at least one level‑1 heading and at least three level‑2 headings.
+        Ensures the content includes at least one level-1 heading and at least three level-2 headings.
         
         Parameters:
         	summary_content (str): The full text of the summary file to validate.
