@@ -33,10 +33,10 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
 
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
     except (FileNotFoundError, IOError) as e:
         raise AssertionError(f"Could not read requirements file: {file_path} ({e})")
-        for line in f:
-            line = line.strip()
             
             if not line or line.startswith('#'):
                 continue
