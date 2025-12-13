@@ -56,7 +56,6 @@ class TestWorkflowYAMLValidation:
         for workflow_file in modified_workflows:
             path = self.WORKFLOW_DIR / workflow_file
             try:
-                with open(path, 'r') as f:
                     workflow = yaml.safe_load(f)
                     assert workflow is not None, f"Empty YAML in {workflow_file}"
         
