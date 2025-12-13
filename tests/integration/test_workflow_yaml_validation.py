@@ -86,39 +86,31 @@ class TestWorkflowYAMLValidation:
             "PR agent workflow missing comment parsing"
         assert 'python' in content.lower(), \
             "PR agent workflow missing Python setup"
-
-
-
 class TestRequirementsDevChanges:
     """Validate requirements-dev.txt modifications."""
-    
-def test_pyyaml_present_in_requirements_dev():
-    """
-    Ensure PyYAML is declared in requirements-dev.txt.
 
-    Reads requirements-dev.txt, ignores blank lines and comments, and asserts
-    that a dependency starting with "PyYAML" (case-insensitive) is present.
-    """
-    path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
-    assert path.exists(), "requirements-dev.txt not found"
+    def test_requirements_dev_file_exists(self):
+        """Check that requirements-dev.txt exists at the repository root."""
+        path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
+        assert path.exists(), "requirements-dev.txt not found"
 
-    with open(path, "r", encoding="utf-8") as f:
-        content = f.read()
+    def test_pyyaml_present_in_requirements_dev(self):
+        """
+        Check that PyYAML is declared in requirements-dev.txt.
 
-    lines = [
-        line.strip()
-        for line in content.splitlines()
-        if line.strip() and not line.strip().startswith("#")
-    ]
-    assert any(line.lower().startswith("pyyaml") for line in lines), (
-        "PyYAML not found in requirements-dev.txt"
-    )
+        Reads the repository's requirements-dev.txt, ignores blank lines and comments,
+        and asserts that a dependency beginning with "PyYAML" (case-insensitive) is present.
+        """
+        path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
+        assert path.exists(), "requirements-dev.txt not found"
+        with open(path, "r", encoding="utf-8") as f:
+            content = f.read()
 
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
-
-# This test file was generated to validate workflow YAML changes
-# in branch: codex/fix-env-var-naming-test-in-pr-agent-workflow
-# Generated: 2024-11-24
-# Purpose: Validate YAML structure and workflow simplifications
+        lines = [
+            line.strip()
+            for line in content.splitlines()
+            if line.strip() and not line.strip().startswith("#")
+        ]
+        assert any(line.lower().startswith("pyyaml") for line in lines), (
+            "PyYAML not found in requirements-dev.txt"
+        )
