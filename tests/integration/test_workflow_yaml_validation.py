@@ -80,16 +80,18 @@ class TestWorkflowYAMLValidation:
         with open(path, 'r') as f:
             content = f.read()
         
+        content_lower = content.lower()
+
         # Should NOT contain chunking references
-        assert 'context_chunker' not in content.lower(), \
+        assert 'context_chunker' not in content_lower, \
             "PR agent workflow still references context chunker"
-        assert 'chunking' not in content.lower(), \
+        assert 'chunking' not in content_lower, \
             "PR agent workflow still has chunking logic"
-        
+
         # SHOULD contain essential functionality
-        assert 'parse-comments' in content.lower() or 'parse' in content, \
+        assert 'parse-comments' in content_lower or 'parse' in content_lower, \
             "PR agent workflow missing comment parsing"
-        assert 'python' in content.lower(), \
+        assert 'python' in content_lower, \
             "PR agent workflow missing Python setup"
 class TestRequirementsDevChanges:
     """Validate requirements-dev.txt modifications."""
