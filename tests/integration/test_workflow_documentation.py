@@ -118,14 +118,6 @@ class TestDocumentationStructure:
         return [line.strip() for line in doc_lines if line.lstrip().startswith('#')]
         """
         return [line.strip() for line in doc_lines if line.lstrip().startswith('#')]
-    def doc_lines(doc_content: str) -> List[str]:
-        """
-        Return the documentation content split into lines while preserving original line endings.
-        
-        Returns:
-            List[str]: Lines from `doc_content`; each element retains its original line ending when present.
-        """
-        return doc_content.splitlines(keepends=True)
         """
         Return the documentation content split into lines while preserving original line endings.
         
