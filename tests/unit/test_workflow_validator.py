@@ -135,7 +135,7 @@ on: push
                 assert result.is_valid is False
                 assert len(result.errors) == 1
                 assert "Workflow must be a dict" in result.errors[0]
-                assert result.workflow_data == {}
+                assert result.workflow_data == ["item1", "item2", "item3"]
             finally:
                 Path(f.name).unlink()
     
