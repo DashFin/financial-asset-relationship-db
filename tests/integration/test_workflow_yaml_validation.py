@@ -94,46 +94,14 @@ class TestRequirementsDevChanges:
     
 def test_pyyaml_present_in_requirements_dev():
     """
-    Check that PyYAML is declared in requirements-dev.txt.
-    
-    Reads the repository's requirements-dev.txt, ignores blank lines and comments, and asserts that a dependency beginning with "PyYAML" (case-insensitive) is present; fails the test if it is not found.
-    """
-    path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
-    with open(path, 'r') as f:
-        content = f.read()
-    
-    lines = [line.strip() for line in content.splitlines() 
-              if line.strip() and not line.strip().startswith('#')]
-    assert any(line.lower().startswith('pyyaml') for line in lines), \
-        "PyYAML not found in requirements-dev.txt"
-        """
-        Check that requirements-dev.txt exists at the repository root.
-        """
-        path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
-        assert path.exists(), "requirements-dev.txt not found"
-    
-def test_pyyaml_present_in_requirements_dev(self):
-    """
-    Check that PyYAML is declared in requirements-dev.txt.
-    
-    Reads the repository's requirements-dev.txt, ignores blank lines and comments, and asserts that a dependency beginning with "PyYAML" (case-insensitive) is present; fails the test if it is not found.
-    """
-    path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
-    with open(path, 'r') as f:
-        content = f.read()
-    
-    lines = [line.strip() for line in content.splitlines() 
-              if line.strip() and not line.strip().startswith('#')]
-    assert any(line.lower().startswith('pyyaml') for line in lines), \
-        "PyYAML not found in requirements-dev.txt"
-def test_pyyaml_present_in_requirements_dev():
-    """
     Ensure PyYAML is declared in requirements-dev.txt.
 
     Reads requirements-dev.txt, ignores blank lines and comments, and asserts
     that a dependency starting with "PyYAML" (case-insensitive) is present.
     """
     path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
+    assert path.exists(), "requirements-dev.txt not found"
+
     with open(path, "r", encoding="utf-8") as f:
         content = f.read()
 
@@ -145,101 +113,6 @@ def test_pyyaml_present_in_requirements_dev():
     assert any(line.lower().startswith("pyyaml") for line in lines), (
         "PyYAML not found in requirements-dev.txt"
     )
-    """
-    Check that PyYAML is declared in requirements-dev.txt.
-
-    Reads the repository's requirements-dev.txt, ignores blank lines and comments,
-    and asserts that a dependency beginning with "PyYAML" (case-insensitive) is present.
-    """
-    path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
-    with open(path, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    lines = [
-        line.strip()
-        for line in content.splitlines()
-        if line.strip() and not line.strip().startswith("#")
-    ]
-    assert any(line.lower().startswith("pyyaml") for line in lines), (
-        "PyYAML not found in requirements-dev.txt"
-    )
-    """
-    Check that PyYAML is declared in requirements-dev.txt.
-def test_pyyaml_present_in_requirements_dev():
-    """
-    Check that PyYAML is declared in requirements-dev.txt.
-
-    Reads the repository's requirements-dev.txt, ignores blank lines and comments,
-    and asserts that a dependency beginning with "PyYAML" (case-insensitive) is present.
-    """
-    path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
-    with open(path, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    lines = [
-        line.strip()
-        for line in content.splitlines()
-        if line.strip() and not line.strip().startswith("#")
-    ]
-    assert any(line.lower().startswith("pyyaml") for line in lines), (
-        "PyYAML not found in requirements-dev.txt"
-    )
-    Reads the repository's requirements-dev.txt, ignores blank lines and comments, and asserts that a dependency beginning with "PyYAML" (case-insensitive) is present; fails the test if it is not found.
-    """
-    path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
-    with open(path, 'r') as f:
-        content = f.read()
-    
-    lines = [line.strip() for line in content.splitlines() 
-              if line.strip() and not line.strip().startswith('#')]
-    assert any(line.lower().startswith('pyyaml') for line in lines), \
-        "PyYAML not found in requirements-dev.txt"
-# The single correct definition earlier in the file is retained.
-
-def test_pyyaml_present_in_requirements_dev():
-    """
-    Check that PyYAML is declared in requirements-dev.txt.
-    
-    Reads the repository's requirements-dev.txt, ignores blank lines and comments, and asserts that a dependency beginning with "PyYAML" (case-insensitive) is present; fails the test if it is not found.
-    """
-    path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
-    with open(path, 'r') as f:
-        content = f.read()
-    
-    lines = [line.strip() for line in content.splitlines() 
-              if line.strip() and not line.strip().startswith('#')]
-    assert any(line.lower().startswith('pyyaml') for line in lines), \
-def test_pyyaml_present_in_requirements_dev():
-    """
-    Check that PyYAML is declared in requirements-dev.txt.
-    
-    Reads the repository's requirements-dev.txt, ignores blank lines and comments, and asserts that a dependency beginning with "PyYAML" (case-insensitive) is present; fails the test if it is not found.
-    """
-    path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
-    with open(path, 'r') as f:
-        content = f.read()
-    
-    lines = [line.strip() for line in content.splitlines() 
-              if line.strip() and not line.strip().startswith('#')]
-    assert any(line.lower().startswith('pyyaml') for line in lines), \
-        "PyYAML not found in requirements-dev.txt"
-        for line in content.splitlines()
-        if line.strip() and not line.strip().startswith('#')
-    ]
-    assert any(line.lower().startswith('pyyaml') for line in lines), \
-        "PyYAML not found in requirements-dev.txt"
-        """
-        path = Path(__file__).parent.parent.parent / "requirements-dev.txt"
-        with open(path, 'r') as f:
-            content = f.read()
-        
-        lines = [line.strip() for line in content.splitlines() if line.strip() and not line.strip().startswith('#')]
-        assert any(line.lower().startswith('pyyaml') for line in lines), \
-            ln for ln in (
-                line.strip() for line in content.splitlines()
-            if ln and not ln.startswith('#') and ln.split()[0].split('==')[0].split('~=')[0].split('>=')[0].split('<=')[0].split('>')[0].split('<')[0].split(';')[0] == 'PyYAML'
-            if ln and not ln.startswith('#') and ln.split()[0].split('==')[0].split('~=')[0].split('>=')[0].split('<=')[0].split('>')[0].split('<')[0].split(';')[0] == 'PyYAML'
-        ), "PyYAML should be in requirements-dev.txt for workflow validation"
 
 
 if __name__ == "__main__":
