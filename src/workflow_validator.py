@@ -49,13 +49,6 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
 
         return ValidationResult(True, [], data)
     except FileNotFoundError:
-        return ValidationResult(False, [f"File not found: {workflow_path}"], {})
-    except yaml.YAMLError as e:
-        return ValidationResult(False, [f"Invalid YAML syntax: {e}"], {})
-    except Exception as e:
-        return ValidationResult(False, [f"An unexpected error occurred: {e}"], {})
-
-
 def validate_workflow(workflow_path: str) -> ValidationResult:
     """
     Validate a workflow YAML file at the given filesystem path.
