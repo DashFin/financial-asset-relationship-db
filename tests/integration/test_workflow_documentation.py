@@ -40,50 +40,50 @@ class TestDocumentationExists:
         assert DOC_FILE.suffix == ".md", "Documentation file should have .md extension"
 
 
+@pytest.fixture(scope='session')
+def doc_content() -> str:
+    """
+    Provide the full text of the documentation file for use by tests.
+
+    Returns:
+            doc_text (str): The complete contents of the documentation file.
+    """
+    with open(DOC_FILE, 'r', encoding='utf-8') as f:
+        return f.read()
+
+
+@pytest.fixture(scope='session')
+def doc_lines(doc_content: str) -> List[str]:
+    """
+    Split the documentation content into a list of lines.
+
+    The returned lines preserve original line endings.
+
+    Parameters:
+        doc_content (str): Full documentation text.
+
+    Returns:
+        List[str]: List of lines from `doc_content`, each retaining its trailing newline where present.
+    """
+    return doc_content.splitlines(keepends=True)
+
+
+@pytest.fixture(scope='session')
+def section_headers(doc_lines: List[str]) -> List[str]:
+    """
+    Collects Markdown header lines from a list of document lines.
+
+    Parameters:
+        doc_lines (List[str]): Lines of the document, typically including line endings.
+
+    Returns:
+        List[str]: Header lines (lines starting with one or more '#') with surrounding whitespace removed.
+    """
+    return [line.strip() for line in doc_lines if line.lstrip().startswith('#')]
+
+
 class TestDocumentationStructure:
     """Test the structure and formatting of the documentation."""
-    
-    @pytest.fixture(scope='session')
-    @pytest.fixture(scope='session')
-    def doc_content() -> str:
-        """
-        Provide the full text of the documentation file for use by tests.
-        
-        Returns:
-        	doc_text (str): The complete contents of the documentation file.
-        """
-        with open(DOC_FILE, 'r', encoding='utf-8') as f:
-            return f.read()
-
-    @pytest.fixture(scope='session')
-    # Move this fixture to module level (outside the class)
-    @pytest.fixture(scope='session')
-    def doc_lines(doc_content: str) -> List[str]:
-        """
-        Split the documentation content into a list of lines.
-        
-        The returned lines preserve original line endings.
-        
-        Parameters:
-            doc_content (str): Full documentation text.
-        
-        Returns:
-            List[str]: List of lines from `doc_content`, each retaining its trailing newline where present.
-        """
-        return doc_content.splitlines(keepends=True)
-    
-    @pytest.fixture(scope='session')
-    def section_headers(doc_lines: List[str]) -> List[str]:
-        """
-        Collects Markdown header lines from a list of document lines.
-        
-        Parameters:
-            doc_lines (List[str]): Lines of the document, typically including line endings.
-        
-        Returns:
-            List[str]: Header lines (lines starting with one or more '#') with surrounding whitespace removed.
-        """
-        return [line.strip() for line in doc_lines if line.lstrip().startswith('#')]
 
     def test_has_overview(self, section_headers: List[str]):
         """Test that there's an Overview section."""
