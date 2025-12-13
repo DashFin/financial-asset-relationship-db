@@ -130,7 +130,6 @@ class TestDocumentationStructure:
     def section_headers(doc_lines: List[str]) -> List[str]:
         """
         Extract markdown header lines from the given document lines.
-        
         Parameters:
             doc_lines (List[str]): Lines of a markdown document, as returned by splitlines(keepends=False) or similar.
         
