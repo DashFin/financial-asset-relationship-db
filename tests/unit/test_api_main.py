@@ -573,6 +573,10 @@ class TestErrorHandling:
 CORS_DEV_ORIGIN = "http://localhost:3000"
 # The development origin intentionally uses HTTP/localhost to mirror the default app
 # configuration; this is acceptable in tests and non-production scenarios.
+#
+# Security note: assertions in this module are test-only expectations. They are
+# intentionally suppressed for Bandit (B101) because they do not ship with
+# production code or optimized bytecode.
 
 
 @pytest.fixture
