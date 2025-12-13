@@ -12,8 +12,26 @@ class ValidationResult:
     Attributes:
         is_valid (bool): True when the workflow passed validation, False otherwise.
         errors (list[str]): List of error messages describing validation failures.
+import yaml
+from typing import List, Dict, Any
+
+
+class ValidationResult:
+    """
+    Represents the result of validating a workflow YAML file.
+
+    Attributes:
+        is_valid (bool): True when the workflow passed validation, False otherwise.
+        errors (list[str]): List of error messages describing validation failures.
         workflow_data (dict): Parsed YAML workflow data.
     """
+
+    def __init__(self, is_valid: bool, errors: List[str], workflow_data: Dict[str, Any]):
+        self.is_valid = is_valid
+        self.errors = errors
+        self.workflow_data = workflow_data
+
+
 def validate_workflow(workflow_path: str) -> ValidationResult:
     """
     Validate a workflow YAML file at the given filesystem path.
