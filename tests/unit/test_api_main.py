@@ -571,6 +571,8 @@ class TestErrorHandling:
 
 
 CORS_DEV_ORIGIN = "http://localhost:3000"
+# The development origin intentionally uses HTTP/localhost to mirror the default app
+# configuration; this is acceptable in tests and non-production scenarios.
 
 
 @pytest.fixture
@@ -583,11 +585,11 @@ def test_cors_headers_present(cors_client):
     """Ensure allowed origins receive the expected CORS headers."""
     # Localhost with HTTP is intentionally used to mirror the development CORS defaults.
     response = cors_client.get("/api/health", headers={"Origin": CORS_DEV_ORIGIN})
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_200_OK  # nosec B101
 
     # CORS middleware should echo the allowed origin and include credentials header.
-    assert response.headers["access-control-allow-origin"] == CORS_DEV_ORIGIN
-    assert response.headers["access-control-allow-credentials"] == "true"
+    assert response.headers["access-control-allow-origin"] == CORS_DEV_ORIGIN  # nosec B101
+    assert response.headers["access-control-allow-credentials"] == "true"  # nosec B101
 
 
 def test_cors_rejects_disallowed_origin(cors_client):
@@ -596,16 +598,16 @@ def test_cors_rejects_disallowed_origin(cors_client):
     response = cors_client.get("/api/health", headers={"Origin": disallowed_origin})
 
     # Endpoint still responds, but CORS headers should not be set for disallowed origins.
-    assert response.status_code == status.HTTP_200_OK
-    assert "access-control-allow-origin" not in response.headers
-    assert response.headers.get("access-control-allow-origin", "") != disallowed_origin
+    assert response.status_code == status.HTTP_200_OK  # nosec B101
+    assert "access-control-allow-origin" not in response.headers  # nosec B101
+    assert response.headers.get("access-control-allow-origin", "") != disallowed_origin  # nosec B101
 
 
 @patch.dict(os.environ, {"ENV": "development", "ALLOWED_ORIGINS": ""})
 def test_cors_allows_development_origins(cors_client):
     """Test CORS allows development origins explicitly in development mode."""
     response = cors_client.get("/api/health", headers={"Origin": CORS_DEV_ORIGIN})
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_200_OK  # nosec B101
 
 
 class TestAdditionalFields:
