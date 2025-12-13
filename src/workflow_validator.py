@@ -74,17 +74,10 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
             data = yaml.safe_load(f)
 
         if data is None:
-        with open(workflow_path, 'r', encoding='utf-8') as f:
-            data = yaml.safe_load(f)
-
-        if data is None:
             return ValidationResult(False, ["Workflow file is empty or contains only nulls."], {})
 
         if not isinstance(data, dict):
             return ValidationResult(False, ["Workflow must be a dict"], {})
-
-        if 'jobs' not in data:
-            return ValidationResult(False, ["Workflow must have a 'jobs' key"], data)
 
         if 'jobs' not in data:
             return ValidationResult(False, ["Workflow must have a 'jobs' key"], data)
