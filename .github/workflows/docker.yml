@@ -47,7 +47,7 @@ jobs:
   docker-build:
     name: Build and Test Docker Image
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -68,16 +68,16 @@ jobs:
       run: |
         # Run container in background
         docker run -d --name test-container -p 7860:7860 financial-asset-db:test
-        
+
         # Wait for container to be ready
         sleep 10
-        
+
         # Check if container is running
         docker ps | grep test-container
-        
+
         # Check container health (basic)
         docker inspect test-container --format='{{.State.Running}}'
-        
+
         # Clean up
         docker stop test-container
         docker rm test-container
@@ -86,19 +86,19 @@ jobs:
       run: |
         # Test docker compose configuration
         docker compose config
-        
+
         # Build with docker compose
         docker compose build
-        
+
         # Start services
         docker compose up -d
-        
+
         # Wait for services to be ready
         sleep 15
-        
+
         # Check services are running
         docker compose ps
-        
+
         # Clean up
         docker compose down
 
@@ -106,7 +106,7 @@ jobs:
     name: Docker Security Scan
     runs-on: ubuntu-latest
     needs: docker-build
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
