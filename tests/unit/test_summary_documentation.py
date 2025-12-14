@@ -2,7 +2,7 @@
 
 This module tests the summary documentation files created in this branch:
 - ENHANCED_TEST_SUMMARY.md
-- FINAL_TEST_SUMMARY.md  
+- FINAL_TEST_SUMMARY.md
 - TEST_DOCUMENTATION_SUMMARY.md
 
 Tests ensure:
@@ -26,7 +26,7 @@ class TestEnhancedTestSummary:
     def summary_path(self):
         """
         Provide the path to the enhanced test summary file.
-        
+
         Returns:
             Path: Path to "ENHANCED_TEST_SUMMARY.md".
         """
@@ -36,13 +36,13 @@ class TestEnhancedTestSummary:
     def summary_content(self, summary_path):
         """
         Load the text content of the summary file at the given path.
-        
+
         Parameters:
         	summary_path (Path): Path to the summary markdown file to read.
-        
+
         Returns:
         	str: The file content.
-        
+
         Raises:
         	AssertionError: If `summary_path` does not exist.
         """
@@ -62,7 +62,7 @@ class TestEnhancedTestSummary:
     def test_summary_has_main_title(self, summary_content):
         """
         Verify the summary contains the main title "Enhanced Test Suite Summary".
-        
+
         Parameters:
             summary_content (str): Full text content of the summary markdown file being tested.
         """
@@ -81,7 +81,7 @@ class TestEnhancedTestSummary:
     def test_summary_mentions_new_test_classes(self, summary_content):
         """
         Verify the summary contains the expected new test class names.
-        
+
         Checks that the summary content mentions TestDocumentationEdgeCases, TestDocumentationPerformance,
         TestDocumentationRobustness and TestDocumentationSchemaValidation.
         """
@@ -98,10 +98,10 @@ class TestEnhancedTestSummary:
     def test_summary_valid_markdown_headings(self, summary_content):
         """
         Assert that every Markdown heading in the provided content has a space after the leading `#` characters.
-        
+
         Parameters:
             summary_content (str): Full text of the summary Markdown file to validate.
-        
+
         Raises:
             AssertionError: If any heading line does not have a space after its `#` markers; the error message includes the failing line number.
         """
@@ -114,7 +114,7 @@ class TestEnhancedTestSummary:
     def test_summary_no_broken_formatting(self, summary_content):
         """
         Verify the summary contains no malformed Markdown heading markers (for example, consecutive `#` characters without the required space).
-        
+
         Parameters:
             summary_content (str): The full text content of the summary markdown file to validate.
         """
@@ -129,7 +129,7 @@ class TestFinalTestSummary:
     def summary_path(self):
         """
         Path to the final test summary markdown file.
-        
+
         Returns:
             Path: Path object pointing to "FINAL_TEST_SUMMARY.md".
         """
@@ -139,10 +139,10 @@ class TestFinalTestSummary:
     def summary_content(self, summary_path):
         """
         Read the UTF-8 text content of the specified summary file.
-        
+
         Parameters:
             summary_path (Path): Path to the summary markdown file.
-        
+
         Returns:
             str: The file content as a Unicode string.
         """
@@ -191,7 +191,7 @@ class TestFinalTestSummary:
     def test_summary_describes_test_classes(self, summary_content):
         """
         Verify the summary includes the expected test class names.
-        
+
         Asserts that the provided summary content mentions the test classes TestDependencyMatrix, TestSystemManifest and TestDocumentationConsistency.
         """
         assert "TestDependencyMatrix" in summary_content
@@ -208,9 +208,9 @@ class TestFinalTestSummary:
     def test_summary_valid_markdown_structure(self, summary_content):
         """
         Validate that a Markdown document's top-level heading is H1 when headings are present.
-        
+
         Parses the content for lines starting with '#' followed by a space and, if any headings are found, asserts the first heading's level is 1.
-        
+
         Parameters:
             summary_content (str): The Markdown document content to check.
         """
@@ -222,7 +222,7 @@ class TestFinalTestSummary:
                 match = re.match(r"^(#+)\s", line)
                 if match:
                     heading_levels.append(len(match.group(1)))
-        
+
         # Should start with h1
         if heading_levels:
             assert heading_levels[0] == 1, "Document should start with h1"
@@ -235,7 +235,7 @@ class TestDocumentationSummary:
     def summary_path(self):
         """
         Return the path to the documentation validation summary file.
-        
+
         Returns:
             Path: A pathlib.Path pointing to "TEST_DOCUMENTATION_SUMMARY.md".
         """
@@ -245,13 +245,13 @@ class TestDocumentationSummary:
     def summary_content(self, summary_path):
         """
         Read and return the UTF-8 contents of a summary markdown file.
-        
+
         Parameters:
             summary_path (Path): Path to the summary markdown file.
-        
+
         Returns:
             str: Contents of the file.
-        
+
         Raises:
             AssertionError: If `summary_path` does not exist.
         """
@@ -271,7 +271,7 @@ class TestDocumentationSummary:
     def test_summary_has_main_title(self, summary_content):
         """
         Verify the summary contains the expected main title.
-        
+
         Parameters:
         	summary_content (str): Full Markdown text of the summary file to be validated. The test checks for the presence of the line "# Documentation Validation Test Suite".
         """
@@ -289,7 +289,7 @@ class TestDocumentationSummary:
     def test_summary_has_test_coverage_section(self, summary_content):
         """
         Verify the summary includes a "## Test Coverage" heading.
-        
+
         Parameters:
         	summary_content (str): Full text content of the summary markdown file to check.
         """
@@ -309,7 +309,7 @@ class TestDocumentationSummary:
     def test_summary_has_execution_results(self, summary_content):
         """
         Verify the summary contains a section or mention of test execution results.
-        
+
         Checks for the exact heading "Test Execution Results" or a case-insensitive occurrence of the word "execution".
         """
         assert "Test Execution Results" in summary_content or "execution" in summary_content.lower()
@@ -342,12 +342,12 @@ class TestDocumentationSummary:
     def test_summary_valid_markdown_lists(self, summary_content):
         """
         Verify Markdown list items use a space after the marker.
-        
+
         Checks each line of the provided Markdown content and asserts that any unordered list marker ('-' or '*') is followed by a single space (a lone marker is allowed).
-        
+
         Parameters:
             summary_content (str): The Markdown document text to validate.
-        
+
         Raises:
             AssertionError: If a list item marker is not followed by a space, with the failing line included in the message.
         """
@@ -368,15 +368,18 @@ class TestSummaryFilesConsistency:
     def all_summaries(self):
         """
         Load the contents of the three expected summary markdown files that exist in the current directory.
-        
+
         Only files among ENHANCED_TEST_SUMMARY.md, FINAL_TEST_SUMMARY.md and TEST_DOCUMENTATION_SUMMARY.md that are present are included.
-        
+
         Returns:
             dict: Mapping of filename (str) to file content (str) decoded as UTF-8.
         """
         summaries = {}
-        for filename in ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md", 
-                        "TEST_DOCUMENTATION_SUMMARY.md"]:
+        for filename in [
+            "ENHANCED_TEST_SUMMARY.md",
+            "FINAL_TEST_SUMMARY.md",
+            "TEST_DOCUMENTATION_SUMMARY.md"
+        ]:
             path = Path(filename)
             if path.exists():
                 with open(path, encoding="utf-8") as f:
@@ -411,7 +414,7 @@ class TestSummaryFilesConsistency:
     def test_summaries_use_consistent_terminology(self, all_summaries):
         """
         Verify each summary contains the word "test".
-        
+
         Parameters:
         	all_summaries (dict): Mapping from filename (str or Path) to the file's text content (str); each value is checked for the presence of the word "test" (case-insensitive).
         """
@@ -436,8 +439,11 @@ class TestSummaryFilesEdgeCases:
     def test_summaries_have_reasonable_length(self):
         """Test that summary files are not excessively long."""
         max_lines = 500
-        for filename in ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md",
-                        "TEST_DOCUMENTATION_SUMMARY.md"]:
+        for filename in [
+            "ENHANCED_TEST_SUMMARY.md",
+            "FINAL_TEST_SUMMARY.md",
+            "TEST_DOCUMENTATION_SUMMARY.md"
+        ]:
             path = Path(filename)
             if path.exists():
                 with open(path, encoding="utf-8") as f:
@@ -448,12 +454,15 @@ class TestSummaryFilesEdgeCases:
     def test_summaries_have_reasonable_file_size(self):
         """
         Verify that each summary markdown file present is smaller than 100 KB.
-        
+
         Checks ENHANCED_TEST_SUMMARY.md, FINAL_TEST_SUMMARY.md and TEST_DOCUMENTATION_SUMMARY.md (if they exist) and asserts that each file's size is less than 100 kilobytes. Fails with an AssertionError naming the offending file and its size in KB if a file exceeds the limit.
         """
         max_size_kb = 100  # 100KB
-        for filename in ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md",
-                        "TEST_DOCUMENTATION_SUMMARY.md"]:
+        for filename in [
+            "ENHANCED_TEST_SUMMARY.md",
+            "FINAL_TEST_SUMMARY.md",
+            "TEST_DOCUMENTATION_SUMMARY.md"
+        ]:
             path = Path(filename)
             if path.exists():
                 size_kb = path.stat().st_size / 1024
@@ -462,13 +471,16 @@ class TestSummaryFilesEdgeCases:
 
     def test_summaries_no_excessive_blank_lines(self):
         """Test that summaries don't have excessive blank lines."""
-        for filename in ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md",
-                        "TEST_DOCUMENTATION_SUMMARY.md"]:
+        for filename in [
+            "ENHANCED_TEST_SUMMARY.md",
+            "FINAL_TEST_SUMMARY.md",
+            "TEST_DOCUMENTATION_SUMMARY.md"
+        ]:
             path = Path(filename)
             if path.exists():
                 with open(path, encoding="utf-8") as f:
                     lines = f.readlines()
-                
+
                 max_consecutive = 0
                 current = 0
                 for line in lines:
@@ -477,19 +489,22 @@ class TestSummaryFilesEdgeCases:
                         max_consecutive = max(max_consecutive, current)
                     else:
                         current = 0
-                
+
                 assert max_consecutive < 4, \
                     f"{filename} has too many consecutive blank lines: {max_consecutive}"
 
     def test_summaries_markdown_links_format(self):
         """Test that markdown links (if present) are properly formatted."""
-        for filename in ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md",
-                        "TEST_DOCUMENTATION_SUMMARY.md"]:
+        for filename in [
+            "ENHANCED_TEST_SUMMARY.md",
+            "FINAL_TEST_SUMMARY.md",
+            "TEST_DOCUMENTATION_SUMMARY.md"
+        ]:
             path = Path(filename)
             if path.exists():
                 with open(path, encoding="utf-8") as f:
                     content = f.read()
-                
+
                 # Find markdown links: [text](url)
                 links = re.findall(r'\[([^\]]+)\]\(([^\)]+)\)', content)
                 for link_text, url in links:
@@ -511,7 +526,7 @@ class TestSummaryReadability:
             "FINAL_TEST_SUMMARY.md": "Comprehensive Test Generation Summary",
             "TEST_DOCUMENTATION_SUMMARY.md": "Documentation Validation Test Suite"
         }
-        
+
         for filename, expected_title in expected_titles.items():
             path = Path(filename)
             if path.exists():
@@ -522,13 +537,16 @@ class TestSummaryReadability:
 
     def test_summaries_have_multiple_sections(self):
         """Test that summaries are well-structured with multiple sections."""
-        for filename in ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md",
-                        "TEST_DOCUMENTATION_SUMMARY.md"]:
+        for filename in [
+            "ENHANCED_TEST_SUMMARY.md",
+            "FINAL_TEST_SUMMARY.md",
+            "TEST_DOCUMENTATION_SUMMARY.md"
+        ]:
             path = Path(filename)
             if path.exists():
                 with open(path, encoding="utf-8") as f:
                     content = f.read()
-                
+
                 # Count h2 sections
                 h2_count = content.count("\n## ")
                 assert h2_count >= 2, \
@@ -536,13 +554,16 @@ class TestSummaryReadability:
 
     def test_summaries_use_proper_capitalization(self):
         """Test that summary titles use proper capitalization."""
-        for filename in ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md",
-                        "TEST_DOCUMENTATION_SUMMARY.md"]:
+        for filename in [
+            "ENHANCED_TEST_SUMMARY.md",
+            "FINAL_TEST_SUMMARY.md",
+            "TEST_DOCUMENTATION_SUMMARY.md"
+        ]:
             path = Path(filename)
             if path.exists():
                 with open(path, encoding="utf-8") as f:
                     lines = f.readlines()
-                
+
                 # Check headings for proper capitalization
                 for line in lines:
                     if line.startswith(("# ", "## ")):
@@ -551,3 +572,4 @@ class TestSummaryReadability:
                             # First character should be uppercase
                             assert heading[0].isupper() or heading[0].isdigit(), \
                                 f"{filename}: Heading should start with capital: {line}"
+
