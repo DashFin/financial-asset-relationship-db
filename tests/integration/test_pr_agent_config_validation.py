@@ -149,7 +149,10 @@ class TestPRAgentConfigYAMLValidity:
 if line.lstrip().startswith('-'):
     continue
 
-                # Skip list items (lines starting with -)
+# Pop stack entries that are at deeper indentation (strictly greater)
+# Only pop when we've moved back up in hierarchy
+while path_stack and path_stack[-1][0] > indent:
+    path_stack.pop()
                 if key.startswith('-'):
                     continue
 
