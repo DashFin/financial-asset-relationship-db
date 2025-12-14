@@ -1,9 +1,12 @@
-"""
-Tests for requirements-dev.txt development dependencies file.
+"""Tests for requirements-dev.txt development dependencies file.
 
 This test suite validates that the development dependencies file is properly
 formatted, contains required packages, and has valid version specifications.
+
+Note: Bandit B101 (assert_used) is suppressed for this test file as assert
+statements are the standard and required pattern in pytest test files.
 """
+# nosec B101  # Suppress Bandit assert warnings - assert is correct in pytest tests
 
 import re
 from pathlib import Path
