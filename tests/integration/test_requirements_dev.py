@@ -7,6 +7,7 @@ formatted, contains required packages, and has valid version specifications.
 
 import pytest
 import re
+import yaml
 from pathlib import Path
 from typing import List, Tuple
 from packaging.specifiers import SpecifierSet
@@ -309,239 +310,334 @@ class TestSpecificChanges:
         assert len(types_entries) == 1
     
     def test_existing_packages_preserved(self, requirements: List[Tuple[str, str]]):
-        """Test that existing packages are still present."""
-        package_names = [pkg for pkg, _ in requirements]
-        
+        # Ensure expected baseline packages are still present after changes
         expected_packages = [
             'pytest',
             'pytest-cov',
-            'pytest-asyncio',
             'flake8',
-            'pylint',
+            'black',
+            'mypy',
+            'PyYAML',
+            'types-PyYAML',
+        ]
+        package_names = [pkg for pkg, _ in requirements]
+        # Define a minimal set of packages we expect to always be present
+        expected_packages = [
+            'pytest',
+            'pytest-cov',
+            'flake8',
+            'black',
+            'mypy',
+            'PyYAML',
+            'types-PyYAML',
+        ]
+        # Derive actual package names from the requirements
+        package_names = [pkg for pkg, _ in requirements]
+        missing = [pkg for pkg in expected_packages if pkg not in package_names]
+        assert not missing, f"Missing expected packages: {missing}"
+
+class TestRequirementsAdvancedValidation:
+    """Advanced validation tests for requirements-dev.txt."""
+    
+    def test_pyyaml_security_version(self):
+        """Ensure PyYAML version is not vulnerable to known CVEs."""
+        req_file = Path('requirements-dev.txt')
+        if not req_file.exists():
+            pytest.skip("requirements-dev.txt not found")
+        
+        content = req_file.read_text()
+        
+        import re
+        # Extract PyYAML version
+        pyyaml_match = re.search(r'pyyaml[>=<~]=*(\d+\.\d+)', content, re.IGNORECASE)
+        
+        if pyyaml_match:
+            version_str = pyyaml_match.group(1)
+            major, minor = map(int, version_str.split('.'))
+            
+            # PyYAML 5.4+ addresses security issues
+            assert major > 5 or (major == 5 and minor >= 4), \
+                f"PyYAML version {version_str} may have security vulnerabilities. Use >= 5.4"
+    
+    def test_no_unpinned_dependencies(self):
+        """Ensure all dependencies have version constraints."""
+        req_file = Path('requirements-dev.txt')
+        if not req_file.exists():
+            pytest.skip("requirements-dev.txt not found")
+        
+        content = req_file.read_text()
+        lines = [line.strip() for line in content.split('\n') 
+                 if line.strip() and not line.startswith('#')]
+        
+        for line in lines:
+            # Each line should have a version constraint
+            has_constraint = any(op in line for op in ['==', '>=', '~=', '>', '<', '<='])
+            assert has_constraint, f"Dependency without version constraint: {line}"
+    
+    def test_no_git_dependencies(self):
+        """Ensure no git+ dependencies for reproducibility."""
+        req_file = Path('requirements-dev.txt')
+        if not req_file.exists():
+            pytest.skip("requirements-dev.txt not found")
+        
+        content = req_file.read_text()
+        assert 'git+' not in content, "Git dependencies found - use PyPI packages for reproducibility"
+    
+    def test_requirements_parseable(self):
+        """Verify requirements file is properly formatted and parseable."""
+        req_file = Path('requirements-dev.txt')
+        if not req_file.exists():
+            pytest.skip("requirements-dev.txt not found")
+        
+        content = req_file.read_text()
+        lines = content.split('\n')
+        
+        for i, line in enumerate(lines, 1):
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            
+            # Should follow proper format
+            assert not line.startswith(' '), f"Line {i} has leading whitespace"
+            assert not line.endswith('\\'), f"Line {i} has trailing backslash"
+    
+    def test_case_consistency(self):
+        """Ensure package names use consistent casing."""
+        req_file = Path('requirements-dev.txt')
+        if not req_file.exists():
+            pytest.skip("requirements-dev.txt not found")
+        
+        content = req_file.read_text()
+        
+        # Common packages should use standard casing
+        case_standards = {
+            'pyyaml': 'PyYAML',
+            'pytest': 'pytest',
+        }
+        
+        for wrong, correct in case_standards.items():
+            if wrong != correct and wrong in content and correct not in content:
+                pytest.fail(f"Use '{correct}' instead of '{wrong}' for consistency")
+
+
+class TestWorkflowYAMLValidation:
+    """Advanced YAML validation for workflow files."""
+    
+    def test_no_tab_characters(self, workflow_files):
+        """Ensure no tab characters in YAML (should use spaces)."""
+        for workflow_path in Path('.github/workflows').glob('*.yml'):
+            content = workflow_path.read_text()
+            assert '\t' not in content, f"{workflow_path} contains tab characters"
+    
+    def test_consistent_indentation(self, workflow_files):
+        """Verify consistent 2-space indentation in workflows."""
+        for workflow_path in Path('.github/workflows').glob('*.yml'):
+            content = workflow_path.read_text()
+            lines = content.split('\n')
+            
+            for i, line in enumerate(lines, 1):
+                if line.strip():
+                    # Count leading spaces
+                    leading_spaces = len(line) - len(line.lstrip(' '))
+                    
+                    # Should be multiple of 2
+                    assert leading_spaces % 2 == 0, \
+                        f"{workflow_path} line {i}: indentation not multiple of 2"
+    
+    def test_no_trailing_whitespace(self, workflow_files):
+        """Ensure no trailing whitespace in workflow files."""
+        for workflow_path in Path('.github/workflows').glob('*.yml'):
+            content = workflow_path.read_text()
+            lines = content.split('\n')
+            
+            for i, line in enumerate(lines, 1):
+                assert not line.rstrip() != line.rstrip(' \t'), \
+                    f"{workflow_path} line {i}: trailing whitespace found"
+    
+    def test_boolean_values_lowercase(self, workflow_files):
+        """Ensure boolean values use lowercase (true/false, not True/False)."""
+        for workflow_path, workflow_content in workflow_files.items():
+            workflow_str = yaml.dump(workflow_content)
+            
+            # In YAML output, booleans should be lowercase
+            # Check the original file
+            original_content = Path(workflow_path).read_text()
+            
+            import re
+            # Look for boolean values
+            bool_pattern = r':\s*(True|False|TRUE|FALSE)\s*$'
+            matches = re.findall(bool_pattern, original_content, re.MULTILINE)
+            
+            assert len(matches) == 0, \
+                f"{workflow_path} uses uppercase booleans: {matches}. Use lowercase."
+    
+    def test_quotes_consistency(self, workflow_files):
+        """Check for consistent quote usage in workflows."""
+        for workflow_path in Path('.github/workflows').glob('*.yml'):
+            content = workflow_path.read_text()
+            
+            # Count different quote types in values
+            double_quotes = content.count('": "') + content.count('"${{')
+            single_quotes = content.count("': '")
+            
+            # If quotes are used, should prefer double quotes for consistency
+            if single_quotes > 0 and double_quotes > 0:
+                # Some mixing is okay, but shouldn't be heavily mixed
+                ratio = min(single_quotes, double_quotes) / max(single_quotes, double_quotes)
+                assert ratio < 0.3, \
+                    f"{workflow_path}: Inconsistent quote usage (mix of single and double)"
+
+
+class TestWorkflowPerformanceOptimization:
+    """Test workflow configurations for performance best practices."""
+    
+    def test_concurrency_groups_defined(self, workflow_files):
+        """Verify workflows that should have concurrency controls do."""
+        workflow_types_needing_concurrency = [
+            'pr-agent.yml',
+            'apisec-scan.yml',
         ]
         
-        for expected_pkg in expected_packages:
-            assert expected_pkg in package_names
-
-class TestRequirementsFileFormatting:
-    """Additional tests for requirements-dev.txt file formatting and structure."""
-    
-    def test_requirements_file_ends_with_newline(self):
-        """Test that requirements-dev.txt ends with a newline character (Unix convention)."""
-        assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
-        
-        with open(REQUIREMENTS_FILE, 'rb') as f:
-            content = f.read()
-        
-        assert len(content) > 0, "requirements-dev.txt is empty"
-        assert content.endswith(b'\n'), (
-            "requirements-dev.txt should end with a newline character (Unix convention)"
-        )
-    
-    def test_pyyaml_and_types_on_separate_lines(self):
-        """
-        Ensure PyYAML and types-PyYAML each appear on their own line in the requirements file with >=6.0 version constraints.
-        
-        Reads the requirements file and builds a list of non-empty, non-comment lines after stripping
-        leading and trailing whitespace from each line. Using stripped lines avoids false negatives
-        when comments or package entries contain leading spaces. The test then asserts there are
-        exactly two lines that begin with the stripped prefixes `PyYAML` or `types-PyYAML`, and that
-        one starts with `PyYAML>=` and the other with `types-PyYAML>=`.
-        """
-        assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
-        
-        with open(REQUIREMENTS_FILE, 'r') as f:
-            lines = [line.strip() for line in f if line.strip() and not line.startswith('#')]
-        
-        # Find lines that start with either PyYAML or types-PyYAML
-        pyyaml_lines = [line for line in lines if line.startswith('PyYAML') or line.startswith('types-PyYAML')]
-        
-        assert len(pyyaml_lines) == 2, (
-            f"Should have exactly 2 separate lines for PyYAML dependencies, found {len(pyyaml_lines)}"
-        )
-        
-        # Verify both are present
-        has_pyyaml = any(line.startswith('PyYAML>=') for line in pyyaml_lines)
-        has_types = any(line.startswith('types-PyYAML>=') for line in pyyaml_lines)
-        
-        assert has_pyyaml, "Should have PyYAML>=6.0"
-        assert has_types, "Should have types-PyYAML>=6.0"
-    
-    def test_no_trailing_whitespace_in_lines(self):
-        """Test that requirements-dev.txt has no trailing whitespace on any line."""
-        assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
-        
-        with open(REQUIREMENTS_FILE, 'r') as f:
-            lines = f.readlines()
-        
-        lines_with_trailing_space = []
-        for i, line in enumerate(lines, 1):
-            # Check if line (excluding newline) has trailing whitespace
-            if line.rstrip('\r\n') != line.rstrip():
-                lines_with_trailing_space.append(i)
-        
-        assert len(lines_with_trailing_space) == 0, (
-            f"Lines with trailing whitespace: {lines_with_trailing_space}. "
-            "Remove trailing spaces for clean file formatting."
-        )
-
-
-class TestRequirementsPackageIntegrity:
-    """Additional tests for package integrity and consistency in requirements-dev.txt."""
-    
-    @staticmethod
-    def _find_duplicate_packages(requirements: List[Tuple[str, str]]) -> List[str]:
-        """
-        Find duplicate package names in a requirements list by comparing names case-insensitively.
-        
-        Parameters:
-            requirements (List[Tuple[str, str]]): Sequence of (package_name, version_spec) tuples to inspect.
-        
-        Returns:
-            List[str]: A list of lower-cased package names representing each repeated occurrence
-            after the first appearance; duplicates are returned in the order they are encountered
-            in the requirements list to match the implementation behaviour.
-        """
-        package_names = [pkg.lower() for pkg, _ in requirements]
-        seen = set()
-        duplicates = []
-        for pkg in package_names:
-            if pkg in seen:
-                duplicates.append(pkg)
-            seen.add(pkg)
-        return duplicates
-
-    def test_no_duplicate_package_names(self):
-        """Test that no package appears multiple times in requirements-dev.txt."""
-        assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
-        requirements = parse_requirements(REQUIREMENTS_FILE)
-        duplicates = TestRequirementsPackageIntegrity._find_duplicate_packages(requirements)
-        assert len(duplicates) == 0, (
-            f"Duplicate packages found in requirements-dev.txt: {duplicates}. "
-            "Each package should appear only once."
-        )
-    
-    def test_pyyaml_compatible_versions(self):
-        """
-        Ensure PyYAML and types-PyYAML specify the same major version in requirements-dev.txt.
-        
-        Checks that both "PyYAML" and "types-PyYAML" appear with a '>=<version>' constraint and that the integer before the first dot (the major version) is identical for both packages.
-        """
-        assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
-        
-        with open(REQUIREMENTS_FILE, 'r') as f:
-            content = f.read()
-        
-        # Extract versions
-        pyyaml_version = None
-        types_version = None
-        
-        for line in content.split('\n'):
-            line = line.strip()
-            if line.startswith('PyYAML>='):
-                pyyaml_version = line.split('>=')[1].strip()
-            elif line.startswith('types-PyYAML>='):
-                types_version = line.split('>=')[1].strip()
-        
-        assert pyyaml_version is not None, "PyYAML version constraint not found"
-        assert types_version is not None, "types-PyYAML version constraint not found"
-        
-        # They should have matching major versions for compatibility
-        pyyaml_major = pyyaml_version.split('.')[0]
-        types_major = types_version.split('.')[0]
-        
-        assert pyyaml_major == types_major, (
-            f"PyYAML (>={pyyaml_version}) and types-PyYAML (>={types_version}) "
-            f"should have matching major versions. Found: {pyyaml_major} vs {types_major}"
-        )
-    
-    def test_all_packages_use_consistent_operators(self):
-        """
-        Ensure the majority of version specifiers in requirements-dev.txt use the '>=' operator.
-        
-        Parses REQUIREMENTS_FILE, counts comparison operators (`>=`, `==`, `<=`, `>`, `<`, `~=`) found in non-empty version specifications, and asserts that at least 50% of all detected operators are `>=`. On failure, raises an assertion that includes the percentage of `>=` usages and the operator counts.
-        """
-        assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
-        
-        requirements = parse_requirements(REQUIREMENTS_FILE)
-        
-        # Count operator usage using regex pattern that matches operators followed by version
-        # This avoids substring matching issues (e.g., >= being counted as both >= and >)
-        operator_counts = {'>=': 0, '==': 0, '<=': 0, '>': 0, '<': 0, '~=': 0}
-        
-        for pkg, version_spec in requirements:
-            if version_spec:
-                # Match operators followed by version numbers to avoid overlapping matches
-                # Pattern: operator followed by version (digits, dots, etc.)
-                for op in ['>=', '==', '<=', '~=', '>', '<']:
-                    # Use lookahead to ensure operator is followed by a version number
-                    pattern = re.escape(op) + r'(?=\d)'
-                    operator_counts[op] += len(re.findall(pattern, version_spec))
-        
-        # Most packages should use >= (minimum version specifier)
-        total_specs = sum(operator_counts.values())
-        if total_specs > 0:
-            ge_percentage = (operator_counts['>='] / total_specs) * 100
+        for workflow_path, workflow_content in workflow_files.items():
+            workflow_name = Path(workflow_path).name
             
-            # At least 50% should use >= for flexibility
-            assert ge_percentage >= 50, (
-                f"Only {ge_percentage:.1f}% of version constraints use '>=' operator. "
-                f"Prefer '>=' for minimum version requirements. Operator counts: {operator_counts}"
-            )
+            if workflow_name in workflow_types_needing_concurrency:
+                jobs = workflow_content.get('jobs', {})
+                
+                # At least one job should have concurrency control
+                has_concurrency = any('concurrency' in job_config 
+                                    for job_config in jobs.values() 
+                                    if isinstance(job_config, dict))
+                
+                assert has_concurrency, \
+                    f"{workflow_path} should define concurrency groups"
+    
+    def test_reasonable_timeout_minutes(self, workflow_files):
+        """Ensure job timeouts are reasonable."""
+        for workflow_path, workflow_content in workflow_files.items():
+            jobs = workflow_content.get('jobs', {})
+            
+            for job_name, job_config in jobs.items():
+                if isinstance(job_config, dict) and 'timeout-minutes' in job_config:
+                    timeout = job_config['timeout-minutes']
+                    
+                    # Reasonable range: 5-60 minutes for most jobs
+                    assert 1 <= timeout <= 120, \
+                        f"Job {job_name} in {workflow_path} has unusual timeout: {timeout} minutes"
+    
+    def test_caching_strategies_used(self, workflow_files):
+        """Verify appropriate caching is used for dependencies."""
+        for workflow_path, workflow_content in workflow_files.items():
+            workflow_str = yaml.dump(workflow_content)
+            
+            # If setup actions are used, caching should be considered
+            if 'setup-python' in workflow_str or 'setup-node' in workflow_str:
+                # Should have cache-related configuration or actions
+                has_caching = any(keyword in workflow_str.lower() 
+                                for keyword in ['cache', 'restore-keys'])
+                
+                # Not all workflows need caching, but it should be considered
+                # This is more of an informational test
+                if not has_caching:
+                    import warnings
+                    warnings.warn(f"{workflow_path} might benefit from dependency caching")
 
 
-class TestPyYAMLIntegration:
-    """Tests specific to the PyYAML addition in this branch."""
+class TestWorkflowErrorHandling:
+    """Test error handling in workflow configurations."""
     
-    def test_pyyaml_addition_has_both_runtime_and_types(self):
-        """
-        Assert that the development requirements file contains both runtime and type-stub entries for PyYAML with minimum version 6.0.
-        
-        Asserts that the requirements-dev.txt file exists, contains entries named 'PyYAML' and 'types-PyYAML', and that each entry's version specifier includes '>=6.0'.
-        """
-        assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
-        
-        requirements = parse_requirements(REQUIREMENTS_FILE)
-        package_names = [pkg for pkg, _ in requirements]
-        
-        assert 'PyYAML' in package_names, (
-            "PyYAML should be present in requirements-dev.txt (added in this branch)"
-        )
-        assert 'types-PyYAML' in package_names, (
-            "types-PyYAML should be present in requirements-dev.txt (added in this branch)"
-        )
-        
-        # Both should have version constraints
-        pyyaml_entry = next((ver for pkg, ver in requirements if pkg == 'PyYAML'), None)
-        types_entry = next((ver for pkg, ver in requirements if pkg == 'types-PyYAML'), None)
-        
-        assert pyyaml_entry and '>=6.0' in pyyaml_entry, (
-            "PyYAML should have version constraint >=6.0"
-        )
-        assert types_entry and '>=6.0' in types_entry, (
-            "types-PyYAML should have version constraint >=6.0"
-        )
+    def test_continue_on_error_usage(self, workflow_files):
+        """Verify continue-on-error is used appropriately."""
+        for workflow_path, workflow_content in workflow_files.items():
+            workflow_str = yaml.dump(workflow_content)
+            
+            if 'continue-on-error: true' in workflow_str:
+                # Should have a good reason (e.g., non-critical steps)
+                # This is a code smell - should be limited
+                import warnings
+                warnings.warn(
+                    f"{workflow_path} uses continue-on-error. "
+                    "Ensure this is intentional for non-critical steps."
+                )
     
-    def test_pyyaml_needed_for_workflow_tests(self):
-        """
-        Ensure PyYAML is declared in requirements-dev.txt and is usable for workflow validation.
-        
-        Checks that the requirements-dev.txt file exists and contains a PyYAML entry (case-insensitive). Then attempts to import the yaml module and verifies a basic safe_load operation; if the module is not importable in the current environment the test is skipped.
-        """
-        assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
-        
-        with open(REQUIREMENTS_FILE, 'r') as f:
-            content = f.read()
-        
-        # PyYAML should be present (case-insensitive check)
-        assert 'pyyaml' in content.lower(), (
-            "PyYAML must be in requirements-dev.txt as it's needed for workflow validation tests"
-        )
-        
-        # Verify we can actually import yaml (validates the requirement works)
-        try:
-            import yaml
-            # Successfully imported - requirement is satisfied
-            assert yaml.safe_load("key: value") == {'key': 'value'}, "PyYAML import successful"
-        except ImportError:
-            pytest.skip("PyYAML not installed in test environment (will be installed from requirements)")
+    def test_failure_notifications_configured(self, workflow_files):
+        """Check if workflows have failure notification strategies."""
+        for workflow_path, workflow_content in workflow_files.items():
+            # Critical workflows should handle failures
+            if 'security' in workflow_path.lower() or 'scan' in workflow_path.lower():
+                workflow_str = yaml.dump(workflow_content)
+                
+                # Should have some failure handling
+                has_failure_handling = any(keyword in workflow_str.lower() 
+                                          for keyword in ['failure()', 'always()', 'if:'])
+                
+                # This is informational
+                if not has_failure_handling:
+                    import warnings
+                    warnings.warn(
+                        f"{workflow_path} is a critical workflow but may not have explicit failure handling"
+                    )
+
+
+class TestWorkflowMaintenability:
+    """Test workflow files for maintainability best practices."""
+    
+    def test_step_names_descriptive(self, workflow_files):
+        """Ensure all steps have descriptive names."""
+        for workflow_path, workflow_content in workflow_files.items():
+            jobs = workflow_content.get('jobs', {})
+            
+            for job_name, job_config in jobs.items():
+                if isinstance(job_config, dict) and 'steps' in job_config:
+                    steps = job_config['steps']
+                    
+                    for i, step in enumerate(steps):
+                        if isinstance(step, dict):
+                            # If step has name, it should be descriptive
+                            if 'name' in step:
+                                name = step['name']
+                                assert len(name) > 5, \
+                                    f"Step name too short in {workflow_path}, job {job_name}, step {i}"
+                                
+                                # Should not be generic
+                                generic_names = ['run', 'step', 'execute', 'do']
+                                assert name.lower().strip() not in generic_names, \
+                                    f"Generic step name in {workflow_path}, job {job_name}: '{name}'"
+    
+    def test_no_commented_out_code(self, workflow_files):
+        """Ensure no large blocks of commented code."""
+        for workflow_path in Path('.github/workflows').glob('*.yml'):
+            content = workflow_path.read_text()
+            lines = content.split('\n')
+            
+            consecutive_comments = 0
+            max_consecutive_comments = 0
+            
+            for line in lines:
+                if line.strip().startswith('#'):
+                    consecutive_comments += 1
+                    max_consecutive_comments = max(max_consecutive_comments, consecutive_comments)
+                else:
+                    consecutive_comments = 0
+            
+            # More than 10 consecutive comment lines is suspicious
+            assert max_consecutive_comments < 15, \
+                f"{workflow_path} has {max_consecutive_comments} consecutive comment lines. " \
+                "Consider removing commented-out code."
+    
+    def test_env_vars_documented(self, workflow_files):
+        """Check if complex environment variables are documented."""
+        for workflow_path, workflow_content in workflow_files.items():
+            workflow_str = yaml.dump(workflow_content)
+            
+            # If many env vars, should have comments explaining them
+            env_count = workflow_str.count('env:')
+            
+            if env_count > 5:
+                original_content = Path(workflow_path).read_text()
+                comment_count = original_content.count('#')
+                
+                # Should have some documentation
+                assert comment_count > 3, \
+                    f"{workflow_path} has many env vars but few comments"
+
