@@ -38,10 +38,10 @@ class TestEnhancedTestSummary:
         Load the text content of the summary file at the given path.
 
         Parameters:
-        	summary_path (Path): Path to the summary markdown file to read.
+                summary_path (Path): Path to the summary markdown file to read.
 
         Returns:
-        	str: The file content.
+                str: The file content.
 
         Raises:
                 AssertionError: If `summary_path` does not exist.
@@ -374,11 +374,7 @@ class TestSummaryFilesConsistency:
             dict: Mapping of filename (str) to file content (str) decoded as UTF-8.
         """
         summaries = {}
-        for filename in [
-            "ENHANCED_TEST_SUMMARY.md",
-            "FINAL_TEST_SUMMARY.md",
-            "TEST_DOCUMENTATION_SUMMARY.md"
-        ]:
+        for filename in ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md", "TEST_DOCUMENTATION_SUMMARY.md"]:
             path = Path(filename)
             if path.exists():
                 with open(path, encoding="utf-8") as f:
@@ -432,11 +428,7 @@ class TestSummaryFilesEdgeCases:
     def test_summaries_have_reasonable_length(self):
         """Test that summary files are not excessively long."""
         max_lines = 500
-        for filename in [
-            "ENHANCED_TEST_SUMMARY.md",
-            "FINAL_TEST_SUMMARY.md",
-            "TEST_DOCUMENTATION_SUMMARY.md"
-        ]:
+        for filename in ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md", "TEST_DOCUMENTATION_SUMMARY.md"]:
             path = Path(filename)
             if path.exists():
                 with open(path, encoding="utf-8") as f:
@@ -450,11 +442,7 @@ class TestSummaryFilesEdgeCases:
         Checks ENHANCED_TEST_SUMMARY.md, FINAL_TEST_SUMMARY.md and TEST_DOCUMENTATION_SUMMARY.md (if they exist) and asserts that each file's size is less than 100 kilobytes. Fails with an AssertionError naming the offending file and its size in KB if a file exceeds the limit.
         """
         max_size_kb = 100  # 100KB
-        for filename in [
-            "ENHANCED_TEST_SUMMARY.md",
-            "FINAL_TEST_SUMMARY.md",
-            "TEST_DOCUMENTATION_SUMMARY.md"
-        ]:
+        for filename in ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md", "TEST_DOCUMENTATION_SUMMARY.md"]:
             path = Path(filename)
             if path.exists():
                 size_kb = path.stat().st_size / 1024
@@ -462,11 +450,7 @@ class TestSummaryFilesEdgeCases:
 
     def test_summaries_no_excessive_blank_lines(self):
         """Test that summaries don't have excessive blank lines."""
-        for filename in [
-            "ENHANCED_TEST_SUMMARY.md",
-            "FINAL_TEST_SUMMARY.md",
-            "TEST_DOCUMENTATION_SUMMARY.md"
-        ]:
+        for filename in ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md", "TEST_DOCUMENTATION_SUMMARY.md"]:
             path = Path(filename)
             if path.exists():
                 with open(path, encoding="utf-8") as f:
@@ -481,16 +465,11 @@ class TestSummaryFilesEdgeCases:
                     else:
                         current = 0
 
-                assert max_consecutive < 4, \
-                    f"{filename} has too many consecutive blank lines: {max_consecutive}"
+                assert max_consecutive < 4, f"{filename} has too many consecutive blank lines: {max_consecutive}"
 
     def test_summaries_markdown_links_format(self):
         """Test that markdown links (if present) are properly formatted."""
-        for filename in [
-            "ENHANCED_TEST_SUMMARY.md",
-            "FINAL_TEST_SUMMARY.md",
-            "TEST_DOCUMENTATION_SUMMARY.md"
-        ]:
+        for filename in ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md", "TEST_DOCUMENTATION_SUMMARY.md"]:
             path = Path(filename)
             if path.exists():
                 with open(path, encoding="utf-8") as f:
@@ -525,11 +504,7 @@ class TestSummaryReadability:
 
     def test_summaries_have_multiple_sections(self):
         """Test that summaries are well-structured with multiple sections."""
-        for filename in [
-            "ENHANCED_TEST_SUMMARY.md",
-            "FINAL_TEST_SUMMARY.md",
-            "TEST_DOCUMENTATION_SUMMARY.md"
-        ]:
+        for filename in ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md", "TEST_DOCUMENTATION_SUMMARY.md"]:
             path = Path(filename)
             if path.exists():
                 with open(path, encoding="utf-8") as f:
@@ -541,11 +516,7 @@ class TestSummaryReadability:
 
     def test_summaries_use_proper_capitalization(self):
         """Test that summary titles use proper capitalization."""
-        for filename in [
-            "ENHANCED_TEST_SUMMARY.md",
-            "FINAL_TEST_SUMMARY.md",
-            "TEST_DOCUMENTATION_SUMMARY.md"
-        ]:
+        for filename in ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md", "TEST_DOCUMENTATION_SUMMARY.md"]:
             path = Path(filename)
             if path.exists():
                 with open(path, encoding="utf-8") as f:
@@ -557,6 +528,6 @@ class TestSummaryReadability:
                         heading = line.lstrip("#").strip()
                         if heading:
                             # First character should be uppercase
-                            assert heading[0].isupper() or heading[0].isdigit(), \
-                                f"{filename}: Heading should start with capital: {line}"
-
+                            assert (
+                                heading[0].isupper() or heading[0].isdigit()
+                            ), f"{filename}: Heading should start with capital: {line}"

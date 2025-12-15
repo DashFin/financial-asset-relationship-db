@@ -9,6 +9,7 @@ This module contains comprehensive unit tests for the repository layer including
 """
 
 import pytest
+
 pytest.importorskip("sqlalchemy")
 
 from sqlalchemy import create_engine

@@ -41,22 +41,19 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
     """
     requirements = []
     import re as _re
-    
+
     try:
-        with open(file_path, 'r', encoding='utf-8') as file_handle:
+        with open(file_path, "r", encoding="utf-8") as file_handle:
             for line in file_handle:
                 line = line.strip()
 
-                if not line or line.startswith('#'):
+                if not line or line.startswith("#"):
                     continue
 
                 try:
                     req = Requirement(line)
                 except (ValueError, TypeError) as parse_error:
-                    print(
-                        f"Could not parse requirement: {line} "
-                        f"due to {parse_error}"
-                    )
+                    print(f"Could not parse requirement: {line} " f"due to {parse_error}")
                     continue
 
                 # Preserve the package token as written in the
@@ -64,31 +61,23 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                 # substring before any specifier/operator/extras/marker
                 # characters.
                 # Drop environment markers
-                raw_pkg_token = line.split(';', 1)[0]
+                raw_pkg_token = line.split(";", 1)[0]
                 # Drop extras
-                raw_pkg_token = raw_pkg_token.split('[', 1)[0]
+                raw_pkg_token = raw_pkg_token.split("[", 1)[0]
                 # Split at the first occurrence of any operator character
                 # (<,>,=,!,~) or comma
-                pkg_part = _re.split(
-                    r'(?=[<>=!~,])', raw_pkg_token, 1
-                )[0].strip()
+                pkg_part = _re.split(r"(?=[<>=!~,])", raw_pkg_token, 1)[0].strip()
                 pkg = pkg_part or req.name.strip()
 
                 specifier_str = str(req.specifier).strip()
                 # Normalize specifier string by removing spaces around
                 # commas so SpecifierSet accepts it consistently
                 if specifier_str:
-                    specifier_str = ','.join(
-                        s.strip()
-                        for s in specifier_str.split(',')
-                        if s.strip()
-                    )
+                    specifier_str = ",".join(s.strip() for s in specifier_str.split(",") if s.strip())
 
                 requirements.append((pkg, specifier_str))
     except OSError as os_error:
-        raise OSError(
-            f"Could not open requirements file '{file_path}': {os_error}"
-        ) from os_error
+        raise OSError(f"Could not open requirements file '{file_path}': {os_error}") from os_error
 
     return requirements
 
@@ -155,7 +144,7 @@ class TestRequiredPackages:
     def package_names(self, parsed_requirements) -> List[str]:
         """Extract just the package names."""
         return [pkg for pkg, _ in parsed_requirements]
-    
+
     def test_has_pytest(self, package_names: List[str]):
         """Test that pytest is included."""
         assert "pytest" in package_names
