@@ -408,9 +408,9 @@ class TestPrAgentWorkflow:
         """Test that pr-agent-trigger job checks out the code."""
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
-        
+
         checkout_steps = [
-            s for s in steps 
+            s for s in steps
             if s.get("uses", "").startswith("actions/checkout")
         ]
         assert len(checkout_steps) > 0, "PR Agent trigger job must check out the repository"
@@ -447,12 +447,12 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
-        
+
         checkout_steps = [
-            s for s in steps 
+            s for s in steps
             if s.get("uses", "").startswith("actions/checkout")
         ]
-        
+
         for step in checkout_steps:
             step_with = step.get("with", {})
 def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
@@ -495,7 +495,7 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
             if s.get("uses", "").startswith("actions/setup-python")
         ]
         assert len(python_steps) > 0, "pr-agent-trigger job must set up Python"
-    
+
     def test_pr_agent_has_node_setup(self, pr_agent_workflow: Dict[str, Any]):
         """
         Ensure the pr-agent trigger job configures Node.js.
@@ -549,7 +549,7 @@ def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
             f"Found duplicate step names: {duplicate_names}. "
             "Each step should have a unique name."
         )
-    
+
     def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
         """
         Validate that any actions/checkout steps in the pr-agent-trigger job specify a non-negative integer fetch-depth when present.
