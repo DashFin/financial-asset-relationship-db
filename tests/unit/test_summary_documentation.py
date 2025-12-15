@@ -44,7 +44,7 @@ class TestEnhancedTestSummary:
         	str: The file content.
 
         Raises:
-        	AssertionError: If `summary_path` does not exist.
+                AssertionError: If `summary_path` does not exist.
         """
         assert summary_path.exists(), "ENHANCED_TEST_SUMMARY.md not found"
         with open(summary_path, encoding="utf-8") as f:
@@ -273,7 +273,7 @@ class TestDocumentationSummary:
         Verify the summary contains the expected main title.
 
         Parameters:
-        	summary_content (str): Full Markdown text of the summary file to be validated. The test checks for the presence of the line "# Documentation Validation Test Suite".
+                summary_content (str): Full Markdown text of the summary file to be validated. The test checks for the presence of the line "# Documentation Validation Test Suite".
         """
         assert "# Documentation Validation Test Suite" in summary_content
 
@@ -291,7 +291,7 @@ class TestDocumentationSummary:
         Verify the summary includes a "## Test Coverage" heading.
 
         Parameters:
-        	summary_content (str): Full text content of the summary markdown file to check.
+                summary_content (str): Full text content of the summary markdown file to check.
         """
         assert "## Test Coverage" in summary_content
 
@@ -301,7 +301,7 @@ class TestDocumentationSummary:
             "TestDependencyMatrix",
             "TestSystemManifest",
             "TestDocumentationConsistency",
-            "TestDocumentationRealisticContent"
+            "TestDocumentationRealisticContent",
         ]
         for test_class in test_classes:
             assert test_class in summary_content, f"Missing test class: {test_class}"
@@ -357,8 +357,7 @@ class TestDocumentationSummary:
                 # List items should have space after marker
                 stripped = line.lstrip()
                 if stripped.startswith("-"):
-                    assert stripped.startswith("- ") or stripped == "-", \
-                        f"List item should have space: {line}"
+                    assert stripped.startswith("- ") or stripped == "-", f"List item should have space: {line}"
 
 
 class TestSummaryFilesConsistency:
@@ -388,11 +387,7 @@ class TestSummaryFilesConsistency:
 
     def test_all_summary_files_exist(self):
         """Test that all expected summary files exist."""
-        expected_files = [
-            "ENHANCED_TEST_SUMMARY.md",
-            "FINAL_TEST_SUMMARY.md",
-            "TEST_DOCUMENTATION_SUMMARY.md"
-        ]
+        expected_files = ["ENHANCED_TEST_SUMMARY.md", "FINAL_TEST_SUMMARY.md", "TEST_DOCUMENTATION_SUMMARY.md"]
         for filename in expected_files:
             assert Path(filename).exists(), f"Missing summary file: {filename}"
 
@@ -400,23 +395,21 @@ class TestSummaryFilesConsistency:
         """Test that all summaries mention the same test file."""
         test_file = "test_documentation_validation.py"
         for filename, content in all_summaries.items():
-            assert test_file in content, \
-                f"{filename} should mention {test_file}"
+            assert test_file in content, f"{filename} should mention {test_file}"
 
     def test_summaries_mention_same_documentation_files(self, all_summaries):
         """Test that all summaries mention the same documentation files."""
         doc_files = ["dependencyMatrix.md", "systemManifest.md"]
         for filename, content in all_summaries.items():
             mentions = sum(1 for df in doc_files if df in content)
-            assert mentions >= 1, \
-                f"{filename} should mention at least one documentation file"
+            assert mentions >= 1, f"{filename} should mention at least one documentation file"
 
     def test_summaries_use_consistent_terminology(self, all_summaries):
         """
         Verify each summary contains the word "test".
 
         Parameters:
-        	all_summaries (dict): Mapping from filename (str or Path) to the file's text content (str); each value is checked for the presence of the word "test" (case-insensitive).
+                all_summaries (dict): Mapping from filename (str or Path) to the file's text content (str); each value is checked for the presence of the word "test" (case-insensitive).
         """
         # All should use "test" terminology consistently
         for filename, content in all_summaries.items():
@@ -448,8 +441,7 @@ class TestSummaryFilesEdgeCases:
             if path.exists():
                 with open(path, encoding="utf-8") as f:
                     line_count = sum(1 for _ in f)
-                assert line_count < max_lines, \
-                    f"{filename} is too long: {line_count} lines"
+                assert line_count < max_lines, f"{filename} is too long: {line_count} lines"
 
     def test_summaries_have_reasonable_file_size(self):
         """
@@ -466,8 +458,7 @@ class TestSummaryFilesEdgeCases:
             path = Path(filename)
             if path.exists():
                 size_kb = path.stat().st_size / 1024
-                assert size_kb < max_size_kb, \
-                    f"{filename} is too large: {size_kb:.1f}KB"
+                assert size_kb < max_size_kb, f"{filename} is too large: {size_kb:.1f}KB"
 
     def test_summaries_no_excessive_blank_lines(self):
         """Test that summaries don't have excessive blank lines."""
@@ -506,14 +497,12 @@ class TestSummaryFilesEdgeCases:
                     content = f.read()
 
                 # Find markdown links: [text](url)
-                links = re.findall(r'\[([^\]]+)\]\(([^\)]+)\)', content)
+                links = re.findall(r"\[([^\]]+)\]\(([^\)]+)\)", content)
                 for link_text, url in links:
                     # Link text should not be empty
-                    assert len(link_text.strip()) > 0, \
-                        f"{filename} has link with empty text"
+                    assert len(link_text.strip()) > 0, f"{filename} has link with empty text"
                     # URL should not be empty
-                    assert len(url.strip()) > 0, \
-                        f"{filename} has link with empty URL"
+                    assert len(url.strip()) > 0, f"{filename} has link with empty URL"
 
 
 class TestSummaryReadability:
@@ -524,7 +513,7 @@ class TestSummaryReadability:
         expected_titles = {
             "ENHANCED_TEST_SUMMARY.md": "Enhanced Test Suite Summary",
             "FINAL_TEST_SUMMARY.md": "Comprehensive Test Generation Summary",
-            "TEST_DOCUMENTATION_SUMMARY.md": "Documentation Validation Test Suite"
+            "TEST_DOCUMENTATION_SUMMARY.md": "Documentation Validation Test Suite",
         }
 
         for filename, expected_title in expected_titles.items():
@@ -532,8 +521,7 @@ class TestSummaryReadability:
             if path.exists():
                 with open(path, encoding="utf-8") as f:
                     first_line = f.readline().strip()
-                assert expected_title in first_line, \
-                    f"{filename} should have title containing '{expected_title}'"
+                assert expected_title in first_line, f"{filename} should have title containing '{expected_title}'"
 
     def test_summaries_have_multiple_sections(self):
         """Test that summaries are well-structured with multiple sections."""
@@ -549,8 +537,7 @@ class TestSummaryReadability:
 
                 # Count h2 sections
                 h2_count = content.count("\n## ")
-                assert h2_count >= 2, \
-                    f"{filename} should have at least 2 sections"
+                assert h2_count >= 2, f"{filename} should have at least 2 sections"
 
     def test_summaries_use_proper_capitalization(self):
         """Test that summary titles use proper capitalization."""
