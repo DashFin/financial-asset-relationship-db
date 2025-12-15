@@ -83,7 +83,11 @@ class TestMarkdownFormatting:
             assert re.match(r'^#{1,6} .+', line), f"Heading '{line}' should have space after #"
     
     def test_no_trailing_whitespace(self, summary_lines: List[str]):
-        """Test that lines don't have trailing whitespace."""
+        """
+        Ensure no non-blank line ends with trailing whitespace.
+        
+        Asserts that there are zero non-empty lines with trailing spaces or tabs; on failure the assertion message reports the number of offending lines.
+        """
         lines_with_trailing = [
             (i + 1, line) for i, line in enumerate(summary_lines)
             if line.rstrip() != line and line.strip() != ''
@@ -92,7 +96,12 @@ class TestMarkdownFormatting:
             f"Found {len(lines_with_trailing)} lines with trailing whitespace"
     
     def test_code_blocks_properly_closed(self, summary_lines: List[str]):
-        """Test that code blocks are properly opened and closed."""
+        """
+        Verify that every fenced code block delimited by triple backticks in the summary is properly closed.
+        
+        Parameters:
+            summary_lines (List[str]): Lines of the Markdown summary file to inspect.
+        """
         open_block = False
         for i, line in enumerate(summary_lines, start=1):
             stripped = line.strip()
@@ -102,7 +111,14 @@ class TestMarkdownFormatting:
         assert open_block is False, "Code blocks not properly closed or mismatched triple backticks detected"
     
     def test_lists_properly_formatted(self, summary_lines: List[str]):
-        """Test that bullet lists use consistent markers."""
+        """
+        Validate that Markdown bullet list items use even indentation (multiples of two spaces).
+        
+        Scans the provided file lines for list items starting with '-', '*' or '+' and asserts each item's leading space count is divisible by two; raises an AssertionError for any list item with odd indentation.
+        
+        Parameters:
+            summary_lines (List[str]): Lines of the Markdown summary file to inspect.
+        """
         list_lines = [line for line in summary_lines if re.match(r'^\s*[-*+] ', line)]
         if list_lines:
             # Check that indentation is consistent
@@ -174,7 +190,17 @@ class TestCodeExamples:
             assert 'pytest' in cmd, "pytest command should contain 'pytest'"
     
     def test_file_paths_in_examples_exist(self, summary_content: str):
-        """Test that referenced file paths in examples actually exist."""
+        """
+        Verify that test file paths referenced in documentation examples exist in the repository.
+        
+        Searches the provided documentation content for occurrences of paths matching the pattern
+        `tests/integration/test_<name>.py`, resolves each match against the repository root (three
+        levels up from this test file) and fails with a single consolidated message listing any
+        missing files.
+        
+        Parameters:
+            summary_content (str): The raw content of the documentation file to scan for referenced paths.
+        """
         # Look for test file references
         test_file_pattern = r'tests/integration/test_\w+\.py'
         mentioned_files = re.findall(test_file_pattern, summary_content)
@@ -238,7 +264,11 @@ class TestDocumentMaintainability:
             f"Too many long lines ({len(long_lines)}), consider breaking them up"
     
     def test_has_clear_structure(self, summary_content: str):
-        """Test that document has clear hierarchical structure."""
+        """
+        Verify the document contains a clear hierarchical heading structure.
+        
+        Requires at least one level-1 heading (H1) and at least three level-2 headings (H2); the test fails if these counts are not met.
+        """
         h1_count = len(re.findall(r'^# ', summary_content, re.MULTILINE))
         h2_count = len(re.findall(r'^## ', summary_content, re.MULTILINE))
         
@@ -261,10 +291,32 @@ class TestLinkValidation:
     """Test suite for link validation."""
 
     def test_internal_links_valid(self, summary_lines: List[str], summary_content: str):
+        """
+        Validates that every GitHub-style internal link in the Markdown points to an existing header.
+        
+        Checks internal links of the form [text](#anchor) in the full document content against the set of GitHub Flavoured Markdown anchors derived from the document headers; the test fails if any anchor does not match an existing header.
+        
+        Parameters:
+            summary_lines (List[str]): The file split into lines; used to extract headers.
+            summary_content (str): The full file content; used to extract internal link targets.
+        """
         import unicodedata
 
         def _to_gfm_anchor(text: str) -> str:
             # Lowercase
+            """
+            Convert a header string into a GitHub Flavored Markdown (GFM) anchor.
+            
+            The returned string is a lowercase, URL-friendly anchor suitable for internal Markdown links:
+            diacritics are removed, punctuation and special characters are stripped (except hyphens),
+            whitespace is collapsed to single hyphens, and leading/trailing hyphens are removed.
+            
+            Parameters:
+                text (str): Header text to convert into an anchor.
+            
+            Returns:
+                anchor (str): A GFM-compatible anchor string for use in internal links (e.g. "my-section-title").
+            """
             s = text.strip().lower()
             # Normalize unicode to NFKD and remove diacritics
             s = unicodedata.normalize('NFKD', s)
@@ -383,3 +435,266 @@ class TestEdgeCases:
         assert len(endings) == 1, "File should use a single line ending style throughout"
         # Additionally ensure the file uses recognized line endings
         assert endings.pop() in {'LF', 'CRLF'}, "File should use LF or CRLF line endings"
+
+class TestDocumentationMarkdownQuality:
+    """Advanced markdown quality tests for documentation files."""
+    
+    def test_no_broken_internal_links(self):
+        """Verify internal markdown links are not broken."""
+        doc_files = list(Path('.').glob('*.md'))
+
+        for doc_file in doc_files:
+            content = doc_file.read_text(encoding='utf-8')
+
+            # Find markdown links
+            import re
+            from urllib.parse import unquote
+            links = re.findall(r'\[([^\]]+)\]\(([^)]+)\)', content)
+
+            for link_text, link_url in links:
+                # Check internal links (not http/https)
+                # Skip external links (only validate local paths)
+                if link_url.startswith(('http://', 'https://', 'mailto:')):
+                    continue
+                parts = link_url.split('#', 1)
+                target_path = unquote(parts[0].strip())
+                if not target_path:
+                    continue
+                link_path = Path(target_path)
+                if not link_path.is_absolute():
+                    link_path = doc_file.parent / target_path
+                else:
+                    link_path = link_path
+                assert link_path.exists(), \
+                    f"Broken link in {doc_file}: [{link_text}]({link_url}) -> {link_path}"
+    
+    def test_consistent_heading_style(self):
+        """Ensure consistent heading style (ATX style with #)."""
+        summary_files = list(Path('.').glob('*SUMMARY.md'))
+        
+        for doc_file in summary_files:
+            content = doc_file.read_text(encoding='utf-8')
+            lines = content.split('\n')
+            
+            # Should use ATX style (###) not Setext style (===)
+            setext_headers = sum(1 for line in lines if line.strip() and 
+                               all(c in '=-' for c in line.strip()))
+            
+            # Allow some, but should mostly use ATX
+            assert setext_headers < 5, \
+
+            code_blocks = re.findall(r'```\s*([A-Za-z0-9_+-]*)', content)
+
+            if code_blocks:
+                # At least 70% should have language specified
+                with_language = sum(1 for lang in code_blocks if lang.strip())
+                total = len(code_blocks)
+
+                percentage = (with_language / total * 100) if total > 0 else 100
+
+                assert percentage >= 70, (
+                    f"{doc_file}: Only {percentage:.0f}% of code blocks specify language. "
+                    "Add language identifiers (bash, python, yaml, etc.)"
+                )
+    
+    def test_no_very_long_lines(self):
+        """Check for reasonably wrapped lines in markdown."""
+        summary_files = list(Path('.').glob('*SUMMARY.md'))
+        
+        for doc_file in summary_files:
+            content = doc_file.read_text(encoding='utf-8')
+            lines = content.split('\n')
+            
+            for i, line in enumerate(lines, 1):
+                # Ignore code blocks and tables
+                if line.strip().startswith(('```', '|', '#')):
+                    continue
+                
+                # Regular prose lines shouldn't be extremely long
+                assert len(line) < 500, \
+                    f"{doc_file} line {i}: Very long line ({len(line)} chars). Consider wrapping."
+    
+    def test_lists_properly_formatted(self):
+        """Verify markdown lists follow proper formatting."""
+        doc_files = list(Path('.').glob('*SUMMARY.md'))
+        
+        for doc_file in doc_files:
+            content = doc_file.read_text(encoding='utf-8')
+            lines = content.split('\n')
+            
+            for i, line in enumerate(lines, 1):
+                # Check list items
+                stripped = line.lstrip()
+                if stripped.startswith(('-', '*', '+')):
+                    # Should have space after marker
+                    assert stripped[1:2] == ' ', \
+                        f"{doc_file} line {i}: Missing space after list marker"
+                
+                # Numbered lists
+                import re
+                if re.match(r'^\s*\d+\.', line):
+                    # Should have space after number
+                    assert re.match(r'^\s*\d+\.\s', line), \
+                        f"{doc_file} line {i}: Missing space after numbered list marker"
+    
+    def test_statistics_tables_valid(self):
+        """Verify statistics tables in summaries are properly formatted."""
+        summary_files = list(Path('.').glob('*SUMMARY.md'))
+        
+        for doc_file in summary_files:
+            content = doc_file.read_text(encoding='utf-8')
+            
+            # Find tables
+            import re
+            table_pattern = r'\|.*\|.*\n\|[-:\s|]+\|'
+            tables = re.findall(table_pattern, content)
+            
+            if tables:
+                # Tables should be properly formatted
+                for table in tables:
+                    lines = table.split('\n')
+                    if len(lines) >= 2:
+                        # Header and separator should have same number of columns
+                        header_cols = lines[0].count('|') - 1
+                        separator_cols = lines[1].count('|') - 1
+                        
+                        assert header_cols == separator_cols, \
+                            f"{doc_file}: Table column mismatch"
+
+
+class TestTestSummaryCompleteness:
+    """Verify test summary documentation is complete and accurate."""
+    
+    def test_summary_documents_all_test_files(self):
+        """Ensure summary documents all generated test files."""
+        summary_file = Path('COMPREHENSIVE_ADDITIONAL_TESTS_SUMMARY.md')
+        if not summary_file.exists():
+            pytest.skip("Comprehensive summary not found")
+        
+        content = summary_file.read_text(encoding='utf-8')
+        
+        # Should mention key test files
+        test_files = [
+            'test-utils.test.ts',
+            'MetricsDashboard.test.tsx',
+            'NetworkVisualization.test.tsx',
+            'page.test.tsx',
+            'api.test.ts',
+            'component-integration.test.tsx',
+        ]
+        
+        missing = [f for f in test_files if f not in content]
+        assert len(missing) == 0, \
+            f"Summary missing test files: {missing}"
+    
+    def test_summary_has_running_instructions(self):
+        """Verify summary includes instructions for running tests."""
+        summary_files = [
+            Path('COMPREHENSIVE_ADDITIONAL_TESTS_SUMMARY.md'),
+            Path('ADDITIONAL_TESTS_SUMMARY.md'),
+        ]
+        
+        for summary_file in summary_files:
+            if not summary_file.exists():
+                continue
+            
+            content = summary_file.read_text(encoding='utf-8').lower()
+            
+            # Should have run commands
+            has_instructions = any(keyword in content for keyword in [
+                'npm test',
+                'pytest',
+                'running',
+                'execute',
+            ])
+            
+            assert has_instructions, \
+                f"{summary_file} missing test execution instructions"
+    
+    def test_summary_has_statistics(self):
+        """Verify summary includes test statistics."""
+        summary_file = Path('COMPREHENSIVE_ADDITIONAL_TESTS_SUMMARY.md')
+        if not summary_file.exists():
+            pytest.skip("Comprehensive summary not found")
+        
+        content = summary_file.read_text(encoding='utf-8')
+        
+        # Should have statistics
+        stat_indicators = ['tests', 'lines', 'coverage', 'cases']
+        
+        found_stats = sum(1 for indicator in stat_indicators if indicator in content.lower())
+        
+        assert found_stats >= 3, \
+            "Summary should include test statistics"
+    
+    def test_summaries_are_dated(self):
+        """Ensure summary files have generation dates."""
+        summary_files = list(Path('.').glob('*SUMMARY.md'))
+        
+        for summary_file in summary_files:
+            content = summary_file.read_text(encoding='utf-8')
+            
+            # Should have date information
+            import re
+            date_patterns = [
+                r'202[3-9]-\d{2}-\d{2}',  # YYYY-MM-DD
+                r'Generated:.*202[3-9]',  # "Generated: " followed by year
+                r'\d{1,2}/\d{1,2}/202[3-9]',  # MM/DD/YYYY
+            ]
+            
+            has_date = any(re.search(pattern, content) for pattern in date_patterns)
+            
+            assert has_date, \
+                f"{summary_file} should include generation date"
+
+
+class TestWorkflowDocumentationAlignment:
+    """Test alignment between workflows and their documentation."""
+    
+    def test_documented_workflows_exist(self):
+        """Verify all documented workflows actually exist."""
+        summary_file = Path('TEST_GENERATION_WORKFLOW_SUMMARY.md')
+        if not summary_file.exists():
+            pytest.skip("Workflow summary not found")
+        
+        content = summary_file.read_text(encoding='utf-8')
+        
+        # Extract workflow file names mentioned
+        import re
+        # Normalize and validate workflow filenames mentioned in the docs
+        raw_mentions = re.findall(r'\.github/workflows/([A-Za-z0-9_.\-]+\.ya?ml)', content)
+        normalized_mentions = []
+        for m in raw_mentions:
+            name = m.strip()
+            # Basic validation: non-empty, no path traversal, reasonable filename
+            if not name or '..' in name or name.startswith(('/', '\\')) or '/' in name or '\\' in name:
+                continue
+            normalized_mentions.append(name)
+
+        # De-duplicate mentions
+        normalized_mentions = list(dict.fromkeys(normalized_mentions))
+
+        # Collect missing files for a single, informative assertion
+        missing_workflows = []
+        for workflow_file in normalized_mentions:
+            workflow_path = Path('.github') / 'workflows' / workflow_file
+            try:
+                exists = workflow_path.exists()
+            except OSError:
+                exists = False
+            if not exists:
+                missing_workflows.append(str(workflow_path))
+
+        assert not missing_workflows, (
+            "Documented workflow(s) not found:\n"
+            + "\n".join(f"- {p}" for p in missing_workflows)
+        )
+    
+            if all_content:
+                # Key workflows should be mentioned
+                key_workflows = ['pr-agent.yml', 'label.yml', 'greetings.yml']
+                for workflow in key_workflows:
+                    if (workflow_dir / workflow).exists():
+                        pattern = rf'\b{re.escape(workflow)}\b'
+                        assert re.search(pattern, all_content) is not None, \
+                            f"Key workflow {workflow} not documented in summaries"
