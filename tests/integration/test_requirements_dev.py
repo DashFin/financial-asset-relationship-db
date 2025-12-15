@@ -99,8 +99,6 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                 requirements.append((pkg.strip(), version_spec))
     
     return requirements
-
-
 class TestRequirementsFileExists:
     """Test that requirements-dev.txt exists and is readable."""
     
@@ -199,9 +197,16 @@ class TestVersionSpecifications:
     
     @pytest.fixture
     def requirements(self) -> List[Tuple[str, str]]:
-        """Parse and return requirements."""
+        """
+        Return the parsed list of (package_name, version_spec) pairs from the development requirements file.
+        
+        Each tuple contains the package name and a single version specifier string; the version spec is an empty string when no specifier is present.
+        
+        Returns:
+            List[Tuple[str, str]]: Parsed requirements as (package_name, version_spec) pairs.
+        """
         return parse_requirements(REQUIREMENTS_FILE)
-    
+
     def test_all_packages_have_versions(self, requirements: List[Tuple[str, str]]):
         """
         Verify every parsed requirement includes a version specifier.
@@ -216,7 +221,21 @@ class TestVersionSpecifications:
         assert len(packages_without_versions) == 0
     
     def test_version_format_valid(self, requirements: List[Tuple[str, str]]):
-        """Test that version specifications use valid PEP 440 format."""
+        """
+        Validate that each non-empty version specification conforms to PEP 440 using
+        packaging.specifiers.SpecifierSet.
+
+        For every (package, version_spec) tuple where `version_spec` is non-empty, this test
+        attempts to construct a SpecifierSet from the string. If the specifier is invalid,
+        packaging will raise packaging.specifiers.InvalidSpecifier (or a related packaging
+        exception), and the test will fail with a message identifying the package and the
+        offending specifier.
+
+        Parameters:
+            requirements (List[Tuple[str, str]]): Iterable of (package_name, version_spec)
+                tuples produced by `parse_requirements`, where `version_spec` may be an empty
+                string.
+        """
         for pkg, ver_spec in requirements:
             if ver_spec:
                 try:
@@ -351,7 +370,15 @@ class TestRequirementsFileFormatting:
         )
     
     def test_pyyaml_and_types_on_separate_lines(self):
-        """Test that PyYAML and types-PyYAML are on separate lines (not combined)."""
+        """
+        Ensure PyYAML and types-PyYAML each appear on their own line in the requirements file with >=6.0 version constraints.
+        
+        Reads the requirements file and builds a list of non-empty, non-comment lines after stripping
+        leading and trailing whitespace from each line. Using stripped lines avoids false negatives
+        when comments or package entries contain leading spaces. The test then asserts there are
+        exactly two lines that begin with the stripped prefixes `PyYAML` or `types-PyYAML`, and that
+        one starts with `PyYAML>=` and the other with `types-PyYAML>=`.
+        """
         assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
         
         with open(REQUIREMENTS_FILE, 'r') as f:
@@ -461,7 +488,11 @@ class TestRequirementsPackageIntegrity:
         )
     
     def test_all_packages_use_consistent_operators(self):
-        """Test that version constraints use consistent comparison operators (prefer >=)."""
+        """
+        Ensure the majority of version specifiers in requirements-dev.txt use the '>=' operator.
+        
+        Parses REQUIREMENTS_FILE, counts comparison operators (`>=`, `==`, `<=`, `>`, `<`, `~=`) found in non-empty version specifications, and asserts that at least 50% of all detected operators are `>=`. On failure, raises an assertion that includes the percentage of `>=` usages and the operator counts.
+        """
         assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
         
         requirements = parse_requirements(REQUIREMENTS_FILE)

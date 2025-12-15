@@ -96,7 +96,12 @@ class TestMarkdownFormatting:
             f"Found {len(lines_with_trailing)} lines with trailing whitespace"
     
     def test_code_blocks_properly_closed(self, summary_lines: List[str]):
-        """Test that code blocks are properly opened and closed."""
+        """
+        Verify that every fenced code block delimited by triple backticks in the summary is properly closed.
+        
+        Parameters:
+            summary_lines (List[str]): Lines of the Markdown summary file to inspect.
+        """
         open_block = False
         for i, line in enumerate(summary_lines, start=1):
             stripped = line.strip()
@@ -219,7 +224,7 @@ class TestDocumentCompleteness:
     def test_has_summary_statistics(self, summary_content: str):
         """Test that document includes statistics about tests."""
         # Should mention numbers of tests, classes, etc.
-        has_numbers = re.search(r'\d+\s+(test|class)', summary_content, re.IGNORECASE)
+        has_numbers = re.search(r'\d+\s+(tests?|class(?:es)?)', summary_content, re.IGNORECASE)
         assert has_numbers is not None, \
             "Document should include statistics about test coverage"
     
@@ -256,7 +261,11 @@ class TestDocumentMaintainability:
             f"Too many long lines ({len(long_lines)}), consider breaking them up"
     
     def test_has_clear_structure(self, summary_content: str):
-        """Test that document has clear hierarchical structure."""
+        """
+        Verify the document contains a clear hierarchical heading structure.
+        
+        Requires at least one level-1 heading (H1) and at least three level-2 headings (H2); the test fails if these counts are not met.
+        """
         h1_count = len(re.findall(r'^# ', summary_content, re.MULTILINE))
         h2_count = len(re.findall(r'^## ', summary_content, re.MULTILINE))
         
@@ -279,6 +288,15 @@ class TestLinkValidation:
     """Test suite for link validation."""
 
     def test_internal_links_valid(self, summary_lines: List[str], summary_content: str):
+        """
+        Validates that every GitHub-style internal link in the Markdown points to an existing header.
+        
+        Checks internal links of the form [text](#anchor) in the full document content against the set of GitHub Flavoured Markdown anchors derived from the document headers; the test fails if any anchor does not match an existing header.
+        
+        Parameters:
+            summary_lines (List[str]): The file split into lines; used to extract headers.
+            summary_content (str): The full file content; used to extract internal link targets.
+        """
         import unicodedata
 
         def _to_gfm_anchor(text: str) -> str:
