@@ -9,14 +9,15 @@ statements are the standard and required pattern in pytest test files.
 
 # nosec B101  # Suppress Bandit assert warnings - assert is correct in pytest tests
 
-import re
-from pathlib import Path
-from typing import List, Tuple
-
-import pytest
 from packaging.requirements import Requirement
 
 REQUIREMENTS_FILE = Path(__file__).parent.parent.parent / "requirements-dev.txt"
+
+
+@pytest.fixture
+def parsed_requirements() -> List[Tuple[str, str]]:
+    """Parse requirements file and return list of (package, version_spec) tuples."""
+    return parse_requirements(REQUIREMENTS_FILE)
 
 
 def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
@@ -39,10 +40,11 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
     ...
     """
     requirements = []
+    import re as _re
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            for line in f:
+        with open(file_path, "r", encoding="utf-8") as file_handle:
+            for line in file_handle:
                 line = line.strip()
 
                 if not line or line.startswith("#"):
@@ -50,26 +52,32 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
 
                 try:
                     req = Requirement(line)
-                except (ValueError, TypeError) as e:
-                    print(f"Could not parse requirement: {line} due to {e}")
+                except (ValueError, TypeError) as parse_error:
+                    print(f"Could not parse requirement: {line} " f"due to {parse_error}")
                     continue
 
-                # Preserve the package token as written in the requirements file (preserve casing)
-                # by extracting the substring before any specifier/operator/extras/marker characters.
-                raw_pkg_token = line.split(";", 1)[0]  # drop environment markers
-                raw_pkg_token = raw_pkg_token.split("[", 1)[0]  # drop extras
-                # split at the first occurrence of any operator character (<,>,=,!,~) or comma
-                pkg_part = re.split(r"(?=[<>=!~,])", raw_pkg_token, 1)[0].strip()
+                # Preserve the package token as written in the
+                # requirements file (preserve casing) by extracting the
+                # substring before any specifier/operator/extras/marker
+                # characters.
+                # Drop environment markers
+                raw_pkg_token = line.split(";", 1)[0]
+                # Drop extras
+                raw_pkg_token = raw_pkg_token.split("[", 1)[0]
+                # Split at the first occurrence of any operator character
+                # (<,>,=,!,~) or comma
+                pkg_part = _re.split(r"(?=[<>=!~,])", raw_pkg_token, 1)[0].strip()
                 pkg = pkg_part or req.name.strip()
 
                 specifier_str = str(req.specifier).strip()
-                # Normalize specifier string by removing spaces around commas so SpecifierSet accepts it consistently
+                # Normalize specifier string by removing spaces around
+                # commas so SpecifierSet accepts it consistently
                 if specifier_str:
                     specifier_str = ",".join(s.strip() for s in specifier_str.split(",") if s.strip())
 
                 requirements.append((pkg, specifier_str))
-    except OSError as e:
-        raise OSError(f"Could not open requirements file '{file_path}': {e}") from e
+    except OSError as os_error:
+        raise OSError(f"Could not open requirements file '{file_path}': {os_error}") from os_error
 
     return requirements
 
