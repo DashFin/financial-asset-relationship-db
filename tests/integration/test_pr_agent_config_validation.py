@@ -97,18 +97,52 @@ class TestPRAgentConfigYAMLValidity:
         config_path = Path(".github/pr-agent-config.yml")
 
         with open(config_path, 'r') as f:
-            yaml_parser = ruamel.yaml.YAML()
-            yaml_parser.preserve_quotes = True
+            content = f.read()
+
+        # Check for duplicate keys by tracking full hierarchical paths
+        lines = content.split('\n')
+        with open(config_path, 'r') as f:
             try:
-                yaml_parser.load(f)
-            except ruamel.yaml.constructor.DuplicateKeyError as e:
-                pytest.fail(f"Duplicate key: {e}")
-            except ruamel.yaml.YAMLError as e:
-                pytest.fail(f"YAML error: {e}")
-    
-    def test_consistent_indentation(self):
-        """Verify consistent 2-space indentation and no tabs."""
-        config_path = Path(".github/pr-agent-config.yml")
+                config = yaml.safe_load(f)
+            except yaml.YAMLError as e:
+                pytest.fail(f"Invalid YAML syntax while checking duplicates: {e}")
+
+        def find_duplicates(obj, path=""):
+            duplicates = []
+            if isinstance(obj, dict):
+                keys_seen = set()
+                for key, value in obj.items():
+                    current_path = f"{path}.{key}" if path else key
+                    if key in keys_seen:
+                        duplicates.append(current_path)
+                    else:
+                        keys_seen.add(key)
+                    duplicates.extend(find_duplicates(value, current_path))
+            elif isinstance(obj, list):
+                for idx, item in enumerate(obj):
+                    item_path = f"{path}[{idx}]" if path else f"[{idx}]"
+                    duplicates.extend(find_duplicates(item, item_path))
+            return duplicates
+
+        duplicates = find_duplicates(config)
+        if duplicates:
+            pytest.fail(f"Duplicate keys found at paths: {', '.join(duplicates)}")
+                key = line.split(':')[0].strip()
+
+                # Skip list items (only when the first non-space character is '-')
+                if line.lstrip().startswith('-'):
+                    continue
+
+                # Normalize indentation: expand tabs to spaces to avoid mixed indent issues
+                expanded = line.expandtabs(2)
+                indent = len(expanded) - len(expanded.lstrip(' '))
+                # Ensure indentation uses only spaces (no stray tabs remain after expand)
+                if '\t' in line:
+                    pytest.fail("Tabs are not allowed for indentation in YAML config")
+                # Pop stack entries that are at same or deeper indentation
+                # (we've moved back up or sideways in the hierarchy)
+                while path_stack and path_stack[-1][0] >= indent:
+                    path_stack.pop()
 
         with open(config_path, 'r') as f:
             lines = f.readlines()
