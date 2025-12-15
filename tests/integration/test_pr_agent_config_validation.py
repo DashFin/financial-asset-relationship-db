@@ -93,10 +93,8 @@ class TestPRAgentConfigYAMLValidity:
         Raises:
             pytest.fail: If line contains tabs or inconsistent indentation
         """
-        if not line.strip():  # Empty or whitespace-only line
-            return 0
-
-        leading_whitespace = line[:len(line) - len(line.lstrip())]
+        from itertools import takewhile
+        leading_whitespace = "".join(takewhile(str.isspace, line))
 
         # Check for tab characters in indentation
         if '\t' in leading_whitespace:
