@@ -111,7 +111,12 @@ class TestDocumentationContent:
     """Test suite for documentation content validation."""
 
     def test_has_overview(self, section_headers: List[str]):
-        """Test that there's an Overview section."""
+        """
+        Verify the document contains at least one section header mentioning "Overview".
+        
+        Parameters:
+            section_headers (List[str]): List of markdown section header lines extracted from the document (code-block headers excluded).
+        """
         overview = [h for h in section_headers if 'overview' in h.lower()]
         assert len(overview) > 0, "Should have an Overview section"
 

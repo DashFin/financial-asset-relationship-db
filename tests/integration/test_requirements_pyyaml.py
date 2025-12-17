@@ -75,7 +75,11 @@ class TestPyYAMLDependencyAddition:
                 f"PyYAML should have version specifier: {line}"
     
     def test_pyyaml_version_at_least_6(self, requirements_lines: List[str]):
-        """Test that PyYAML version is at least 6.0."""
+        """
+        Assert that every PyYAML requirement line using a '>=' specifier pins the minimum version to 6.0 or higher.
+        
+        This only checks PyYAML lines that include a '>=<major>.<minor>' specifier; lines without such a specifier are not validated by this test.
+        """
         pyyaml_lines = [line for line in requirements_lines if line.startswith('PyYAML')]
         
         for line in pyyaml_lines:
@@ -86,7 +90,14 @@ class TestPyYAMLDependencyAddition:
                     f"PyYAML version should be >= 6.0, got {version}"
     
     def test_types_pyyaml_matches_pyyaml_version(self, requirements_lines: List[str]):
-        """Test that types-PyYAML version matches PyYAML major version."""
+        """
+        Check that the major version specified for `types-PyYAML` matches the major version specified for `PyYAML`.
+        
+        This inspects lines that start with `PyYAML>=` and `types-PyYAML>=`, extracts the leading integer of the `>=` version specifier, and asserts the two major versions are equal when both are present. If either package is not present with a `>=` specifier, the test is skipped (no assertion is made).
+        
+        Parameters:
+            requirements_lines (List[str]): Non-empty, non-comment lines from requirements-dev.txt.
+        """
         pyyaml_version = None
         types_version = None
         
@@ -110,7 +121,13 @@ class TestRequirementsDevYAMLUsage:
     """Test that PyYAML is needed for workflow validation."""
     
     def test_pyyaml_used_in_workflow_tests(self):
-        """Test that PyYAML is imported in workflow test files."""
+        """
+        Check that at least one workflow-related test file imports PyYAML.
+        
+        Reads tests/integration/test_github_workflows.py and
+        tests/integration/test_pr_agent_workflow_specific.py (if they exist)
+        and asserts that at least one contains the literal "import yaml".
+        """
         workflow_test_files = [
             Path('tests/integration/test_github_workflows.py'),
             Path('tests/integration/test_pr_agent_workflow_specific.py'),
@@ -214,7 +231,11 @@ class TestRequirementsDevCompleteness:
                 f"requirements-dev.txt should include {package}"
     
     def test_has_linting_dependencies(self, requirements_content: str):
-        """Test that file includes linting dependencies."""
+        """
+        Verify that requirements-dev.txt contains the essential linting and formatting packages.
+        
+        Checks that the file includes `flake8`, `pylint` and `black`; raises an assertion if any expected package is missing.
+        """
         linting_packages = ['flake8', 'pylint', 'black']
         
         for package in linting_packages:
@@ -288,7 +309,11 @@ class TestRequirementsDevVersionPinning:
                     f"Package should have version specifier: {line}"
     
     def test_pyyaml_and_types_both_pinned(self, requirements_lines: List[str]):
-        """Test that both PyYAML and types-PyYAML have version pins."""
+        """
+        Assert that both PyYAML and types-PyYAML are pinned with minimum-version specifiers in the provided requirement lines.
+        
+        Checks for the presence of `PyYAML>=` and `types-PyYAML>=` entries in `requirements_lines` and fails the test if either is missing.
+        """
         pyyaml_pinned = any(
             'PyYAML>=' in line for line in requirements_lines
         )

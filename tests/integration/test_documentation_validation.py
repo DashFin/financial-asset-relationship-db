@@ -83,7 +83,17 @@ class TestMarkdownFormatting:
             assert re.match(r'^#{1,6} .+', line), f"Heading '{line}' should have space after #"
     
     def test_no_trailing_whitespace(self, summary_lines: List[str]):
-        """Test that lines don't have trailing whitespace."""
+        """
+        Assert that no non-blank line ends with trailing whitespace.
+        
+        Checks each line in `summary_lines` and fails the test if any non-empty line finishes with one or more trailing whitespace characters.
+        
+        Parameters:
+            summary_lines (List[str]): Lines of the summary file to validate.
+        
+        Raises:
+            AssertionError: If one or more non-blank lines contain trailing whitespace.
+        """
         lines_with_trailing = [
             (i + 1, line) for i, line in enumerate(summary_lines)
             if line.rstrip() != line and line.strip() != ''
@@ -254,7 +264,11 @@ class TestDocumentMaintainability:
             f"Too many long lines ({len(long_lines)}), consider breaking them up"
     
     def test_has_clear_structure(self, summary_content: str):
-        """Test that document has clear hierarchical structure."""
+        """
+        Verify the document contains a clear heading structure.
+        
+        Asserts the content includes at least one level-1 heading ("# ") and at least three level-2 headings ("## ").
+        """
         h1_count = len(re.findall(r'^# ', summary_content, re.MULTILINE))
         h2_count = len(re.findall(r'^## ', summary_content, re.MULTILINE))
         
