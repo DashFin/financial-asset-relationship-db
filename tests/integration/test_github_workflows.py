@@ -411,9 +411,9 @@ class TestPrAgentWorkflow:
         """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
-        
+
         checkout_steps = [
-            s for s in steps 
+            s for s in steps
             if s.get("uses", "").startswith("actions/checkout")
         ]
         assert len(checkout_steps) > 0, "Review job must check out the repository"
