@@ -17,23 +17,23 @@ class TestGitignoreFileStructure:
     @pytest.fixture
     def gitignore_path(self) -> Path:
         """
-        Locate the repository's .gitignore file path.
+        Compute the path to the repository's .gitignore file.
         
         Returns:
-            Path: Path to the repository's .gitignore file in the repository root (three levels above this test file).
+            gitignore_path (Path): Path to the repository's .gitignore file.
         """
         return Path(__file__).parent.parent.parent / ".gitignore"
     
     @pytest.fixture
     def gitignore_content(self, gitignore_path: Path) -> str:
         """
-        Read and return the contents of the repository's .gitignore file.
+        Read and return the contents of the .gitignore file at the given path.
         
         Parameters:
-            gitignore_path (Path): Path to the .gitignore file.
+            gitignore_path (Path): Path to the .gitignore file to read.
         
         Returns:
-            content (str): The full text of the .gitignore file.
+            gitignore_content (str): The full contents of the file as a string.
         """
         with open(gitignore_path, 'r', encoding='utf-8') as f:
             return f.read()
@@ -41,13 +41,13 @@ class TestGitignoreFileStructure:
     @pytest.fixture
     def gitignore_lines(self, gitignore_content: str) -> List[str]:
         """
-        Extract non-empty, non-comment lines from a .gitignore file's text.
+        Extracts non-empty, non-comment lines from a .gitignore file content.
         
         Parameters:
-            gitignore_content (str): Full text of the .gitignore file.
+            gitignore_content (str): The entire .gitignore file content.
         
         Returns:
-            lines (List[str]): List of lines with surrounding whitespace removed, excluding empty lines and lines that start with `#`.
+            List[str]: Stripped lines that are neither empty nor start with '#' (comments).
         """
         return [
             line.strip()
@@ -62,9 +62,9 @@ class TestGitignoreFileStructure:
     
     def test_gitignore_readable(self, gitignore_path: Path):
         """
-        Ensure the repository's .gitignore file can be opened and is not empty.
+        Ensure the repository's .gitignore file can be opened and contains content.
         
-        Fails the test if the file cannot be read or its contents are empty.
+        Asserts that the file at the given path is readable with UTF-8 decoding and has length greater than zero.
         """
         with open(gitignore_path, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -82,14 +82,24 @@ class TestGitignoreFileStructure:
         for line in gitignore_lines:
             # Patterns should not have spaces unless quoted or in character class
             if ' ' in line and '[' not in line and '\\' not in line:
+            # Patterns should not have spaces unless quoted or in character classes
+            # Valid patterns can have: spaces in character classes, quoted spaces, or escaped spaces
+            if ' ' in line and not (
+                '[' in line and ']' in line or  # Character class
+                line.startswith('"') and line.endswith('"') or  # Quoted pattern
+                '\\' in line  # Escaped characters
+            ):
                 pytest.fail(f"Pattern '{line}' contains unescaped space")
     
     def test_no_duplicate_patterns(self, gitignore_lines: List[str]):
         """
-        Fail the test if the repository's .gitignore contains duplicate patterns.
+        Check that the repository's .gitignore contains no duplicate ignore patterns.
+        
+        If duplicate patterns are found the test fails with an assertion listing the duplicate entries.
         
         Parameters:
-            gitignore_lines (List[str]): Stripped, non-empty, non-comment lines from the .gitignore file to be checked for duplicates.
+            gitignore_lines (List[str]): Sequence of .gitignore lines representing individual ignore patterns
+                (typically stripped of comments and blank lines).
         """
         seen: Set[str] = set()
         duplicates = []
@@ -109,10 +119,10 @@ class TestPythonSpecificPatterns:
     @pytest.fixture
     def gitignore_content(self) -> str:
         """
-        Return the full text of the repository's .gitignore file, resolved relative to this test file.
+        Load the repository's .gitignore file content.
         
         Returns:
-            content (str): The .gitignore file contents as a single string.
+            content (str): The full text of the .gitignore file.
         """
         path = Path(__file__).parent.parent.parent / ".gitignore"
         with open(path, 'r', encoding='utf-8') as f:
@@ -146,10 +156,10 @@ class TestTestingArtifactsPatterns:
     @pytest.fixture
     def gitignore_content(self) -> str:
         """
-        Return the full text of the repository's .gitignore file, resolved relative to this test file.
+        Load the repository's .gitignore file content.
         
         Returns:
-            content (str): The .gitignore file contents as a single string.
+            content (str): The full text of the .gitignore file.
         """
         path = Path(__file__).parent.parent.parent / ".gitignore"
         with open(path, 'r', encoding='utf-8') as f:
@@ -171,7 +181,10 @@ class TestTestingArtifactsPatterns:
     
     def test_ignores_htmlcov_directory(self, gitignore_content: str):
         """
-        Assert that the repository .gitignore contains the 'htmlcov' pattern.
+        Check that the repository's .gitignore contains an 'htmlcov' ignore pattern.
+        
+        Raises:
+            AssertionError: if 'htmlcov' is not present in gitignore_content.
         """
         assert 'htmlcov' in gitignore_content, \
             "htmlcov should be in .gitignore"
@@ -180,10 +193,7 @@ class TestTestingArtifactsPatterns:
         """
         Ensure 'junit.xml' is not listed in the repository's .gitignore.
         
-        The test checks the .gitignore file content and fails if any line is exactly 'junit.xml'.
-        
-        Parameters:
-            gitignore_content (str): Full text content of the .gitignore file.
+        Fails if a line exactly equal to 'junit.xml' appears in the file.
         """
         # junit.xml should NOT be in the ignore patterns
         lines = [line.strip() for line in gitignore_content.split('\n')]
@@ -199,10 +209,10 @@ class TestDatabaseFilePatterns:
     @pytest.fixture
     def gitignore_content(self) -> str:
         """
-        Return the full text of the repository's .gitignore file, resolved relative to this test file.
+        Load the repository's .gitignore file content.
         
         Returns:
-            content (str): The .gitignore file contents as a single string.
+            content (str): The full text of the .gitignore file.
         """
         path = Path(__file__).parent.parent.parent / ".gitignore"
         with open(path, 'r', encoding='utf-8') as f:
@@ -225,7 +235,11 @@ class TestDatabaseFilePatterns:
                 f"Pattern '{pattern}' should have been removed from .gitignore"
     
     def test_can_commit_test_databases(self, gitignore_content: str):
-        """Test that test database files can now be committed."""
+        """
+        Ensure the repository's .gitignore does not ignore test database files.
+        
+        Asserts that the literal patterns 'test_*.db' and '*_test.db' are not present as lines in the provided .gitignore content.
+        """
         # Verify the specific patterns are gone
         assert 'test_*.db' not in gitignore_content.split('\n'), \
             "test_*.db pattern should be removed"
@@ -239,10 +253,10 @@ class TestFrontendPatterns:
     @pytest.fixture
     def gitignore_content(self) -> str:
         """
-        Return the full text of the repository's .gitignore file, resolved relative to this test file.
+        Load the repository's .gitignore file content.
         
         Returns:
-            content (str): The .gitignore file contents as a single string.
+            content (str): The full text of the .gitignore file.
         """
         path = Path(__file__).parent.parent.parent / ".gitignore"
         with open(path, 'r', encoding='utf-8') as f:
@@ -255,9 +269,9 @@ class TestFrontendPatterns:
     
     def test_ignores_frontend_build_artifacts(self, gitignore_content: str):
         """
-        Ensure at least two common frontend build directories are listed in the repository's .gitignore.
+        Asserts that at least two common frontend build artifact directories are listed in the repository's .gitignore.
         
-        Checks for presence of '.next', 'out', and 'dist' and fails if fewer than two are found.
+        Checks for presence of '.next', 'out' and 'dist' and fails the test if fewer than two are found.
         """
         patterns = ['.next', 'out', 'dist']
         found = [p for p in patterns if p in gitignore_content]
@@ -265,7 +279,11 @@ class TestFrontendPatterns:
             f"Frontend build directories should be ignored (found: {found})"
     
     def test_ignores_frontend_coverage(self, gitignore_content: str):
-        """Test that frontend coverage directory is ignored."""
+        """
+        Assert that the repository's .gitignore ignores frontend coverage output.
+        
+        Checks that either the pattern 'coverage' or 'frontend/coverage' appears in the provided .gitignore content.
+        """
         assert 'coverage' in gitignore_content or 'frontend/coverage' in gitignore_content, \
             "Frontend coverage directory should be ignored"
 
@@ -276,10 +294,10 @@ class TestIDEAndEditorPatterns:
     @pytest.fixture
     def gitignore_content(self) -> str:
         """
-        Return the full text of the repository's .gitignore file, resolved relative to this test file.
+        Load the repository's .gitignore file content.
         
         Returns:
-            content (str): The .gitignore file contents as a single string.
+            content (str): The full text of the .gitignore file.
         """
         path = Path(__file__).parent.parent.parent / ".gitignore"
         with open(path, 'r', encoding='utf-8') as f:
@@ -302,10 +320,12 @@ class TestGitignoreChangesRegression:
     @pytest.fixture
     def gitignore_lines(self) -> List[str]:
         """
-        Read and return all lines from the repository's .gitignore file.
+        Read the repository's .gitignore and return its lines with surrounding whitespace removed.
+        
+        Each element is a line from the .gitignore file with leading and trailing whitespace stripped.
         
         Returns:
-            lines (List[str]): Lines from the .gitignore file with leading and trailing whitespace removed.
+            List[str]: Lines from the .gitignore file with whitespace removed from both ends.
         """
         path = Path(__file__).parent.parent.parent / ".gitignore"
         with open(path, 'r', encoding='utf-8') as f:
@@ -321,14 +341,22 @@ class TestGitignoreChangesRegression:
             "junit.xml should have been removed from .gitignore"
     
     def test_test_db_patterns_were_removed(self, gitignore_lines: List[str]):
-        """Test that test database patterns were removed."""
+        """
+        Assert that the repository's .gitignore no longer contains common test database ignore patterns.
+        
+        This test fails if either 'test_*.db' or '*_test.db' appears in the list of gitignore lines.
+        """
         assert 'test_*.db' not in gitignore_lines, \
             "test_*.db should have been removed"
         assert '*_test.db' not in gitignore_lines, \
             "*_test.db should have been removed"
     
     def test_essential_ignores_still_present(self, gitignore_lines: List[str]):
-        """Test that essential ignore patterns are still present."""
+        """
+        Verify essential ignore patterns remain present in the .gitignore lines.
+        
+        For each required pattern this test asserts that at least one line contains the pattern or a close variant (a trailing slash on the pattern is ignored when matching), failing with a clear message if any essential pattern is missing.
+        """
         essential = ['.coverage', 'coverage.xml', 'htmlcov/', '.pytest_cache/']
         
         for pattern in essential:
@@ -343,10 +371,10 @@ class TestGitignoreEdgeCases:
     @pytest.fixture
     def gitignore_content(self) -> str:
         """
-        Return the full text of the repository's .gitignore file, resolved relative to this test file.
+        Load the repository's .gitignore file content.
         
         Returns:
-            content (str): The .gitignore file contents as a single string.
+            content (str): The full text of the .gitignore file.
         """
         path = Path(__file__).parent.parent.parent / ".gitignore"
         with open(path, 'r', encoding='utf-8') as f:
@@ -370,7 +398,9 @@ class TestGitignoreEdgeCases:
             f"Found lines with trailing whitespace: {lines_with_trailing}"
     
     def test_file_ends_with_newline(self, gitignore_content: str):
-        """Test that file ends with a newline."""
+        """
+        Ensure the repository's .gitignore file ends with a newline character.
+        """
         assert gitignore_content.endswith('\n'), \
             ".gitignore should end with a newline"
     

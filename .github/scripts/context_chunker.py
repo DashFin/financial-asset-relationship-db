@@ -1,6 +1,6 @@
-import sys
-from pathlib import Path
-from typing import Dict, List, Any, Optional
+class ContextChunker:
+    def __init__(self, config_path: str = ".github/pr-agent-config.yml"):
+        self.config: Dict = {}
 
 import yaml
 
@@ -55,6 +55,15 @@ class ContextChunker:
             except Exception as e:
                 print(f"Warning: failed to load config from {config_path}: {e}", file=sys.stderr)
                 self.config = {}
+        if cfg_file.exists():
+            try:
+                with cfg_file.open("r", encoding="utf-8") as f:
+                    self.config = yaml.safe_load(f) or {}
+            except Exception as e:
+                print(f"Warning: failed to load config from {config_path}: {e}", file=sys.stderr)
+                self.config = {}
+
+        # Read agent context settings with safe defaults
         agent_cfg = (self.config.get("agent") or {}).get("context") or {}
         self.max_tokens: int = int(agent_cfg.get("max_tokens", 32000))
         self.chunk_size: int = int(agent_cfg.get("chunk_size", max(1, self.max_tokens - 4000)))
@@ -77,64 +86,40 @@ class ContextChunker:
                 print(f"Warning: failed to initialize tiktoken encoder: {e}", file=sys.stderr)
                 self._encoder = None
 
-    def process_context(self, payload: Dict[str, Any]) -> tuple[str, bool]:
-        """
-        Processes a PR payload dictionary into a single text string.
+        # Precompiled regexes or any other helpers
+        processed_content = self._build_limited_content(chunks)
+        return processed_content, True
 
-        Args:
-            payload (Dict[str, Any]): Dictionary containing PR context. Expected keys:
-                - 'reviews': Optional[List[Dict[str, Any]]] — each dict may have a 'body' key (str).
-                - 'files': Optional[List[Dict[str, Any]]] — each dict may have a 'patch' key (str).
+        def main():
+            """
+            Demonstrates creating a ContextChunker and processing a sample pull request structure.
+            
+            This example constructs a ContextChunker, builds a simple pull request payload containing one review and one changed file, invokes process_context on that payload, and prints the chunking metadata and resulting processed content.
+            """
+            chunker = ContextChunker()
+    
+            # Example PR data
+            example_pr = {
+                'reviews': [
+                    {
+                        'user': {'login': 'reviewer1'},
+                        'state': 'changes_requested',
+                        'body': 'Please fix the bug in the database connection and add tests.'
+                    }
+                ],
+                'files': [
+                    {
+                        'filename': 'src/data/database.py',
+                        'additions': 50,
+                        'deletions': 20,
+                        'patch': '@@ -1,5 +1,10 @@\n-old code\n+new code'
+                    }
+                ]
+            }
+    
+            processed, chunked = chunker.process_context(example_pr)
+            print(f"Chunked: {chunked}")
+            print(f"\nProcessed content:\n{processed}")
 
-        Returns:
-            tuple[str, bool]: A tuple containing:
-                - The processed text content (str), concatenated from review bodies and file patches.
-                - A boolean indicating if any content exists (True if non-empty, False otherwise).
-
-        Example:
-            >>> payload = {
-            ...     "reviews": [{"body": "Looks good."}, {"body": "Needs changes."}],
-            ...     "files": [{"patch": "diff --git ..."}]
-            ... }
-            >>> chunker = ContextChunker()
-            >>> text, has_content = chunker.process_context(payload)
-            >>> print(has_content)  # True
-        """
-        text_parts: List[str] = []
-        reviews = payload.get("reviews") or []
-        files = payload.get("files") or []
-        for r in reviews:
-            body = (r or {}).get("body") or ""
-            if body:
-                text_parts.append(str(body))
-        for f in files:
-            patch = (f or {}).get("patch") or ""
-            if patch:
-                text_parts.append(str(patch))
-        result = "\n\n".join(text_parts).strip()
-        return result, bool(result)
-
-    def count_tokens(self, text: str) -> int:
-        """
-        Count the number of tokens in the given text.
-
-        Uses the tiktoken encoder if available, otherwise falls back to a simple
-        word-based approximation (splitting on whitespace).
-
-        Args:
-            text (str): The text to count tokens for.
-
-        Returns:
-            int: The estimated number of tokens in the text.
-
-        Example:
-            >>> chunker = ContextChunker()
-            >>> token_count = chunker.count_tokens("Hello, world!")
-            >>> print(token_count)  # Number of tokens
-        """
-        if not text:
-            return 0
-        if self._encoder is not None:
-            return len(self._encoder.encode(text))
-        # Fallback: approximate tokens by splitting on whitespace
-        return len(text.split())
+        if __name__ == "__main__":
+            main()

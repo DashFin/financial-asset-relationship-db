@@ -15,23 +15,23 @@ class TestPyYAMLDependencyAddition:
     @pytest.fixture
     def requirements_file(self) -> Path:
         """
-        Get the Path to the repository's requirements-dev.txt file.
+        Get the path to the repository's requirements-dev.txt file.
         
         Returns:
-            Path: Path object pointing to 'requirements-dev.txt' in the repository root.
+            path (Path): Path to requirements-dev.txt in the repository root.
         """
         return Path('requirements-dev.txt')
     
     @pytest.fixture
     def requirements_content(self, requirements_file: Path) -> str:
         """
-        Read and return the contents of the given requirements file.
+        Read and return the contents of the requirements file.
         
         Parameters:
             requirements_file (Path): Path to the requirements-dev.txt file to read.
         
         Returns:
-            content (str): Complete file content as a string, including any trailing newline.
+            content (str): The file contents decoded as UTF-8.
         """
         with open(requirements_file, 'r', encoding='utf-8') as f:
             return f.read()
@@ -39,13 +39,13 @@ class TestPyYAMLDependencyAddition:
     @pytest.fixture
     def requirements_lines(self, requirements_content: str) -> List[str]:
         """
-        Extract non-empty, non-comment lines from the contents of a requirements file.
+        Extract non-empty, non-comment lines from a requirements file content.
         
         Parameters:
             requirements_content (str): Full text of a requirements file.
         
         Returns:
-            List[str]: Lines from the input with surrounding whitespace removed, excluding blank lines and lines that start with `#`.
+            List[str]: Lines that are neither empty nor start with `#`, trimmed of surrounding whitespace.
         """
         lines = []
         for line in requirements_content.split('\n'):
@@ -154,10 +154,10 @@ class TestRequirementsDevCompleteness:
     @pytest.fixture
     def requirements_content(self) -> str:
         """
-        Read and return the full contents of requirements-dev.txt.
+        Read and return the contents of requirements-dev.txt.
         
         Returns:
-            str: The complete file contents of requirements-dev.txt, including any trailing newline.
+            requirements (str): The full text of requirements-dev.txt.
         """
         with open('requirements-dev.txt', 'r', encoding='utf-8') as f:
             return f.read()
@@ -169,10 +169,12 @@ class TestRequirementsDevCompleteness:
     
     def test_no_duplicate_packages(self, requirements_content: str):
         """
-        Ensure the requirements content does not contain the same package name more than once.
+        Assert that no package name appears more than once in the provided requirements content.
+        
+        This test inspects each non-empty, non-comment line in `requirements_content`, extracts the package name before any version specifier (for example, before `>=`, `==`, `<`, `>`), and fails if any package name occurs multiple times.
         
         Parameters:
-            requirements_content (str): Full text of requirements-dev.txt; comment lines and blank lines are ignored, and package names are extracted by splitting on version specifiers (`>`, `=`, `<`).
+        	requirements_content (str): Full text of a requirements file (e.g. requirements-dev.txt).
         """
         packages = []
         for line in requirements_content.split('\n'):
@@ -187,12 +189,12 @@ class TestRequirementsDevCompleteness:
     
     def test_all_lines_valid_format(self, requirements_content: str):
         """
-        Verify every non-empty, non-comment line in requirements-dev.txt matches allowed package spec formats.
+        Validate that every non-empty, non-comment line in `requirements_content` is a well-formed requirement specification.
         
-        Each line is expected to be a package name optionally followed by extras in square brackets and an optional version specifier using one of: >=, ==, <=, >, <, ~=. Lines that are empty or start with `#` are ignored.
+        A well-formed line contains a package name (letters, digits, dot, underscore or hyphen), optional extras in square brackets, and an optional version specifier using one of the operators >=, ==, <=, >, <, ~= followed by a version string.
         
         Parameters:
-            requirements_content (str): Full contents of a requirements file.
+            requirements_content (str): Full text of a requirements file to validate line-by-line.
         """
         for line_num, line in enumerate(requirements_content.split('\n'), 1):
             line = line.strip()
@@ -205,12 +207,12 @@ class TestRequirementsDevCompleteness:
     
     def test_has_testing_dependencies(self, requirements_content: str):
         """
-        Verify the requirements-dev.txt content contains the essential testing packages.
+        Verify the requirements-dev.txt content includes essential testing packages.
         
-        Asserts that the file text includes both 'pytest' and 'pytest-cov'; an AssertionError is raised if any are missing.
+        Checks that the provided requirements file content contains the testing dependencies 'pytest' and 'pytest-cov'.
         
         Parameters:
-            requirements_content (str): Full text of requirements-dev.txt to inspect.
+            requirements_content (str): Full text content of requirements-dev.txt to be checked.
         """
         essential_packages = ['pytest', 'pytest-cov']
         
@@ -263,10 +265,10 @@ class TestRequirementsDevVersionPinning:
     @pytest.fixture
     def requirements_lines(self) -> List[str]:
         """
-        Collect non-comment, non-empty lines from requirements-dev.txt.
+        Return the non-empty, non-comment lines from the repository's requirements-dev.txt.
         
         Returns:
-            list[str]: Trimmed requirement lines from 'requirements-dev.txt' with empty lines and lines starting with `#` excluded.
+            lines (List[str]): A list of requirement specification lines with leading/trailing whitespace removed; blank lines and lines starting with `#` are excluded.
         """
         with open('requirements-dev.txt', 'r', encoding='utf-8') as f:
             content = f.read()
@@ -280,7 +282,9 @@ class TestRequirementsDevVersionPinning:
     
     def test_uses_minimum_version_specifiers(self, requirements_lines: List[str]):
         """
-        Ensure each non-`types-` requirement line includes a minimum version specifier (`>=`) or an exact pin (`==`).
+        Assert every non-typed requirement line contains a minimum version specifier.
+        
+        Lines starting with 'types-' are ignored. Each remaining requirement line must include either '>=' or '==' to indicate a minimum or pinned version respectively.
         
         Parameters:
             requirements_lines (List[str]): Non-empty, non-comment lines from requirements-dev.txt to validate.

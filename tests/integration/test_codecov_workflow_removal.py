@@ -16,11 +16,13 @@ class TestCodecovWorkflowRemoval:
     @pytest.fixture
     def workflows_dir(self) -> Path:
         """
-        Path to the repository's .github/workflows directory.
+        Path to the repository's GitHub Actions workflows directory.
         
         Returns:
-            Path: Path object pointing to the repository's .github/workflows directory (computed relative to this test file).
+            Path: Path to the `.github/workflows` directory relative to this file.
         """
+        return Path(__file__).parent.parent.parent / ".github" / "workflows"
+    
     def test_codecov_yaml_file_removed(self, workflows_dir: Path):
         """Test that codecov.yaml file was removed."""
         if not workflows_dir.exists():
@@ -51,28 +53,15 @@ class TestCoverageStillAvailable:
         Path to the project's requirements-dev.txt file.
         
         Returns:
-            Path: Path pointing to the repository's requirements-dev.txt file (located two directories above the test file).
+            Path: Path to the requirements-dev.txt file located at the repository root.
         """
+        return Path(__file__).parent.parent.parent / "requirements-dev.txt"
+    
     def test_pytest_cov_in_dev_requirements(self, requirements_dev: Path):
         """
-        Validate that `pytest-cov` is listed in the project's development requirements.
-    
-        Parameters:
-            requirements_dev (Path): Path to the `requirements-dev.txt` file to check.
-        """
-        if not requirements_dev.exists():
-            pytest.skip("requirements-dev.txt not found")
-    
-        with open(requirements_dev, 'r', encoding='utf-8') as f:
-            content = f.read()
-    
-        assert 'pytest-cov' in content, \
-            "pytest-cov should still be in requirements-dev.txt for local coverage"
-        """
-        Validate that `pytest-cov` is listed in the project's development requirements.
+        Verify that 'pytest-cov' is listed in requirements-dev.txt.
         
-        Parameters:
-            requirements_dev (Path): Path to the `requirements-dev.txt` file to check.
+        Checks the development requirements include the pytest-cov package so coverage can be executed locally.
         """
         with open(requirements_dev, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -81,7 +70,12 @@ class TestCoverageStillAvailable:
             "pytest-cov should still be in requirements-dev.txt for local coverage"
     
     def test_can_run_coverage_locally(self, requirements_dev: Path):
-        """Test that coverage can still be run locally."""
+        """
+        Ensure the project provides a pytest-cov specification that allows running coverage locally.
+        
+        Parameters:
+            requirements_dev (Path): Path to the project's requirements-dev.txt file; this file is checked for the presence of the exact requirement string 'pytest-cov>=4.0.0'.
+        """
         with open(requirements_dev, 'r', encoding='utf-8') as f:
             content = f.read()
         

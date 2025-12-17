@@ -110,12 +110,9 @@ class TestMarkdownFormatting:
     
     def test_lists_properly_formatted(self, summary_lines: List[str]):
         """
-        Validate unordered list items use '-', '*', or '+' markers and have indentation in two-space increments.
+        Ensure bullet list items use an indentation that is an even multiple of two spaces.
         
-        Searches the provided lines for bullet-list items (lines starting with optional whitespace followed by '-', '*' or '+' and a space) and asserts each item's leading indentation is a multiple of two. Assertion failures include the offending line for easier locating.
-        
-        Parameters:
-            summary_lines (List[str]): Lines of the summary file to validate.
+        Scans lines that start with '-', '*' or '+' and asserts that each list item's leading spaces are divisible by 2. Raises AssertionError naming the offending line when a list item has odd indentation.
         """
         list_lines = [line for line in summary_lines if re.match(r'^\s*[-*+] ', line)]
         if list_lines:
@@ -188,57 +185,16 @@ class TestCodeExamples:
             assert 'pytest' in cmd, "pytest command should contain 'pytest'"
     
     def test_file_paths_in_examples_exist(self, summary_content: str):
-        def test_file_paths_in_examples(self, summary_content: str):
-            """
-            Assert that test file paths shown in documentation exist in the repository.
-    
-            Summary:
-                Scans the documentation for references to integration test files and verifies
-                each referenced file actually exists in the repo. This guards against stale
-                or incorrect example paths in the documentation.
-    
-            Searches:
-                The document content is scanned for file paths matching the pattern
-                "tests/integration/test_<name>.py". Each match is resolved from the repository
-                root (three levels up from this file).
-    
-            Parameters:
-                summary_content (str): The full text of the documentation to scan.
-    
-            Returns:
-                None: This is a pytest test; it asserts and raises on failure.
-    
-            Raises:
-                AssertionError: If one or more referenced test file paths are missing. The
-                assertion message consolidates all missing paths and shows their resolved
-                filesystem locations.
-    
-            Example:
-                Given a documentation snippet:
+        """
+        Verify that file paths to integration tests referenced in examples exist within the repository.
         
-                    The integration tests are in files like:
-                    - tests/integration/test_github_workflows.py
-                    - tests/integration/test_requirements_pyyaml.py
-        
-                This test will resolve each path relative to the repo root and fail with a
-                single informative assertion if any referenced file does not exist.
-            """
-        Assert that test file paths shown in documentation exist in the repository.
-        
-        Searches the provided document content for occurrences of test file paths matching
-        the pattern "tests/integration/test_<name>.py", resolves each path from the
-        repository root (three levels up from this file), and raises a single
-        AssertionError listing any referenced files that could not be found.
+        Scans the provided document content for occurrences of paths matching the pattern `tests/integration/test_*.py` and asserts that each referenced file exists relative to the repository root. If any referenced files are missing the test fails once with a consolidated message listing each missing reference and its resolved filesystem path to help update the documentation.
         
         Parameters:
-            summary_content (str): The full text of the documentation to scan.
-        
-        Raises:
-            AssertionError: If one or more referenced test file paths are missing; the
-            message lists each missing path with its resolved filesystem location.
+        	summary_content (str): The text content of the summary/document to scan for referenced file paths.
         """
         # Look for test file references
-        test_file_pattern = r'tests/integration/test_\w+\.py'
+        test_file_pattern = r'tests/integration/test[^\s\'"]+\.py'
         mentioned_files = re.findall(test_file_pattern, summary_content)
 
         repo_root = Path(__file__).parent.parent.parent
@@ -261,7 +217,12 @@ class TestDocumentCompleteness:
     """Test suite for document completeness."""
     
     def test_has_summary_statistics(self, summary_content: str):
-        """Test that document includes statistics about tests."""
+        """
+        Assert the document contains numeric statistics referencing tests or test classes.
+        
+        Parameters:
+            summary_content (str): The full markdown content to inspect.
+        """
         # Should mention numbers of tests, classes, etc.
         has_numbers = re.search(r'\d+\s+(tests?|class(?:es)?)', summary_content, re.IGNORECASE)
         assert has_numbers is not None, \
@@ -324,27 +285,38 @@ class TestLinkValidation:
 
     def test_internal_links_valid(self, summary_lines: List[str], summary_content: str):
         """
-        Validate that all markdown internal links in the summary reference existing headers.
+        Validate that every internal Markdown link (of the form [text](#anchor)) points to an existing header anchor.
         
-        Scans the document headers (lines starting with '#') to build GitHub-Flavoured-Markdown anchors using Unicode-aware normalization and punctuation stripping, then verifies every internal [text](#anchor) link in the full content matches one of those anchors.
+        This test derives valid anchors from document headers using GitHub Flavoured Markdown-like rules:
+        normalises Unicode (removing diacritics), lowercases, removes punctuation except hyphens, replaces
+        whitespace with single hyphens, collapses repeated hyphens and trims leading/trailing hyphens.
+        It then extracts internal links from the full content and asserts each referenced anchor exists.
         
         Parameters:
-            summary_lines (List[str]): The document split into newline-terminated lines.
-            summary_content (str): The full document text used to extract inline links.
+            summary_lines (List[str]): The document split into lines; used to extract header texts.
+            summary_content (str): The full document content; used to locate internal link targets.
+        
+        Raises:
+            AssertionError: If an internal link references a non-existent header anchor. The failure message
+            will include the missing anchor (e.g. "Internal link to #missing-anchor references non-existent header").
         """
         import unicodedata
 
-        def _to_gfm_anchor(text: str) -> str:
+def _to_gfm_anchor(text: str) -> str:
+    """
+    Convert a header text into a GitHub‑Flavored Markdown (GFM) anchor string.
+    
+    The conversion includes: lowercasing, removing unicode diacritics, removing
+    punctuation (except hyphens), collapsing whitespace to single hyphens,
+    collapsing multiple hyphens, and stripping leading/trailing hyphens.
+    
+    Parameters:
+        text (str): Header text to convert into an anchor.
+    
+    Returns:
+        str: A GFM-compatible anchor string.
+    """
             """
-            Convert a header string to a GitHub Flavoured Markdown (GFM) anchor.
-            
-            Parameters:
-                text (str): Header text to convert into an internal link anchor.
-            
-            Returns:
-                anchor (str): GFM-style anchor: lowercase, diacritics removed, punctuation and special characters removed (except spaces and hyphens), consecutive whitespace replaced by single hyphens, consecutive hyphens collapsed, and leading/trailing hyphens trimmed.
-            """
-            # Lowercase
             s = text.strip().lower()
             # Normalize unicode to NFKD and remove diacritics
             s = unicodedata.normalize('NFKD', s)
@@ -429,7 +401,11 @@ class TestEdgeCases:
             "Document should not contain replacement characters (encoding issues)"
     
     def test_utf8_encoding(self):
-        """Test that file is properly UTF-8 encoded."""
+        """
+        Verify the SUMMARY_FILE can be decoded as UTF-8.
+        
+        Fails the test if reading the file raises a UnicodeDecodeError.
+        """
         try:
             with open(SUMMARY_FILE, 'r', encoding='utf-8') as f:
                 f.read()
@@ -438,9 +414,9 @@ class TestEdgeCases:
     
     def test_consistent_line_endings(self):
         """
-        Verify the summary file uses a single consistent line-ending style.
+        Check that the summary file uses a single, recognised line-ending style.
         
-        Skips the check if the file is empty. Recognises LF, CRLF and CR endings and fails if multiple styles are present or if the file uses an unrecognised style; only LF and CRLF are accepted.
+        Skips the check if the file is empty. Fails the test if multiple line-ending styles are present or if the file only uses the classic Mac `CR` style; the accepted styles are `LF` or `CRLF`.
         """
         with open(SUMMARY_FILE, 'rb') as f:
             content = f.read()

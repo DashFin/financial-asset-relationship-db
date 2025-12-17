@@ -43,12 +43,12 @@ class TestDocumentationExists:
 @pytest.fixture(scope='session')
 def doc_content() -> str:
     """
-    Read the project's documentation file and return its entire contents.
+    Load and return the text content of the documentation file used by tests.
     
-    If the file does not exist or cannot be read, the test run is failed via pytest.fail with an explanatory message.
+    If the file is missing or cannot be read the test is failed via pytest.fail with a descriptive message.
     
     Returns:
-        The full contents of the documentation file as a string.
+        content (str): The full contents of the documentation file.
     """
     try:
         with open(DOC_FILE, 'r', encoding='utf-8') as f:
@@ -62,16 +62,16 @@ def doc_content() -> str:
 @pytest.fixture(scope='session')
 def doc_lines(doc_content: str) -> List[str]:
     """
-    Split the documentation content into a list of lines, preserving original line endings.
+    Return the documentation content split into lines, preserving original line endings.
     
     Parameters:
-        doc_content (str): Entire documentation text to split.
+        doc_content (str): Entire documentation file content.
     
     Returns:
-        List[str]: Lines from the documentation, each including its original line ending where present.
+        doc_lines (List[str]): List of lines from `doc_content`, each retaining its trailing newline when present.
     
     Raises:
-        pytest.Fail: Fails the pytest run if `doc_content` is empty.
+        Fails the test if `doc_content` is empty.
     """
     if not doc_content:
         pytest.fail("Loaded documentation content is empty.")
@@ -81,17 +81,21 @@ def doc_lines(doc_content: str) -> List[str]:
 @pytest.fixture(scope='session')
 def section_headers(doc_lines: List[str]) -> List[str]:
     """
-    Extract markdown section headers from the provided lines, ignoring content inside fenced code blocks.
+    Extracts Markdown section header lines from a list of document lines, ignoring content inside fenced code blocks.
     
     Parameters:
-        doc_lines (List[str]): Lines of a markdown document, including line endings.
+        doc_lines (List[str]): Lines of the documentation file (each item is a single line, may include line endings).
     
     Returns:
-        List[str]: The header lines (leading whitespace removed) for each markdown header found outside fenced code blocks.
+        List[str]: Header lines found in order (each header retains its leading `#` markers and has surrounding whitespace trimmed).
     """
     headers = []
     in_code_block = False
     for line in doc_lines:
+        stripped = line.lstrip()
+        if stripped.startswith('```'):
+            in_code_block = not in_code_block
+            continue
         stripped = line.lstrip()
         if stripped.startswith('```'):
             in_code_block = not in_code_block
