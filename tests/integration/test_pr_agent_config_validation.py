@@ -13,6 +13,74 @@ import yaml
 from pathlib import Path
 
 
+class DuplicateKeyLoader(yaml.SafeLoader):
+    """Custom YAML loader that detects duplicate keys.
+    
+    Extends SafeLoader for security. ONLY for use in test environments
+    with trusted configuration files. Not suitable for untrusted input
+    due to recursive construction without depth limits.
+    """
+    pass
+    pass
+
+    """Check for duplicate keys in YAML mappings."""
+    loader.flatten_mapping(node)
+
+    mapping = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        if key in mapping:
+            raise yaml.constructor.ConstructorError(
+                "while constructing a mapping", node.start_mark,
+                f"found duplicate key ({key!r})", key_node.start_mark
+            )
+                f"found duplicate key ({key})", key_node.start_mark
+            )
+        value = loader.construct_object(value_node, deep=True)
+        mapping[key] = value
+    return mapping
+    """Check for duplicate keys in YAML mappings."""
+    loader.flatten_mapping(node)
+        key = loader.construct_object(key_node, deep=deep)
+
+        try:
+            hash(key)
+        except TypeError as e:
+            raise yaml.constructor.ConstructorError(
+                "while constructing a mapping", node.start_mark,
+                f"found unhashable key ({key!r})", key_node.start_mark
+            ) from e
+
+        if key in mapping:
+            raise yaml.constructor.ConstructorError(
+                "while constructing a mapping", node.start_mark,
+                f"found duplicate key ({key!r})", key_node.start_mark
+            )
+
+        value = loader.construct_object(value_node, deep=deep)
+            )
+        value = loader.construct_object(value_node, deep=deep)
+        mapping[key] = value
+    return mapping
+
+
+def _check_duplicate_keys(loader, node):
+    """YAML mapping constructor that raises if a key is duplicated."""
+    loader.flatten_mapping(node)
+    mapping = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=True)
+        if key in mapping:
+            raise yaml.constructor.ConstructorError(
+                "while constructing a mapping",
+                node.start_mark,
+                f"found duplicate key ({key})",
+                key_node.start_mark,
+            )
+        mapping[key] = loader.construct_object(value_node, deep=True)
+    return mapping
+
+
 class TestPRAgentConfigSimplification:
     """Test PR agent config simplification changes."""
     
@@ -127,7 +195,22 @@ class TestPRAgentConfigYAMLValidity:
     
     def test_no_duplicate_keys(self):
         """Verify no duplicate keys in config."""
+    def test_no_duplicate_keys(self):
+        """Verify no duplicate keys in config."""
         config_path = Path(".github/pr-agent-config.yml")
+
+        with open(config_path, "r", encoding="utf-8") as f:
+            try:
+                # DuplicateKeyLoader is expected to raise ConstructorError on duplicates
+                yaml.load(f, Loader=DuplicateKeyLoader)
+            except yaml.constructor.ConstructorError as e:
+                # ConstructorError can be raised for reasons other than duplicate keys;
+                # only fail this test when the error is actually about duplicates.
+                if "duplicate" in str(e).lower():
+                    pytest.fail(f"Duplicate key found: {e}")
+                raise
+            except yaml.YAMLError as e:
+                pytest.fail(f"Invalid YAML syntax while checking duplicates: {e}")
 
         with open(config_path, 'r') as f:
             content = f.read()
