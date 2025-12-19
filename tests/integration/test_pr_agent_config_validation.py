@@ -23,6 +23,7 @@ class DuplicateKeyLoader(yaml.SafeLoader):
 
 def _check_duplicate_keys(loader, node, deep=False):
     """Check for duplicate keys in YAML mappings."""
+    loader.flatten_mapping(node)
     mapping = {}
     for key_node, value_node in node.value:
         key = loader.construct_object(key_node, deep=deep)
