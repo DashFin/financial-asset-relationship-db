@@ -10,7 +10,7 @@
  * - Header handling and content-type validation
  * - Base URL and configuration options
  * - Backward compatibility with axios 1.6.0 patterns
- * 
+ *
  * These tests ensure that the upgrade from axios 1.6.0 to 1.13.2
  * maintains all existing functionality while benefiting from bug fixes
  * and security improvements in the newer version.
@@ -30,7 +30,7 @@ describe('Axios 1.13.2 Compatibility Tests', () => {
 
   beforeEach(async () => {
     jest.resetModules();
-    
+
     // Create a comprehensive mock axios instance
     mockAxiosInstance = {
       get: jest.fn(),
@@ -79,7 +79,7 @@ describe('Axios 1.13.2 Compatibility Tests', () => {
     } as any;
 
     mockedAxios.create.mockReturnValue(mockAxiosInstance);
-    
+
     const apiModule = await import('../../app/lib/api');
     api = apiModule.api;
   });
@@ -100,11 +100,11 @@ describe('Axios 1.13.2 Compatibility Tests', () => {
 
     it('should support axios 1.13.2 configuration options', () => {
       const config = mockedAxios.create.mock.calls[0]?.[0];
-      
+
       expect(config).toBeDefined();
       expect(config?.baseURL).toBeDefined();
       expect(config?.headers).toBeDefined();
-      
+
       // Axios 1.13.2 should accept these standard options
       const extendedConfig: AxiosRequestConfig = {
         ...config,
@@ -113,7 +113,7 @@ describe('Axios 1.13.2 Compatibility Tests', () => {
         maxRedirects: 5,
         validateStatus: (status) => status < 500,
       };
-      
+
       expect(extendedConfig.timeout).toBe(5000);
       expect(extendedConfig.withCredentials).toBe(true);
     });
@@ -121,7 +121,7 @@ describe('Axios 1.13.2 Compatibility Tests', () => {
     it('should have proper TypeScript types for axios 1.13.2', () => {
       // Type checking - this test passes if it compiles
       const testInstance: AxiosInstance = mockAxiosInstance;
-      
+
       expect(testInstance.get).toBeDefined();
       expect(testInstance.post).toBeDefined();
       expect(testInstance.interceptors).toBeDefined();
@@ -139,8 +139,8 @@ describe('Axios 1.13.2 Compatibility Tests', () => {
         config: {} as any,
       });
 
-      await api.getAssets({ 
-        asset_class: 'EQUITY', 
+      await api.getAssets({
+        asset_class: 'EQUITY',
         sector: 'Technology',
         page: 1,
         per_page: 10
@@ -362,7 +362,7 @@ describe('Axios 1.13.2 Compatibility Tests', () => {
   describe('Content-Type Handling - Axios 1.13.2', () => {
     it('should set correct Content-Type header for JSON', () => {
       const config = mockedAxios.create.mock.calls[0]?.[0];
-      
+
       expect(config?.headers?.['Content-Type']).toBe('application/json');
     });
 
@@ -551,7 +551,7 @@ describe('Axios 1.13.2 Compatibility Tests', () => {
   describe('Edge Cases - Axios 1.13.2 Robustness', () => {
     it('should handle very long URLs correctly', async () => {
       const longId = 'A'.repeat(1000);
-      
+
       mockAxiosInstance.get.mockResolvedValue({
         data: { ...mockAsset, id: longId },
         status: 200,

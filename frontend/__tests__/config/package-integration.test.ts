@@ -57,7 +57,7 @@ describe('Package Configuration Integration', () => {
         const lockedPkg = packageLock.packages?.[`node_modules/${name}`];
         if (lockedPkg) {
           expect(lockedPkg.version).toBeDefined();
-          
+
           // Basic validation: if range starts with ^1.13.2, locked should be >= 1.13.2
           if (name === 'axios' && range === '^1.13.2') {
             expect(lockedPkg.version).toBe('1.13.2');
@@ -78,12 +78,12 @@ describe('Package Configuration Integration', () => {
 
     it('axios upgrade should not break peer dependencies', () => {
       const axiosLocked = packageLock.packages?.['node_modules/axios'];
-      
+
       if (axiosLocked?.peerDependencies) {
         Object.keys(axiosLocked.peerDependencies).forEach((peerDep) => {
           const peerPkg = packageLock.packages?.[`node_modules/${peerDep}`];
           const isOptional = axiosLocked.peerDependenciesMeta?.[peerDep]?.optional;
-          
+
           if (!isOptional) {
             expect(peerPkg).toBeDefined();
           }
@@ -93,13 +93,13 @@ describe('Package Configuration Integration', () => {
 
     it('axios dependencies should be resolved consistently', () => {
       const axiosLocked = packageLock.packages?.['node_modules/axios'];
-      
+
       if (axiosLocked?.dependencies) {
         Object.keys(axiosLocked.dependencies).forEach((dep) => {
-          const depPkg = 
+          const depPkg =
             packageLock.packages?.[`node_modules/${dep}`] ||
             packageLock.packages?.[`node_modules/axios/node_modules/${dep}`];
-          
+
           expect(depPkg).toBeDefined();
         });
       }
@@ -108,11 +108,11 @@ describe('Package Configuration Integration', () => {
     it('axios should not introduce dependency conflicts', () => {
       // Check if axios dependencies conflict with existing packages
       const axiosLocked = packageLock.packages?.['node_modules/axios'];
-      
+
       if (axiosLocked?.dependencies) {
         Object.entries(axiosLocked.dependencies).forEach(([dep, version]) => {
           const topLevelPkg = packageLock.packages?.[`node_modules/${dep}`];
-          
+
           if (topLevelPkg) {
             // If there's a top-level version, it should be compatible
             expect(topLevelPkg.version).toBeDefined();
@@ -153,7 +153,7 @@ describe('Package Configuration Integration', () => {
             const depExists = Object.keys(packageLock.packages).some((p) =>
               p.endsWith(`/${dep}`) || p === `node_modules/${dep}`
             );
-            
+
             expect(depExists).toBeTruthy();
           });
         }
@@ -197,7 +197,7 @@ describe('Package Configuration Integration', () => {
       Object.entries(coreDeps).forEach(([dep, expectedMajor]) => {
         const pkg = packageLock.packages?.[`node_modules/${dep}`];
         const major = parseInt(pkg?.version?.split('.')[0] || '0');
-        
+
         expect(major).toBe(expectedMajor);
       });
     });
@@ -220,7 +220,7 @@ describe('Package Configuration Integration', () => {
 
     it('axios should come from official npm registry', () => {
       const axiosLocked = packageLock.packages?.['node_modules/axios'];
-      
+
       expect(axiosLocked?.resolved).toContain('registry.npmjs.org');
       expect(axiosLocked?.resolved).toContain('axios-1.13.2.tgz');
     });
@@ -266,7 +266,7 @@ describe('Package Configuration Integration', () => {
       Object.entries(rootDeps).forEach(([name, range]) => {
         const pkg = packageLock.packages?.[`node_modules/${name}`];
         expect(pkg?.version).toBeDefined();
-        
+
         // Basic validation: version should be defined and non-empty
         expect((pkg!.version as string).length).toBeGreaterThan(0);
       });
@@ -407,7 +407,7 @@ describe('Package Configuration Integration', () => {
     it('lockfile should be deterministic', () => {
       // Lockfile should be parseable and re-stringifiable
       const reparsed = JSON.parse(JSON.stringify(packageLock));
-      
+
       expect(reparsed.name).toBe(packageLock.name);
       expect(reparsed.version).toBe(packageLock.version);
       expect(reparsed.lockfileVersion).toBe(packageLock.lockfileVersion);

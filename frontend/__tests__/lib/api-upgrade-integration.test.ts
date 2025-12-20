@@ -8,7 +8,7 @@
  * - Security improvements validation
  * - Performance characteristics
  * - Breaking change detection
- * 
+ *
  * These tests ensure the upgrade doesn't introduce regressions
  * in actual usage patterns found in the application.
  */
@@ -26,7 +26,7 @@ describe('Axios Upgrade Integration Tests', () => {
 
   beforeEach(async () => {
     jest.resetModules();
-    
+
     mockAxiosInstance = {
       get: jest.fn(),
       post: jest.fn(),
@@ -43,7 +43,7 @@ describe('Axios Upgrade Integration Tests', () => {
     };
 
     mockedAxios.create.mockReturnValue(mockAxiosInstance);
-    
+
     const apiModule = await import('../../app/lib/api');
     api = apiModule.api;
   });
@@ -161,7 +161,7 @@ describe('Axios Upgrade Integration Tests', () => {
   describe('Axios 1.13.2 Security Improvements', () => {
     it('should use secure defaults for baseURL', () => {
       const config = mockedAxios.create.mock.calls[0]?.[0];
-      
+
       // Should not use http in production (mocked here)
       expect(config?.baseURL).toBeDefined();
     });
@@ -181,7 +181,7 @@ describe('Axios Upgrade Integration Tests', () => {
 
     it('should maintain JSON content-type for security', () => {
       const config = mockedAxios.create.mock.calls[0]?.[0];
-      
+
       // Prevents some types of injection attacks
       expect(config?.headers?.['Content-Type']).toBe('application/json');
     });
@@ -283,7 +283,7 @@ describe('Axios Upgrade Integration Tests', () => {
   describe('Environment Configuration', () => {
     it('should respect NEXT_PUBLIC_API_URL environment variable', () => {
       const config = mockedAxios.create.mock.calls[0]?.[0];
-      
+
       // Should use env var or fallback
       expect(config?.baseURL).toBeDefined();
       expect(typeof config?.baseURL).toBe('string');
@@ -291,7 +291,7 @@ describe('Axios Upgrade Integration Tests', () => {
 
     it('should use reasonable defaults when env vars missing', () => {
       const config = mockedAxios.create.mock.calls[0]?.[0];
-      
+
       // Should have baseURL even without env var
       expect(config?.baseURL).toMatch(/localhost:8000/);
     });

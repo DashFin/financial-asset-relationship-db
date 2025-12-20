@@ -334,8 +334,8 @@ The axios upgrade from 1.6.0 to 1.13.2 is **thoroughly tested and production-rea
 
 ---
 
-**Generated**: December 20, 2024  
-**Repository**: https://github.com/DashFin/financial-asset-relationship-db.git  
-**Branch**: Current (with axios upgrade)  
-**Test Framework**: Jest + @testing-library/react  
+**Generated**: December 20, 2024
+**Repository**: https://github.com/DashFin/financial-asset-relationship-db.git
+**Branch**: Current (with axios upgrade)
+**Test Framework**: Jest + @testing-library/react
 **Axios Version**: 1.6.0 → 1.13.2

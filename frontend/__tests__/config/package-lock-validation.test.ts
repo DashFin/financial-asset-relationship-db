@@ -9,7 +9,7 @@
  * - Axios upgrade verification
  * - Peer dependency compatibility
  * - Security and integrity checks
- * 
+ *
  * This ensures that the package-lock.json correctly reflects the axios
  * upgrade from 1.6.0 to 1.13.2 and maintains dependency tree integrity.
  */
@@ -240,13 +240,13 @@ describe('Package-lock.json Validation', () => {
   describe('Transitive Dependencies', () => {
     it('should resolve transitive dependencies of axios', () => {
       const axiosLock = packageLock.packages?.['node_modules/axios'];
-      
+
       if (axiosLock?.dependencies) {
         Object.keys(axiosLock.dependencies).forEach((dep) => {
           // Each axios dependency should also be in the lockfile
           const foundInRoot = packageLock.packages?.[`node_modules/${dep}`];
           const foundNested = packageLock.packages?.[`node_modules/axios/node_modules/${dep}`];
-          
+
           expect(foundInRoot || foundNested).toBeDefined();
         });
       }
@@ -254,16 +254,16 @@ describe('Package-lock.json Validation', () => {
 
     it('should have follow-redirects as axios dependency', () => {
       const axiosLock = packageLock.packages?.['node_modules/axios'];
-      
+
       if (axiosLock?.dependencies) {
         // Axios 1.x uses follow-redirects
         const hasFollowRedirects = axiosLock.dependencies['follow-redirects'] !== undefined;
-        
+
         if (hasFollowRedirects) {
-          const followRedirectsLock = 
+          const followRedirectsLock =
             packageLock.packages?.['node_modules/follow-redirects'] ||
             packageLock.packages?.['node_modules/axios/node_modules/follow-redirects'];
-          
+
           expect(followRedirectsLock).toBeDefined();
         }
       }
@@ -271,24 +271,24 @@ describe('Package-lock.json Validation', () => {
 
     it('should have form-data as axios dependency', () => {
       const axiosLock = packageLock.packages?.['node_modules/axios'];
-      
+
       if (axiosLock?.dependencies?.['form-data']) {
-        const formDataLock = 
+        const formDataLock =
           packageLock.packages?.['node_modules/form-data'] ||
           packageLock.packages?.['node_modules/axios/node_modules/form-data'];
-        
+
         expect(formDataLock).toBeDefined();
       }
     });
 
     it('should have proxy-from-env as axios dependency', () => {
       const axiosLock = packageLock.packages?.['node_modules/axios'];
-      
+
       if (axiosLock?.dependencies?.['proxy-from-env']) {
-        const proxyLock = 
+        const proxyLock =
           packageLock.packages?.['node_modules/proxy-from-env'] ||
           packageLock.packages?.['node_modules/axios/node_modules/proxy-from-env'];
-        
+
         expect(proxyLock).toBeDefined();
       }
     });
@@ -301,13 +301,13 @@ describe('Package-lock.json Validation', () => {
           // Peer dependencies should either be satisfied or marked as optional
           Object.keys(pkg.peerDependencies).forEach((peerDep) => {
             const peerOptional = pkg.peerDependenciesMeta?.[peerDep]?.optional;
-            
+
             if (!peerOptional) {
               // Non-optional peer dep should be in the tree
               const peerInTree = Object.keys(packageLock.packages).some((p) =>
                 p.includes(`node_modules/${peerDep}`)
               );
-              
+
               expect(peerInTree).toBeTruthy();
             }
           });
@@ -397,11 +397,11 @@ describe('Package-lock.json Validation', () => {
             'registry.yarnpkg.com',
             'npm.pkg.github.com',
           ];
-          
+
           const usesKnownRegistry = validRegistries.some((registry) =>
             pkg.resolved.includes(registry)
           );
-          
+
           expect(usesKnownRegistry).toBeTruthy();
         }
       });
@@ -411,7 +411,7 @@ describe('Package-lock.json Validation', () => {
   describe('License Information', () => {
     it('core packages should specify licenses', () => {
       const corePkgs = ['axios', 'react', 'next'];
-      
+
       corePkgs.forEach((pkg) => {
         const pkgEntry = packageLock.packages?.[`node_modules/${pkg}`];
         expect(pkgEntry?.license).toBeDefined();
@@ -428,10 +428,10 @@ describe('Package-lock.json Validation', () => {
       Object.entries(packageLock.packages).forEach(([path, pkg]: [string, any]) => {
         if (pkg.license) {
           const gplLicenses = ['GPL', 'AGPL', 'LGPL'];
-          const isGPL = gplLicenses.some((gpl) => 
+          const isGPL = gplLicenses.some((gpl) =>
             (pkg.license as string).toUpperCase().includes(gpl)
           );
-          
+
           // Log if GPL found (not failing, just checking)
           if (isGPL) {
             console.log(`Note: GPL-licensed package found: ${path}`);
@@ -513,7 +513,7 @@ describe('Package-lock.json Validation', () => {
 
     it('axios dependencies should be compatible versions', () => {
       const axiosLock = packageLock.packages?.['node_modules/axios'];
-      
+
       if (axiosLock?.dependencies) {
         Object.entries(axiosLock.dependencies).forEach(([dep, version]) => {
           expect(version).toBeDefined();
@@ -529,9 +529,9 @@ describe('Package-lock.json Validation', () => {
     it('axios 1.13.2 should be compatible with existing code', () => {
       const axiosLock = packageLock.packages?.['node_modules/axios'];
       const version = axiosLock?.version;
-      
+
       expect(version).toBe('1.13.2');
-      
+
       // Major version should be 1 for backward compatibility
       const major = parseInt(version!.split('.')[0]);
       expect(major).toBe(1);
@@ -545,7 +545,7 @@ describe('Package-lock.json Validation', () => {
         if (pkg.peerDependencies?.axios) {
           axiosPeerDepFound = true;
           const peerVersion = pkg.peerDependencies.axios;
-          
+
           // 1.13.2 should satisfy the peer dependency
           expect(peerVersion).toBeDefined();
         }
@@ -565,7 +565,7 @@ describe('Package-lock.json Validation', () => {
 
     it('root package should match package.json structure', () => {
       const root = packageLock.packages?.[''];
-      
+
       expect(root?.name).toBe(packageJson.name);
       expect(root?.version).toBe(packageJson.version);
     });

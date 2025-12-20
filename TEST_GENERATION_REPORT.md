@@ -9,7 +9,7 @@ Generated comprehensive unit and integration tests for the axios dependency upgr
 ### Modified Files
 1. **frontend/package.json**
    - axios upgraded from `^1.6.0` to `^1.13.2`
-   
+
 2. **frontend/package-lock.json**
    - Resolved axios version updated to `1.13.2`
    - Peer dependency adjustments

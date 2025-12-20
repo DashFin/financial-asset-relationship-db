@@ -9,7 +9,7 @@
  * - Dependency consistency
  * - Security best practices
  * - Specific changes validation (axios upgrade)
- * 
+ *
  * This follows patterns established in tests/integration/test_requirements_dev.py
  * and tests/unit/test_config_validation.py
  */
@@ -217,7 +217,7 @@ describe('Package.json Validation', () => {
     it('should use caret ranges for most dependencies', () => {
       const deps = Object.entries(packageJson.dependencies);
       const caretDeps = deps.filter(([_, version]) => (version as string).startsWith('^'));
-      
+
       // Most dependencies should use caret for flexibility
       expect(caretDeps.length).toBeGreaterThan(0);
     });
@@ -227,7 +227,7 @@ describe('Package.json Validation', () => {
         ...packageJson.dependencies,
         ...packageJson.devDependencies,
       };
-      
+
       Object.entries(allDeps).forEach(([name, version]) => {
         expect(version).not.toBe('*');
         expect(version).not.toBe('latest');
@@ -243,13 +243,13 @@ describe('Package.json Validation', () => {
     it('should have axios version 1.13.2 or higher', () => {
       const axiosVersion = packageJson.dependencies.axios;
       expect(axiosVersion).toBeDefined();
-      
+
       // Extract version number (handle ^, ~, >=, etc.)
       const versionMatch = axiosVersion.match(/[\d.]+/);
       expect(versionMatch).not.toBeNull();
-      
+
       const [major, minor, patch] = versionMatch![0].split('.').map(Number);
-      
+
       // Should be at least 1.13.2
       expect(major).toBeGreaterThanOrEqual(1);
       if (major === 1) {
@@ -270,7 +270,7 @@ describe('Package.json Validation', () => {
       const axiosVersion = packageJson.dependencies.axios;
       const versionMatch = axiosVersion.match(/[\d.]+/);
       const [major] = versionMatch![0].split('.').map(Number);
-      
+
       expect(major).toBeGreaterThanOrEqual(1);
     });
 
@@ -282,7 +282,7 @@ describe('Package.json Validation', () => {
   describe('TypeScript Configuration Consistency', () => {
     it('should have TypeScript type definitions for dependencies that need them', () => {
       const depsNeedingTypes = ['react', 'react-dom', 'node', 'plotly.js', 'react-plotly.js'];
-      
+
       depsNeedingTypes.forEach((dep) => {
         const typesDep = `@types/${dep}`;
         expect(packageJson.devDependencies[typesDep]).toBeDefined();
@@ -299,37 +299,37 @@ describe('Package.json Validation', () => {
     it('should have matching React and ReactDOM versions', () => {
       const reactVersion = packageJson.dependencies.react;
       const reactDomVersion = packageJson.dependencies['react-dom'];
-      
+
       expect(reactVersion).toBeDefined();
       expect(reactDomVersion).toBeDefined();
-      
+
       // Extract major.minor versions
       const reactMajorMinor = reactVersion.match(/\d+\.\d+/)?.[0];
       const reactDomMajorMinor = reactDomVersion.match(/\d+\.\d+/)?.[0];
-      
+
       expect(reactMajorMinor).toBe(reactDomMajorMinor);
     });
 
     it('should have matching @types/react and @types/react-dom versions', () => {
       const typesReact = packageJson.devDependencies['@types/react'];
       const typesReactDom = packageJson.devDependencies['@types/react-dom'];
-      
+
       expect(typesReact).toBeDefined();
       expect(typesReactDom).toBeDefined();
-      
+
       const reactMajorMinor = typesReact.match(/\d+\.\d+/)?.[0];
       const reactDomMajorMinor = typesReactDom.match(/\d+\.\d+/)?.[0];
-      
+
       expect(reactMajorMinor).toBe(reactDomMajorMinor);
     });
 
     it('Next.js version should be compatible with React version', () => {
       const reactVersion = packageJson.dependencies.react;
       const nextVersion = packageJson.dependencies.next;
-      
+
       const reactMajor = parseInt(reactVersion.match(/\d+/)?.[0] || '0');
       const nextMajor = parseInt(nextVersion.match(/\d+/)?.[0] || '0');
-      
+
       // Next.js 14 requires React 18+
       if (nextMajor >= 14) {
         expect(reactMajor).toBeGreaterThanOrEqual(18);
@@ -341,7 +341,7 @@ describe('Package.json Validation', () => {
     it('should have compatible Testing Library versions', () => {
       const testingLibReact = packageJson.devDependencies['@testing-library/react'];
       const testingLibJestDom = packageJson.devDependencies['@testing-library/jest-dom'];
-      
+
       expect(testingLibReact).toBeDefined();
       expect(testingLibJestDom).toBeDefined();
     });
@@ -349,10 +349,10 @@ describe('Package.json Validation', () => {
     it('Testing Library React should be compatible with React version', () => {
       const reactVersion = packageJson.dependencies.react;
       const testingLibReact = packageJson.devDependencies['@testing-library/react'];
-      
+
       const reactMajor = parseInt(reactVersion.match(/\d+/)?.[0] || '0');
       const testingLibMajor = parseInt(testingLibReact.match(/\d+/)?.[0] || '0');
-      
+
       // @testing-library/react 14+ requires React 18+
       if (testingLibMajor >= 14) {
         expect(reactMajor).toBeGreaterThanOrEqual(18);
@@ -364,9 +364,9 @@ describe('Package.json Validation', () => {
     it('should not have packages in both dependencies and devDependencies', () => {
       const deps = Object.keys(packageJson.dependencies);
       const devDeps = Object.keys(packageJson.devDependencies);
-      
+
       const duplicates = deps.filter((dep) => devDeps.includes(dep));
-      
+
       expect(duplicates).toHaveLength(0);
     });
 
@@ -375,10 +375,10 @@ describe('Package.json Validation', () => {
         ...Object.keys(packageJson.dependencies),
         ...Object.keys(packageJson.devDependencies),
       ];
-      
+
       const lowerCaseDeps = allDeps.map((dep) => dep.toLowerCase());
       const uniqueLowerCase = new Set(lowerCaseDeps);
-      
+
       expect(lowerCaseDeps.length).toBe(uniqueLowerCase.size);
     });
   });
@@ -389,9 +389,9 @@ describe('Package.json Validation', () => {
         ...packageJson.dependencies,
         ...packageJson.devDependencies,
       };
-      
+
       const validNamePattern = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
-      
+
       Object.keys(allDeps).forEach((name) => {
         expect(name).toMatch(validNamePattern);
       });
@@ -402,9 +402,9 @@ describe('Package.json Validation', () => {
         ...packageJson.dependencies,
         ...packageJson.devDependencies,
       };
-      
+
       const scopedPackages = Object.keys(allDeps).filter((name) => name.startsWith('@'));
-      
+
       scopedPackages.forEach((name) => {
         expect(name).toMatch(/^@[a-z0-9-~]+\/[a-z0-9-._~]+$/);
       });
@@ -415,12 +415,12 @@ describe('Package.json Validation', () => {
     it('should not use deprecated package versions', () => {
       // This is a basic check - in real scenarios, you'd check against npm registry
       const deprecatedPackages = ['request', 'node-uuid'];
-      
+
       const allDeps = {
         ...packageJson.dependencies,
         ...packageJson.devDependencies,
       };
-      
+
       deprecatedPackages.forEach((pkg) => {
         expect(allDeps[pkg]).toBeUndefined();
       });
@@ -428,7 +428,7 @@ describe('Package.json Validation', () => {
 
     it('critical dependencies should have minimum versions', () => {
       const criticalDeps = ['axios', 'next', 'react'];
-      
+
       criticalDeps.forEach((dep) => {
         const version = packageJson.dependencies[dep];
         expect(version).toBeDefined();
@@ -439,13 +439,13 @@ describe('Package.json Validation', () => {
 
     it('should use HTTPS in any URL fields', () => {
       const urlFields = ['homepage', 'repository', 'bugs'];
-      
+
       urlFields.forEach((field) => {
         if (packageJson[field]) {
-          const url = typeof packageJson[field] === 'string' 
-            ? packageJson[field] 
+          const url = typeof packageJson[field] === 'string'
+            ? packageJson[field]
             : packageJson[field].url;
-          
+
           if (url) {
             expect(url).toMatch(/^https:/);
           }
@@ -502,7 +502,7 @@ describe('Package.json Validation', () => {
       const presentClients = httpClients.filter(
         (client) => packageJson.dependencies[client] || packageJson.devDependencies[client]
       );
-      
+
       // Only axios should be present (fetch is built-in to modern browsers)
       expect(presentClients).toEqual(['axios']);
     });
@@ -516,7 +516,7 @@ describe('Package.json Validation', () => {
     it('Next.js version should be modern and stable', () => {
       const nextVersion = packageJson.dependencies.next;
       const major = parseInt(nextVersion.match(/\d+/)?.[0] || '0');
-      
+
       expect(major).toBeGreaterThanOrEqual(13); // Next.js 13+ has App Router
     });
   });
@@ -531,7 +531,7 @@ describe('Package.json Validation', () => {
       // Axios 1.x maintains backward compatibility within major version
       const axiosVersion = packageJson.dependencies.axios;
       const major = parseInt(axiosVersion.match(/\d+/)?.[0] || '0');
-      
+
       expect(major).toBe(1);
     });
 
@@ -539,7 +539,7 @@ describe('Package.json Validation', () => {
       // Axios 1.x supports TypeScript, interceptors, and modern features
       const axiosVersion = packageJson.dependencies.axios;
       const [major, minor] = axiosVersion.match(/[\d.]+/)![0].split('.').map(Number);
-      
+
       // 1.13.2 has security fixes and improvements
       expect(major).toBe(1);
       expect(minor).toBeGreaterThanOrEqual(13);
@@ -549,7 +549,7 @@ describe('Package.json Validation', () => {
   describe('Edge Cases and Error Handling', () => {
     it('should handle empty optional fields gracefully', () => {
       const optionalFields = ['description', 'keywords', 'author', 'license', 'repository'];
-      
+
       optionalFields.forEach((field) => {
         if (packageJson[field]) {
           expect(typeof packageJson[field]).toBeDefined();
@@ -574,7 +574,7 @@ describe('Package.json Validation', () => {
     it('should be properly formatted JSON', () => {
       const content = readFileSync(packageJsonPath, 'utf-8');
       const parsed = JSON.parse(content);
-      
+
       // Should be able to parse and re-stringify
       expect(() => JSON.stringify(parsed, null, 2)).not.toThrow();
     });
@@ -582,7 +582,7 @@ describe('Package.json Validation', () => {
     it('should use consistent indentation', () => {
       const content = readFileSync(packageJsonPath, 'utf-8');
       const lines = content.split('\n');
-      
+
       // Check that indentation is consistent (2 or 4 spaces)
       const indentedLines = lines.filter((line) => line.match(/^\s+/));
       if (indentedLines.length > 0) {
@@ -598,7 +598,7 @@ describe('Package.json Validation', () => {
         ...packageJson.dependencies,
         ...packageJson.devDependencies,
       };
-      
+
       Object.entries(allDeps).forEach(([name, version]) => {
         // Should not use overly permissive ranges
         expect(version).not.toMatch(/^[*x]/);
@@ -610,7 +610,7 @@ describe('Package.json Validation', () => {
       if (packageJson.peerDependencies) {
         const peerDeps = packageJson.peerDependencies;
         const deps = packageJson.dependencies;
-        
+
         Object.keys(peerDeps).forEach((peerDep) => {
           if (deps[peerDep]) {
             // If peer dep is also a regular dep, versions should be compatible
@@ -624,7 +624,7 @@ describe('Package.json Validation', () => {
   describe('Financial Application Specific Dependencies', () => {
     it('should have visualization libraries for financial data', () => {
       const vizLibs = ['plotly.js', 'react-plotly.js', 'recharts'];
-      
+
       vizLibs.forEach((lib) => {
         expect(packageJson.dependencies[lib]).toBeDefined();
       });
