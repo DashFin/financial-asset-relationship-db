@@ -442,6 +442,11 @@ class TestAuthenticateUser:
         mock_get_user.assert_called_once_with("testuser", repository=mock_repo)
 
 
+@pytest.fixture(autouse=True)
+def _auth_test_keys(monkeypatch):
+    monkeypatch.setattr("api.auth.SECRET_KEY", "test-secret")
+    monkeypatch.setattr("api.auth.ALGORITHM", "HS256")
+
 @pytest.mark.unit
 class TestCreateAccessToken:
     """Test suite for create_access_token function."""
