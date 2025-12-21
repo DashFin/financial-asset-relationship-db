@@ -305,7 +305,8 @@ class TestProcessContext:
         text, has_content = chunker.process_context(payload)
 
         assert has_content is True
-        assert len(text) == 100000
+        assert long_text in text
+        assert len(text) >= 100000
 
     def test_process_context_preserves_special_characters(self):
         """Test that special characters in content are preserved."""
