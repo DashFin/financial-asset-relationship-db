@@ -25,7 +25,7 @@ Comprehensive unit tests for modules changed in the current branch.
 pytest tests/unit/test_auth.py tests/unit/test_context_chunker.py -v
 
 # With coverage
-pytest tests/unit/ --cov=api --cov=.github.scripts -v
+pytest tests/unit/ --cov=api --cov=.github/scripts -v
 ```
 
 ## Statistics
