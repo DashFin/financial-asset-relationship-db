@@ -14,6 +14,7 @@ from datetime import timedelta
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
+
 _jose = pytest.importorskip(
     "jose",
     reason="python-jose is required for auth JWT unit tests",
