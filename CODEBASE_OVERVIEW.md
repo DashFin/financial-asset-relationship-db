@@ -41,7 +41,6 @@ This document summarizes the repository's architecture, conventions, and recurri
 2. **Relationship Building**: Core logic links assets across sector affinity, corporate bond-equity ties, commodity exposure, currency risk, and regulatory event impact strength.
 3. **Graph Construction**: Assets become nodes; relationships form weighted edges with deterministic spatial coordinates for reproducible 3D layouts.
 4. **Delivery**: FastAPI serves JSON payloads for Next.js; Gradio directly renders Plotly figures; reports summarize schema and business rules.
-- File system conventions: directories use lowercase names and Python modules use `snake_case` names (e.g., `asset_graph.py`). Favor small, focused modules (~100 lines) and avoid wrapping imports in try/except blocks.
 ## Coding Standards & Library Rules
 - The backend is Python-first, using **dataclasses** and **enums** for data structures.
 - Prefer **pandas** for tabular processing and **numpy** for numeric operations.
