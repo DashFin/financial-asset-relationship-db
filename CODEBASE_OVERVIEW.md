@@ -44,7 +44,9 @@ This document summarizes the repository's architecture, conventions, and recurri
 4. **Delivery**: FastAPI serves JSON payloads for Next.js; Gradio directly renders Plotly figures; reports summarize schema and business rules.
 
 ## Coding Standards & Library Rules
-- Python-first backend with **dataclasses** and **enum** for structure. Prefer **pandas** for tabular processing and **numpy** for numeric operations. **Plotly** is the only charting/visualization library; avoid alternatives.
+- The backend is Python-first, using **dataclasses** and **enums** for data structures.
+- Prefer **pandas** for tabular processing and **numpy** for numeric operations.
+- **Plotly** is the only approved charting and visualization library; avoid alternatives.
 - Web data acquisition standardizes on **yfinance**; do not introduce other finance APIs without approval.
 - File system conventions: directories use lowercase names; files may be mixed-case. Favor small, focused modules (~100 lines) and avoid wrapping imports in try/except blocks.
 - Prioritize readability, minimal complexity, and responsive UI designs. Provide user feedback through UI affordances (e.g., toasts) where applicable.
