@@ -158,7 +158,7 @@ pytest tests/unit/test_context_chunker.py::TestProcessContext -v
 pytest tests/unit/test_database.py::TestResolveSqlitePathEnhancements -v
 
 # Run with coverage
-pytest tests/unit/ --cov=api --cov=.github.scripts --cov-report=term-missing
+pytest tests/unit/ --cov=api --cov=.github/scripts --cov-report=term-missing
 
 # Run in CI mode
 pytest tests/unit/ -v --tb=short
