@@ -15,12 +15,20 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-_jose = pytest.importorskip(
-    "jose",
-    reason="python-jose is required for auth JWT unit tests",
-)
-jwt = _jose.jwt
-JWTError = _jose.JWTError
+try:
+    from jose import JWTError, jwt
+except Exception:  # pragma: no cover
+    class _JoseMissingProxy:
+        def __getattr__(self, _name):
+            pytest.skip(
+                "python-jose is required for auth JWT unit tests",
+                allow_module_level=False,
+            )
+
+    jwt = _JoseMissingProxy()
+
+    class JWTError(Exception):
+        pass
 
 # Import the module under test
 from api.auth import (
