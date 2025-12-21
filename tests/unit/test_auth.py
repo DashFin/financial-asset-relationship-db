@@ -439,9 +439,11 @@ class TestCreateAccessToken:
     def test_create_access_token_contains_claims(self):
         """Test that created token contains the provided claims."""
         data = {"sub": "testuser", "role": "admin"}
-        token = create_access_token(data)
 
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        with patch("api.auth.SECRET_KEY", "test-secret"), patch("api.auth.ALGORITHM", "HS256"):
+            token = create_access_token(data)
+            decoded = jwt.decode(token, "test-secret", algorithms=["HS256"])
+
         assert decoded["sub"] == "testuser"
         assert decoded["role"] == "admin"
         assert "exp" in decoded
