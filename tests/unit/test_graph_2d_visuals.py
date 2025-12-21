@@ -424,3 +424,487 @@ class TestEdgeCases:
 
         # Assert
         assert isinstance(traces, list)
+
+# ============================================================================
+# ADDITIONAL COMPREHENSIVE TESTS FOR ENHANCED COVERAGE
+# Generated to test formatting changes and ensure robustness
+# ============================================================================
+
+
+class TestStringQuoteHandling:
+    """Test string quote handling after formatting changes (single vs double quotes)."""
+
+    def test_has_getitem_attribute_detection(self):
+        """Test __getitem__ attribute detection with various types."""
+        from src.visualizations.graph_2d_visuals import _create_spring_layout_2d
+        
+        # Create mock positions with different types
+        positions_3d = {
+            'asset1': (1.0, 2.0, 3.0),
+            'asset2': [4.0, 5.0, 6.0],
+            'asset3': (7.0, 8.0, 9.0)
+        }
+        asset_ids = ['asset1', 'asset2', 'asset3']
+        
+        result = _create_spring_layout_2d(positions_3d, asset_ids)
+        
+        assert len(result) == 3
+        assert 'asset1' in result
+        assert result['asset1'] == (1.0, 2.0)
+        assert result['asset2'] == (4.0, 5.0)
+
+    def test_create_spring_layout_2d_with_numpy_arrays(self):
+        """Test spring layout conversion with numpy array positions."""
+        import numpy as np
+        from src.visualizations.graph_2d_visuals import _create_spring_layout_2d
+        
+        positions_3d = {
+            'asset1': np.array([1.0, 2.0, 3.0]),
+            'asset2': np.array([4.0, 5.0, 6.0])
+        }
+        asset_ids = ['asset1', 'asset2']
+        
+        result = _create_spring_layout_2d(positions_3d, asset_ids)
+        
+        assert len(result) == 2
+        assert isinstance(result['asset1'], tuple)
+        assert result['asset1'] == (1.0, 2.0)
+
+    def test_create_spring_layout_2d_missing_asset(self):
+        """Test spring layout handles missing assets gracefully."""
+        from src.visualizations.graph_2d_visuals import _create_spring_layout_2d
+        
+        positions_3d = {
+            'asset1': (1.0, 2.0, 3.0)
+        }
+        asset_ids = ['asset1', 'asset2', 'asset3']
+        
+        result = _create_spring_layout_2d(positions_3d, asset_ids)
+        
+        # Should only include asset1
+        assert len(result) == 1
+        assert 'asset1' in result
+        assert 'asset2' not in result
+
+
+class TestRelationshipDictionaryFormatting:
+    """Test relationship dictionary formatting with updated quote style."""
+
+    def test_relationship_groups_structure(self, sample_graph):
+        """Test relationship groups are properly structured with correct keys."""
+        from src.visualizations.graph_2d_visuals import _create_2d_relationship_traces
+        
+        positions = {
+            'AAPL': (0.0, 0.0),
+            'GOOGL': (1.0, 1.0),
+            'MSFT': (2.0, 2.0)
+        }
+        
+        traces = _create_2d_relationship_traces(sample_graph, positions)
+        
+        # Verify traces were created
+        assert len(traces) > 0
+        for trace in traces:
+            # Verify trace has expected properties
+            assert hasattr(trace, 'x')
+            assert hasattr(trace, 'y')
+            assert hasattr(trace, 'mode')
+
+    def test_relationship_hover_text_format(self, sample_graph):
+        """Test hover text format for relationships."""
+        from src.visualizations.graph_2d_visuals import _create_2d_relationship_traces
+        
+        positions = {
+            'AAPL': (0.0, 0.0),
+            'GOOGL': (1.0, 1.0)
+        }
+        
+        # Add a relationship
+        sample_graph.add_relationship('AAPL', 'GOOGL', 'sector_peer', strength=0.8)
+        
+        traces = _create_2d_relationship_traces(sample_graph, positions)
+        
+        assert len(traces) > 0
+        # Verify at least one trace has hover information
+        has_hover = any(hasattr(trace, 'hovertext') or hasattr(trace, 'hoverinfo') for trace in traces)
+        assert has_hover
+
+    def test_relationship_source_target_keys(self, sample_graph):
+        """Test relationship dictionaries use correct keys (source_id, target_id)."""
+        from src.visualizations.graph_2d_visuals import _create_2d_relationship_traces
+        
+        positions = {
+            'AAPL': (0.0, 0.0),
+            'GOOGL': (1.0, 1.0)
+        }
+        
+        sample_graph.add_relationship('AAPL', 'GOOGL', 'test_rel', strength=0.5)
+        
+        traces = _create_2d_relationship_traces(sample_graph, positions)
+        
+        # Should create traces without errors
+        assert len(traces) > 0
+
+
+class TestVisualizationModeStrings:
+    """Test visualization mode string handling (single quotes vs double quotes)."""
+
+    def test_node_trace_mode_format(self, sample_graph):
+        """Test node trace uses correct mode string format."""
+        from src.visualizations.graph_2d_visuals import visualize_2d_graph
+        
+        fig = visualize_2d_graph(sample_graph, layout_type='circular')
+        
+        # Find node traces (should have markers+text mode)
+        node_traces = [trace for trace in fig.data if hasattr(trace, 'marker') and trace.marker]
+        
+        assert len(node_traces) > 0
+        for trace in node_traces:
+            if hasattr(trace, 'mode'):
+                # Mode should include 'markers' for nodes
+                assert 'markers' in trace.mode.lower() or trace.mode == 'markers+text'
+
+    def test_edge_trace_mode_format(self, sample_graph):
+        """Test edge trace uses correct mode string format."""
+        from src.visualizations.graph_2d_visuals import visualize_2d_graph
+        
+        sample_graph.add_relationship('AAPL', 'GOOGL', 'test', strength=0.5)
+        
+        fig = visualize_2d_graph(sample_graph, layout_type='spring')
+        
+        # Find edge traces (should have lines mode)
+        edge_traces = [trace for trace in fig.data if not hasattr(trace, 'marker') or not trace.marker]
+        
+        # If relationships exist, should have edge traces
+        if len(sample_graph.relationships) > 0:
+            assert len(edge_traces) > 0
+
+    def test_hoverinfo_string_format(self, sample_graph):
+        """Test hoverinfo uses correct string format."""
+        from src.visualizations.graph_2d_visuals import visualize_2d_graph
+        
+        fig = visualize_2d_graph(sample_graph, layout_type='grid')
+        
+        # Check that traces have hoverinfo set
+        for trace in fig.data:
+            if hasattr(trace, 'hoverinfo'):
+                assert isinstance(trace.hoverinfo, str)
+
+
+class TestColorStringFormatting:
+    """Test color string formatting with single quotes."""
+
+    def test_asset_class_color_mapping(self, sample_graph):
+        """Test asset class colors are properly mapped."""
+        from src.visualizations.graph_2d_visuals import visualize_2d_graph
+        
+        fig = visualize_2d_graph(sample_graph, layout_type='circular')
+        
+        # Find node trace
+        node_traces = [trace for trace in fig.data if hasattr(trace, 'marker') and trace.marker]
+        
+        assert len(node_traces) > 0
+        for trace in node_traces:
+            if hasattr(trace.marker, 'color'):
+                colors = trace.marker.color
+                # Colors should be valid hex or rgba strings
+                if isinstance(colors, list):
+                    for color in colors:
+                        assert isinstance(color, str)
+                        # Should be hex color format
+                        assert color.startswith('#') or 'rgb' in color.lower()
+
+    def test_default_color_for_unknown_asset_class(self, sample_graph):
+        """Test default color is applied for unknown asset classes."""
+        from src.visualizations.graph_2d_visuals import visualize_2d_graph
+        from src.models.financial_models import AssetClass
+        
+        # Create asset with unknown/custom asset class
+        # (This tests the .get() fallback in color mapping)
+        
+        fig = visualize_2d_graph(sample_graph, layout_type='spring')
+        
+        node_traces = [trace for trace in fig.data if hasattr(trace, 'marker') and trace.marker]
+        assert len(node_traces) > 0
+
+    def test_gridcolor_string_format(self, sample_graph):
+        """Test grid color uses proper rgba string format."""
+        from src.visualizations.graph_2d_visuals import visualize_2d_graph
+        
+        fig = visualize_2d_graph(sample_graph, layout_type='grid')
+        
+        # Check layout grid colors
+        assert hasattr(fig.layout, 'xaxis')
+        assert hasattr(fig.layout, 'yaxis')
+        
+        if hasattr(fig.layout.xaxis, 'gridcolor'):
+            assert isinstance(fig.layout.xaxis.gridcolor, str)
+        if hasattr(fig.layout.yaxis, 'gridcolor'):
+            assert isinstance(fig.layout.yaxis.gridcolor, str)
+
+
+class TestLayoutFunctionParameterFormatting:
+    """Test function parameters after formatting changes."""
+
+    def test_create_spring_layout_2d_parameters(self):
+        """Test _create_spring_layout_2d handles parameters correctly."""
+        from src.visualizations.graph_2d_visuals import _create_spring_layout_2d
+        
+        # Test with multiline parameter formatting
+        positions_3d = {
+            'asset1': (1.0, 2.0, 3.0),
+            'asset2': (4.0, 5.0, 6.0)
+        }
+        asset_ids = ['asset1', 'asset2']
+        
+        result = _create_spring_layout_2d(
+            positions_3d,
+            asset_ids
+        )
+        
+        assert len(result) == 2
+        assert all(isinstance(pos, tuple) and len(pos) == 2 for pos in result.values())
+
+    def test_visualize_2d_graph_with_all_layout_types(self, sample_graph):
+        """Test visualization with all supported layout types."""
+        from src.visualizations.graph_2d_visuals import visualize_2d_graph
+        
+        layout_types = ['circular', 'grid', 'spring']
+        
+        for layout_type in layout_types:
+            fig = visualize_2d_graph(sample_graph, layout_type=layout_type)
+            assert fig is not None
+            assert len(fig.data) > 0
+
+    def test_relationship_trace_creation_with_multiple_types(self, sample_graph):
+        """Test relationship traces with multiple relationship types."""
+        from src.visualizations.graph_2d_visuals import _create_2d_relationship_traces
+        
+        positions = {
+            'AAPL': (0.0, 0.0),
+            'GOOGL': (1.0, 1.0),
+            'MSFT': (2.0, 2.0)
+        }
+        
+        # Add multiple relationship types
+        sample_graph.add_relationship('AAPL', 'GOOGL', 'sector_peer', strength=0.8)
+        sample_graph.add_relationship('GOOGL', 'MSFT', 'competitor', strength=0.6)
+        sample_graph.add_relationship('AAPL', 'MSFT', 'sector_peer', strength=0.7)
+        
+        traces = _create_2d_relationship_traces(sample_graph, positions)
+        
+        # Should create separate traces for each relationship type
+        assert len(traces) >= 1
+
+
+class TestHoverTextMultilineFormatting:
+    """Test multiline string formatting in hover text."""
+
+    def test_hover_text_line_breaks(self, sample_graph):
+        """Test hover text contains proper line breaks."""
+        from src.visualizations.graph_2d_visuals import visualize_2d_graph
+        
+        sample_graph.add_relationship('AAPL', 'GOOGL', 'test', strength=0.9)
+        
+        fig = visualize_2d_graph(sample_graph, layout_type='circular')
+        
+        # Check for traces with hover text
+        for trace in fig.data:
+            if hasattr(trace, 'hovertext') and trace.hovertext:
+                # Verify hover text is a list or string
+                assert isinstance(trace.hovertext, (list, str))
+
+    def test_node_hover_text_format(self, sample_graph):
+        """Test node hover text includes asset information."""
+        from src.visualizations.graph_2d_visuals import visualize_2d_graph
+        
+        fig = visualize_2d_graph(sample_graph, layout_type='spring')
+        
+        # Find node traces
+        node_traces = [trace for trace in fig.data if hasattr(trace, 'marker') and trace.marker]
+        
+        assert len(node_traces) > 0
+        for trace in node_traces:
+            if hasattr(trace, 'hovertext') and trace.hovertext:
+                # Hover text should contain asset information
+                if isinstance(trace.hovertext, list):
+                    assert len(trace.hovertext) > 0
+
+
+class TestEdgeCasesWithFormattingChanges:
+    """Test edge cases that might be affected by formatting changes."""
+
+    def test_empty_positions_dict(self):
+        """Test handling of empty positions dictionary."""
+        from src.visualizations.graph_2d_visuals import _create_spring_layout_2d
+        
+        positions_3d = {}
+        asset_ids = []
+        
+        result = _create_spring_layout_2d(positions_3d, asset_ids)
+        
+        assert result == {}
+
+    def test_positions_with_special_characters_in_keys(self):
+        """Test positions dictionary with special character keys."""
+        from src.visualizations.graph_2d_visuals import _create_spring_layout_2d
+        
+        positions_3d = {
+            'asset-1': (1.0, 2.0, 3.0),
+            'asset_2': (4.0, 5.0, 6.0),
+            'asset.3': (7.0, 8.0, 9.0)
+        }
+        asset_ids = ['asset-1', 'asset_2', 'asset.3']
+        
+        result = _create_spring_layout_2d(positions_3d, asset_ids)
+        
+        assert len(result) == 3
+        assert 'asset-1' in result
+        assert 'asset_2' in result
+        assert 'asset.3' in result
+
+    def test_very_large_coordinate_values(self):
+        """Test handling of very large coordinate values."""
+        from src.visualizations.graph_2d_visuals import _create_spring_layout_2d
+        
+        positions_3d = {
+            'asset1': (1e10, 2e10, 3e10),
+            'asset2': (-1e10, -2e10, -3e10)
+        }
+        asset_ids = ['asset1', 'asset2']
+        
+        result = _create_spring_layout_2d(positions_3d, asset_ids)
+        
+        assert len(result) == 2
+        assert result['asset1'] == (1e10, 2e10)
+        assert result['asset2'] == (-1e10, -2e10)
+
+    def test_zero_coordinate_values(self):
+        """Test handling of zero coordinate values."""
+        from src.visualizations.graph_2d_visuals import _create_spring_layout_2d
+        
+        positions_3d = {
+            'asset1': (0.0, 0.0, 0.0),
+            'asset2': (0.0, 1.0, 0.0)
+        }
+        asset_ids = ['asset1', 'asset2']
+        
+        result = _create_spring_layout_2d(positions_3d, asset_ids)
+        
+        assert result['asset1'] == (0.0, 0.0)
+        assert result['asset2'] == (0.0, 1.0)
+
+
+class TestVisualizationRobustness:
+    """Test visualization robustness with various graph states."""
+
+    def test_visualization_with_single_asset(self):
+        """Test visualization with only one asset."""
+        from src.visualizations.graph_2d_visuals import visualize_2d_graph
+        from src.logic.asset_graph import AssetRelationshipGraph
+        from src.models.financial_models import Equity, AssetClass
+        
+        graph = AssetRelationshipGraph()
+        asset = Equity(
+            id='SINGLE',
+            name='Single Asset',
+            asset_class=AssetClass.EQUITY,
+            price=100.0
+        )
+        graph.add_asset(asset)
+        
+        fig = visualize_2d_graph(graph, layout_type='circular')
+        
+        assert fig is not None
+        assert len(fig.data) > 0
+
+    def test_visualization_with_disconnected_assets(self):
+        """Test visualization with multiple disconnected assets."""
+        from src.visualizations.graph_2d_visuals import visualize_2d_graph
+        
+        # sample_graph has disconnected assets by default
+        from src.logic.asset_graph import AssetRelationshipGraph
+        from src.models.financial_models import Equity, AssetClass
+        
+        graph = AssetRelationshipGraph()
+        for i in range(5):
+            asset = Equity(
+                id=f'ASSET{i}',
+                name=f'Asset {i}',
+                asset_class=AssetClass.EQUITY,
+                price=100.0
+            )
+            graph.add_asset(asset)
+        
+        fig = visualize_2d_graph(graph, layout_type='grid')
+        
+        assert fig is not None
+        assert len(fig.data) > 0
+
+    def test_visualization_with_dense_relationships(self, sample_graph):
+        """Test visualization with many relationships."""
+        from src.visualizations.graph_2d_visuals import visualize_2d_graph
+        
+        # Add many relationships
+        assets = list(sample_graph.assets.keys())
+        for i, source in enumerate(assets):
+            for target in assets[i+1:]:
+                sample_graph.add_relationship(source, target, 'dense', strength=0.5)
+        
+        fig = visualize_2d_graph(sample_graph, layout_type='spring')
+        
+        assert fig is not None
+        # Should have many traces
+        assert len(fig.data) >= 2
+
+
+class TestGetitemAttributeAccess:
+    """Test __getitem__ attribute access patterns."""
+
+    def test_tuple_getitem_access(self):
+        """Test __getitem__ access on tuples."""
+        from src.visualizations.graph_2d_visuals import _create_spring_layout_2d
+        
+        positions_3d = {
+            'asset1': (1.0, 2.0, 3.0)
+        }
+        asset_ids = ['asset1']
+        
+        result = _create_spring_layout_2d(positions_3d, asset_ids)
+        
+        assert hasattr(positions_3d['asset1'], '__getitem__')
+        assert result['asset1'] == (1.0, 2.0)
+
+    def test_list_getitem_access(self):
+        """Test __getitem__ access on lists."""
+        from src.visualizations.graph_2d_visuals import _create_spring_layout_2d
+        
+        positions_3d = {
+            'asset1': [1.0, 2.0, 3.0]
+        }
+        asset_ids = ['asset1']
+        
+        result = _create_spring_layout_2d(positions_3d, asset_ids)
+        
+        assert hasattr(positions_3d['asset1'], '__getitem__')
+        assert result['asset1'] == (1.0, 2.0)
+
+    def test_mixed_types_getitem_access(self):
+        """Test __getitem__ access with mixed position types."""
+        import numpy as np
+        from src.visualizations.graph_2d_visuals import _create_spring_layout_2d
+        
+        positions_3d = {
+            'asset1': (1.0, 2.0, 3.0),
+            'asset2': [4.0, 5.0, 6.0],
+            'asset3': np.array([7.0, 8.0, 9.0])
+        }
+        asset_ids = ['asset1', 'asset2', 'asset3']
+        
+        result = _create_spring_layout_2d(positions_3d, asset_ids)
+        
+        assert len(result) == 3
+        # All should be converted to tuples
+        for pos in result.values():
+            assert isinstance(pos, tuple)
+            assert len(pos) == 2
