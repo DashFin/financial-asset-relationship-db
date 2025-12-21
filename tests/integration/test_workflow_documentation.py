@@ -46,10 +46,13 @@ class TestDocumentationStructure:
     @pytest.fixture(scope='class')
     def doc_content(self) -> str:
         """
-        Return the documentation file's full text.
-
+        Read and return the full text of the documentation file.
+        
         Returns:
-            str: Full contents of DOC_FILE read using UTF-8 encoding.
+            str: The full contents of DOC_FILE decoded as UTF-8.
+        
+        Raises:
+            Failed: Fails the test via pytest.fail if DOC_FILE does not exist.
         """
         try:
             with open(DOC_FILE, 'r', encoding='utf-8') as f:
@@ -65,21 +68,33 @@ class TestDocumentationStructure:
 
     def test_has_generated_files_section(self, section_headers: List[str]):
         """
-        Checks the documentation contains at least one header about generated files.
+        Ensure the document includes at least one markdown header referencing generated files.
         
         Parameters:
-            section_headers (List[str]): List of markdown header lines extracted from the document; matching is case-insensitive and looks for headers containing "generated" or "file".
+            section_headers (List[str]): List of markdown header lines to search; matching is case-insensitive and looks for headers containing the words "generated" or "file".
         """
         generated = [h for h in section_headers 
                     if 'generated' in h.lower() or 'file' in h.lower()]
         assert len(generated) > 0, "Should have a section about generated files"
 
     def test_has_running_section(self, section_headers: List[str]):
-        """Test that there's a section about running tests."""
+        """
+        Verify the documentation includes at least one header related to running tests.
+        
+        Searches the provided list of markdown header lines for any header containing the substring "run" (case-insensitive) and asserts that at least one match exists.
+        
+        Parameters:
+            section_headers (List[str]): Markdown header lines extracted from the documentation file.
+        """
         running = [h for h in section_headers if 'run' in h.lower()]
         assert len(running) > 0, "Should have a section about running tests"
 
     def test_has_sufficient_sections(self, section_headers: List[str]):
-        """Test that document has sufficient number of sections."""
+        """
+        Ensure the documentation contains at least five major markdown section headers.
+        
+        Parameters:
+            section_headers (List[str]): Extracted markdown header lines from the document (for example, lines beginning with `#`).
+        """
         assert len(section_headers) >= 5, \
             f"Document should have at least 5 major sections, found {len(section_headers)}"

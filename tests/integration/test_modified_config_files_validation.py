@@ -20,13 +20,21 @@ class TestPRAgentConfigChanges:
     
     @pytest.fixture
     def config_path(self) -> Path:
-        """Get path to PR agent config."""
+        """
+        Return the Path to the PR Agent YAML configuration file relative to the test module.
+        
+        Returns:
+            path (Path): Path to the .github/pr-agent-config.yml file.
+        """
         return Path(__file__).parent.parent.parent / ".github" / "pr-agent-config.yml"
     
     @pytest.fixture
     def config_data(self, config_path: Path) -> Dict[str, Any]:
         """
         Load and parse the PR Agent YAML configuration file.
+        
+        Parameters:
+            config_path (Path): Path to the `.github/pr-agent-config.yml` file to read.
         
         Returns:
             config (Dict[str, Any]): Mapping representing the parsed YAML configuration.
@@ -36,7 +44,7 @@ class TestPRAgentConfigChanges:
     
     def test_version_is_correct(self, config_data: Dict[str, Any]):
         """
-        Check that the PR agent configuration declares agent.version equal to "1.0.0".
+        Verify the PR agent configuration declares agent.version equal to "1.0.0".
         
         Parameters:
             config_data (dict): Parsed YAML content of .github/pr-agent-config.yml.
@@ -54,10 +62,10 @@ class TestPRAgentConfigChanges:
     
     def test_no_fallback_strategies(self, config_data: Dict[str, Any]):
         """
-        Assert that the PR agent config does not include any `limits.fallback` strategies.
+        Verify the PR Agent configuration does not define a 'fallback' key under the top-level 'limits' mapping.
         
         Parameters:
-            config_data (Dict[str, Any]): Parsed contents of `.github/pr-agent-config.yml`; when a `limits` section is present this test asserts it does not contain a `fallback` key.
+            config_data (Dict[str, Any]): Parsed contents of `.github/pr-agent-config.yml`. If a 'limits' mapping exists, this test asserts it does not contain a 'fallback' key.
         """
         limits = config_data.get('limits')
         if isinstance(limits, dict):
@@ -65,7 +73,12 @@ class TestPRAgentConfigChanges:
                 "Fallback strategies should be removed"
     
     def test_basic_sections_present(self, config_data: Dict[str, Any]):
-        """Verify essential configuration sections are present."""
+        """
+        Check that the PR agent YAML configuration includes the essential top-level sections.
+        
+        Parameters:
+            config_data (dict): Parsed YAML configuration mapping (from .github/pr-agent-config.yml).
+        """
         required_sections = ['agent', 'monitoring', 'actions', 'quality']
         
         for section in required_sections:
@@ -90,7 +103,15 @@ class TestPRAgentConfigChanges:
                "Token management should be simplified"
     
     def test_quality_standards_preserved(self, config_data: Dict[str, Any]):
-        """Verify quality standards configuration is preserved."""
+        """
+        Validate that the configuration preserves required quality settings for supported languages and Python tooling.
+        
+        Parameters:
+            config_data (Dict[str, Any]): Parsed YAML configuration for the PR agent.
+        
+        Details:
+            Asserts that the top-level `quality` section contains `python` and `typescript`, and that the Python quality configuration includes a `linter` and a `test_runner` set to `pytest`.
+        """
         assert 'quality' in config_data
         assert 'python' in config_data['quality']
         assert 'typescript' in config_data['quality']
@@ -132,9 +153,9 @@ class TestWorkflowSimplifications:
     
     def test_apisec_workflow_no_conditional_skip(self, workflows_dir: Path):
         """
-        Ensure the APIsec workflow file exists and does not use conditional skip logic based on APIsec credentials.
+        Ensure the APIsec workflow file exists and does not use conditional skips based on APIsec credentials.
         
-        Asserts that .github/workflows/apisec-scan.yml is present and that it does not contain conditional expressions checking `apisec_username` or `apisec_password` (for example, `secrets.apisec_username != ''`).
+        Asserts that .github/workflows/apisec-scan.yml is present and that its contents do not contain conditional checks for `apisec_username` or `apisec_password` (for example, `secrets.apisec_username != ''`).
         """
         workflow_file = workflows_dir / "apisec-scan.yml"
         assert workflow_file.exists()
@@ -148,9 +169,9 @@ class TestWorkflowSimplifications:
     
     def test_label_workflow_simplified(self, workflows_dir: Path):
         """
-        Ensure the label workflow file exists and uses a simplified configuration.
+        Validate that the label workflow uses a simplified configuration.
         
-        Asserts that the workflow file .github/workflows/label.yml is present and does not reference a configuration check or the message "labeler.yml not found" (i.e. it should not contain 'check-config' or 'labeler.yml not found').
+        Asserts that .github/workflows/label.yml exists and does not contain the substring 'check-config' (case-insensitive) nor the exact text 'labeler.yml not found'.
         """
         workflow_file = workflows_dir / "label.yml"
         assert workflow_file.exists()
@@ -192,7 +213,7 @@ class TestDeletedFilesImpact:
         Locate the repository root directory.
         
         Returns:
-            Path to the repository root directory.
+            Path: The Path pointing to the repository root directory.
         """
         return Path(__file__).parent.parent.parent
     
@@ -294,7 +315,7 @@ class TestGitignoreChanges:
     @pytest.fixture
     def gitignore_path(self) -> Path:
         """
-        Return the path to the repository's .gitignore file.
+        Get the Path to the repository root .gitignore file.
         
         Returns:
             Path: Path to the .gitignore file at the repository root.
@@ -303,9 +324,9 @@ class TestGitignoreChanges:
     
     def test_codacy_instructions_ignored(self, gitignore_path: Path):
         """
-        Ensure the repository's .gitignore lists `codacy.instructions.md`.
+        Verify .gitignore includes 'codacy.instructions.md'.
         
-        This test reads the .gitignore file and asserts that the filename `codacy.instructions.md` appears in its contents.
+        Checks the repository .gitignore content for the presence of the filename 'codacy.instructions.md' and fails the test if it is missing.
         """
         with open(gitignore_path, 'r') as f:
             content = f.read()
@@ -315,9 +336,9 @@ class TestGitignoreChanges:
     
     def test_test_artifacts_not_ignored(self, gitignore_path: Path):
         """
-        Assert that test database files are not listed in .gitignore.
+        Ensure the repository .gitignore does not ignore test database files.
         
-        Checks that the pattern 'test_*.db' is absent from the .gitignore file at `gitignore_path`.
+        Asserts that the pattern 'test_*.db' is not present in the .gitignore file located at gitignore_path.
         """
         with open(gitignore_path, 'r') as f:
             content = f.read()
@@ -359,12 +380,12 @@ class TestCodacyInstructionsChanges:
     
     def test_codacy_instructions_simplified(self, codacy_instructions_path: Path):
         """
-        Validate that the Codacy instructions file has been simplified and does not contain repository-specific or prescriptive phrases.
+        Check that the Codacy instructions have been simplified and do not include repository-specific or prescriptive phrases.
         
-        If the Codacy instructions file is absent the test is skipped. The test fails if the file contains either the string 'git remote -v' or the phrase 'unless really necessary'.
+        Skips the test if the file does not exist. Fails if the file contains either 'git remote -v' or 'unless really necessary'.
         
         Parameters:
-            codacy_instructions_path (Path): Path to .github/instructions/codacy.instructions.md
+        	codacy_instructions_path (Path): Path to .github/instructions/codacy.instructions.md
         """
         if not codacy_instructions_path.exists():
             pytest.skip("Codacy instructions file not present")
@@ -378,7 +399,11 @@ class TestCodacyInstructionsChanges:
                "Codacy instructions should be simplified"
     
     def test_codacy_critical_rules_present(self, codacy_instructions_path: Path):
-        """Verify critical Codacy rules are still present."""
+        """
+        Check that the Codacy instructions file contains required critical rules.
+        
+        Asserts that the file includes the string 'codacy_cli_analyze' and the marker 'CRITICAL'.
+        """
         if not codacy_instructions_path.exists():
             pytest.skip("Codacy instructions file not present")
         

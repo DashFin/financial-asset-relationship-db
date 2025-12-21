@@ -18,10 +18,10 @@ class TestRequirementsDevChanges:
     @pytest.fixture
     def requirements_dev_content(self):
         """
-        Read and return the contents of requirements-dev.txt.
+        Return the full text of requirements-dev.txt from the project root.
         
         Returns:
-            content (str): The full text of requirements-dev.txt.
+            str: Contents of requirements-dev.txt.
         """
         req_path = Path("requirements-dev.txt")
         with open(req_path, 'r') as f:
@@ -29,18 +29,21 @@ class TestRequirementsDevChanges:
     
     def test_pyyaml_added(self, requirements_dev_content):
         """
-        Check that requirements-dev.txt contains an entry for PyYAML.
+        Verify that requirements-dev.txt includes a PyYAML package entry.
         
-        This test asserts that the requirements-dev content includes a PyYAML package entry (case-insensitive).
+        Performs a case-insensitive check of the provided requirements content to ensure PyYAML is present.
         """
         assert 'pyyaml' in requirements_dev_content.lower() or \
                'PyYAML' in requirements_dev_content
     
     def test_pyyaml_has_version_specifier(self, requirements_dev_content):
         """
-        Check that a PyYAML entry in requirements-dev.txt includes a version specifier.
+        Ensure the active PyYAML requirement in requirements-dev.txt includes a version operator.
         
-        Searches the given requirements file content for a line mentioning PyYAML and verifies that the line contains one of the recognised version operators: >=, ==, ~=, <=, > or <.
+        Checks the provided requirements file content for exactly one non-comment line mentioning PyYAML and verifies that that line contains one of the version operators: >=, ==, ~=, <=, >, or <.
+        
+        Parameters:
+        	requirements_dev_content (str): Full text content of requirements-dev.txt.
         """
         lines = requirements_dev_content.split('\n')
         # Ignore commented lines so we don't pick up commented-out examples
@@ -81,7 +84,14 @@ class TestRequirementsDevChanges:
             "Duplicate packages found in requirements-dev.txt"
     
     def test_requirements_format_valid(self, requirements_dev_content):
-        """Verify requirements file follows pip format."""
+        """
+        Validate that each active (non-empty, non-comment) line in requirements-dev.txt has no leading or trailing whitespace.
+        
+        Ignores blank lines and lines beginning with '#' when performing checks.
+        
+        Parameters:
+            requirements_dev_content (str): Full text of requirements-dev.txt to validate.
+        """
         lines = requirements_dev_content.split('\n')
         
         for i, line in enumerate(lines, 1):
@@ -100,9 +110,9 @@ class TestRequirementsDependencyCompatibility:
     
     def test_pyyaml_compatible_with_python_version(self):
         """
-        Ensure that if PyYAML appears in requirements-dev.txt the running Python version is at least 3.6.
+        Assert that if PyYAML is listed in requirements-dev.txt the current Python interpreter is at least 3.6.
         
-        Reads requirements-dev.txt and asserts Python >= 3.6 when a PyYAML entry exists.
+        Checks requirements-dev.txt case-insensitively and fails the test if PyYAML is present while sys.version_info is less than (3, 6).
         """
         # Check Python version
         import sys
@@ -120,9 +130,12 @@ class TestRequirementsDependencyCompatibility:
     
     def test_no_conflicting_versions(self):
         """
-        Assert that the number of package-name overlaps between requirements.txt and requirements-dev.txt does not exceed two.
+        Ensure at most two package name overlaps exist between requirements.txt and requirements-dev.txt.
         
-        Skips the test if requirements.txt is missing. Raises an assertion failure listing overlapping package names when more than two overlaps are found.
+        Reads both files (skipping the test if requirements.txt is missing), extracts package names by removing common version specifiers and ignoring commented/blank lines, and asserts that the number of overlapping package names is less than or equal to two. On failure, raises an AssertionError listing the overlapping package names.
+        
+        Raises:
+            AssertionError: If more than two package names appear in both files.
         """
         req_path = Path("requirements.txt")
         req_dev_path = Path("requirements-dev.txt")
@@ -177,9 +190,9 @@ class TestRequirementsDocumentation:
     
     def test_requirements_has_helpful_comments(self):
         """
-        Ensure requirements-dev.txt contains at least one explanatory comment.
+        Verify that requirements-dev.txt contains at least one comment line.
         
-        Asserts that requirements-dev.txt includes at least one line that, after stripping leading whitespace, starts with `#`, indicating explanatory commentary for the dependencies.
+        Asserts the file has at least one line which, after trimming leading whitespace, begins with `#`, indicating an explanatory comment for the dependency list.
         """
         req_dev_path = Path("requirements-dev.txt")
         with open(req_dev_path, 'r') as f:

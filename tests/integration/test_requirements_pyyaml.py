@@ -15,23 +15,23 @@ class TestPyYAMLDependencyAddition:
     @pytest.fixture
     def requirements_file(self) -> Path:
         """
-        Path to the project's requirements-dev.txt file.
+        Return the Path to the repository's requirements-dev.txt file.
         
         Returns:
-            path (Path): Path to requirements-dev.txt located at the repository root.
+            Path: Path object pointing to 'requirements-dev.txt' at the repository root.
         """
         return Path('requirements-dev.txt')
     
     @pytest.fixture
     def requirements_content(self, requirements_file: Path) -> str:
         """
-        Read and return the contents of the requirements-dev.txt file.
+        Get the UTF-8 text contents of the requirements-dev.txt file.
         
         Parameters:
             requirements_file (Path): Path to the requirements-dev.txt file to read.
         
         Returns:
-            str: The file contents as a UTF-8 decoded string.
+            str: File contents decoded as UTF-8.
         """
         with open(requirements_file, 'r', encoding='utf-8') as f:
             return f.read()
@@ -75,7 +75,12 @@ class TestPyYAMLDependencyAddition:
                 f"PyYAML should have version specifier: {line}"
     
     def test_pyyaml_version_at_least_6(self, requirements_lines: List[str]):
-        """Test that PyYAML version is at least 6.0."""
+        """
+        Ensure any 'PyYAML' entries with a '>=' minimum version in requirements_lines specify version 6.0 or higher.
+        
+        Parameters:
+        	requirements_lines (List[str]): List of non-empty, non-comment lines from requirements-dev.txt.
+        """
         pyyaml_lines = [line for line in requirements_lines if line.startswith('PyYAML')]
         
         for line in pyyaml_lines:
@@ -87,13 +92,10 @@ class TestPyYAMLDependencyAddition:
     
     def test_types_pyyaml_matches_pyyaml_version(self, requirements_lines: List[str]):
         """
-        Assert that the major version of types-PyYAML matches the major version of PyYAML when both are pinned with '>=' in the provided requirements lines.
+        Assert that the major version of types-PyYAML equals the major version of PyYAML when both are specified with '>=' in the given requirements lines.
         
         Parameters:
-            requirements_lines (List[str]): Non-comment, non-empty lines from requirements-dev.txt.
-        
-        Raises:
-            AssertionError: If both packages are pinned with '>=' but their major versions differ.
+            requirements_lines (List[str]): Non-comment, non-empty lines from requirements-dev.txt to inspect for `PyYAML>=` and `types-PyYAML>=` entries.
         """
         pyyaml_version = None
         types_version = None
@@ -137,7 +139,11 @@ class TestRequirementsDevYAMLUsage:
             "PyYAML should be imported in workflow test files"
     
     def test_yaml_files_exist_in_repo(self):
-        """Test that YAML files exist that would need PyYAML for testing."""
+        """
+        Check that at least one YAML workflow file exists under .github/workflows.
+        
+        Asserts that a file with extension `.yml` or `.yaml` is present in the repository's .github/workflows directory.
+        """
         yaml_files_exist = False
         workflows_dir = Path('.github/workflows')
         
@@ -155,7 +161,7 @@ class TestRequirementsDevCompleteness:
     @pytest.fixture
     def requirements_content(self) -> str:
         """
-        Read and return the contents of requirements-dev.txt.
+        Read the repository's requirements-dev.txt as UTF-8 text.
         
         Returns:
             str: The full contents of requirements-dev.txt.
@@ -172,7 +178,7 @@ class TestRequirementsDevCompleteness:
         """
         Verify the requirements content contains no duplicate package entries.
         
-        Ignores blank lines and lines starting with `#`. Package names are extracted from each non-comment line by taking the text before any version specifier characters (`>`, `<`, `=`); the test fails with a list of duplicated package names if any are found.
+        Ignores blank lines and lines starting with '#'. Package names are taken as the text before any of the characters '>', '<', or '=' on each non-comment line; the test fails if any package name appears more than once.
         
         Parameters:
             requirements_content (str): Full text of the requirements file to inspect.
@@ -220,7 +226,11 @@ class TestPyYAMLCompatibility:
     """Test PyYAML compatibility and best practices."""
     
     def test_pyyaml_safe_load_available(self):
-        """Test that PyYAML's safe_load function can be imported."""
+        """
+        Verify that the installed PyYAML package exposes a `safe_load` symbol; skip the test if PyYAML is not installed.
+        
+        If the `yaml` module is importable the test asserts `yaml.safe_load` exists. If the module cannot be imported the test is skipped.
+        """
         try:
             import yaml
             assert hasattr(yaml, 'safe_load'), \
@@ -252,12 +262,10 @@ class TestRequirementsDevVersionPinning:
     @pytest.fixture
     def requirements_lines(self) -> List[str]:
         """
-        Return the non-comment, non-empty lines from requirements-dev.txt.
-        
-        Reads requirements-dev.txt and returns each requirement line with surrounding whitespace removed, excluding empty lines and lines starting with `#`.
+        Get the non-comment, non-empty lines from requirements-dev.txt.
         
         Returns:
-            lines (List[str]): The cleaned requirement lines in file order.
+            List[str]: Cleaned requirement lines (whitespace trimmed) in file order.
         """
         with open('requirements-dev.txt', 'r', encoding='utf-8') as f:
             content = f.read()
@@ -271,13 +279,10 @@ class TestRequirementsDevVersionPinning:
     
     def test_uses_minimum_version_specifiers(self, requirements_lines: List[str]):
         """
-        Ensure each non-typing package line contains a minimum version specifier.
+        Ensure non-typing packages in the provided requirement lines include a minimum version specifier ('>=' or '==').
         
         Parameters:
-            requirements_lines (List[str]): Requirement file lines filtered to exclude comments and empty lines.
-        
-        Raises:
-            AssertionError: If a package line (excluding lines starting with 'types-') does not contain '>=' or '=='.
+            requirements_lines (List[str]): Non-empty, non-comment requirement lines to validate.
         """
         for line in requirements_lines:
             if not line.startswith('types-'):

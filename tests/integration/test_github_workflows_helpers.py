@@ -226,7 +226,9 @@ script: |
         assert "line 3" in result["script"]
     
     def test_handles_utf8_content(self, tmp_path):
-        """Test that UTF-8 encoded content is loaded correctly."""
+        """
+        Verify load_yaml_safe correctly parses UTF-8 characters (emoji and non-Latin scripts) from a YAML file.
+        """
         yaml_content = """
 name: Test UTF-8
 emoji: 🚀
