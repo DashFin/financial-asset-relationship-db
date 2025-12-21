@@ -14,7 +14,12 @@ from datetime import timedelta
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
-from jose import JWTError, jwt
+_jose = pytest.importorskip(
+    "jose",
+    reason="python-jose is required for auth JWT unit tests",
+)
+jwt = _jose.jwt
+JWTError = _jose.JWTError
 
 # Import the module under test
 from api.auth import (
