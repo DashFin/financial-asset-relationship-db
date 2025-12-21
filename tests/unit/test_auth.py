@@ -330,10 +330,10 @@ class TestSeedCredentialsFromEnv:
     def test_seed_credentials_with_disabled_variations(self, mock_getenv, mock_hash):
         """Test seeding with various disabled flag values."""
         for disabled_value in ["1", "yes", "on", "YES", "On"]:
-            mock_getenv.side_effect = lambda key, default=None: {
+            mock_getenv.side_effect = lambda key, default=None, dv=disabled_value: {
                 "ADMIN_USERNAME": "admin",
                 "ADMIN_PASSWORD": "admin_pass",
-                "ADMIN_DISABLED": disabled_value,
+                "ADMIN_DISABLED": dv,
             }.get(key, default)
             mock_hash.return_value = "hashed_admin_pass"
 
