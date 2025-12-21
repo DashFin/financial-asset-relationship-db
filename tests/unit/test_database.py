@@ -573,7 +573,7 @@ class TestFetchOperationsEnhancements:
         mock_conn = Mock()
         mock_cursor = Mock()
         mock_cursor.fetchone.return_value = None
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_conn.execute.return_value = mock_cursor
         mock_get_conn.return_value.__enter__.return_value = mock_conn
 
         result = fetch_one("SELECT * FROM nonexistent")
@@ -587,10 +587,13 @@ class TestFetchOperationsEnhancements:
         mock_cursor = Mock()
         mock_row = {"id": 1, "name": "test"}
         mock_cursor.fetchone.return_value = mock_row
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_conn.execute.return_value = mock_cursor
         mock_get_conn.return_value.__enter__.return_value = mock_conn
 
-        result = fetch_one("SELECT * FROM table1 JOIN table2 ON table1.id = table2.id WHERE table1.id = ?", (1,))
+        result = fetch_one(
+            "SELECT * FROM table1 JOIN table2 ON table1.id = table2.id WHERE table1.id = ?",
+            (1,),
+        )
 
         assert result == mock_row
 
@@ -601,7 +604,7 @@ class TestFetchOperationsEnhancements:
         mock_cursor = Mock()
         mock_row = (42,)  # COUNT result
         mock_cursor.fetchone.return_value = mock_row
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_conn.execute.return_value = mock_cursor
         mock_get_conn.return_value.__enter__.return_value = mock_conn
 
         result = fetch_value("SELECT COUNT(*) FROM table")
@@ -615,7 +618,7 @@ class TestFetchOperationsEnhancements:
         mock_cursor = Mock()
         mock_row = (None,)
         mock_cursor.fetchone.return_value = mock_row
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_conn.execute.return_value = mock_cursor
         mock_get_conn.return_value.__enter__.return_value = mock_conn
 
         result = fetch_value("SELECT nullable_column FROM table")
