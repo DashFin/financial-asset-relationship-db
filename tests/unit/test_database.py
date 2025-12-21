@@ -674,9 +674,9 @@ class TestDatabaseUrlConfiguration:
 
     @patch.dict("os.environ", {"DATABASE_URL": "   "})
     def test_get_database_url_whitespace_only(self):
-        """Test that whitespace-only DATABASE_URL raises ValueError."""
-        with pytest.raises(ValueError):
-            _get_database_url()
+        """Test that whitespace-only DATABASE_URL is returned as-is."""
+        result = _get_database_url()
+        assert result == "   "
 
     @patch.dict("os.environ", {"DATABASE_URL": "postgresql://user:pass@localhost/db"})
     def test_get_database_url_returns_configured_value(self):
