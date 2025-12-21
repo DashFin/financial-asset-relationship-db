@@ -18,6 +18,7 @@ import pytest
 try:
     from jose import JWTError, jwt
 except Exception:  # pragma: no cover
+
     class _JoseMissingProxy:
         def __getattr__(self, _name):
             pytest.skip(
@@ -29,6 +30,7 @@ except Exception:  # pragma: no cover
 
     class JWTError(Exception):
         pass
+
 
 # Import the module under test
 from api.auth import (
