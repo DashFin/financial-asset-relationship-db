@@ -33,7 +33,7 @@ This document summarizes the repository's architecture, conventions, and recurri
 
 ## Backend Service Conventions
 - Graph lifecycle: global graph instance is initialized lazily and guarded by a threading lock; `set_graph_factory` enables test overrides. Real-data mode is toggled via environment flags (`USE_REAL_DATA_FETCHER`, cache path variables), falling back to sample data when disabled.
-- Authentication: `/token` issues JWTs using username/password credentials; all protected routes depend on the authenticated user model. Access tokens expire after 30 minutes by default.
+- Authentication: `/token` issues JWTs using username/password credentials. Access tokens expire after 30 minutes and can be renewed using refresh tokens to maintain user sessions. All protected routes depend on a valid access token.
 - Rate limiting: SlowAPI applies declarative limits (e.g., `/token` is 5 requests/minute) and integrates with FastAPI exception handlers.
 - CORS: Origins are configured for local dev and Vercel-hosted frontends; update allowed origins when promoting to production.
 
