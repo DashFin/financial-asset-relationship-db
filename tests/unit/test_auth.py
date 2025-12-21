@@ -483,6 +483,7 @@ class TestCreateAccessToken:
         token = create_access_token(data)
 
         import api.auth as auth_module
+
         decoded = jwt.decode(token, auth_module.SECRET_KEY, algorithms=[auth_module.ALGORITHM])
         exp_timestamp = decoded["exp"]
         exp_datetime = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
