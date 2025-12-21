@@ -633,8 +633,14 @@ class TestDatabaseErrorHandling:
 
     @patch("api.database.get_connection")
     def test_execute_propagates_errors(self, mock_get_conn):
-        mock_conn = Mock()
+        mock_conn = Mock(spec=sqlite3.Connection)
         mock_conn.execute.side_effect = sqlite3.Error("SQL error")
+        mock_get_conn.return_value.__enter__.return_value = mock_conn
+
+        with pytest.raises(sqlite3.Error):
+            execute("INVALID SQL")
+
+        mock_conn.commit.assert_not_called()
         mock_get_conn.return_value.__enter__.return_value = mock_conn
 
         with pytest.raises(sqlite3.Error):
