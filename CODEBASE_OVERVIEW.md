@@ -35,7 +35,7 @@ This document summarizes the repository's architecture, conventions, and recurri
 - Graph lifecycle: global graph instance is initialized lazily and guarded by a threading lock; `set_graph_factory` enables test overrides. Real-data mode is toggled via environment flags (`USE_REAL_DATA_FETCHER`, cache path variables), falling back to sample data when disabled.
 - Authentication: `/token` issues JWTs using username/password credentials; all protected routes depend on the authenticated user model. Access tokens expire after 30 minutes by default. JWT signing configuration (e.g., secret key and algorithm) is provided via environment variables/secret management and must not be committed to the repository.
 - Rate limiting: SlowAPI applies declarative limits (e.g., `/token` is 5 requests/minute) and integrates with FastAPI exception handlers.
-- CORS: Origins are configured for local dev and Vercel-hosted frontends; update allowed origins when promoting to production.
+- CORS: Origins are configured for local dev and Vercel-hosted frontends; use an explicit per-environment allowlist (ideally configured via environment variables). Avoid permissive `*` origins—especially when cookies/authorization headers are involved—and review the allowlist when promoting to production.
 
 ## Data & Visualization Flow
 1. **Data Ingestion**: Yahoo Finance (via `RealDataFetcher`) or static sample data create typed asset instances.
