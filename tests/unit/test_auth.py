@@ -470,9 +470,11 @@ class TestCreateAccessToken:
 
         data = {"sub": "testuser"}
         expires_delta = timedelta(minutes=30)
-        token = create_access_token(data, expires_delta=expires_delta)
 
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        with patch("api.auth.SECRET_KEY", "test-secret"), patch("api.auth.ALGORITHM", "HS256"):
+            token = create_access_token(data, expires_delta=expires_delta)
+            decoded = jwt.decode(token, "test-secret", algorithms=["HS256"])
+
         exp_timestamp = decoded["exp"]
         exp_datetime = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
         now = datetime.now(timezone.utc)
