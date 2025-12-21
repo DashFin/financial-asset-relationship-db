@@ -18,7 +18,6 @@ import pytest
 jose = pytest.importorskip("jose")
 from jose import JWTError, jwt
 
-
 # Import the module under test
 from api.auth import (
     ALGORITHM,
