@@ -547,7 +547,6 @@ class TestGetCurrentUser:
 
         assert exc_info.value.status_code == 401
 
-
     def test_get_current_user_missing_username(self):
         """Test get_current_user with token missing username claim."""
         from fastapi import HTTPException
