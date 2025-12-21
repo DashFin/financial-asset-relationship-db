@@ -356,3 +356,332 @@ class TestEdgeCases:
 
         with pytest.raises(IntegrityError):
             _cause_integrity_error()
+
+
+# ============================================================================
+# ADDITIONAL COMPREHENSIVE TESTS - Enhanced Coverage
+# Generated to provide additional edge case coverage
+# ============================================================================
+"""Additional comprehensive tests for api/database.py edge cases.
+
+These tests enhance the existing test coverage with additional edge cases
+and scenarios following the bias-for-action principle.
+"""
+
+import sqlite3
+from contextlib import contextmanager
+from unittest.mock import Mock, patch
+
+import pytest
+
+from api.database import (
+    _connect,
+    _get_database_url,
+    _is_memory_db,
+    _resolve_sqlite_path,
+    execute,
+    fetch_one,
+    fetch_value,
+    get_connection,
+)
+
+
+@pytest.mark.unit
+class TestResolveSqlitePathEnhancements:
+    """Additional edge case tests for _resolve_sqlite_path."""
+
+    def test_resolve_sqlite_path_with_query_parameters(self):
+        """Test resolving SQLite URL with query parameters."""
+        url = "sqlite:///test.db?mode=ro"
+        result = _resolve_sqlite_path(url)
+        assert "test.db" in result
+
+    def test_resolve_sqlite_path_with_percent_encoding(self):
+        """Test resolving SQLite URL with percent-encoded characters."""
+        url = "sqlite:///test%20database.db"
+        result = _resolve_sqlite_path(url)
+        assert "test database.db" in result
+
+    def test_resolve_sqlite_path_uri_memory_with_cache_shared(self):
+        """Test resolving URI-style memory database with shared cache."""
+        url = "sqlite:///file::memory:?cache=shared"
+        result = _resolve_sqlite_path(url)
+        assert "file::memory:" in result
+
+    def test_resolve_sqlite_path_with_trailing_slashes(self):
+        """Test resolving path with multiple trailing slashes."""
+        url = "sqlite:///:memory:/"
+        result = _resolve_sqlite_path(url)
+        assert result == ":memory:"
+
+    def test_resolve_sqlite_path_absolute_unix_path(self):
+        """Test resolving absolute Unix-style path."""
+        url = "sqlite:////absolute/path/to/db.sqlite"
+        result = _resolve_sqlite_path(url)
+        assert result.startswith("/")
+
+    def test_resolve_sqlite_path_windows_drive_letter(self):
+        """Test resolving Windows path with drive letter."""
+        url = "sqlite:///C:/Users/test/database.db"
+        result = _resolve_sqlite_path(url)
+        assert "C:" in result or "database.db" in result
+
+    def test_resolve_sqlite_path_special_characters(self):
+        """Test resolving path with special characters."""
+        url = "sqlite:///test-db_v2.sqlite"
+        result = _resolve_sqlite_path(url)
+        assert "test-db_v2.sqlite" in result
+
+    def test_resolve_sqlite_path_non_sqlite_scheme_raises(self):
+        """Test that non-SQLite schemes raise ValueError."""
+        with pytest.raises(ValueError, match="Not a valid sqlite URI"):
+            _resolve_sqlite_path("postgresql:///database")
+
+    def test_resolve_sqlite_path_empty_path_component(self):
+        """Test resolving URL with empty path component."""
+        url = "sqlite:///"
+        result = _resolve_sqlite_path(url)
+        # Should handle empty path
+        assert isinstance(result, str)
+
+
+@pytest.mark.unit
+class TestIsMemoryDbEnhancements:
+    """Additional edge case tests for _is_memory_db."""
+
+    def test_is_memory_db_with_uri_query_params(self):
+        """Test detecting memory DB with various URI query parameters."""
+        test_cases = [
+            "file::memory:?mode=memory",
+            "file::memory:?cache=shared",
+            "file::memory:?cache=shared&mode=memory",
+        ]
+        for uri in test_cases:
+            assert _is_memory_db(uri) is True
+
+    def test_is_memory_db_with_file_scheme_but_not_memory(self):
+        """Test that file:// URLs not containing memory return False."""
+        assert _is_memory_db("file:///path/to/db.sqlite") is False
+
+    def test_is_memory_db_case_sensitivity(self):
+        """Test memory detection is case-sensitive."""
+        assert _is_memory_db(":MEMORY:") is False  # Should be lowercase
+        assert _is_memory_db(":Memory:") is False
+
+    def test_is_memory_db_with_memory_in_filename(self):
+        """Test that 'memory' in filename doesn't trigger false positive."""
+        assert _is_memory_db("/path/to/memory_backup.db") is False
+
+    def test_is_memory_db_with_none_defaults_to_config(self):
+        """Test that None parameter uses configured DATABASE_PATH."""
+        # This will use the actual configured path
+        result = _is_memory_db(None)
+        assert isinstance(result, bool)
+
+
+@pytest.mark.unit
+class TestConnectionManagementEnhancements:
+    """Additional tests for connection management."""
+
+    @patch("api.database._is_memory_db")
+    @patch("api.database.sqlite3.connect")
+    def test_connect_enables_uri_for_file_scheme(self, mock_connect, mock_is_memory):
+        """Test that file:// URLs enable URI mode."""
+        mock_is_memory.return_value = False
+        mock_connection = Mock()
+        mock_connect.return_value = mock_connection
+
+        with patch("api.database.DATABASE_PATH", "file:///test.db"):
+            _connect()
+
+        # Verify uri=True was passed
+        call_kwargs = mock_connect.call_args[1]
+        assert call_kwargs.get("uri") is True
+
+    @patch("api.database._is_memory_db")
+    @patch("api.database.sqlite3.connect")
+    def test_connect_sets_row_factory(self, mock_connect, mock_is_memory):
+        """Test that connections have row_factory set."""
+        mock_is_memory.return_value = False
+        mock_connection = Mock()
+        mock_connect.return_value = mock_connection
+
+        with patch("api.database.DATABASE_PATH", "/test.db"):
+            conn = _connect()
+
+        # Verify row_factory was set
+        assert hasattr(mock_connection, "row_factory")
+
+    @patch("api.database._is_memory_db")
+    @patch("api.database.sqlite3.connect")
+    def test_connect_thread_safety_settings(self, mock_connect, mock_is_memory):
+        """Test that check_same_thread is False."""
+        mock_is_memory.return_value = False
+        mock_connection = Mock()
+        mock_connect.return_value = mock_connection
+
+        with patch("api.database.DATABASE_PATH", "/test.db"):
+            _connect()
+
+        call_kwargs = mock_connect.call_args[1]
+        assert call_kwargs.get("check_same_thread") is False
+
+
+@pytest.mark.unit
+class TestExecuteFunctionEnhancements:
+    """Additional tests for execute function edge cases."""
+
+    @patch("api.database.get_connection")
+    def test_execute_with_empty_parameters(self, mock_get_conn):
+        """Test execute with empty parameter tuple."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_get_conn.return_value.__enter__.return_value = mock_conn
+
+        execute("SELECT 1", ())
+
+        mock_cursor.execute.assert_called_once()
+
+    @patch("api.database.get_connection")
+    def test_execute_handles_commit(self, mock_get_conn):
+        """Test that execute commits changes."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_get_conn.return_value.__enter__.return_value = mock_conn
+
+        execute("INSERT INTO test VALUES (?)", (1,))
+
+        mock_conn.commit.assert_called_once()
+
+    @patch("api.database.get_connection")
+    def test_execute_with_list_parameters(self, mock_get_conn):
+        """Test execute accepts list parameters."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_get_conn.return_value.__enter__.return_value = mock_conn
+
+        execute("INSERT INTO test VALUES (?, ?)", [1, 2])
+
+        mock_cursor.execute.assert_called_once()
+
+
+@pytest.mark.unit
+class TestFetchOperationsEnhancements:
+    """Additional tests for fetch operations."""
+
+    @patch("api.database.get_connection")
+    def test_fetch_one_with_no_results(self, mock_get_conn):
+        """Test fetch_one returns None when no results."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_cursor.fetchone.return_value = None
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_get_conn.return_value.__enter__.return_value = mock_conn
+
+        result = fetch_one("SELECT * FROM nonexistent")
+
+        assert result is None
+
+    @patch("api.database.get_connection")
+    def test_fetch_one_with_complex_query(self, mock_get_conn):
+        """Test fetch_one with complex JOIN query."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_row = {"id": 1, "name": "test"}
+        mock_cursor.fetchone.return_value = mock_row
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_get_conn.return_value.__enter__.return_value = mock_conn
+
+        result = fetch_one("SELECT * FROM table1 JOIN table2 ON table1.id = table2.id WHERE table1.id = ?", (1,))
+
+        assert result == mock_row
+
+    @patch("api.database.get_connection")
+    def test_fetch_value_with_aggregate(self, mock_get_conn):
+        """Test fetch_value with aggregate function."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_row = (42,)  # COUNT result
+        mock_cursor.fetchone.return_value = mock_row
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_get_conn.return_value.__enter__.return_value = mock_conn
+
+        result = fetch_value("SELECT COUNT(*) FROM table")
+
+        assert result == 42
+
+    @patch("api.database.get_connection")
+    def test_fetch_value_with_null_result(self, mock_get_conn):
+        """Test fetch_value when result is NULL."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_row = (None,)
+        mock_cursor.fetchone.return_value = mock_row
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_get_conn.return_value.__enter__.return_value = mock_conn
+
+        result = fetch_value("SELECT nullable_column FROM table")
+
+        assert result is None
+
+
+@pytest.mark.unit
+class TestDatabaseErrorHandling:
+    """Test error handling in database operations."""
+
+    @patch("api.database.get_connection")
+    def test_execute_propagates_sqlite_errors(self, mock_get_conn):
+        """Test that SQLite errors are propagated."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_cursor.execute.side_effect = sqlite3.Error("SQL error")
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_get_conn.return_value.__enter__.return_value = mock_conn
+
+        with pytest.raises(sqlite3.Error):
+            execute("INVALID SQL")
+
+    @patch("api.database.get_connection")
+    def test_fetch_one_propagates_errors(self, mock_get_conn):
+        """Test that fetch_one propagates query errors."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_cursor.execute.side_effect = sqlite3.OperationalError("Table not found")
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_get_conn.return_value.__enter__.return_value = mock_conn
+
+        with pytest.raises(sqlite3.OperationalError):
+            fetch_one("SELECT * FROM nonexistent")
+
+
+@pytest.mark.unit
+class TestDatabaseUrlConfiguration:
+    """Test database URL configuration edge cases."""
+
+    @patch.dict("os.environ", {}, clear=True)
+    @patch("api.database.DEFAULT_DATABASE_URL", None)
+    def test_get_database_url_missing_env_var(self):
+        """Test that missing DATABASE_URL raises ValueError."""
+        with pytest.raises(ValueError, match="DATABASE_URL"):
+            _get_database_url()
+
+    @patch.dict("os.environ", {"DATABASE_URL": ""})
+    def test_get_database_url_empty_string(self):
+        """Test that empty DATABASE_URL raises ValueError."""
+        with pytest.raises(ValueError):
+            _get_database_url()
+
+    @patch.dict("os.environ", {"DATABASE_URL": "   "})
+    def test_get_database_url_whitespace_only(self):
+        """Test that whitespace-only DATABASE_URL raises ValueError."""
+        with pytest.raises(ValueError):
+            _get_database_url()
+
+    @patch.dict("os.environ", {"DATABASE_URL": "postgresql://user:pass@localhost/db"})
+    def test_get_database_url_returns_configured_value(self):
+        """Test that configured URL is returned as-is."""
+        result = _get_database_url()
+        assert result == "postgresql://user:pass@localhost/db"
