@@ -23,7 +23,11 @@ This document summarizes the repository's architecture, conventions, and recurri
 - **`tests/`**: Pytest suite covering API behaviors, graph initialization, response models, and integration flows; frontend tests live under `frontend/__tests__`.
 
 ## Domain Model & Relationship Patterns
-- Assets belong to the `AssetClass` enum (equity, fixed income, commodity, currency, derivative). Base `Asset` dataclass enforces symbol/id/name presence, non-negative pricing and market cap, and ISO currency codes; specialized classes (Equity, Bond, Commodity, Currency) add type-specific fields. Regulatory events carry an `impact_score` in [-1, 1] with ISO-8601 dates and non-empty descriptions.
+- **Domain Model**:
+  - Assets belong to the `AssetClass` enum (equity, fixed income, commodity, currency, derivative).
+  - The base `Asset` dataclass enforces symbol/id/name presence, non-negative pricing and market cap, and ISO currency codes.
+  - Specialized classes (Equity, Bond, Commodity, Currency) add type-specific fields.
+  - Regulatory events carry an `impact_score` in [-1, 1] with ISO-8601 dates and non-empty descriptions.
 - Relationship discovery emphasizes both **bidirectional** (e.g., same sector) and **directional** (e.g., corporate bond → equity) links with deterministic 3D layouts using fixed seeds so visual output remains stable.
 - Visualization inputs are normalized: graph nodes/edges are colored by asset class, node sizes scale by importance, and metrics include relationship density and top relationships.
 
