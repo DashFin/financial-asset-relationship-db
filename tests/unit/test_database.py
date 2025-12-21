@@ -549,7 +549,9 @@ class TestExecuteFunctionEnhancements:
 
         execute("INSERT INTO test VALUES (?)", (1,))
 
-        mock_conn.execute.assert_called_once_with("INSERT INTO test VALUES (?)", (1,))
+        sql, params = mock_conn.execute.call_args[0]
+        assert sql == "INSERT INTO test VALUES (?)"
+        assert list(params) == [1]
         mock_conn.commit.assert_called_once()
 
     @patch("api.database.get_connection")
