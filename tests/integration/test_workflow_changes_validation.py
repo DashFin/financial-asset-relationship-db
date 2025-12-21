@@ -20,10 +20,10 @@ class TestPRAgentWorkflowChanges:
     @pytest.fixture
     def pr_agent_workflow(self):
         """
-        Load and parse the PR Agent GitHub Actions workflow.
+        Load and parse the PR Agent GitHub Actions workflow file.
         
         Returns:
-            dict: Parsed YAML contents of .github/workflows/pr-agent.yml as Python objects.
+            dict: Parsed contents of .github/workflows/pr-agent.yml as native Python objects.
         """
         workflow_path = Path(".github/workflows/pr-agent.yml")
         with open(workflow_path, 'r') as f:
@@ -46,9 +46,9 @@ class TestPRAgentWorkflowChanges:
     
     def test_pr_agent_python_setup_simplified(self, pr_agent_workflow):
         """
-        Ensure the PR Agent workflow uses a single simplified Python dependency installation step and does not install PyYAML.
+        Validate the pr-agent-trigger job uses a single Python dependency installation step and does not install PyYAML.
         
-        Searches the `pr-agent-trigger` job for a step whose name contains "Install Python dependencies", asserts exactly one such step exists, and verifies the step's `run` script does not reference `pyyaml` or `PyYAML`.
+        Finds a step whose name includes "Install Python dependencies", asserts exactly one such step exists, and verifies the step's run script contains no references to "pyyaml" or "PyYAML".
         """
         pr_agent_job = pr_agent_workflow['jobs']['pr-agent-trigger']
         steps = pr_agent_job['steps']
@@ -102,10 +102,10 @@ class TestGreetingsWorkflowChanges:
     @pytest.fixture
     def greetings_workflow(self):
         """
-        Load and parse the greetings GitHub Actions workflow YAML.
+        Load and parse the .github/workflows/greetings.yml GitHub Actions workflow file.
         
         Returns:
-            The parsed contents of `.github/workflows/greetings.yml` as native Python structures (usually a dict).
+            Parsed workflow content as native Python structures (typically a dict).
         """
         workflow_path = Path(".github/workflows/greetings.yml")
         with open(workflow_path, 'r') as f:
@@ -134,10 +134,10 @@ class TestLabelWorkflowChanges:
     @pytest.fixture
     def label_workflow(self):
         """
-        Load and parse the label workflow YAML from .github/workflows/label.yml.
+        Load and parse the label workflow YAML at .github/workflows/label.yml.
         
         Returns:
-            dict: Parsed workflow content as returned by yaml.safe_load.
+            dict: Parsed YAML content of the label workflow.
         """
         workflow_path = Path(".github/workflows/label.yml")
         with open(workflow_path, 'r') as f:
@@ -145,9 +145,9 @@ class TestLabelWorkflowChanges:
     
     def test_label_workflow_no_config_check(self, label_workflow):
         """
-        Assert the label workflow's 'label' job does not include a step that checks for a configuration file.
+        Verify the 'label' job does not include a step that checks for a configuration file.
         
-        The test collects step names from the 'label' job and fails if any name contains both "check" and "config" (case-insensitive).
+        Fails the test if any step name contains both "check" and "config" (case-insensitive).
         """
         job = label_workflow['jobs']['label']
         steps = job['steps']
@@ -158,7 +158,12 @@ class TestLabelWorkflowChanges:
                       for name in step_names)
     
     def test_label_workflow_uses_actions_labeler(self, label_workflow):
-        """Verify workflow uses actions/labeler correctly."""
+        """
+        Check that the label workflow uses the actions/labeler action and provides a repo-token.
+        
+        Parameters:
+            label_workflow (dict): Parsed YAML content of .github/workflows/label.yml used by the test fixture.
+        """
         job = label_workflow['jobs']['label']
         steps = job['steps']
         
@@ -174,10 +179,10 @@ class TestAPISecWorkflowChanges:
     @pytest.fixture
     def apisec_workflow(self):
         """
-        Load and parse the APISec workflow YAML from .github/workflows/apisec-scan.yml.
+        Retrieve the parsed APISec workflow YAML.
         
         Returns:
-            workflow (dict): Parsed YAML content of the APISec workflow file.
+            workflow (dict): Parsed content of .github/workflows/apisec-scan.yml.
         """
         workflow_path = Path(".github/workflows/apisec-scan.yml")
         with open(workflow_path, 'r') as f:
@@ -240,7 +245,11 @@ class TestWorkflowSecurityBestPractices:
     """Test security best practices in modified workflows."""
     
     def test_workflows_use_pinned_action_versions(self):
-        """Verify workflows use specific action versions, not 'latest'."""
+        """
+        Ensure workflow steps that use actions specify a pinned version and do not use 'latest' or 'master'.
+        
+        Asserts that every step with a `uses` reference includes a version specifier (contains '@') and that the specified version is not '@latest' or '@master' (case-insensitive).
+        """
         workflows_dir = Path(".github/workflows")
         
         for workflow_file in workflows_dir.glob("*.yml"):
@@ -296,9 +305,9 @@ class TestWorkflowYAMLValidity:
     
     def test_workflows_have_required_fields(self):
         """
-        Check each workflow file under .github/workflows contains the top-level keys 'name', 'on', and 'jobs'.
+        Ensure every workflow in .github/workflows defines top-level 'name', 'on', and 'jobs' keys.
         
-        If a workflow is missing any of these keys the test fails with an assertion identifying the workflow filename and the missing key.
+        Asserts that each .yml file contains 'name', 'on', and 'jobs'; a failing assertion includes the workflow filename and the missing key.
         """
         workflows_dir = Path(".github/workflows")
         
@@ -312,9 +321,9 @@ class TestWorkflowYAMLValidity:
     
     def test_workflow_jobs_have_runs_on(self):
         """
-        Ensure every job in each GitHub workflow declares the runner using the `runs-on` key.
+        Ensure every job in every GitHub Actions workflow specifies its runner with the 'runs-on' key.
         
-        Raises an assertion with the job name and workflow filename if any job definition is missing `runs-on`.
+        If a job is missing 'runs-on', the test fails with an assertion identifying the job name and workflow filename.
         """
         workflows_dir = Path(".github/workflows")
         
@@ -332,11 +341,9 @@ class TestWorkflowIntegration:
     
     def test_workflows_reference_existing_paths(self):
         """
-        Check that file paths referenced in workflow YAML files exist in the repository.
+        Verify that file paths referenced in workflow YAML files exist in the repository.
         
-        Scans each file in .github/workflows for referenced paths (for example `working-directory:` and `path:` fields),
-        normalises leading `./`, and ignores variable or wildcard references. Fails the test if any referenced path
-        that is not a variable or wildcard does not exist in the repository.
+        Scans .github/workflows/*.yml for path-like references (for example `working-directory` and `path`), normalizes leading `./`, ignores references containing variables (`$`) or wildcards (`*`), and asserts that each remaining referenced path exists.
         """
         workflows_dir = Path(".github/workflows")
         repo_root = Path(".")

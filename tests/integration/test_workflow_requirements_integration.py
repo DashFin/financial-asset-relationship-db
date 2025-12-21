@@ -21,13 +21,15 @@ from packaging.requirements import Requirement
 
 def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
     """
-    Parse a pip-style requirements file and extract package names with their version specifiers.
+    Parse a pip-style requirements file into a list of package names with their version specifiers.
+    
+    Ignores blank lines and lines beginning with '#'. Extras and environment markers on a requirement line are ignored for matching.
     
     Parameters:
-        file_path (Path): Path to a requirements file (e.g. requirements-dev.txt).
+        file_path (Path): Path to a requirements file (e.g., requirements-dev.txt).
     
     Returns:
-        List[Tuple[str, str]]: A list of (package_name, version_specifier) tuples; `version_specifier` is the specifier string (empty string if no specifier).
+        List[Tuple[str, str]]: List of (package_name, version_specifier) tuples; `version_specifier` is the specifier string or an empty string if none.
     
     Raises:
         ValueError: If any non-empty, non-comment line cannot be parsed as a requirement.
@@ -189,9 +191,9 @@ class TestRequirementsMatchWorkflowNeeds:
     
     def test_has_pytest_for_testing(self):
         """
-        Verify that `pytest` is listed in the development requirements.
+        Check that pytest is present in requirements-dev.txt for workflow tests.
         
-        Asserts that the `requirements-dev.txt` file exists and contains the package name `pytest` (case-insensitive), as workflows rely on pytest to run tests.
+        Asserts the requirements-dev.txt file exists and that one of the parsed package names equals 'pytest' (case-insensitive).
         """
         assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
         

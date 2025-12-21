@@ -16,7 +16,14 @@ SUMMARY_FILE = Path(__file__).parent.parent.parent / "TEST_GENERATION_WORKFLOW_S
 
 @pytest.fixture
 def summary_content() -> str:
-    """Load the summary file content."""
+    """
+    Read and return the contents of the TEST_GENERATION_WORKFLOW_SUMMARY.md file.
+    
+    If the summary file does not exist, the current test is skipped via pytest.skip.
+    
+    Returns:
+        content (str): The full file contents decoded as UTF-8.
+    """
     if not SUMMARY_FILE.exists():
         pytest.skip("TEST_GENERATION_WORKFLOW_SUMMARY.md not found")
     with open(SUMMARY_FILE, 'r', encoding='utf-8') as f:
@@ -25,7 +32,15 @@ def summary_content() -> str:
 
 @pytest.fixture
 def summary_lines(summary_content: str) -> List[str]:
-    """Get summary file lines."""
+    """
+    Split the markdown summary content into a list of lines.
+    
+    Parameters:
+        summary_content (str): Full text content of the summary file.
+    
+    Returns:
+        lines (List[str]): Lines produced by splitting the content on newline characters.
+    """
     return summary_content.split('\n')
 
 
@@ -67,7 +82,15 @@ class TestDocumentStructure:
         assert '## Running the Tests' in summary_content, "Document should have running instructions"
     
     def test_has_benefits_section(self, summary_content: str):
-        """Test that document lists benefits."""
+        """
+        Assert the summary contains a "## Benefits" or "## Key Features" section.
+        
+        Parameters:
+            summary_content (str): Full markdown content of the summary document.
+        
+        Raises:
+            AssertionError: If neither '## Benefits' nor '## Key Features' headings are present.
+        """
         assert '## Benefits' in summary_content or '## Key Features' in summary_content, \
             "Document should describe benefits or key features"
 
@@ -84,9 +107,9 @@ class TestMarkdownFormatting:
     
     def test_no_trailing_whitespace(self, summary_lines: List[str]):
         """
-        Verify no non-blank lines have trailing whitespace.
+        Verify that no non-blank line in the provided lines ends with trailing whitespace.
         
-        Fails the test if any non-blank line ends with trailing whitespace. The assertion message includes the number of offending lines.
+        Fails the test if any non-blank line ends with one or more trailing whitespace characters; the assertion reports the count of offending lines.
         """
         lines_with_trailing = [
             (i + 1, line) for i, line in enumerate(summary_lines)
@@ -97,10 +120,10 @@ class TestMarkdownFormatting:
     
     def test_code_blocks_properly_closed(self, summary_lines: List[str]):
         """
-        Verify that every fenced code block delimited by triple backticks in the summary is properly closed.
+        Ensure every fenced code block delimited by triple backticks in the summary has a matching closing fence.
         
         Parameters:
-            summary_lines (List[str]): Lines of the Markdown summary file to inspect.
+            summary_lines (List[str]): Lines of the Markdown summary to inspect.
         """
         open_block = False
         for i, line in enumerate(summary_lines, start=1):
@@ -112,12 +135,13 @@ class TestMarkdownFormatting:
     
     def test_lists_properly_formatted(self, summary_lines: List[str]):
         """
-        Ensure bullet list items use indentation in multiples of two spaces.
-        
-        Checks each line that starts with a bullet marker (`-`, `*`, or `+`) and asserts its leading indentation is divisible by two, failing the test with a descriptive assertion if any item has odd indentation.
+        Validate that markdown bullet list items use indentation in multiples of two spaces.
         
         Parameters:
-            summary_lines (List[str]): The markdown file content split into lines.
+        	summary_lines (List[str]): Lines of the markdown summary file.
+        
+        Raises:
+        	AssertionError: If any bullet list item ('-', '*', '+') has leading indentation that is not divisible by two.
         """
         list_lines = [line for line in summary_lines if re.match(r'^\s*[-*+] ', line)]
         if list_lines:
@@ -146,16 +170,30 @@ class TestContentAccuracy:
             "Document should mention pytest as the testing framework"
     
     def test_has_code_examples(self, summary_content: str):
-        """Test that document includes code examples."""
+        """
+        Asserts the document contains at least one fenced code block (```).
+        
+        Checks that the summary includes at least one Markdown code fence indicating a code example.
+        """
         assert '```' in summary_content, "Document should include code examples"
     
     def test_mentions_yaml(self, summary_content: str):
-        """Test that document mentions YAML."""
+        """
+        Assert the summary content mentions YAML (either "yaml" or "yml").
+        
+        Parameters:
+            summary_content (str): Full text of the summary document to check.
+        """
         assert 'yaml' in summary_content.lower() or 'yml' in summary_content.lower(), \
             "Document should mention YAML"
     
     def test_mentions_test_classes(self, summary_content: str):
-        """Test that document describes test classes."""
+        """
+        Check that the summary mentions at least one expected test class name.
+        
+        Parameters:
+        	summary_content (str): Full text of the TEST_GENERATION_WORKFLOW_SUMMARY.md to inspect. The test looks for mentions of specific test class names such as `TestWorkflowSyntax`, `TestWorkflowStructure`, or `TestPrAgentWorkflow`.
+        """
         test_class_keywords = ['TestWorkflowSyntax', 'TestWorkflowStructure', 'TestPrAgentWorkflow']
         found_classes = [kw for kw in test_class_keywords if kw in summary_content]
         assert len(found_classes) > 0, \
@@ -176,7 +214,15 @@ class TestCodeExamples:
     """Test suite for code example validation."""
     
     def test_pytest_commands_valid(self, summary_content: str):
-        """Test that pytest commands are valid."""
+        """
+        Verify the markdown contains bash/shell code examples that run pytest and that each such example includes the 'pytest' command.
+        
+        Parameters:
+            summary_content (str): Full markdown document text to scan for fenced code blocks and commands.
+        
+        Raises:
+            AssertionError: If no pytest examples are found or if any extracted pytest example does not contain the 'pytest' command.
+        """
         # Extract code blocks
         code_blocks = re.findall(r'```(?:bash|shell)?\n(.*?)```', summary_content, re.DOTALL)
         pytest_commands = [
@@ -191,9 +237,9 @@ class TestCodeExamples:
     
     def test_file_paths_in_examples_exist(self, summary_content: str):
         """
-        Verify that every referenced integration test file path in the provided document content exists in the repository.
+        Ensure every referenced integration test file path in the document exists in the repository.
         
-        Searches the given summary content for occurrences of test paths matching the pattern tests/integration/test_<name>.py, resolves each path relative to the repository root (three levels up from this file), and asserts that all referenced files are present. If any are missing, the assertion fails with a consolidated message listing each missing reference and its resolved filesystem path.
+        Scans the provided document text for occurrences of paths matching the pattern `tests/integration/test_<name>.py` and resolves each against the repository root; the test fails with a consolidated message listing any referenced files that do not exist, including their resolved filesystem paths.
         
         Parameters:
         	summary_content (str): The full text of the documentation file to scan for referenced test file paths.
@@ -222,7 +268,12 @@ class TestDocumentCompleteness:
     """Test suite for document completeness."""
     
     def test_has_summary_statistics(self, summary_content: str):
-        """Test that document includes statistics about tests."""
+        """
+        Check that the document contains numeric statistics mentioning tests or classes.
+        
+        Parameters:
+            summary_content (str): Full markdown content of the summary document to inspect.
+        """
         # Should mention numbers of tests, classes, etc.
         has_numbers = re.search(r'\d+\s+(tests?|class(?:es)?)', summary_content, re.IGNORECASE)
         assert has_numbers is not None, \
@@ -241,7 +292,12 @@ class TestDocumentCompleteness:
         assert found, "Document should mention CI/workflow integration"
     
     def test_has_practical_examples(self, summary_content: str):
-        """Test that document has practical examples."""
+        """
+        Asserts the document contains at least two fenced code block examples.
+        
+        Parameters:
+            summary_content (str): Full markdown content of the summary document to inspect.
+        """
         assert '```' in summary_content, "Document should have code examples"
         code_blocks = summary_content.count('```')
         assert code_blocks >= 4, "Document should have at least 2 code block examples"
@@ -251,7 +307,15 @@ class TestDocumentMaintainability:
     """Test suite for document maintainability."""
     
     def test_line_length_reasonable(self, summary_lines: List[str]):
-        """Test that lines aren't excessively long."""
+        """
+        Check that fewer than 10% of non-URL lines exceed 120 characters.
+        
+        Parameters:
+            summary_lines (List[str]): Lines of the summary file to evaluate.
+        
+        Notes:
+            Lines starting with a URL (after stripping leading whitespace) are excluded from the length check.
+        """
         long_lines = [
             (i + 1, line) for i, line in enumerate(summary_lines)
             if len(line) > 120 and not line.strip().startswith('http')
@@ -262,9 +326,9 @@ class TestDocumentMaintainability:
     
     def test_has_clear_structure(self, summary_content: str):
         """
-        Verify the document contains a clear hierarchical heading structure.
+        Assert the markdown document has a clear hierarchical heading structure.
         
-        Requires at least one level-1 heading (H1) and at least three level-2 headings (H2); the test fails if these counts are not met.
+        Requires at least one level-1 heading (H1) and at least three level-2 headings (H2).
         """
         h1_count = len(re.findall(r'^# ', summary_content, re.MULTILINE))
         h2_count = len(re.findall(r'^## ', summary_content, re.MULTILINE))
@@ -289,13 +353,13 @@ class TestLinkValidation:
 
     def test_internal_links_valid(self, summary_lines: List[str], summary_content: str):
         """
-        Validates that every GitHub-style internal link in the Markdown points to an existing header.
+        Validate that every internal GitHub-style link in the Markdown targets an existing header.
         
-        Checks internal links of the form [text](#anchor) in the full document content against the set of GitHub Flavoured Markdown anchors derived from the document headers; the test fails if any anchor does not match an existing header.
+        Parses document headers into GitHub Flavored Markdown (GFM) anchors and verifies every internal link of the form [text](#anchor) references one of those anchors.
         
         Parameters:
-            summary_lines (List[str]): The file split into lines; used to extract headers.
-            summary_content (str): The full file content; used to extract internal link targets.
+            summary_lines (List[str]): File content split into lines; used to extract header texts.
+            summary_content (str): Full file content as a single string; used to find internal link targets.
         """
         import unicodedata
 
@@ -308,7 +372,7 @@ class TestLinkValidation:
                 text (str): Header text to convert into an internal GFM anchor.
             
             Returns:
-                str: The anchor string suitable for use in internal GFM links (lowercased, diacritics removed, punctuation omitted, whitespace replaced by single hyphens, with consecutive or edge hyphens collapsed).
+                str: Anchor string suitable for internal GFM links: lowercase, diacritics removed, punctuation omitted, consecutive whitespace collapsed to single hyphens, consecutive hyphens collapsed, and with no leading or trailing hyphens.
             """
             s = text.strip().lower()
             # Normalize unicode to NFKD and remove diacritics
@@ -337,7 +401,12 @@ class TestSecurityAndBestPractices:
     """Test suite for security and best practices in documentation."""
     
     def test_no_hardcoded_secrets(self, summary_content: str):
-        """Test that document doesn't contain hardcoded secrets."""
+        """
+        Fail the test if the document contains common hardcoded GitHub token patterns.
+        
+        Parameters:
+            summary_content (str): Full text of the summary document to scan.
+        """
         secret_patterns = [
             r'ghp_[a-zA-Z0-9]{36}',  # GitHub Personal Access Token
             r'gho_[a-zA-Z0-9]{36}',  # GitHub OAuth Token
@@ -350,7 +419,14 @@ class TestSecurityAndBestPractices:
                 f"Document should not contain hardcoded secrets (found pattern: {pattern})"
     
     def test_uses_secure_examples(self, summary_content: str):
-        """Test that examples follow security best practices."""
+        """
+        Require secure examples when tokens are mentioned.
+        
+        If the summary content contains the word "token" (case-insensitive), the document must also reference GitHub secrets context (for example the word "secrets") or include the GitHub Actions expression syntax '${{'. This enforces that examples involving tokens show secure handling.
+        
+        Parameters:
+            summary_content (str): Full text content of the TEST_GENERATION_WORKFLOW_SUMMARY.md file being validated.
+        """
         # If the document mentions tokens, it should mention secrets context
         if 'token' in summary_content.lower():
             assert 'secrets' in summary_content.lower() or '${{' in summary_content, \
@@ -361,7 +437,14 @@ class TestReferenceAccuracy:
     """Test suite for reference accuracy."""
     
     def test_test_counts_are_realistic(self, summary_content: str):
-        """Test that mentioned test counts seem realistic."""
+        """
+        Ensure numeric mentions of tests in the summary are realistic.
+        
+        Scans the provided summary text for numbers immediately followed by the word "test" or "tests" and asserts each numeric value is greater than 0 and less than 1000.
+        
+        Parameters:
+        	summary_content (str): Full text content of the TEST_GENERATION_WORKFLOW_SUMMARY.md document to validate.
+        """
         # Extract numbers mentioned with "test"
         test_counts = re.findall(r'(\d+)\s+tests?', summary_content, re.IGNORECASE)
         for count_str in test_counts:
@@ -370,7 +453,14 @@ class TestReferenceAccuracy:
                 f"Test count {count} seems unrealistic"
     
     def test_file_references_are_consistent(self, summary_content: str):
-        """Test that file references are consistent throughout."""
+        """
+        Verify that references to "test_github_workflows.py" appear with consistent casing.
+        
+        Searches the document for occurrences of "test_github_workflows.py" (case-insensitive) and fails the test if more than two distinct casings are found, indicating inconsistent file-name references.
+        
+        Parameters:
+            summary_content (str): Full text of the markdown document to inspect.
+        """
         # Main test file should be referenced consistently
         test_file_mentions = re.findall(
             r'test_github_workflows\.py', 
@@ -388,7 +478,11 @@ class TestEdgeCases:
     """Test suite for edge cases."""
     
     def test_handles_special_characters(self, summary_content: str):
-        """Test that document handles special characters properly."""
+        """
+        Fail if the document contains the Unicode replacement character U+FFFD (�).
+        
+        This detects encoding or decoding issues that produced the replacement character in the summary content.
+        """
         # Check for common encoding issues
         assert '�' not in summary_content, \
             "Document should not contain replacement characters (encoding issues)"
@@ -402,7 +496,11 @@ class TestEdgeCases:
             pytest.fail("File should be valid UTF-8")
     
     def test_consistent_line_endings(self):
-        """Test that file uses consistent line endings throughout."""
+        """
+        Ensure the summary file uses a single line-ending style.
+        
+        Skips the check if the file is empty. Considers line-terminated lines with LF, CRLF, or CR endings and requires exactly one style among those lines; the file must use either LF or CRLF.
+        """
         with open(SUMMARY_FILE, 'rb') as f:
             content = f.read()
 

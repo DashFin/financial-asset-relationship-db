@@ -21,8 +21,10 @@ class TestPRAgentConfigSimplification:
         """
         Load and parse the PR agent YAML configuration from .github/pr-agent-config.yml.
         
+        If the file is missing, contains invalid YAML, or does not contain a top-level mapping, the fixture will call pytest.fail to abort the test. 
+        
         Returns:
-            The parsed YAML content as a Python mapping or sequence (typically a dict), or `None` if the file is empty.
+            dict: The parsed YAML content as a Python mapping.
         """
         config_path = Path(".github/pr-agent-config.yml")
         if not config_path.exists():
@@ -75,7 +77,9 @@ class TestPRAgentConfigSimplification:
         assert 'tiktoken' not in config_str.lower()
     
     def test_no_fallback_strategies(self, pr_agent_config):
-        """Verify fallback strategies removed from limits."""
+        """
+        Ensure the top-level `limits` section does not contain a `fallback` key.
+        """
         limits = pr_agent_config.get('limits', {})
         assert 'fallback' not in limits
     
@@ -90,10 +94,10 @@ class TestPRAgentConfigSimplification:
     
     def test_monitoring_config_present(self, pr_agent_config):
         """
-        Verify the monitoring section contains the required keys: 'check_interval', 'max_retries' and 'timeout'.
+        Ensure the top-level monitoring section contains the keys 'check_interval', 'max_retries', and 'timeout'.
         
         Parameters:
-            pr_agent_config (dict): Parsed PR agent configuration loaded from .github/pr-agent-config.yml.
+            pr_agent_config (dict): Parsed PR agent configuration mapping.
         """
         monitoring = pr_agent_config['monitoring']
         assert 'check_interval' in monitoring
@@ -117,7 +121,11 @@ class TestPRAgentConfigYAMLValidity:
     """Test YAML validity and structure."""
     
     def test_config_is_valid_yaml(self):
-        """Verify config file is valid YAML."""
+        """
+        Fail the test if .github/pr-agent-config.yml contains invalid YAML.
+        
+        Attempts to parse the repository file at .github/pr-agent-config.yml and fails the test with the YAML parser error when parsing fails.
+        """
         config_path = Path(".github/pr-agent-config.yml")
         with open(config_path, 'r') as f:
             try:
@@ -129,7 +137,7 @@ class TestPRAgentConfigYAMLValidity:
         """
         Fail the test if any top-level YAML key appears more than once in the file.
         
-        Reads .github/pr-agent-config.yml, ignores commented lines, and treats the text before the first ':' on each non-comment line as a key; the test fails when a previously seen key is encountered again.
+        Scans .github/pr-agent-config.yml, ignores comment lines, and for each non-comment line treats the text before the first ':' as the key; the test fails if a key is encountered more than once.
         """
         config_path = Path(".github/pr-agent-config.yml")
         with open(config_path, 'r') as f:
@@ -147,9 +155,9 @@ class TestPRAgentConfigYAMLValidity:
     
     def test_consistent_indentation(self):
         """
-        Assert that every non-empty, non-comment line in the PR agent YAML file uses indentation in 2-space increments.
+        Verify that every non-empty, non-comment line in the PR agent YAML uses 2-space indentation increments.
         
-        Raises an assertion error pointing to the line number if a line has a number of leading spaces that is not a multiple of two.
+        Raises an AssertionError indicating the line number when a line's leading spaces are not a multiple of two.
         """
         config_path = Path(".github/pr-agent-config.yml")
         with open(config_path, 'r') as f:
@@ -179,7 +187,15 @@ class TestPRAgentConfigSecurity:
 
         This inspects values (not just serialized text) and traverses nested dicts/lists.
         The heuristic flags:
-          - Long high-entropy strings (e.g., tokens)
+          """
+        Load and parse the PR agent YAML configuration from .github/pr-agent-config.yml.
+        
+        If the file is missing, contains invalid YAML, or the top-level content is not a mapping, this fixture fails test collection. Empty files return None.
+        
+        Returns:
+            The parsed YAML content (typically a dict) or `None` if the file is empty.
+        """
+        - Long high-entropy strings (e.g., tokens)
           - Obvious secret prefixes/suffixes
           - Inline credentials in URLs (e.g., scheme://user:pass@host)
         """
