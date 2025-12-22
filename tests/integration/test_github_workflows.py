@@ -5,6 +5,7 @@ This module validates the structure, syntax, and configuration of GitHub Actions
 workflows, ensuring they are properly formatted and free of common issues like
 duplicate keys, invalid syntax, and missing required fields.
 """
+
 import re
 from pathlib import Path
 from typing import Any, Dict, List
