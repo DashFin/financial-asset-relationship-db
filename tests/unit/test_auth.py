@@ -522,7 +522,7 @@ class TestGetCurrentUser:
         mock_user = UserInDB(username="testuser", email="test@example.com", hashed_password="hashed", disabled=False)
         mock_get_user.return_value = mock_user
 
-        user = get_current_user(token)
+        user = await get_current_user(token)
 
         assert user == mock_user
 
