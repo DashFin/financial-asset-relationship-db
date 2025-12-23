@@ -641,8 +641,7 @@ class TestDatabaseErrorHandling:
         """Test that fetch_one propagates query errors."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_cursor.execute.side_effect = sqlite3.OperationalError("Table not found")
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_conn.execute.side_effect = sqlite3.OperationalError("Table not found")
         mock_get_conn.return_value.__enter__.return_value = mock_conn
 
         with pytest.raises(sqlite3.OperationalError):
