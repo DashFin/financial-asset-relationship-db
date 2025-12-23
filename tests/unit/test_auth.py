@@ -543,7 +543,15 @@ class TestGetCurrentUser:
 
         from fastapi import HTTPException
 
-        token = create_access_token({"sub": "testuser"}, expires_delta=timedelta(seconds=-1))
+        from datetime import datetime, timedelta, timezone
+
+        fixed_now = datetime(2030, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+
+        with patch("api.auth.datetime") as mock_datetime:
+            mock_datetime.now.return_value = fixed_now
+            mock_datetime.utcnow.return_value = fixed_now.replace(tzinfo=None)
+
+            token = create_access_token({"sub": "testuser"}, expires_delta=timedelta(seconds=-1))
 
         with pytest.raises(HTTPException) as exc_info:
             get_current_user(token)
