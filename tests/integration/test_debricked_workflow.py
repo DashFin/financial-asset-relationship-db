@@ -100,7 +100,7 @@ class TestDebrickedWorkflowStructure:
     def test_triggers_on_pull_request(self, debricked_config: Dict[str, Any]):
         """Test that workflow triggers on pull requests."""
         triggers = debricked_config.get("on", [])
-        
+
         # Handle both list and dict formats
         if isinstance(triggers, list):
             assert "pull_request" in triggers, "Workflow should trigger on pull_request events"
@@ -209,14 +209,14 @@ class TestDebrickedSecretHandling:
         """Test that Debricked step uses env for token."""
         debricked_steps = [s for s in steps if "uses" in s and "debricked" in s["uses"].lower()]
         assert len(debricked_steps) > 0, "Should have Debricked steps"
-        
+
         for step in debricked_steps:
             assert "env" in step, "Debricked step must define env section"
 
     def test_debricked_token_in_env(self, steps: list):
         """Test that DEBRICKED_TOKEN is provided via env."""
         debricked_steps = [s for s in steps if "uses" in s and "debricked" in s["uses"].lower()]
-        
+
         for step in debricked_steps:
             env = step.get("env", {})
             assert "DEBRICKED_TOKEN" in env, "Debricked step must define DEBRICKED_TOKEN"
@@ -224,7 +224,7 @@ class TestDebrickedSecretHandling:
     def test_token_uses_secrets_context(self, steps: list):
         """Test that token uses GitHub secrets context."""
         debricked_steps = [s for s in steps if "uses" in s and "debricked" in s["uses"].lower()]
-        
+
         for step in debricked_steps:
             env = step.get("env", {})
             token = env.get("DEBRICKED_TOKEN", "")
@@ -235,17 +235,16 @@ class TestDebrickedSecretHandling:
         """Test that workflow doesn't contain hardcoded tokens."""
         with open(ROOT_DEBRICKED_FILE, "r", encoding="utf-8") as f:
             content = f.read()
-        
+
         # Check for patterns that might indicate hardcoded secrets
         suspicious_patterns = [
             "ghp_",  # GitHub personal access token
             "dbr_",  # Potential Debricked token prefix
         ]
-        
+
         for pattern in suspicious_patterns:
             assert pattern not in content, (
-                f"Workflow may contain hardcoded secret (found pattern: {pattern}). "
-                "Use secrets context instead."
+                f"Workflow may contain hardcoded secret (found pattern: {pattern}). " "Use secrets context instead."
             )
 
 
@@ -287,18 +286,14 @@ class TestDebrickedWorkflowBestPractices:
     def test_reasonable_file_size(self):
         """Test that workflow file is reasonably sized."""
         file_size = ROOT_DEBRICKED_FILE.stat().st_size
-        assert file_size < 10240, (
-            f"Workflow file is {file_size} bytes. "
-            "Keep workflows concise and focused."
-        )
+        assert file_size < 10240, f"Workflow file is {file_size} bytes. " "Keep workflows concise and focused."
 
     def test_workflow_is_focused(self, config: Dict[str, Any]):
         """Test that workflow has a single focused purpose."""
         jobs = config.get("jobs", {})
         job_count = len(jobs)
         assert job_count <= 2, (
-            f"Workflow has {job_count} jobs. "
-            "Debricked workflow should be focused on vulnerability scanning."
+            f"Workflow has {job_count} jobs. " "Debricked workflow should be focused on vulnerability scanning."
         )
 
 
@@ -319,44 +314,34 @@ class TestDebrickedWorkflowComparison:
         workflow_size = WORKFLOW_DEBRICKED_FILE.stat().st_size
 
         # Root file should be smaller/simpler
-        assert root_size < workflow_size, (
-            "Root debricked.yml should be simpler than workflows version"
-        )
+        assert root_size < workflow_size, "Root debricked.yml should be simpler than workflows version"
 
     def test_root_file_uses_newer_action_version(self):
         """Test that root file uses the latest Debricked action version."""
         root_config = load_yaml_safe(ROOT_DEBRICKED_FILE)
         root_steps = root_config["jobs"]["vulnerabilities-scan"]["steps"]
-        
-        root_debricked_steps = [
-            s for s in root_steps if "uses" in s and "debricked" in s["uses"].lower()
-        ]
-        
+
+        root_debricked_steps = [s for s in root_steps if "uses" in s and "debricked" in s["uses"].lower()]
+
         for step in root_debricked_steps:
             action = step["uses"]
-            assert "@v4" in action, (
-                f"Root file should use latest Debricked action v4, found: {action}"
-            )
+            assert "@v4" in action, f"Root file should use latest Debricked action v4, found: {action}"
 
     def test_both_use_secrets_correctly(self):
         """Test that both files use secrets context correctly."""
         for file_path in [ROOT_DEBRICKED_FILE, WORKFLOW_DEBRICKED_FILE]:
             config = load_yaml_safe(file_path)
             jobs = config.get("jobs", {})
-            
+
             for job_name, job in jobs.items():
                 steps = job.get("steps", [])
-                debricked_steps = [
-                    s for s in steps if "uses" in s and "debricked" in s["uses"].lower()
-                ]
-                
+                debricked_steps = [s for s in steps if "uses" in s and "debricked" in s["uses"].lower()]
+
                 for step in debricked_steps:
                     env = step.get("env", {})
                     if "DEBRICKED_TOKEN" in env:
                         token = env["DEBRICKED_TOKEN"]
-                        assert "secrets" in token.lower(), (
-                            f"Token in {file_path.name} should use secrets context"
-                        )
+                        assert "secrets" in token.lower(), f"Token in {file_path.name} should use secrets context"
 
 
 class TestDebrickedEdgeCases:
@@ -380,7 +365,7 @@ class TestDebrickedEdgeCases:
     def test_workflow_has_minimum_required_fields(self):
         """Test that workflow has all minimum required fields."""
         config = load_yaml_safe(ROOT_DEBRICKED_FILE)
-        
+
         required_fields = ["name", "on", "jobs"]
         for field in required_fields:
             assert field in config, f"Workflow must have '{field}' field"
@@ -389,7 +374,7 @@ class TestDebrickedEdgeCases:
         """Test that job has all minimum required fields."""
         config = load_yaml_safe(ROOT_DEBRICKED_FILE)
         job = config["jobs"]["vulnerabilities-scan"]
-        
+
         required_fields = ["runs-on", "steps"]
         for field in required_fields:
             assert field in job, f"Job must have '{field}' field"
@@ -398,13 +383,11 @@ class TestDebrickedEdgeCases:
         """Test that all steps are properly structured."""
         config = load_yaml_safe(ROOT_DEBRICKED_FILE)
         steps = config["jobs"]["vulnerabilities-scan"]["steps"]
-        
+
         for idx, step in enumerate(steps):
             assert isinstance(step, dict), f"Step {idx} must be a dictionary"
             # Each step must have either 'uses' or 'run'
-            assert "uses" in step or "run" in step, (
-                f"Step {idx} must have either 'uses' or 'run'"
-            )
+            assert "uses" in step or "run" in step, f"Step {idx} must have either 'uses' or 'run'"
 
 
 class TestDebrickedIntegrationRequirements:
@@ -416,14 +399,10 @@ class TestDebrickedIntegrationRequirements:
         if readme_path.exists():
             with open(readme_path, "r", encoding="utf-8") as f:
                 content = f.read().lower()
-            
+
             # Check if README mentions Debricked or security scanning
-            has_security_info = (
-                "debricked" in content or
-                "vulnerability" in content or
-                "security scan" in content
-            )
-            
+            has_security_info = "debricked" in content or "vulnerability" in content or "security scan" in content
+
             if not has_security_info:
                 # This is informational, not a hard failure
                 print(
@@ -447,7 +426,7 @@ class TestDebrickedDocumentation:
         """Test that workflow name clearly indicates its purpose."""
         config = load_yaml_safe(ROOT_DEBRICKED_FILE)
         name = config.get("name", "")
-        
+
         # Name should be clear and descriptive
         assert len(name) > 5, "Workflow name should be descriptive"
         assert not name.isupper(), "Workflow name should use proper case, not all caps"
@@ -456,13 +435,13 @@ class TestDebrickedDocumentation:
         """Test that job names match workflow purpose."""
         config = load_yaml_safe(ROOT_DEBRICKED_FILE)
         jobs = config.get("jobs", {})
-        
+
         for job_name in jobs.keys():
             # Job name should be descriptive
             assert len(job_name) > 3, f"Job name '{job_name}' should be descriptive"
-            assert "-" in job_name or "_" in job_name or job_name.islower(), (
-                f"Job name '{job_name}' should use kebab-case or snake_case"
-            )
+            assert (
+                "-" in job_name or "_" in job_name or job_name.islower()
+            ), f"Job name '{job_name}' should use kebab-case or snake_case"
 
 
 class TestDebrickedSecurityBestPractices:
@@ -471,47 +450,43 @@ class TestDebrickedSecurityBestPractices:
     def test_no_env_var_injection_vulnerability(self):
         """Test that workflow doesn't have env injection vulnerabilities."""
         content = ROOT_DEBRICKED_FILE.read_text()
-        
+
         # Check for unsafe patterns
         unsafe_patterns = [
             r"\$\{\{.*github\.event\..*\}\}.*bash",
             r"run:.*\$\{\{.*github\.event\.issue\.title",
         ]
-        
+
         import re
+
         for pattern in unsafe_patterns:
             matches = re.findall(pattern, content)
-            assert not matches, (
-                f"Found potential env injection vulnerability: {matches}"
-            )
+            assert not matches, f"Found potential env injection vulnerability: {matches}"
 
     def test_secrets_not_logged(self):
         """Test that secrets aren't accidentally logged."""
         content = ROOT_DEBRICKED_FILE.read_text()
-        
+
         # Check for echo/print of secrets
         secret_logging_patterns = [
             r"echo.*\$\{\{.*secrets\.",
             r"print.*\$\{\{.*secrets\.",
         ]
-        
+
         import re
+
         for pattern in secret_logging_patterns:
             matches = re.findall(pattern, content)
-            assert not matches, (
-                f"Secrets may be logged to console: {matches}"
-            )
+            assert not matches, f"Secrets may be logged to console: {matches}"
 
     def test_permissions_least_privilege(self):
         """Test that workflow follows least privilege principle."""
         config = load_yaml_safe(ROOT_DEBRICKED_FILE)
-        
+
         # If permissions are specified, they should be minimal
         if "permissions" in config:
             permissions = config["permissions"]
             if isinstance(permissions, dict):
                 # Check for overly broad permissions
                 for perm, value in permissions.items():
-                    assert value in ["read", "write", "none"], (
-                        f"Permission '{perm}' has invalid value: {value}"
-                    )
+                    assert value in ["read", "write", "none"], f"Permission '{perm}' has invalid value: {value}"
