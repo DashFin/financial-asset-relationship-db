@@ -1,4 +1,3 @@
-import numpy as np
 from mcp.server.fastmcp import FastMCP
 
 from src.models.financial_models import AssetClass, Equity
