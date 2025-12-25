@@ -1,7 +1,6 @@
 import numpy as np
 from mcp.server.fastmcp import FastMCP
-
-from src.logic.asset_graph import AssetRelationshipGraph
+from src.models.financial_models import AssetClass, Equity
 from src.models.financial_models import Asset, AssetClass, Equity
 
 # Initialize the MCP server
