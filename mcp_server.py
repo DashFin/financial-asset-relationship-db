@@ -1,6 +1,6 @@
 from mcp.server.fastmcp import FastMCP
 
-from src.models.financial_models import AssetClass, Equity
+from src.logic.asset_graph import AssetRelationshipGraph
 
 # Initialize the MCP server
 mcp = FastMCP("DashFin-Relationship-Manager")
