@@ -1,8 +1,6 @@
-import numpy as np
 from mcp.server.fastmcp import FastMCP
 
-from src.logic.asset_graph import AssetRelationshipGraph
-from src.models.financial_models import Asset, AssetClass, Equity
+from src.models.financial_models import AssetClass, Equity
 
 # Initialize the MCP server
 mcp = FastMCP("DashFin-Relationship-Manager")
@@ -25,12 +23,15 @@ def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: f
         new_equity = Equity(
             id=asset_id, symbol=symbol, name=name, asset_class=AssetClass.EQUITY, sector=sector, price=price
         )
-        return f"Successfully validated: {new_equity.name} ({new_equity.symbol})"
+        # Add the new node to the graph if it doesn't exist.
+        if new_equity.id not in graph.relationships:
+            graph.relationships[new_equity.id] = []
+        return f"Successfully added: {new_equity.name} ({new_equity.symbol})"
     except ValueError as e:
         return f"Validation Error: {str(e)}"
 
 
-@mcp.resource("graph://data/3d-layout")
+@mcp.tool()
 def get_3d_layout() -> str:
     """
     Return a human-readable snapshot of the graph's 3D layout for spatial reasoning.
