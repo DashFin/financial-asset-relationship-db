@@ -38,6 +38,51 @@ class ContextChunker:
         Parameters:
             config_path: Path to the YAML configuration file.
         """
+        self.config: Dict = self._load_config(config_path)
+
+        # Read agent context settings with safe defaults
+        agent_cfg = (self.config.get("agent") or {}).get("context") or {}
+        self.max_tokens = int(agent_cfg.get("max_tokens", 32000))
+        self.chunk_size = int(agent_cfg.get("chunk_size", max(1, self.max_tokens - 4000)))
+        self.overlap_tokens = int(agent_cfg.get("overlap_tokens", 2000))
+        self.summarization_threshold = int(
+            agent_cfg.get("summarization_threshold", int(self.max_tokens * 0.9))
+        )
+
+        # Prepare priority order
+        limits_cfg = (self.config.get("limits") or {}).get("fallback") or {}
+        self.priority_order = limits_cfg.get(
+            "priority_order",
+            ["review_comments", "test_failures", "changed_files", "ci_logs", "full_diff"],
+        )
+        # Map chunk type to priority index (lower is higher priority)
+        self.priority_map = {name: i for i, name in enumerate(self.priority_order)}
+
+        # Setup tokenizer/encoder if tiktoken available
+        self._encoder = self._init_encoder()
+
+    def _load_config(self, config_path: str) -> Dict[str, Any]:
+        """Load YAML configuration from disk with safe defaults."""
+        cfg_file = Path(config_path)
+        if not (cfg_file.exists() and yaml is not None):
+            return {}
+
+        try:
+            with cfg_file.open("r", encoding="utf-8") as f:
+                return yaml.safe_load(f) or {}
+        except Exception as e:
+            print(f"Warning: failed to load config from {config_path}: {e}", file=sys.stderr)
+            return {}
+
+    def _init_encoder(self):
+        """Initialize and return the tiktoken encoder when available."""
+        if not TIKTOKEN_AVAILABLE:
+            return None
+        try:
+            return tiktoken.get_encoding("cl100k_base")
+        except Exception as e:
+            print(f"Warning: failed to initialize tiktoken encoder: {e}", file=sys.stderr)
+            return None
         self.config: Dict = {}
 
         # Load configuration if available
