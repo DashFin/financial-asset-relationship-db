@@ -1,3 +1,4 @@
+import json
 import threading
 
 from mcp.server.fastmcp import FastMCP
@@ -59,7 +60,7 @@ def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: f
     try:
         # Uses existing Equity dataclass for post-init validation
         new_equity = Equity(
-        graph.add_asset(new_equity)
+            graph.add_asset(new_equity)
             symbol=symbol,
             name=name,
             asset_class=AssetClass.EQUITY,
@@ -113,13 +114,6 @@ def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: f
     except ValueError as e:
         return f"Validation Error: {str(e)}"
 
-
-import json
-import threading
-
-from mcp.server.fastmcp import FastMCP
-
-from src.logic.asset_graph import AssetRelationshipGraph
 
 # Initialize the MCP server
 mcp = FastMCP("DashFin-Relationship-Manager")
