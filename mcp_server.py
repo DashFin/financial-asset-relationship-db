@@ -28,8 +28,8 @@ def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: f
             id=asset_id, symbol=symbol, name=name, asset_class=AssetClass.EQUITY, sector=sector, price=price
         )
         # Add the new node to the graph if it doesn't exist.
-        if new_equity.id not in graph.relationships:
-            graph.relationships[new_equity.id] = []
+        # Add the new node to the graph using encapsulated method
+        graph.add_equity(new_equity)
         return f"Successfully added: {new_equity.name} ({new_equity.symbol})"
     except ValueError as e:
         return f"Validation Error: {str(e)}"
