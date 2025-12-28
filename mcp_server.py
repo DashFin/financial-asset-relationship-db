@@ -21,7 +21,12 @@ class _ThreadSafeGraph:
         self._lock = lock
 
     def __getattr__(self, name):
-        attr = getattr(self._graph, name)
+        # Acquire the lock while resolving the attribute to avoid races where the
+        # underlying graph is mutated concurrently during attribute access (e.g.,
+        # properties/descriptors or mutable fields being swapped out).
+        with self._lock:
+            attr = getattr(self._graph, name)
+
         if callable(attr):
             def _wrapped(*args, **kwargs):
                 with self._lock:
@@ -29,12 +34,11 @@ class _ThreadSafeGraph:
 
             return _wrapped
 
-        # For non-callable attributes, guard access and prevent external code from
-        # mutating shared state without holding the lock.
+        # For non-callable attributes, return a defensive copy so callers cannot
+        # mutate shared state without holding the lock.
         import copy
         with self._lock:
             return copy.deepcopy(attr)
-
 
 graph = _ThreadSafeGraph(AssetRelationshipGraph(), _graph_lock)
 
