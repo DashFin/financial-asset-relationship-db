@@ -353,30 +353,79 @@ class ContextChunker:
                 continue
 
             chunk_tokens = self.estimate_tokens(content)
+            processed_chunk, tokens_used, should_break = self._process_chunk(
+                content, chunk_type, chunk_tokens, remaining_tokens
+            )
 
-            if chunk_tokens <= remaining_tokens:
-                # Chunk fits entirely
-                result_parts.append(content)
-                remaining_tokens -= chunk_tokens
-            elif remaining_tokens > 500:
-                # Truncate chunk to fit remaining space
-                truncated = self._truncate_to_tokens(content, remaining_tokens - 100)
-                if truncated:
-                    truncated_with_note = truncated + f"\n\n[{chunk_type} truncated due to token limit]"
-                    result_parts.append(truncated_with_note)
-                    # Update remaining tokens after truncation
-                    truncated_tokens = self.estimate_tokens(truncated_with_note)
-                    remaining_tokens -= truncated_tokens
-                # Continue to try fitting more chunks instead of breaking
-            else:
-                # Not enough space, add summary note
-                result_parts.append(
-                    f"\n[{chunk_type} omitted due to token limit - "
-                    f"contained {chunk_tokens} tokens]"
-                )
+            if processed_chunk:
+                result_parts.append(processed_chunk)
+                remaining_tokens -= tokens_used
+
+            if should_break:
                 break
 
         return "\n\n".join(result_parts)
+
+    def _process_chunk(
+        self, content: str, chunk_type: str, chunk_tokens: int, remaining_tokens: int
+    ) -> Tuple[str, int, bool]:
+        """
+        Process a single chunk based on available token space.
+
+        Parameters:
+            content: The chunk content to process.
+            chunk_type: Type identifier for the chunk.
+            chunk_tokens: Estimated token count for the chunk.
+            remaining_tokens: Available token budget.
+
+        Returns:
+            Tuple[str, int, bool]: Processed content, tokens used, and whether to stop processing.
+        """
+        if chunk_tokens <= remaining_tokens:
+            return content, chunk_tokens, False
+
+        if remaining_tokens > 500:
+            return self._handle_truncation(content, chunk_type, remaining_tokens)
+
+        return self._handle_omission(chunk_type, chunk_tokens)
+
+    def _handle_truncation(
+        self, content: str, chunk_type: str, remaining_tokens: int
+    ) -> Tuple[str, int, bool]:
+        """
+        Handle chunk truncation when partial content can fit.
+
+        Parameters:
+            content: The chunk content to truncate.
+            chunk_type: Type identifier for the chunk.
+            remaining_tokens: Available token budget.
+
+        Returns:
+            Tuple[str, int, bool]: Truncated content with note, tokens used, and False to continue.
+        """
+        truncated = self._truncate_to_tokens(content, remaining_tokens - 100)
+        if truncated:
+            truncated_with_note = truncated + f"\n\n[{chunk_type} truncated due to token limit]"
+            truncated_tokens = self.estimate_tokens(truncated_with_note)
+            return truncated_with_note, truncated_tokens, False
+        return "", 0, False
+
+    def _handle_omission(self, chunk_type: str, chunk_tokens: int) -> Tuple[str, int, bool]:
+        """
+        Handle chunk omission when no space is available.
+
+        Parameters:
+            chunk_type: Type identifier for the chunk.
+            chunk_tokens: Estimated token count for the chunk.
+
+        Returns:
+            Tuple[str, int, bool]: Omission note, 0 tokens used, and True to stop processing.
+        """
+        omission_note = (
+            f"\n[{chunk_type} omitted due to token limit - "
+            f"contained {chunk_tokens} tokens]"
+        )
+        return omission_note, 0, True
 
     def _truncate_to_tokens(self, text: str, max_tokens: int) -> str:
         """
