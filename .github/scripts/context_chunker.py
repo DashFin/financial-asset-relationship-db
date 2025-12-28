@@ -144,7 +144,9 @@ class ContextChunker:
         if self._encoder is not None:
             try:
                 return len(self._encoder.encode(text))
-            except Exception:
+            except Exception as e:
+                # Log encoding failure and fall back to heuristic
+                print(f"Warning: tiktoken encoding failed: {e}", file=sys.stderr)
                 pass
 
         # Heuristic fallback: ~4 chars per token with adjustments
