@@ -49,7 +49,10 @@ def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: f
         )
         # Add the new node to the graph if it doesn't exist.
         # Add the new node to the graph using encapsulated method
-        graph.add_equity(new_equity)
+from mcp.server.fastmcp import FastMCP
+
+from src.logic.asset_graph import AssetRelationshipGraph
+from src.models.financial_models import Asset, AssetClass, Equity
         return f"Successfully added: {new_equity.name} ({new_equity.symbol})"
     except ValueError as e:
         return f"Validation Error: {str(e)}"
