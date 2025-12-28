@@ -40,6 +40,7 @@ class _ThreadSafeGraph:
         with self._lock:
             return copy.deepcopy(attr)
 
+
 graph = _ThreadSafeGraph(AssetRelationshipGraph(), _graph_lock)
 
 
@@ -124,7 +125,7 @@ def get_3d_layout() -> str:
 def get_3d_layout() -> str:
     """Provides current 3D visualization data for AI spatial reasoning."""
     # Leverages existing logic for deterministic layouts (seed 42)
-    positions, asset_ids, colors, hover = graph.get_3d_visualization_data_enhanced()
+    positions, asset_ids, colors, hover= graph.get_3d_visualization_data_enhanced()
     return f"Assets: {asset_ids}\nPositions: {positions.tolist()}"
 
 
