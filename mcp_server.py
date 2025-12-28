@@ -53,6 +53,7 @@ from mcp.server.fastmcp import FastMCP
 
 from src.logic.asset_graph import AssetRelationshipGraph
 from src.models.financial_models import Asset, AssetClass, Equity
+
         return f"Successfully added: {new_equity.name} ({new_equity.symbol})"
     except ValueError as e:
         return f"Validation Error: {str(e)}"
