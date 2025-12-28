@@ -62,7 +62,48 @@ def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: f
             price=price,
         )
 
-        graph.add_equity(new_equity)
+@mcp.tool()
+def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: float) -> str:
+    """
+    Add an Equity asset after validating its fields.
+
+    Note: AssetRelationshipGraph currently does not expose an add_equity/add_asset API,
+    so this tool validates and returns the created object details without mutating the graph.
+
+    Returns:
+        A success message containing the equity's name and symbol on successful validation, or
+        "Validation Error: <message>" containing the validation error text if creation fails.
+    """
+    # Local import to prevent NameError if module imports are refactored.
+    from src.models.financial_models import AssetClass, Equity
+
+    try:
+        # Uses existing Equity dataclass for post-init validation
+        new_equity = Equity(
+            id=asset_id,
+            symbol=symbol,
+            name=name,
+            asset_class=AssetClass.EQUITY,
+            sector=sector,
+            price=price,
+        )
+        return f"Successfully validated: {new_equity.name} ({new_equity.symbol})"
+    except ValueError as e:
+        return f"Validation Error: {str(e)}"
+
+
+@mcp.resource("graph://data/3d-layout")
+def get_3d_layout() -> str:
+    """Provides current 3D visualization data for AI spatial reasoning."""
+    positions, asset_ids, colors, hover = graph.get_3d_visualization_data_enhanced()
+    return json.dumps(
+        {
+            "asset_ids": asset_ids,
+            "positions": positions.tolist(),
+            "colors": colors,
+            "hover": hover,
+        }
+    )
         return f"Successfully added: {new_equity.name} ({new_equity.symbol})"
     except ValueError as e:
         return f"Validation Error: {str(e)}"
