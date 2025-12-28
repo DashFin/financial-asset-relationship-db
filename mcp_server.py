@@ -6,6 +6,9 @@ from src.logic.asset_graph import AssetRelationshipGraph
 mcp = FastMCP("DashFin-Relationship-Manager")
 
 # Global instance of the graph logic
+import threading
+
+_graph_lock = threading.Lock()
 graph = AssetRelationshipGraph()
 
 
