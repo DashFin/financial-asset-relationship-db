@@ -98,18 +98,18 @@ def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: f
         return f"Validation Error: {str(e)}"
 
 
-@mcp.resource("graph://data/3d-layout")
-def get_3d_layout() -> str:
-    """Provides current 3D visualization data for AI spatial reasoning."""
-    positions, asset_ids, colors, hover = graph.get_3d_visualization_data_enhanced()
-    return json.dumps(
-        {
-            "asset_ids": asset_ids,
-            "positions": positions.tolist(),
-            "colors": colors,
-            "hover": hover,
-        }
-    )
+    try:
+        # Uses existing Equity dataclass for post-init validation
+        new_equity = Equity(
+            id=asset_id,
+            symbol=symbol,
+            name=name,
+            asset_class=AssetClass.EQUITY,
+            sector=sector,
+            price=price,
+        )
+
+        graph.add_asset(new_equity)
         return f"Successfully added: {new_equity.name} ({new_equity.symbol})"
     except ValueError as e:
         return f"Validation Error: {str(e)}"
