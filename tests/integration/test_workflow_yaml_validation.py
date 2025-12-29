@@ -30,7 +30,12 @@ class TestWorkflowYAMLValidation:
         ]
     
     def test_workflows_are_valid_yaml(self, modified_workflows):
-        """Ensure all modified workflows parse as valid YAML."""
+        """
+        Validate that each filename in `modified_workflows` exists under `WORKFLOW_DIR` and contains non-empty, valid YAML.
+        
+        Parameters:
+            modified_workflows (Iterable[str]): Filenames of workflow files to validate.
+        """
         for workflow_file in modified_workflows:
             path = self.WORKFLOW_DIR / workflow_file
             assert path.exists(), f"Workflow file not found: {workflow_file}"
@@ -44,9 +49,9 @@ class TestWorkflowYAMLValidation:
     
     def test_workflows_have_required_top_level_keys(self, modified_workflows):
         """
-        Check that each modified GitHub Actions workflow contains the required top-level keys.
+        Validate that each modified GitHub Actions workflow contains the top-level keys `name`, `on`, and `jobs`.
         
-        For every workflow filename provided by the `modified_workflows` fixture, the file is loaded as YAML and the presence of the top-level keys `name`, `on`, and `jobs` is asserted. If a key is missing the test fails with a message identifying the workflow file and the missing key.
+        For each filename in `modified_workflows` this test loads the workflow YAML and fails with a clear message when a required top-level key is missing, when the YAML is invalid, or when the file is not found.
         
         Parameters:
             modified_workflows (list[str]): Filenames of workflow files that were modified in the branch.
@@ -71,12 +76,12 @@ class TestWorkflowYAMLValidation:
     
     def test_pr_agent_workflow_simplified_correctly(self):
         """
-        Validate that the pr-agent GitHub Actions workflow has been simplified: it no longer references chunking and still includes essential parsing and Python setup.
+        Ensure the pr-agent GitHub Actions workflow no longer references chunking and still contains parsing and Python setup.
         
-        Asserts that:
-        - the file does not contain case-insensitive references to "context_chunker" or "chunking";
-        - the file contains either "parse-comments" (case-insensitive) or "parse";
-        - the file includes a Python setup step (case-insensitive).
+        Checks:
+        - No case-insensitive references to "context_chunker" or "chunking".
+        - Contains "parse-comments" (case-insensitive) or "parse".
+        - Contains "python" (case-insensitive) indicating Python setup.
         """
         path = self.WORKFLOW_DIR / "pr-agent.yml"
         with open(path, 'r') as f:

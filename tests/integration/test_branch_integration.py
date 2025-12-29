@@ -66,12 +66,12 @@ class TestWorkflowConsistency:
     
     def test_all_workflows_use_consistent_action_versions(self, all_workflows):
         """
-        Assert that actions referenced across workflows use a single version.
+        Ensure actions referenced across workflows are used with a single version.
         
-        Scans each workflow's jobs and steps to collect action usages and their referenced versions, and prints a warning for any action used with more than one version. A difference between versions for `actions/checkout` (for example v4 vs v5) is permitted and will not trigger a warning.
+        Scans the provided workflows' jobs and steps to detect actions specified with explicit versions and reports when the same action appears with multiple different versions. Differences between `actions/checkout` major versions (e.g., v4 vs v5) are allowed and will be ignored.
         
         Parameters:
-            all_workflows (dict): Mapping from workflow file path (str) to parsed YAML content (dict) for that workflow.
+            all_workflows (dict): Mapping from workflow file path (str) to parsed YAML content (dict).
         """
         action_versions = {}
         
@@ -211,9 +211,9 @@ class TestRemovedFilesIntegration:
     
     def test_label_workflow_doesnt_need_labeler_config(self):
         """
-        Check that the label workflow does not require a separate labeler configuration file.
+        Verify the label workflow does not require an external labeler configuration file.
         
-        Asserts that the first step of the `label` job uses `actions/labeler` and that it either does not provide a `config-path` or, if `config-path` is present, it equals `.github/labeler.yml`.
+        Checks that .github/workflows/label.yml (if present) defines the `label` job's first step using `actions/labeler`, and that the step either omits `config-path` or sets it to `.github/labeler.yml`. Skips the test if label.yml is missing.
         """
         label_path = Path(".github/workflows/label.yml")
         if not label_path.exists():
@@ -343,7 +343,14 @@ class TestBranchCoherence:
                     f"{wf_file} should be simplified (has {line_count} lines, expected <={max_lines})"
     
     def test_removed_complexity_not_referenced(self):
-        """Verify removed complexity isn't referenced elsewhere."""
+        """
+        Assert that removed complexity indicators are not referenced in workflow files.
+        
+        Scans all YAML files under .github/workflows for the feature names
+        'context_chunking', 'tiktoken', 'summarization', 'max_tokens', and 'chunk_size'.
+        If any of these names appear in a non-comment line of a workflow file, the test
+        fails with a message identifying the file and the offending feature.
+        """
         complex_features = [
             'context_chunking',
             'tiktoken',
@@ -368,7 +375,11 @@ class TestBranchCoherence:
                             pytest.fail(f"{wf_file} still references removed feature: {feature}")
     
     def test_branch_reduces_dependencies_on_external_config(self):
-        """Verify branch reduces dependency on external config files."""
+        """
+        Verify the branch no longer depends on removed external configuration and limits workflow references to external files.
+        
+        Asserts that .github/labeler.yml and .github/scripts/context_chunker.py do not exist, and that each workflow file under .github/workflows contains at most one run step referencing paths that include ".github/" or "scripts/".
+        """
         # labeler.yml was removed - workflows should work without it
         assert not Path(".github/labeler.yml").exists()
         
@@ -400,9 +411,9 @@ class TestBranchQuality:
     
     def test_all_modified_workflows_parse_successfully(self):
         """
-        Assert that at least one workflow file exists and that every YAML workflow in .github/workflows parses to a mapping containing a 'jobs' key.
+        Assert at least one workflow exists and each YAML file in .github/workflows parses to a mapping containing a 'jobs' key.
         
-        Raises an assertion failure if no workflow files are present or if any file fails to parse or does not produce a dict-like value with a 'jobs' entry.
+        Raises an assertion failure if no workflow files are found, if a file fails to parse into a mapping, or if the parsed workflow does not contain a 'jobs' entry.
         """
         workflow_dir = Path(".github/workflows")
         workflow_files = list(workflow_dir.glob("*.yml"))
@@ -449,7 +460,12 @@ class TestBranchQuality:
                         f"{file_path} contains merge conflict marker: {marker}"
     
     def test_consistent_indentation_across_workflows(self):
-        """Verify all workflows use 2-space indentation consistently."""
+        """
+        Check that every workflow YAML file uses consistent 2-space indentation.
+        
+        For each non-empty line that begins with a space, the number of leading spaces must be a multiple of two.
+        If a line violates this rule, the test asserts with a message identifying the workflow file and line number.
+        """
         workflow_files = list(Path(".github/workflows").glob("*.yml"))
         
         for wf_file in workflow_files:

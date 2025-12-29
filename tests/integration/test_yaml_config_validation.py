@@ -92,7 +92,11 @@ class TestYAMLSyntaxAndStructure:
         assert not indentation_errors, "Indentation errors found:\n" + "\n".join(indentation_errors)
     
     def test_no_duplicate_keys_in_yaml(self):
-        """Verify no duplicate keys exist in YAML files using a parser that detects duplicates."""
+        """
+        Check that no YAML files under .github contain duplicate keys by loading each file with ruamel.yaml's strict parser.
+        
+        Scans all .yml and .yaml files under the .github directory and attempts to load each with ruamel.yaml (typ="safe"). If ruamel.yaml is not installed, the test is skipped. Any parse or duplicate-key errors are collected and cause the test to fail with a consolidated error message.
+        """
         try:
             from ruamel.yaml import YAML
         except ImportError:
@@ -116,7 +120,14 @@ class TestWorkflowSchemaCompliance:
     
     @pytest.fixture
     def all_workflows(self) -> List[Dict[str, Any]]:
-        """Load all workflow files."""
+        """
+        Collects and parses all YAML workflow files found in .github/workflows.
+        
+        Returns:
+            workflows (List[Dict[str, Any]]): A list of dictionaries, each containing:
+                - 'path' (Path): Path to the workflow file.
+                - 'content' (Any): Parsed YAML content as returned by yaml.safe_load (typically a dict, or None if the file is empty).
+        """
         workflow_dir = Path(".github/workflows")
         workflows = []
         for workflow_file in workflow_dir.glob("*.yml"):
@@ -150,7 +161,17 @@ class TestWorkflowSchemaCompliance:
                 f"Workflow {workflow['path']} has invalid trigger format"
     
     def test_job_definitions_valid(self, all_workflows):
-        """Verify job definitions follow valid schema."""
+        """
+        Validate that each workflow defines at least one job and that each job contains required fields.
+        
+        For every workflow in `all_workflows` this test asserts:
+        - the workflow defines at least one job,
+        - each job has either a 'runs-on' key or a 'uses' key (for reusable workflows),
+        - if a job includes 'steps', the 'steps' value is a list.
+        
+        Parameters:
+            all_workflows (list): Sequence of workflow dictionaries, each containing 'path' (str) and 'content' (dict) with the parsed YAML.
+        """
         for workflow in all_workflows:
             jobs = workflow['content'].get('jobs', {})
             
@@ -170,7 +191,14 @@ class TestWorkflowSchemaCompliance:
                         f"Job '{job_id}' steps must be a list in {workflow['path']}"
     
     def test_step_definitions_valid(self, all_workflows):
-        """Verify step definitions follow valid schema."""
+        """
+        Assert that every workflow step has a valid step definition: each step must include either the `uses` key or the `run` key, and must not include both.
+        
+        Parameters:
+        	all_workflows (list): Iterable of workflow mappings where each item is a dict with keys:
+        		- 'path' (str): filesystem path of the workflow file
+        		- 'content' (dict): parsed YAML content of the workflow
+        """
         for workflow in all_workflows:
             jobs = workflow['content'].get('jobs', {})
             
@@ -196,7 +224,11 @@ class TestConfigurationEdgeCases:
     """Tests for edge cases in configuration files."""
     
     def test_pr_agent_config_handles_missing_sections_gracefully(self):
-        """Verify PR agent config has all expected sections."""
+        """
+        Ensure the PR agent YAML configuration contains required top-level sections.
+        
+        Asserts that .github/pr-agent-config.yml defines the top-level keys 'agent', 'monitoring', and 'limits'. If any are missing, the test fails with an assertion indicating the missing section.
+        """
         config_path = Path(".github/pr-agent-config.yml")
         with open(config_path, 'r') as f:
             config = yaml.safe_load(f)
@@ -207,7 +239,11 @@ class TestConfigurationEdgeCases:
             assert section in config, f"Missing section: {section}"
     
     def test_numeric_values_in_config_are_valid(self):
-        """Verify numeric configuration values are reasonable."""
+        """
+        Validate numeric fields in .github/pr-agent-config.yml.
+        
+        Ensures that when present `monitoring.check_interval` is an integer between 1 and 60 (minutes) and `limits.rate_limit_requests` is an integer between 1 and 1000.
+        """
         config_path = Path(".github/pr-agent-config.yml")
         with open(config_path, 'r') as f:
             config = yaml.safe_load(f)
@@ -227,7 +263,12 @@ class TestConfigurationEdgeCases:
             assert 1 <= rate_limit <= 1000, "rate_limit_requests should be reasonable"
     
     def test_version_strings_follow_semver(self):
-        """Verify version strings follow semantic versioning."""
+        """
+        Check that the `agent.version` value in .github/pr-agent-config.yml, if present, follows semantic versioning in the form X.Y.Z.
+        
+        Raises:
+            AssertionError: If `agent.version` exists and does not match the `X.Y.Z` pattern.
+        """
         config_path = Path(".github/pr-agent-config.yml")
         with open(config_path, 'r') as f:
             config = yaml.safe_load(f)
@@ -240,7 +281,11 @@ class TestConfigurationEdgeCases:
                 f"Version should follow semver (X.Y.Z): {version}"
     
     def test_empty_or_null_values_handled(self):
-        """Verify configuration handles empty/null values."""
+        """
+        Ensure critical YAML fields are not null in files under .github.
+        
+        Recursively loads every `.yml` file under the `.github` directory and asserts that critical keys (`name`, `runs-on`, `uses`, `run`) are not `None`. Assertion messages include the YAML file path and the dotted/key-index path to the null value.
+        """
         yaml_files = list(Path(".github").rglob("*.yml"))
         
         for yaml_file in yaml_files:
@@ -249,6 +294,15 @@ class TestConfigurationEdgeCases:
             
             # Check for null values in critical places
             def check_nulls(obj, path=""):
+                """
+                Recursively checks a parsed YAML structure for null values in critical keys and fails the test if any are found.
+                
+                Traverses dictionaries and lists within `obj`. If a dictionary contains any of the critical keys 'name', 'runs-on', 'uses', or 'run' with a value of `None`, an AssertionError is raised identifying the full key path. The error message includes the key path and the surrounding `yaml_file` identifier from the enclosing scope.
+                
+                Parameters:
+                    obj: The parsed YAML fragment (dict, list, or scalar) to inspect.
+                    path (str): Dot-and-index-separated path prefix used to report the location of a null value (defaults to the empty string).
+                """
                 if isinstance(obj, dict):
                     for key, value in obj.items():
                         current_path = f"{path}.{key}" if path else key
@@ -319,7 +373,13 @@ class TestConfigurationConsistency:
                 f"Inconsistent Node versions across workflows: {node_versions}"
     
     def test_checkout_action_version_consistent(self):
-        """Verify checkout action version is consistent."""
+        """
+        Ensure actions/checkout versions used across workflows are consistent.
+        
+        Scans all YAML files in .github/workflows for occurrences of `actions/checkout@<version>`,
+        collects the versions per workflow file, and asserts there are at most two distinct
+        versions found (allows minor variation such as v3 and v4).
+        """
         workflow_dir = Path(".github/workflows")
         checkout_versions = {}
         
@@ -348,7 +408,11 @@ class TestDefaultValueHandling:
     """Tests for default value handling in configurations."""
     
     def test_missing_optional_fields_have_defaults(self):
-        """Verify system handles missing optional fields gracefully."""
+        """
+        Ensure optional fields in .github/pr-agent-config.yml are handled and validated.
+        
+        Asserts that if the top-level `agent` section includes an `enabled` key, its value is a boolean; omission of `enabled` is permitted and treated as the configuration's default.
+        """
         config_path = Path(".github/pr-agent-config.yml")
         with open(config_path, 'r') as f:
             config = yaml.safe_load(f)
@@ -361,7 +425,11 @@ class TestDefaultValueHandling:
             assert isinstance(agent_config['enabled'], bool)
     
     def test_workflow_timeout_defaults(self):
-        """Verify workflow timeout settings are reasonable or use defaults."""
+        """
+        Ensure job-level workflow timeouts, when specified, are integers between 1 and 360 minutes.
+        
+        Checks each YAML file in .github/workflows for jobs that include 'timeout-minutes' and asserts the value is an int and within the range 1–360.
+        """
         workflow_dir = Path(".github/workflows")
         
         for workflow_file in workflow_dir.glob("*.yml"):
