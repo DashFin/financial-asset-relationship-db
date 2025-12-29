@@ -59,13 +59,14 @@ def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: f
     try:
         # Uses existing Equity dataclass for post-init validation
         new_equity = Equity(
-            graph.add_asset(new_equity)
+            id=asset_id,
             symbol=symbol,
             name=name,
             asset_class=AssetClass.EQUITY,
             sector=sector,
             price=price,
         )
+        graph.add_asset(new_equity)
 
 
 @mcp.tool()
