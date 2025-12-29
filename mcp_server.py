@@ -36,7 +36,8 @@ class _ThreadSafeGraph:
 
         # For non-callable attributes, return a defensive copy so callers cannot
         # mutate shared state without holding the lock.
-        return copy.deepcopy(attr)
+        with self._lock:
+            return copy.deepcopy(attr)
 
 
 # Global, thread-safe graph instance shared across MCP calls.
