@@ -242,7 +242,99 @@ def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: f
             asset_class=AssetClass.EQUITY,
             sector=sector,
             price=price,
+import json
+import threading
+
+from mcp.server.fastmcp import FastMCP
+
+from src.logic.asset_graph import AssetRelationshipGraph
+from src.models.financial_models import AssetClass, Equity
+
+# Initialize the MCP server (single instance)
+mcp = FastMCP("DashFin-Relationship-Manager")
+
+_graph_lock = threading.Lock()
+
+
+class _ThreadSafeGraph:
+    """Proxy that serializes all access to the underlying graph via a lock."""
+
+    def __init__(self, graph_obj: AssetRelationshipGraph, lock: threading.Lock):
+        self._graph = graph_obj
+        self._lock = lock
+
+    def __getattr__(self, name):
+        # Resolve the attribute under lock to avoid races.
+        with self._lock:
+            attr = getattr(self._graph, name)
+
+        if callable(attr):
+
+            def _wrapped(*args, **kwargs):
+                with self._lock:
+                    return attr(*args, **kwargs)
+
+            return _wrapped
+
+        # For non-callable attributes, return a defensive copy so callers cannot
+        # mutate shared state without holding the lock.
+        import copy
+
+        with self._lock:
+            return copy.deepcopy(attr)
+
+
+graph = _ThreadSafeGraph(AssetRelationshipGraph(), _graph_lock)
+
+
+@mcp.tool()
+def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: float) -> str:
+    """
+    Validate and optionally add an Equity asset to the relationship graph.
+
+    If the underlying graph exposes an add_asset method, the created Equity will be added.
+
+    Returns:
+        A success message containing the equity's name and symbol on successful validation, or
+        "Validation Error: <message>" containing the validation error text if creation fails.
+    """
+    try:
+        new_equity = Equity(
+            id=asset_id,
+            symbol=symbol,
+            name=name,
+            asset_class=AssetClass.EQUITY,
+            sector=sector,
+            price=price,
         )
+
+        # Mutate the graph only if supported.
+        add_asset = getattr(graph, "add_asset", None)
+        if callable(add_asset):
+            add_asset(new_equity)
+            return f"Successfully added: {new_equity.name} ({new_equity.symbol})"
+
+        return f"Successfully validated: {new_equity.name} ({new_equity.symbol})"
+    except ValueError as e:
+        return f"Validation Error: {str(e)}"
+
+
+@mcp.resource("graph://data/3d-layout")
+def get_3d_layout() -> str:
+    """Provides current 3D visualization data for AI spatial reasoning."""
+    positions, asset_ids, colors, hover = graph.get_3d_visualization_data_enhanced()
+    return json.dumps(
+        {
+            "asset_ids": asset_ids,
+            "positions": positions.tolist(),
+            "colors": colors,
+            "hover": hover,
+        }
+    )
+
+
+if __name__ == "__main__":
+    mcp.run()
         return f"Successfully validated: {new_equity.name} ({new_equity.symbol})"
     except ValueError as e:
         return f"Validation Error: {str(e)}"
