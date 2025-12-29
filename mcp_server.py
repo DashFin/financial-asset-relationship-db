@@ -1,7 +1,3 @@
-import copy
-import json
-import threading
-
 import argparse
 import copy
 import json
@@ -9,7 +5,6 @@ import threading
 
 from src.logic.asset_graph import AssetRelationshipGraph
 from src.models.financial_models import AssetClass, Equity
-
 
 # Shared lock for graph access
 _graph_lock = threading.Lock()
@@ -115,9 +110,7 @@ def main(argv: list[str] | None = None) -> int:
     except ModuleNotFoundError as e:
         # Provide a clear message for missing optional dependency.
         missing = getattr(e, "name", None) or str(e)
-        raise SystemExit(
-            f"Missing dependency '{missing}'. Install the MCP package to run the server."
-        ) from e
+        raise SystemExit(f"Missing dependency '{missing}'. Install the MCP package to run the server.") from e
 
     mcp.run()
     return 0
@@ -126,8 +119,6 @@ def main(argv: list[str] | None = None) -> int:
 if __name__ == "__main__":
     raise SystemExit(main())
 
-from src.logic.asset_graph import AssetRelationshipGraph
-from src.models.financial_models import AssetClass, Equity
 
 # Initialize the MCP server (single instance)
 mcp = FastMCP("DashFin-Relationship-Manager")
