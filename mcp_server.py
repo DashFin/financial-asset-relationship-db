@@ -87,24 +87,24 @@ def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: f
     try:
         # Uses existing Equity dataclass for post-init validation
         new_equity = Equity(
-_graph_lock = threading.Lock()
+            _graph_lock=threading.Lock()
 
 
-class _ThreadSafeGraph:
-    """Proxy that serializes all method calls on the underlying graph via the provided lock."""
+            class _ThreadSafeGraph:
+            """Proxy that serializes all method calls on the underlying graph via the provided lock."""
 
-    def __init__(self, graph_obj: AssetRelationshipGraph, lock: threading.Lock):
-        self._graph = graph_obj
-        self._lock = lock
+            def __init__(self, graph_obj: AssetRelationshipGraph, lock: threading.Lock):
+            self._graph=graph_obj
+            self._lock=lock
 
-    def __getattr__(self, name):
-        # Acquire the lock while resolving the attribute to avoid races where the
-        # underlying graph is mutated concurrently during attribute access (e.g.,
-        # properties/descriptors or mutable fields being swapped out).
-        with self._lock:
-            attr = getattr(self._graph, name)
+            def __getattr__(self, name):
+            # Acquire the lock while resolving the attribute to avoid races where the
+            # underlying graph is mutated concurrently during attribute access (e.g.,
+            # properties/descriptors or mutable fields being swapped out).
+            with self._lock:
+            attr=getattr(self._graph, name)
 
-        if callable(attr):
+            if callable(attr):
 
             def _wrapped(*args, **kwargs):
                 with self._lock:
@@ -112,15 +112,15 @@ class _ThreadSafeGraph:
 
             return _wrapped
 
-        # For non-callable attributes, return a defensive copy so callers cannot
-        # mutate shared state without holding the lock.
-        import copy
+            # For non-callable attributes, return a defensive copy so callers cannot
+            # mutate shared state without holding the lock.
+            import copy
 
-        with self._lock:
+            with self._lock:
             return copy.deepcopy(attr)
 
 
-graph = _ThreadSafeGraph(AssetRelationshipGraph(), _graph_lock)
+            graph=_ThreadSafeGraph(AssetRelationshipGraph(), _graph_lock)
             def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: float) -> str:
             """
     Add an Equity asset to the global relationship graph after validating its fields.
