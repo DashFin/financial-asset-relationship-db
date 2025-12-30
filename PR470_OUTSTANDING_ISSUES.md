@@ -1,8 +1,8 @@
 # Outstanding Issues Preventing Completion of PR #470
 
-**PR Title:** Implement Model Context Protocol (MCP) Integration  
-**PR Number:** 470  
-**Current Status:** Open (Draft)  
+**PR Title:** Implement Model Context Protocol (MCP) Integration
+**PR Number:** 470
+**Current Status:** Open (Draft)
 **Last Updated:** 2025-12-29
 
 ## Summary
@@ -13,9 +13,9 @@ PR #470 introduces MCP (Model Context Protocol) integration but has multiple cri
 ## Critical Issues (Blocking Merge)
 
 ### 1. **Duplicate Code in mcp_server.py** 🔴
-**Severity:** Critical  
-**File:** `mcp_server.py` (lines 123-206)  
-**Description:**  
+**Severity:** Critical
+**File:** `mcp_server.py` (lines 123-206)
+**Description:**
 The entire MCP server initialization, class definitions, and function decorators are duplicated in the file. Lines 123-206 duplicate lines 1-120, creating:
 - Duplicate `_ThreadSafeGraph` class definition (lines 13-35 and 130-153)
 - Duplicate `_graph_lock` initialization (lines 10 and 127)
@@ -34,9 +34,9 @@ Remove lines 123-206 entirely. The proper implementation with lazy loading is in
 ---
 
 ### 2. **NameError: FastMCP Not Imported at Module Level** 🔴
-**Severity:** Critical  
-**File:** `mcp_server.py` (line 124)  
-**Description:**  
+**Severity:** Critical
+**File:** `mcp_server.py` (line 124)
+**Description:**
 Line 124 attempts to instantiate `FastMCP("DashFin-Relationship-Manager")` but `FastMCP` is never imported at the module level. It's only imported inside the `_build_mcp_app()` function (line 49) for lazy loading.
 
 **Error:**
@@ -50,7 +50,7 @@ Remove line 124 and the entire duplicate section (lines 123-206).
 ---
 
 ### 3. **CI/CD Failures** 🔴
-**Severity:** Critical  
+**Severity:** Critical
 **Multiple Sources:**
 
 #### a) **pre-commit.ci** - Failed
@@ -70,7 +70,7 @@ Remove line 124 and the entire duplicate section (lines 123-206).
 - **Status:** Tests failed on CircleCI
 - **Link:** https://circleci.com/gh/DashFin/financial-asset-relationship-db/16773
 
-#### e) **Vercel Deployment** - Failed  
+#### e) **Vercel Deployment** - Failed
 - **Status:** Deployment has failed
 - **Link:** https://vercel.com/dash-fin/financial-asset-relationship-db-7o4c/3AiVxsFEWFznrsAZmURnuHayyu7X
 
@@ -81,8 +81,8 @@ Remove line 124 and the entire duplicate section (lines 123-206).
 ---
 
 ### 4. **Qlty Blocking Issues** 🔴
-**Severity:** Critical  
-**Count:** 2 blocking issues  
+**Severity:** Critical
+**Count:** 2 blocking issues
 **Description:**
 - **Rule:** Undefined name `FastMCP` (ruff lint error)
 - **Count:** 2 occurrences
@@ -96,8 +96,8 @@ Fix by removing duplicate code section.
 ## High Priority Issues
 
 ### 5. **Code Duplication Detected** 🟡
-**Severity:** High  
-**Tool:** qlty  
+**Severity:** High
+**Tool:** qlty
 **Description:**
 - Found 29 lines of similar code in 2 locations (mass = 138)
 - Duplication between lines 13-153 (ThreadSafeGraph class defined twice)
@@ -105,9 +105,9 @@ Fix by removing duplicate code section.
 ---
 
 ### 6. **Missing MCP Dependencies in requirements.txt** 🟡
-**Severity:** High  
-**File:** `requirements.txt`  
-**Description:**  
+**Severity:** High
+**File:** `requirements.txt`
+**Description:**
 Multiple review comments indicate that `mcp>=1.0.0` and `fastmcp>=0.1.0` should be added to requirements.txt, but they're currently only installed in the CI workflow.
 
 **Current Workaround:**
@@ -126,9 +126,9 @@ fastmcp>=0.1.0
 ---
 
 ### 7. **Thread Safety Concerns** 🟡
-**Severity:** High  
-**File:** `mcp_server.py`  
-**Review Comment:** From sentry[bot] and multiple reviewers  
+**Severity:** High
+**File:** `mcp_server.py`
+**Review Comment:** From sentry[bot] and multiple reviewers
 **Description:**
 While threading.Lock is implemented, the duplicate code creates potential race conditions. The `_ThreadSafeGraph` implementation differs slightly between the two definitions (lines 13-35 vs 130-153), with line 152 having an extra `with self._lock:` that line 35 doesn't have.
 
@@ -140,8 +140,8 @@ Remove duplicate and ensure single, consistent implementation.
 ## Medium Priority Issues
 
 ### 8. **Code Compliance Failures** 🟠
-**Severity:** Medium  
-**Tool:** qodo-code-review  
+**Severity:** Medium
+**Tool:** qodo-code-review
 **Description:**
 Multiple compliance checks failed:
 
@@ -149,7 +149,7 @@ Multiple compliance checks failed:
 - Missing audit logging for state-changing operations
 - `add_equity_node` modifies graph without logging actor, timestamp, action
 
-#### b) **Robust Error Handling** - Failed  
+#### b) **Robust Error Handling** - Failed
 - Only catches `ValueError`, other exceptions unhandled
 - No internal logging for failures
 
@@ -164,8 +164,8 @@ Multiple compliance checks failed:
 ---
 
 ### 9. **Incomplete Test Coverage** 🟠
-**Severity:** Medium  
-**File:** Tests are failing  
+**Severity:** Medium
+**File:** Tests are failing
 **Description:**
 From sentry[bot] comment:
 - 4 Tests Failed
@@ -175,7 +175,7 @@ From sentry[bot] comment:
 **Failed Tests:**
 1. `tests/integration::tests.integration`
 2. `tests/unit/test_database.py`
-3. `tests/unit/test_db_models.py`  
+3. `tests/unit/test_db_models.py`
 4. `tests/unit/test_repository.py`
 
 **Note:** These may be pre-existing failures unrelated to MCP changes.
@@ -183,8 +183,8 @@ From sentry[bot] comment:
 ---
 
 ### 10. **Inconsistent Decorator Usage** 🟠
-**Severity:** Medium  
-**File:** `mcp_server.py`  
+**Severity:** Medium
+**File:** `mcp_server.py`
 **Description:**
 The duplicate section (lines 160-202) uses decorators that reference an undefined `mcp` variable:
 ```python
@@ -199,7 +199,7 @@ This would fail at import time even if FastMCP were imported.
 ## Low Priority / Documentation Issues
 
 ### 11. **Incomplete PR Description** ⚪
-**Severity:** Low  
+**Severity:** Low
 **Description:**
 From CodeRabbit review: PR description is comprehensive but missing sections:
 - Testing section with test commands
@@ -209,8 +209,8 @@ From CodeRabbit review: PR description is comprehensive but missing sections:
 ---
 
 ### 12. **Docstring Coverage Insufficient** ⚪
-**Severity:** Low  
-**Tool:** CodeRabbit  
+**Severity:** Low
+**Tool:** CodeRabbit
 **Description:**
 - Current docstring coverage: 41.67%
 - Required threshold: 80.00%
@@ -219,8 +219,8 @@ From CodeRabbit review: PR description is comprehensive but missing sections:
 ---
 
 ### 13. **Potential Persistent Storage Issue** ⚪
-**Severity:** Low (Design Decision)  
-**Review Comment:** From qodo-code-review  
+**Severity:** Low (Design Decision)
+**Review Comment:** From qodo-code-review
 **Description:**
 The MCP server uses in-memory `AssetRelationshipGraph` without persistence. Data is lost on restart.
 
@@ -257,7 +257,7 @@ Consider implementing persistent storage layer for production use.
 - Hound: "Smells good to me"
 - DeepSource: Code Formatters (Nothing to format)
 - DeepSource: pyproject.toml (No blocking vulnerabilities)
-- CircleCI: frontend-lint  
+- CircleCI: frontend-lint
 - qlty fmt: No formatting issues
 - CodeRabbit: Review completed
 - mergefreeze: Ok to merge
@@ -278,7 +278,7 @@ Consider implementing persistent storage layer for production use.
 
 ### Immediate Actions Required (Critical):
 
-1. **Remove Duplicate Code** 
+1. **Remove Duplicate Code**
    - Delete lines 123-206 in `mcp_server.py`
    - Verify no NameError for FastMCP
 
@@ -368,12 +368,12 @@ The main blocker is the **duplicate code** in `mcp_server.py` (lines 123-206) wh
 
 Once this is removed and dependencies are added to requirements.txt, the PR should be much closer to mergeable state. The remaining issues are mostly documentation, testing, and security improvements that can be addressed iteratively.
 
-**Estimated Effort to Unblock:** 
+**Estimated Effort to Unblock:**
 - Critical fixes: 1-2 hours
-- High priority fixes: 2-4 hours  
+- High priority fixes: 2-4 hours
 - Total to mergeable state: 4-8 hours
 
 ---
 
-*Document generated: 2025-12-29*  
+*Document generated: 2025-12-29*
 *Analysis based on: PR #470 state as of commit 569b5fc*

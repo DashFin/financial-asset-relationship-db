@@ -17,7 +17,7 @@ CRITICAL BLOCKERS (4)
    - Time: 5 minutes
 
 2. UNDEFINED FastMCP (Line 124)
-   - Severity: CRITICAL 🔴  
+   - Severity: CRITICAL 🔴
    - Impact: NameError at import time
    - Fix: Will be resolved by removing duplicate code
    - Time: Automatic with fix #1
@@ -137,7 +137,7 @@ The SINGLE BIGGEST BLOCKER is duplicate code (lines 123-206 in mcp_server.py).
 
 This causes:
 • NameError for FastMCP
-• 2 qlty blocking issues  
+• 2 qlty blocking issues
 • Multiple linting failures
 • Code duplication warnings
 

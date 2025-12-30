@@ -96,5 +96,5 @@ See `PR470_OUTSTANDING_ISSUES.md` for complete analysis with:
 
 ---
 
-**Status:** Ready for immediate action  
+**Status:** Ready for immediate action
 **Next Step:** Remove duplicate code in mcp_server.py (lines 123-206)
