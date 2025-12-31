@@ -173,9 +173,9 @@ Message templates are in the configuration file. Customize:
 welcome:
   message: |
     👋 **Welcome to PR Copilot!**
-    
+
     I'm here to help manage this PR.
-    
+
     [Your custom message here]
 ```
 
@@ -185,7 +185,7 @@ welcome:
 scope:
   warning_message: |
     ⚠️ **PR Scope Notice**
-    
+
     [Your custom warning here]
 ```
 
@@ -195,7 +195,7 @@ scope:
 auto_merge:
   confirmation_message: |
     🚀 **Auto-Merge Eligible**
-    
+
     [Your custom message here]
 ```
 
@@ -205,7 +205,7 @@ auto_merge:
 merge_conflicts:
   notification_message: |
     ⚠️ **Merge Conflicts Detected**
-    
+
     [Your custom message here]
 ```
 

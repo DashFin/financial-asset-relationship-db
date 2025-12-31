@@ -46,11 +46,11 @@ jobs:
       should_handle_review: ${{ steps.detect.outputs.should_handle_review }}
       should_check_automerge: ${{ steps.detect.outputs.should_check_automerge }}
       should_check_conflicts: ${{ steps.detect.outputs.should_check_conflicts }}
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Detect trigger type and set flags
         id: detect
         uses: actions/github-script@v7
@@ -65,7 +65,7 @@ jobs:
             let shouldHandleReview = false;
             let shouldCheckAutomerge = false;
             let shouldCheckConflicts = false;
-            
+
             // Determine PR number based on event type
             if (eventName === 'issue_comment') {
               prNumber = context.issue.number;
@@ -83,38 +83,38 @@ jobs:
                 prNumber = pulls[0].number;
               }
             }
-            
+
             // Detect trigger type and set appropriate flags
             if (eventName === 'issue_comment') {
               const comment = context.payload.comment.body.toLowerCase();
-              
+
               if (comment.includes('@pr-copilot') || comment.includes('@pr_copilot')) {
                 triggerType = 'mention';
-                
+
                 // Check for status update request
                 if (comment.includes('status update') || comment.includes('progress report') || comment.includes('show status')) {
                   shouldStatusUpdate = true;
                 }
-                
+
                 // Check if this is first mention - trigger welcome
                 const { data: comments } = await github.rest.issues.listComments({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: prNumber
                 });
-                
-                const prCopilotComments = comments.filter(c => 
-                  c.user.login === 'github-actions[bot]' && 
+
+                const prCopilotComments = comments.filter(c =>
+                  c.user.login === 'github-actions[bot]' &&
                   c.body.includes('PR Copilot')
                 );
-                
+
                 if (prCopilotComments.length === 0) {
                   shouldWelcome = true;
                 }
               }
             } else if (eventName === 'pull_request') {
               const action = context.payload.action;
-              
+
               if (action === 'opened') {
                 triggerType = 'pr_opened';
                 shouldCheckScope = true;
@@ -143,7 +143,7 @@ jobs:
                 shouldCheckAutomerge = true;
               }
             }
-            
+
             // Set outputs
             core.setOutput('trigger_type', triggerType);
             core.setOutput('pr_number', prNumber ? prNumber.toString() : '');
@@ -153,7 +153,7 @@ jobs:
             core.setOutput('should_handle_review', shouldHandleReview.toString());
             core.setOutput('should_check_automerge', shouldCheckAutomerge.toString());
             core.setOutput('should_check_conflicts', shouldCheckConflicts.toString());
-            
+
             console.log(`Trigger detected: ${triggerType}, PR: ${prNumber}`);
             console.log(`Flags - Welcome: ${shouldWelcome}, Scope: ${shouldCheckScope}, Status: ${shouldStatusUpdate}, Review: ${shouldHandleReview}, Automerge: ${shouldCheckAutomerge}, Conflicts: ${shouldCheckConflicts}`);
 
@@ -163,11 +163,11 @@ jobs:
     needs: detect-trigger
     runs-on: ubuntu-latest
     if: needs.detect-trigger.outputs.should_welcome == 'true' && needs.detect-trigger.outputs.pr_number != ''
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Read welcome message from config
         id: config
         run: |
@@ -178,42 +178,42 @@ jobs:
           else
             echo "config_exists=false" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Post welcome message
         uses: actions/github-script@v7
         with:
           script: |
             const prNumber = ${{ needs.detect-trigger.outputs.pr_number }};
-            
+
             const welcomeMessage = `👋 **Welcome to PR Copilot!**
-            
+
             I'm here to help manage this PR. Here's what I can do:
-            
+
             **Commands:**
             - \`@pr-copilot status update\` - Get detailed PR status
             - \`@pr-copilot help\` - Show available commands
-            
+
             **Automatic Features:**
             - ✅ Scope validation (warns on large/multi-purpose PRs)
             - ✅ Review comment tracking
             - ✅ Auto-merge when ready
             - ✅ Merge conflict detection
-            
+
             **Status Updates:**
             I'll automatically update you on:
             - Review approvals/changes
             - Check completions
             - Merge readiness
-            
+
             Tag me anytime with \`@pr-copilot\` for assistance!`;
-            
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
               body: welcomeMessage
             });
-            
+
             console.log(`Welcome message posted to PR #${prNumber}`);
 
   # Job 3: Check PR scope and title
@@ -222,53 +222,53 @@ jobs:
     needs: detect-trigger
     runs-on: ubuntu-latest
     if: needs.detect-trigger.outputs.should_check_scope == 'true' && needs.detect-trigger.outputs.pr_number != ''
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Analyze PR scope
         id: analyze
         uses: actions/github-script@v7
         with:
           script: |
             const prNumber = ${{ needs.detect-trigger.outputs.pr_number }};
-            
+
             const { data: pr } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: prNumber
             });
-            
+
             const title = pr.title;
             const titleLength = title.length;
             const maxLength = 72;
-            
+
             // Check for multiple change indicators
             const multipleChangeKeywords = [' and ', ' & ', ' or ', ', '];
-            const hasMultipleChanges = multipleChangeKeywords.some(keyword => 
+            const hasMultipleChanges = multipleChangeKeywords.some(keyword =>
               title.toLowerCase().includes(keyword)
             );
-            
+
             let shouldWarn = false;
             let warnings = [];
-            
+
             if (titleLength > maxLength) {
               shouldWarn = true;
               warnings.push(`- Title is ${titleLength} characters (recommended: <${maxLength})`);
             }
-            
+
             if (hasMultipleChanges) {
               shouldWarn = true;
               warnings.push('- Title suggests multiple changes (contains "and", "or", "&", or commas)');
             }
-            
+
             core.setOutput('should_warn', shouldWarn.toString());
             core.setOutput('warnings', warnings.join('\n'));
             core.setOutput('title_length', titleLength.toString());
-            
+
             return { shouldWarn, warnings, titleLength };
-      
+
       - name: Post scope warning if needed
         if: steps.analyze.outputs.should_warn == 'true'
         uses: actions/github-script@v7
@@ -277,19 +277,19 @@ jobs:
             const prNumber = ${{ needs.detect-trigger.outputs.pr_number }};
             const warnings = `${{ steps.analyze.outputs.warnings }}`;
             const titleLength = ${{ steps.analyze.outputs.title_length }};
-            
+
             const warningMessage = `⚠️ **PR Scope Notice**
-            
+
             This PR title suggests it may be doing multiple things. Consider splitting into separate PRs for:
             - Easier review
             - Cleaner git history
             - Faster merge cycles
-            
+
             **Potential Issues:**
             ${warnings}
-            
+
             If this is intentional, feel free to ignore this message. Otherwise, consider breaking this into focused PRs.`;
-            
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -303,20 +303,20 @@ jobs:
     needs: detect-trigger
     runs-on: ubuntu-latest
     if: needs.detect-trigger.outputs.should_status_update == 'true' && needs.detect-trigger.outputs.pr_number != ''
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
+
       - name: Install dependencies
         run: |
           pip install -r .github/pr-copilot/scripts/requirements.txt
-      
+
       - name: Generate status report
         id: status
         env:
@@ -326,14 +326,14 @@ jobs:
           REPO_NAME: ${{ github.event.repository.name }}
         run: |
           python .github/pr-copilot/scripts/generate_status.py
-      
+
       - name: Post status update
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const prNumber = ${{ needs.detect-trigger.outputs.pr_number }};
-            
+
             // Read status report from file
             let statusReport = '';
             try {
@@ -345,50 +345,50 @@ jobs:
                 repo: context.repo.repo,
                 pull_number: prNumber
               });
-              
+
               const { data: reviews } = await github.rest.pulls.listReviews({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: prNumber
               });
-              
+
               const { data: checks } = await github.rest.checks.listForRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 ref: pr.head.sha
               });
-              
+
               const approvedReviews = reviews.filter(r => r.state === 'APPROVED').length;
               const changesRequestedReviews = reviews.filter(r => r.state === 'CHANGES_REQUESTED').length;
               const passedChecks = checks.check_runs.filter(c => c.conclusion === 'success').length;
               const failedChecks = checks.check_runs.filter(c => c.conclusion === 'failure').length;
-              
+
               statusReport = `📊 **PR Status Report**
-              
+
             **PR Information:**
             - **Author:** @${pr.user.login}
             - **Title:** ${pr.title}
             - **Commits:** ${pr.commits}
             - **Files Changed:** ${pr.changed_files}
             - **Additions:** +${pr.additions} / **Deletions:** -${pr.deletions}
-            
+
             **Review Status:**
             - ✅ Approved: ${approvedReviews}
             - 🔄 Changes Requested: ${changesRequestedReviews}
             - 📋 Total Reviews: ${reviews.length}
-            
+
             **CI/Check Status:**
             - ✅ Passed: ${passedChecks}
             - ❌ Failed: ${failedChecks}
             - 📊 Total Checks: ${checks.check_runs.length}
-            
+
             **Merge Status:**
             - Mergeable: ${pr.mergeable ? '✅ Yes' : '❌ No'}
             - Draft: ${pr.draft ? '📝 Yes' : '✅ No'}
-            
+
             *Last updated: ${new Date().toISOString()}*`;
             }
-            
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -402,41 +402,41 @@ jobs:
     needs: detect-trigger
     runs-on: ubuntu-latest
     if: needs.detect-trigger.outputs.should_handle_review == 'true' && needs.detect-trigger.outputs.pr_number != ''
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Analyze review comments
         id: analyze
         uses: actions/github-script@v7
         with:
           script: |
             const prNumber = ${{ needs.detect-trigger.outputs.pr_number }};
-            
+
             // Get all reviews
             const { data: reviews } = await github.rest.pulls.listReviews({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: prNumber
             });
-            
+
             // Get review comments
             const { data: reviewComments } = await github.rest.pulls.listReviewComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: prNumber
             });
-            
+
             // Keywords indicating actionable feedback
             const actionableKeywords = [
               'please', 'should', 'could you', 'nit', 'typo',
               'fix', 'refactor', 'change', 'update', 'add', 'remove'
             ];
-            
+
             // Find actionable comments
             const actionableItems = [];
-            
+
             for (const review of reviews) {
               if (review.state === 'CHANGES_REQUESTED' && review.body) {
                 const body = review.body.toLowerCase();
@@ -450,7 +450,7 @@ jobs:
                 }
               }
             }
-            
+
             for (const comment of reviewComments) {
               const body = comment.body.toLowerCase();
               const hasActionable = actionableKeywords.some(keyword => body.includes(keyword));
@@ -463,12 +463,12 @@ jobs:
                 });
               }
             }
-            
+
             core.setOutput('actionable_count', actionableItems.length.toString());
             core.setOutput('has_actionable', (actionableItems.length > 0).toString());
-            
+
             return actionableItems;
-      
+
       - name: Acknowledge actionable feedback
         if: steps.analyze.outputs.has_actionable == 'true'
         uses: actions/github-script@v7
@@ -476,15 +476,15 @@ jobs:
           script: |
             const prNumber = ${{ needs.detect-trigger.outputs.pr_number }};
             const count = ${{ steps.analyze.outputs.actionable_count }};
-            
+
             const acknowledgment = `👋 **Review Feedback Received**
-            
+
             Thank you for the review! I've identified **${count}** actionable item${count > 1 ? 's' : ''} from the feedback.
-            
+
             These items are being tracked and can be addressed by the PR author or maintainers.
-            
+
             Use \`@pr-copilot status update\` to see current progress.`;
-            
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -498,63 +498,63 @@ jobs:
     needs: detect-trigger
     runs-on: ubuntu-latest
     if: needs.detect-trigger.outputs.should_check_automerge == 'true' && needs.detect-trigger.outputs.pr_number != ''
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Evaluate merge eligibility
         id: evaluate
         uses: actions/github-script@v7
         with:
           script: |
             const prNumber = ${{ needs.detect-trigger.outputs.pr_number }};
-            
+
             const { data: pr } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: prNumber
             });
-            
+
             const { data: reviews } = await github.rest.pulls.listReviews({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: prNumber
             });
-            
+
             const { data: checks } = await github.rest.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: pr.head.sha
             });
-            
+
             // Check conditions
             const isDraft = pr.draft;
             const isMergeable = pr.mergeable;
             const hasConflicts = pr.mergeable_state === 'dirty';
-            
+
             const hasApproval = reviews.some(r => r.state === 'APPROVED');
             const hasChangesRequested = reviews.some(r => r.state === 'CHANGES_REQUESTED');
-            
-            const allChecksPassed = checks.check_runs.length > 0 && 
-              checks.check_runs.every(c => 
-                c.status === 'completed' && 
+
+            const allChecksPassed = checks.check_runs.length > 0 &&
+              checks.check_runs.every(c =>
+                c.status === 'completed' &&
                 (c.conclusion === 'success' || c.conclusion === 'neutral' || c.conclusion === 'skipped')
               );
-            
-            const isEligible = !isDraft && 
-                              isMergeable && 
-                              !hasConflicts && 
-                              hasApproval && 
-                              !hasChangesRequested && 
+
+            const isEligible = !isDraft &&
+                              isMergeable &&
+                              !hasConflicts &&
+                              hasApproval &&
+                              !hasChangesRequested &&
                               allChecksPassed;
-            
+
             core.setOutput('is_eligible', isEligible.toString());
             core.setOutput('is_draft', isDraft.toString());
             core.setOutput('has_approval', hasApproval.toString());
             core.setOutput('all_checks_passed', allChecksPassed.toString());
             core.setOutput('has_conflicts', hasConflicts.toString());
-            
+
             return {
               isEligible,
               isDraft,
@@ -562,34 +562,34 @@ jobs:
               allChecksPassed,
               hasConflicts
             };
-      
+
       - name: Post merge eligibility status
         if: steps.evaluate.outputs.is_eligible == 'true'
         uses: actions/github-script@v7
         with:
           script: |
             const prNumber = ${{ needs.detect-trigger.outputs.pr_number }};
-            
+
             const message = `🚀 **Auto-Merge Eligible**
-            
+
             This PR meets all criteria for auto-merge:
             ✅ All checks passed
             ✅ Approved by reviewer(s)
             ✅ No merge conflicts
             ✅ Not a draft
             ✅ Branch is up to date
-            
+
             Ready to merge! A maintainer can merge this PR when ready.
-            
+
             *Note: Auto-merge requires manual confirmation for safety.*`;
-            
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
               body: message
             });
-      
+
       - name: Post merge blockers if not eligible
         if: steps.evaluate.outputs.is_eligible == 'false'
         uses: actions/github-script@v7
@@ -600,22 +600,22 @@ jobs:
             const hasApproval = ${{ steps.evaluate.outputs.has_approval }};
             const allChecksPassed = ${{ steps.evaluate.outputs.all_checks_passed }};
             const hasConflicts = ${{ steps.evaluate.outputs.has_conflicts }};
-            
+
             let blockers = [];
             if (isDraft) blockers.push('- 📝 PR is still a draft');
             if (!hasApproval) blockers.push('- 👀 Needs approval from reviewer');
             if (!allChecksPassed) blockers.push('- ❌ Some checks are failing or pending');
             if (hasConflicts) blockers.push('- ⚠️ Has merge conflicts');
-            
+
             if (blockers.length > 0) {
               const message = `⏳ **Merge Blockers**
-              
+
             This PR is not yet ready to merge:
-            
+
             ${blockers.join('\n')}
-            
+
             Address these items to make this PR merge-ready.`;
-              
+
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -630,49 +630,49 @@ jobs:
     needs: detect-trigger
     runs-on: ubuntu-latest
     if: needs.detect-trigger.outputs.should_check_conflicts == 'true' && needs.detect-trigger.outputs.pr_number != ''
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Check for conflicts
         id: check
         uses: actions/github-script@v7
         with:
           script: |
             const prNumber = ${{ needs.detect-trigger.outputs.pr_number }};
-            
+
             const { data: pr } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: prNumber
             });
-            
+
             const hasConflicts = pr.mergeable_state === 'dirty';
             const mergeableState = pr.mergeable_state;
-            
+
             core.setOutput('has_conflicts', hasConflicts.toString());
             core.setOutput('mergeable_state', mergeableState);
-            
+
             return { hasConflicts, mergeableState };
-      
+
       - name: Notify about conflicts
         if: steps.check.outputs.has_conflicts == 'true'
         uses: actions/github-script@v7
         with:
           script: |
             const prNumber = ${{ needs.detect-trigger.outputs.pr_number }};
-            
+
             const { data: pr } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: prNumber
             });
-            
+
             const message = `⚠️ **Merge Conflicts Detected**
-            
+
             This PR has merge conflicts with the base branch (\`${pr.base.ref}\`).
-            
+
             **Resolution Steps:**
             1. Update your local branch:
                \`\`\`bash
@@ -686,9 +686,9 @@ jobs:
                git commit -m "Resolve merge conflicts"
                git push
                \`\`\`
-            
+
             Need help? Ask \`@pr-copilot help conflicts\` for more guidance.`;
-            
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
