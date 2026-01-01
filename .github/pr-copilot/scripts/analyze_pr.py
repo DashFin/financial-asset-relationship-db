@@ -127,10 +127,20 @@ def calculate_complexity_score(file_analysis: Dict[str, Any], commit_count: int)
                 return points
         return default_points
 
+    def risk_from_score(score: int) -> str:
+        if score >= 70:
+            return "High"
+        if score >= 40:
+            return "Medium"
+        return "Low"
+
+    file_count = int(file_analysis.get("file_count", 0))
+    total_changes = int(file_analysis.get("total_changes", 0))
+    large_file_count = len(file_analysis.get("large_files", [])) if file_analysis.get("has_large_files") else 0
+
     score = 0
 
     # File count factor (0-30 points)
-    file_count = int(file_analysis.get("file_count", 0))
     score += score_from_thresholds(
         file_count,
         thresholds=[(50, 30), (20, 20), (10, 10)],
@@ -138,7 +148,6 @@ def calculate_complexity_score(file_analysis: Dict[str, Any], commit_count: int)
     )
 
     # Line changes factor (0-30 points)
-    total_changes = int(file_analysis.get("total_changes", 0))
     score += score_from_thresholds(
         total_changes,
         thresholds=[(2000, 30), (1000, 20), (500, 15)],
@@ -146,8 +155,7 @@ def calculate_complexity_score(file_analysis: Dict[str, Any], commit_count: int)
     )
 
     # Large files factor (0-20 points)
-    if file_analysis.get("has_large_files"):
-        score += min(len(file_analysis.get("large_files", [])) * 5, 20)
+    score += min(large_file_count * 5, 20)
 
     # Commit count factor (0-20 points)
     score += score_from_thresholds(
@@ -156,68 +164,7 @@ def calculate_complexity_score(file_analysis: Dict[str, Any], commit_count: int)
         default_points=5,
     )
 
-    # Determine risk level
-    if score >= 70:
-        risk_level = "High"
-    elif score >= 40:
-        risk_level = "Medium"
-    else:
-        risk_level = "Low"
-
-    return score, risk_level
-    """
-    Calculate complexity score (0-100) and risk level.
-
-    Returns:
-        Tuple of (score, risk_level)
-    """
-    score = 0
-
-    # File count factor (0-30 points)
-    file_count = file_analysis["file_count"]
-    if file_count > 50:
-        score += 30
-    elif file_count > 20:
-        score += 20
-    elif file_count > 10:
-        score += 10
-    else:
-        score += 5
-
-    # Line changes factor (0-30 points)
-    total_changes = file_analysis["total_changes"]
-    if total_changes > 2000:
-        score += 30
-    elif total_changes > 1000:
-        score += 20
-    elif total_changes > 500:
-        score += 15
-    else:
-        score += 5
-
-    # Large files factor (0-20 points)
-    if file_analysis["has_large_files"]:
-        score += min(len(file_analysis["large_files"]) * 5, 20)
-
-    # Commit count factor (0-20 points)
-    if commit_count > 50:
-        score += 20
-    elif commit_count > 20:
-        score += 15
-    elif commit_count > 10:
-        score += 10
-    else:
-        score += 5
-
-    # Determine risk level
-    if score >= 70:
-        risk_level = "High"
-    elif score >= 40:
-        risk_level = "Medium"
-    else:
-        risk_level = "Low"
-
-    return score, risk_level
+    return score, risk_from_score(score)
 
 
 def check_scope_issues(pr: Any, file_analysis: Dict[str, Any]) -> List[str]:
