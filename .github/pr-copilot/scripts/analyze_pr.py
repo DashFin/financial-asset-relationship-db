@@ -185,17 +185,18 @@ def check_scope_issues(pr: Any, file_analysis: Dict[str, Any], config: Dict[str,
     if any(keyword in title_lower for keyword in multi_keywords):
         issues.append("PR title suggests multiple changes (contains 'and', 'or', '&', or commas)")
 
-    max_files = int(config.get("max_files_changed", 30))
+    scope_config = config.get("scope", {})
+    max_files = int(scope_config.get("max_files_changed", 30))
     if int(file_analysis.get("file_count", 0)) > max_files:
         issues.append(f"Large number of files changed ({file_analysis['file_count']} files)")
 
     categories = file_analysis.get("file_categories", {})
     category_count = len(categories)
-    max_types = int(config.get("max_file_types_changed", 5))
+    max_types = int(scope_config.get("max_file_types_changed", 5))
     if category_count > max_types:
         issues.append(f"Multiple file types changed ({category_count} different types)")
 
-    max_total_changes = int(config.get("max_total_changes", 1500))
+    max_total_changes = int(scope_config.get("max_total_changes", 1500))
     if int(file_analysis.get("total_changes", 0)) > max_total_changes:
         issues.append(f"Large changeset ({file_analysis['total_changes']} lines changed)")
 
