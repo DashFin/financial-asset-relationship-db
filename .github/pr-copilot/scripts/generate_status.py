@@ -134,7 +134,6 @@ def generate_check_status(info: Dict[str, Any]) -> str:
 
 def generate_task_checklist(info: Dict[str, Any]) -> str:
     """Generate task checklist based on PR status."""
-    info["pr"]
     tasks = []
 
     # Check if draft
