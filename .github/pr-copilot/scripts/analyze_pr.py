@@ -292,7 +292,27 @@ def generate_analysis_report(
     risk_level: str,
     scope_issues: List[str],
     related_issues: List[Dict[str, str]],
-    commit_count: int,
+from dataclasses import dataclass
+
+@dataclass
+class AnalysisData:
+    """Container for PR analysis data."""
+    file_analysis: Dict[str, Any]
+    complexity_score: int
+    risk_level: str
+    scope_issues: List[str]
+    related_issues: List[Dict[str, str]]
+    commit_count: int
+
+def generate_analysis_report(pr: Any, analysis_data: AnalysisData) -> str:
+    """Generate comprehensive analysis report."""
+    # Unpack data for backward compatibility with existing code
+    file_analysis = analysis_data.file_analysis
+    complexity_score = analysis_data.complexity_score
+    risk_level = analysis_data.risk_level
+    scope_issues = analysis_data.scope_issues
+    related_issues = analysis_data.related_issues
+    commit_count = analysis_data.commit_count
 ) -> str:
     """Generate comprehensive analysis report."""
 
