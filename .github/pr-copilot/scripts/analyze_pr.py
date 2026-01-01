@@ -115,6 +115,62 @@ def calculate_complexity_score(file_analysis: Dict[str, Any], commit_count: int)
     Returns:
         Tuple of (score, risk_level)
     """
+
+    def score_from_thresholds(value: int, thresholds: List[Tuple[int, int]], default_points: int) -> int:
+        """
+        Return points based on descending thresholds.
+
+        thresholds: list of (min_value, points), ordered from highest min_value to lowest.
+        """
+        for min_value, points in thresholds:
+            if value > min_value:
+                return points
+        return default_points
+
+    score = 0
+
+    # File count factor (0-30 points)
+    file_count = int(file_analysis.get("file_count", 0))
+    score += score_from_thresholds(
+        file_count,
+        thresholds=[(50, 30), (20, 20), (10, 10)],
+        default_points=5,
+    )
+
+    # Line changes factor (0-30 points)
+    total_changes = int(file_analysis.get("total_changes", 0))
+    score += score_from_thresholds(
+        total_changes,
+        thresholds=[(2000, 30), (1000, 20), (500, 15)],
+        default_points=5,
+    )
+
+    # Large files factor (0-20 points)
+    if file_analysis.get("has_large_files"):
+        score += min(len(file_analysis.get("large_files", [])) * 5, 20)
+
+    # Commit count factor (0-20 points)
+    score += score_from_thresholds(
+        int(commit_count),
+        thresholds=[(50, 20), (20, 15), (10, 10)],
+        default_points=5,
+    )
+
+    # Determine risk level
+    if score >= 70:
+        risk_level = "High"
+    elif score >= 40:
+        risk_level = "Medium"
+    else:
+        risk_level = "Low"
+
+    return score, risk_level
+    """
+    Calculate complexity score (0-100) and risk level.
+
+    Returns:
+        Tuple of (score, risk_level)
+    """
     score = 0
 
     # File count factor (0-30 points)
