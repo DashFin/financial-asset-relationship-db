@@ -1,77 +1,33 @@
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support documentation.
+# separate terms of service, privacy policy, and support
+# documentation.
 
-name: Debricked Scan
+name: Debricked scan
 
 on:
   push:
-    branches: ["main"]
-    paths:
-      - "requirements*.txt"
-      - "Pipfile"
-      - "Pipfile.lock"
-      - "poetry.lock"
-      - "pyproject.toml"
-      - "package.json"
-      - "package-lock.json"
-      - "pnpm-lock.yaml"
-      - "yarn.lock"
-      - "Cargo.toml"
-      - "Cargo.lock"
-      - "go.mod"
-      - "go.sum"
-      - "Gemfile"
-      - "Gemfile.lock"
-      - "pom.xml"
-      - "build.gradle"
-      - "build.gradle.kts"
-      - "composer.json"
-      - "composer.lock"
-      - ".github/workflows/debricked.yml"
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
-    paths:
-      - "requirements*.txt"
-      - "Pipfile"
-      - "Pipfile.lock"
-      - "poetry.lock"
-      - "pyproject.toml"
-      - "package.json"
-      - "package-lock.json"
-      - "pnpm-lock.yaml"
-      - "yarn.lock"
-      - "Cargo.toml"
-      - "Cargo.lock"
-      - "go.mod"
-      - "go.sum"
-      - "Gemfile"
-      - "Gemfile.lock"
-      - "pom.xml"
-      - "build.gradle"
-      - "build.gradle.kts"
-      - "composer.json"
-      - "composer.lock"
-      - ".github/workflows/debricked.yml"
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  security-events: write
+    branches: [ "main" ]
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   vulnerabilities-scan:
-    concurrency:
-      group: debricked-${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
     name: Vulnerability Scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
+      - name: Checkout code
+        # Security: Pinned SHA for v4.2.2 (latest stable)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      
       - name: Run Debricked Scan
-        uses: debricked/actions/scan@05ab417386d5e9766943c2cc343834371908d132 # v4
+        # Security: Pinned SHA for v4
+        uses: debricked/actions/scan@05ab417386d5e9766943c2cc343834371908d132
         env:
           DEBRICKED_TOKEN: ${{ secrets.DEBRICKED_TOKEN }}
