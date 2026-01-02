@@ -1,33 +1,25 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Debricked scan
+# Debricked Vulnerability Scanning Workflow
+name: Vulnerability Scan
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:  # Allows manual triggering
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
 
 jobs:
-  vulnerabilities-scan:
-    name: Vulnerability Scan
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
-
+  scan:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        # Security: Pinned SHA for v4.2.2 (latest stable)
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@v4
 
-      - name: Run Debricked Scan
-        # Security: Pinned SHA for v4
-        uses: debricked/actions/scan@05ab417386d5e9766943c2cc343834371908d132
+      - name: Debricked Scan
+        uses: debricked/actions/scan@v1
         env:
           DEBRICKED_TOKEN: ${{ secrets.DEBRICKED_TOKEN }}
