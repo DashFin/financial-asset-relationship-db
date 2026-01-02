@@ -114,6 +114,17 @@ class TestWorkflowStructure:
         assert "push" in trigger_keys, "Workflow should trigger on 'push' to main branch"
         assert "workflow_dispatch" in trigger_keys, "Workflow should support 'workflow_dispatch' for manual testing"
 
+    def test_triggers_on_push_to_main(self, workflow_config: Dict[str, Any]):
+        """Test that workflow triggers on push to main branch."""
+        triggers = workflow_config.get("on", {})
+        assert "push" in triggers, "Workflow should trigger on 'push' events"
+
+        # Verify push trigger configuration
+        push_config = triggers.get("push")
+        if isinstance(push_config, dict):
+            branches = push_config.get("branches", [])
+            assert "main" in branches, "Workflow should trigger on push to 'main' branch"
+
     def test_job_permissions(self, scan_job: Dict[str, Any]):
         """Test that job has explicit permissions (Principle of Least Privilege)."""
         permissions = scan_job.get("permissions", {})
