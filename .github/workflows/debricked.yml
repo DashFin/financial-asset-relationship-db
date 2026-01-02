@@ -1,4 +1,7 @@
-# Debricked (OpenText Core SCA) Vulnerability Scanning Workflow
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support documentation.
+
 name: Vulnerability Scan
 
 on:
@@ -20,6 +23,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Debricked Scan
-        uses: debricked/actions/scan@v2
-        env:
-          DEBRICKED_TOKEN: ${{ secrets.DEBRICKED_TOKEN }}
+        uses: debricked/actions/scan@v1
+        with:
+          token: ${{ secrets.DEBRICKED_TOKEN }}
