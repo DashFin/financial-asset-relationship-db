@@ -1,6 +1,5 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support documentation.
+# This workflow uses Debricked (OpenText Core SCA) for vulnerability scanning
+# Debricked documentation: https://docs.debricked.com/
 
 name: Vulnerability Scan
 
@@ -22,7 +21,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Debricked Scan
-        uses: debricked/actions/scan@v1
-        with:
-          token: ${{ secrets.DEBRICKED_TOKEN }}
+      - name: Install Debricked CLI
+        run: |
+          curl -L https://github.com/debricked/cli/releases/latest/download/cli_linux_x86_64.tar.gz | tar -xz
+          sudo mv debricked /usr/local/bin/
+          debricked --version
+
+      - name: Run Debricked Scan
+        env:
+          DEBRICKED_TOKEN: ${{ secrets.DEBRICKED_TOKEN }}
+        run: |
+          debricked scan -t $DEBRICKED_TOKEN -r ${{ github.repository }} -c ${{ github.sha }}
