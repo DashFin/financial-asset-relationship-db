@@ -28,6 +28,7 @@ jobs:
 
       - name: Run Debricked Scan
         # Using version tag instead of invalid SHA
+        # Fixed: Using v1 version tag instead of invalid SHA 05ab417386d5e9766943c2cc343834371908d132
         uses: debricked/actions/scan@v1
         env:
           DEBRICKED_TOKEN: ${{ secrets.DEBRICKED_TOKEN }}
