@@ -159,12 +159,12 @@ class TestStepsConfiguration:
             # Accept either SHA (40 chars) or v4+ tag
             if len(version) == 40:
                 # SHA format - verify it's hexadecimal
-                assert all(c in "0123456789abcdef" for c in version.lower()), \
-                    f"Checkout version should be valid SHA: {version}"
+                assert all(
+                    c in "0123456789abcdef" for c in version.lower()
+                ), f"Checkout version should be valid SHA: {version}"
             else:
                 # Tag format - should be v4 or later
-                assert "v4" in version or "v5" in version, \
-                    f"Checkout tag must be v4 or later (found {version})"
+                assert "v4" in version or "v5" in version, f"Checkout tag must be v4 or later (found {version})"
 
     def test_debricked_action_exists(self, job_steps: List[Dict[str, Any]]):
         """Test that Debricked action exists."""
@@ -183,12 +183,12 @@ class TestStepsConfiguration:
             # Accept either SHA (40 chars) or v4+ tag
             if len(version) == 40:
                 # SHA format - verify it's hexadecimal
-                assert all(c in "0123456789abcdef" for c in version.lower()), \
-                    f"Debricked version should be valid SHA: {version}"
+                assert all(
+                    c in "0123456789abcdef" for c in version.lower()
+                ), f"Debricked version should be valid SHA: {version}"
             else:
                 # Tag format - should be v4 or later
-                assert "v4" in version or "v5" in version, \
-                    f"Debricked action tag must be v4 or later (found {version})"
+                assert "v4" in version or "v5" in version, f"Debricked action tag must be v4 or later (found {version})"
 
 
 class TestSecretHandling:
@@ -208,8 +208,7 @@ class TestSecretHandling:
             normalized_token = "".join(token.split())
             expected = "${{secrets.DEBRICKED_TOKEN}}"
 
-            assert expected in normalized_token, \
-                f"Token must use secrets context: {expected}, got: {token}"
+            assert expected in normalized_token, f"Token must use secrets context: {expected}, got: {token}"
 
     def test_no_hardcoded_secrets(self, workflow_content: str):
         """Test for potential hardcoded secrets in the file content."""
@@ -231,10 +230,7 @@ class TestSecretHandling:
 
             for pattern in suspicious_patterns:
                 if pattern in line:
-                    pytest.fail(
-                        f"Found potential hardcoded secret pattern '{pattern}' "
-                        f"at line {i}: {line.strip()}"
-                    )
+                    pytest.fail(f"Found potential hardcoded secret pattern '{pattern}' " f"at line {i}: {line.strip()}")
 
 
 class TestSecurityPatterns:
@@ -263,8 +259,7 @@ class TestSecurityPatterns:
 
         for pattern in secret_logging_patterns:
             matches = re.findall(pattern, workflow_content, re.IGNORECASE)
-            assert not matches, \
-                f"Potential secret logging detected with pattern: {pattern}"
+            assert not matches, f"Potential secret logging detected with pattern: {pattern}"
 
 
 class TestWorkflowDocumentation:
@@ -284,8 +279,7 @@ class TestWorkflowDocumentation:
         security_keywords = ["secret", "permission", "security"]
         found_keywords = [kw for kw in security_keywords if kw in content_lower]
 
-        assert len(found_keywords) > 0, \
-            "Workflow should document security features in comments"
+        assert len(found_keywords) > 0, "Workflow should document security features in comments"
 
 
 class TestVersionConsistency:
@@ -305,8 +299,7 @@ class TestVersionConsistency:
                 is_sha = len(version) == 40 and all(c in "0123456789abcdef" for c in version.lower())
                 is_semver = version.startswith("v") and any(char.isdigit() for char in version)
 
-                assert is_sha or is_semver, \
-                    f"Action version should be SHA or semantic version tag: {action}"
+                assert is_sha or is_semver, f"Action version should be SHA or semantic version tag: {action}"
 
     def test_no_mutable_tags(self, job_steps: List[Dict[str, Any]]):
         """Test that actions don't use mutable tags like 'latest', 'main', 'master'."""
@@ -317,8 +310,7 @@ class TestVersionConsistency:
                 action = step["uses"]
                 version = action.split("@")[1] if "@" in action else ""
 
-                assert version.lower() not in mutable_tags, \
-                    f"Action should not use mutable tag '{version}': {action}"
+                assert version.lower() not in mutable_tags, f"Action should not use mutable tag '{version}': {action}"
 
 
 class TestComplianceWithIssue492:
@@ -327,8 +319,7 @@ class TestComplianceWithIssue492:
     def test_workflow_location(self):
         """Test that workflow is at the correct location."""
         expected_path = REPO_ROOT / ".github" / "workflows" / "debricked.yml"
-        assert expected_path.exists(), \
-            "Workflow must be at .github/workflows/debricked.yml"
+        assert expected_path.exists(), "Workflow must be at .github/workflows/debricked.yml"
 
     def test_supports_all_required_triggers(self, workflow_config: Dict[str, Any]):
         """Test that workflow supports all required trigger events."""
@@ -344,8 +335,7 @@ class TestComplianceWithIssue492:
         required_triggers = {"pull_request", "push", "workflow_dispatch"}
         missing_triggers = required_triggers - trigger_keys
 
-        assert not missing_triggers, \
-            f"Workflow missing required triggers: {missing_triggers}"
+        assert not missing_triggers, f"Workflow missing required triggers: {missing_triggers}"
 
     def test_uses_github_secrets(self, job_steps: List[Dict[str, Any]]):
         """Test that workflow uses GitHub Actions secrets for authentication."""
@@ -355,8 +345,7 @@ class TestComplianceWithIssue492:
             env = step.get("env", {})
             if "DEBRICKED_TOKEN" in env:
                 token_value = env["DEBRICKED_TOKEN"]
-                assert "secrets.DEBRICKED_TOKEN" in token_value, \
-                    "Must use GitHub Actions secrets for DEBRICKED_TOKEN"
+                assert "secrets.DEBRICKED_TOKEN" in token_value, "Must use GitHub Actions secrets for DEBRICKED_TOKEN"
 
     def test_minimal_permissions(self, scan_job: Dict[str, Any]):
         """Test that workflow uses minimal required permissions."""
@@ -367,8 +356,9 @@ class TestComplianceWithIssue492:
         granted_permissions = set(permissions.keys())
 
         # All required permissions should be present
-        assert required_permissions.issubset(granted_permissions), \
-            f"Missing required permissions: {required_permissions - granted_permissions}"
+        assert required_permissions.issubset(
+            granted_permissions
+        ), f"Missing required permissions: {required_permissions - granted_permissions}"
 
         # No write permissions except security-events
         for perm, value in permissions.items():
@@ -378,5 +368,4 @@ class TestComplianceWithIssue492:
     def test_ubuntu_runner(self, scan_job: Dict[str, Any]):
         """Test that workflow uses a supported Ubuntu runner."""
         runs_on = scan_job.get("runs-on", "")
-        assert "ubuntu" in runs_on.lower(), \
-            "Workflow must use a supported Ubuntu runner"
+        assert "ubuntu" in runs_on.lower(), "Workflow must use a supported Ubuntu runner"
