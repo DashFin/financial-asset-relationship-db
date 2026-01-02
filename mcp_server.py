@@ -1,8 +1,8 @@
 import argparse
 import copy
 import json
-import threading
 import sys
+import threading
 
 from src.logic.asset_graph import AssetRelationshipGraph
 from src.models.financial_models import AssetClass, Equity
@@ -124,4 +124,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-    
