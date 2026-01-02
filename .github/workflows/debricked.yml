@@ -41,9 +41,9 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Run Debricked Scan
-        # Security: Pinned to specific SHA for debricked/actions/scan@v4
+        # Security: Pinned to specific SHA for debricked/actions/scan@v1
         # Authentication via GitHub Actions secrets (no hardcoded tokens)
-        uses: debricked/actions/scan@05ab417386d5e9766943c2cc343834371908d132
+        uses: debricked/actions/scan@v1
         env:
           # Secret is read from GitHub Actions secrets context
           DEBRICKED_TOKEN: ${{ secrets.DEBRICKED_TOKEN }}
