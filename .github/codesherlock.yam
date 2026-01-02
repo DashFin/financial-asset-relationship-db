@@ -1,11 +1,11 @@
 # Trigger reviews for PRs targeting these branches
-# target_branches: ["main"] 
+# target_branches: ["main"]
 # Removal of target_branches: ["main"] triggers reviews for all PRs from all branches
 
 # Focus review on these quality characteristics
-preferred_characteristics: 
+preferred_characteristics:
   - "Modularity"
-  - "Resource Utilization" 
+  - "Resource Utilization"
   - "Exception Handling"
   - "Monitoring and Logging"
   - "Dependency Injection"
