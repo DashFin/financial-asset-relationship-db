@@ -25,6 +25,7 @@ WORKFLOW_DEBRICKED_FILE = WORKFLOWS_DIR / "debricked.yml"
 
 # --- Fixtures ---
 
+
 @pytest.fixture(scope="module")
 def root_debricked_content() -> str:
     """Load raw content of root debricked.yml once for the module."""
@@ -59,15 +60,14 @@ def job_steps(scan_job: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 # --- Helpers ---
 
+
 def get_steps_by_action(steps: List[Dict[str, Any]], action_substring: str) -> List[Dict[str, Any]]:
     """Filter steps by action name (case-insensitive)."""
-    return [
-        s for s in steps 
-        if "uses" in s and action_substring.lower() in s["uses"].lower()
-    ]
+    return [s for s in steps if "uses" in s and action_substring.lower() in s["uses"].lower()]
 
 
 # --- Tests ---
+
 
 class TestFileBasics:
     """Test file existence and basic properties."""
@@ -110,7 +110,7 @@ class TestStepsConfiguration:
         """Test that checkout action exists and uses v4."""
         checkout_steps = get_steps_by_action(job_steps, "actions/checkout")
         assert checkout_steps, "Job must include actions/checkout step"
-        
+
         for step in checkout_steps:
             action = step["uses"]
             assert "@v4" in action, f"Checkout should use v4, found: {action}"
@@ -131,22 +131,22 @@ class TestSecretHandling:
     def test_debricked_token_configuration(self, job_steps: List[Dict[str, Any]]):
         """Test DEBRICKED_TOKEN injection via secrets."""
         debricked_steps = get_steps_by_action(job_steps, "debricked")
-        
+
         for step in debricked_steps:
             env = step.get("env", {})
             assert "DEBRICKED_TOKEN" in env, "Debricked step must define DEBRICKED_TOKEN in env"
-            
+
             token = env["DEBRICKED_TOKEN"]
             # Flexible check for ${{ secrets.X }} or ${{secrets.X}}
-            assert "${{" in token and "secrets" in token.lower(), \
-                "Token must use secrets context (e.g., ${{ secrets.DEBRICKED_TOKEN }})"
+            assert (
+                "${{" in token and "secrets" in token.lower()
+            ), "Token must use secrets context (e.g., ${{ secrets.DEBRICKED_TOKEN }})"
 
     def test_no_hardcoded_secrets(self, root_debricked_content: str):
         """Test for potential hardcoded secrets in the file content."""
         suspicious_patterns = ["ghp_", "dbr_"]
         for pattern in suspicious_patterns:
-            assert pattern not in root_debricked_content, \
-                f"Found potential hardcoded secret pattern '{pattern}'"
+            assert pattern not in root_debricked_content, f"Found potential hardcoded secret pattern '{pattern}'"
 
 
 class TestFormattingAndBestPractices:
@@ -181,7 +181,7 @@ class TestWorkflowComparison:
         # Simple check: Ensure the installed workflow also uses v4
         wf_steps = wf_config["jobs"]["vulnerabilities-scan"]["steps"]
         wf_debricked = get_steps_by_action(wf_steps, "debricked")
-        
+
         for step in wf_debricked:
             assert "@v4" in step["uses"], "Installed workflow should uses Debricked v4"
 
