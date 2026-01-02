@@ -145,7 +145,7 @@ class TestSecretHandling:
     def test_debricked_token_configuration(self, job_steps: List[Dict[str, Any]]):
         """Test DEBRICKED_TOKEN injection via secrets."""
         debricked_steps = get_steps_by_action(job_steps, "debricked")
-
+        assert debricked_steps, "Job must include Debricked action to configure DEBRICKED_TOKEN"
         for step in debricked_steps:
             env = step.get("env", {})
             assert "DEBRICKED_TOKEN" in env, "Debricked step must define DEBRICKED_TOKEN in env"
