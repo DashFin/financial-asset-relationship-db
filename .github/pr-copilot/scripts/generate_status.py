@@ -27,6 +27,7 @@ except ImportError:
 @dataclass(frozen=True)
 class CheckRunInfo:
     """Summary of a single CI check run."""
+
     name: str
     status: str
     conclusion: Optional[str]
@@ -35,6 +36,7 @@ class CheckRunInfo:
 @dataclass(frozen=True)
 class PRStatus:
     """Container for all PR status information."""
+
     # Metadata
     number: int
     title: str
@@ -43,18 +45,18 @@ class PRStatus:
     head_ref: str
     is_draft: bool
     url: str
-    
+
     # Stats
     commit_count: int
     file_count: int
     additions: int
     deletions: int
-    
+
     # State
     labels: List[str]
     mergeable: Optional[bool]
     mergeable_state: str
-    
+
     # Reviews & Checks
     review_stats: Dict[str, int]
     open_thread_count: int
@@ -75,11 +77,11 @@ def fetch_pr_status(g: Github, repo_name: str, pr_num: int) -> PRStatus:
         "approved": len([r for r in reviews if r.state == "APPROVED"]),
         "changes_requested": len([r for r in reviews if r.state == "CHANGES_REQUESTED"]),
         "commented": len([r for r in reviews if r.state == "COMMENTED"]),
-        "total": len(reviews)
+        "total": len(reviews),
     }
 
     # 2. Review Threads
-    # Note: get_review_comments returns individual comments. 
+    # Note: get_review_comments returns individual comments.
     # Grouping by position/path is complex; counting total comments is a decent proxy for "activity".
     # For distinct threads, we'd need to map reply_to_id. Sticking to simple count for performance.
     open_threads = pr.get_review_comments().totalCount
@@ -88,14 +90,10 @@ def fetch_pr_status(g: Github, repo_name: str, pr_num: int) -> PRStatus:
     # Optimization: Get runs directly from commit, skipping Suite iteration
     head_commit = repo.get_commit(pr.head.sha)
     check_runs_data = []
-    
+
     # We use list() here because we need to inspect properties
     for run in head_commit.get_check_runs():
-        check_runs_data.append(CheckRunInfo(
-            name=run.name,
-            status=run.status,
-            conclusion=run.conclusion
-        ))
+        check_runs_data.append(CheckRunInfo(name=run.name, status=run.status, conclusion=run.conclusion))
 
     return PRStatus(
         number=pr.number,
@@ -105,8 +103,8 @@ def fetch_pr_status(g: Github, repo_name: str, pr_num: int) -> PRStatus:
         head_ref=pr.head.ref,
         is_draft=pr.draft,
         url=pr.html_url,
-        commit_count=pr.commits,        # API Attribute (Fast)
-        file_count=pr.changed_files,    # API Attribute (Fast)
+        commit_count=pr.commits,  # API Attribute (Fast)
+        file_count=pr.changed_files,  # API Attribute (Fast)
         additions=pr.additions,
         deletions=pr.deletions,
         labels=[l.name for l in pr.labels],
@@ -114,7 +112,7 @@ def fetch_pr_status(g: Github, repo_name: str, pr_num: int) -> PRStatus:
         mergeable_state=pr.mergeable_state or "unknown",
         review_stats=review_stats,
         open_thread_count=open_threads,
-        check_runs=check_runs_data
+        check_runs=check_runs_data,
     )
 
 
@@ -133,7 +131,7 @@ def format_checklist(status: PRStatus) -> str:
     # CI Checks
     total_checks = len(status.check_runs)
     passed_checks = len([c for c in status.check_runs if c.conclusion == "success"])
-    
+
     if total_checks == 0:
         tasks.append("- [ ] CI checks pending/not configured")
     elif passed_checks == total_checks:
@@ -144,7 +142,7 @@ def format_checklist(status: PRStatus) -> str:
     # Conflicts
     clean_merge = status.mergeable is True
     dirty_merge = status.mergeable_state == "dirty"
-    
+
     if dirty_merge:
         tasks.append("- [ ] Resolve merge conflicts")
     elif clean_merge:
@@ -174,7 +172,7 @@ def format_checks_section(checks: List[CheckRunInfo]) -> str:
         f"- ❌ **Failed:** {failed}",
         f"- ⏳ **Pending:** {pending}",
         f"- ⏭️ **Skipped:** {skipped}",
-        f"- 📊 **Total:** {len(checks)}"
+        f"- 📊 **Total:** {len(checks)}",
     ]
 
     if failed > 0:
@@ -188,7 +186,7 @@ def format_checks_section(checks: List[CheckRunInfo]) -> str:
 
 def generate_markdown(status: PRStatus) -> str:
     """Compose the final report."""
-    
+
     # Review Section
     revs = status.review_stats
     review_section = (
@@ -200,10 +198,11 @@ def generate_markdown(status: PRStatus) -> str:
 
     labels_str = ", ".join([f"`{l}`" for l in status.labels]) if status.labels else "None"
     draft_status = "📝 Yes" if status.is_draft else "✅ No"
-    
+
     # Merge Status
     merge_icon = "✅ Yes" if status.mergeable else "❌ No"
-    if status.mergeable is None: merge_icon = "⏳ Checking..."
+    if status.mergeable is None:
+        merge_icon = "⏳ Checking..."
 
     return f"""📊 **PR Status Report**
 
@@ -250,7 +249,7 @@ def write_output(content: str) -> None:
     # 2. Standard Temp File
     # We use a standard temp path. We DO NOT crash if it exists; we overwrite.
     output_path = os.path.join(tempfile.gettempdir(), "pr_status_report.md")
-    
+
     try:
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(content)
@@ -267,14 +266,14 @@ def main():
     # Env Var Validation
     required = ["GITHUB_TOKEN", "PR_NUMBER", "REPO_OWNER", "REPO_NAME"]
     env = {var: os.environ.get(var) for var in required}
-    
+
     if not all(env.values()):
         missing = [k for k, v in env.items() if not v]
         print(f"Error: Missing environment variables: {missing}", file=sys.stderr)
         sys.exit(1)
 
     try:
-        pr_num = int(env["PR_NUMBER"]) # type: ignore
+        pr_num = int(env["PR_NUMBER"])  # type: ignore
     except ValueError:
         print("Error: PR_NUMBER must be an integer", file=sys.stderr)
         sys.exit(1)
@@ -283,14 +282,14 @@ def main():
         # Connect
         g = Github(env["GITHUB_TOKEN"])
         repo_name = f"{env['REPO_OWNER']}/{env['REPO_NAME']}"
-        
+
         print(f"Fetching status for PR #{pr_num}...", file=sys.stderr)
-        
+
         # Execute
         status = fetch_pr_status(g, repo_name, pr_num)
         report = generate_markdown(status)
         write_output(report)
-        
+
         sys.exit(0)
 
     except GithubException as e:
@@ -298,6 +297,7 @@ def main():
         sys.exit(1)
     except Exception:
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 
