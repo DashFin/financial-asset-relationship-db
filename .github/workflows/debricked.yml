@@ -1,4 +1,4 @@
-# Debricked Vulnerability Scanning Workflow
+# Debricked (OpenText Core SCA) Vulnerability Scanning Workflow
 name: Vulnerability Scan
 
 on:
