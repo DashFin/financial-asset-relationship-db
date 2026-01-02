@@ -37,19 +37,38 @@ CONFIG_PATH = ".github/pr-copilot-config.yml"
 
 EXTENSION_MAP = {
     "py": "python",
-    "js": "javascript", "jsx": "javascript", "ts": "javascript", "tsx": "javascript",
-    "html": "markup", "xml": "markup",
-    "css": "style", "scss": "style", "sass": "style", "less": "style",
-    "json": "config", "yaml": "config", "yml": "config", "toml": "config", "ini": "config",
-    "md": "documentation", "rst": "documentation", "txt": "documentation",
-    "sql": "database", "db": "database", "sqlite": "database",
-    "sh": "shell", "bash": "shell", "zsh": "shell", "fish": "shell",
+    "js": "javascript",
+    "jsx": "javascript",
+    "ts": "javascript",
+    "tsx": "javascript",
+    "html": "markup",
+    "xml": "markup",
+    "css": "style",
+    "scss": "style",
+    "sass": "style",
+    "less": "style",
+    "json": "config",
+    "yaml": "config",
+    "yml": "config",
+    "toml": "config",
+    "ini": "config",
+    "md": "documentation",
+    "rst": "documentation",
+    "txt": "documentation",
+    "sql": "database",
+    "db": "database",
+    "sqlite": "database",
+    "sh": "shell",
+    "bash": "shell",
+    "zsh": "shell",
+    "fish": "shell",
 }
 
 
 @dataclass(frozen=True)
 class AnalysisData:
     """Container for PR analysis results."""
+
     file_analysis: Dict[str, Any]
     complexity_score: int
     risk_level: str
@@ -59,6 +78,7 @@ class AnalysisData:
 
 
 # --- Core Logic ---
+
 
 def load_config() -> Dict[str, Any]:
     """Load configuration from YAML file safely."""
@@ -111,12 +131,7 @@ def analyze_pr_files(pr_files_iterable: Any) -> Dict[str, Any]:
         stats["changes"] += total
 
         if total > 500:
-            large_files.append({
-                "filename": pr_file.filename,
-                "changes": total,
-                "additions": adds,
-                "deletions": dels
-            })
+            large_files.append({"filename": pr_file.filename, "changes": total, "additions": adds, "deletions": dels})
 
     return {
         "file_count": file_count,
@@ -155,8 +170,10 @@ def assess_complexity(file_data: Dict[str, Any], commit_count: int) -> Tuple[int
     # Commit count impact
     score += calculate_score(commit_count, [(50, 20), (20, 15), (10, 10)], default=5)
 
-    if score >= 70: return score, "High"
-    if score >= 40: return score, "Medium"
+    if score >= 70:
+        return score, "High"
+    if score >= 40:
+        return score, "Medium"
     return score, "Low"
 
 
@@ -212,13 +229,15 @@ def find_related_issues(pr_body: Optional[str], repo_url: str) -> List[Dict[str,
 
 # --- Reporting ---
 
+
 def generate_markdown(pr: Any, data: AnalysisData) -> str:
     """Build the markdown report."""
     emoji_map = {"Low": "🟢", "Medium": "🟡", "High": "🔴"}
     risk_emoji = emoji_map.get(data.risk_level, "⚪")
 
     def list_items(items: List[str], header: str) -> str:
-        if not items: return ""
+        if not items:
+            return ""
         return f"\n**{header}**\n" + "".join([f"- {i}\n" for i in items])
 
     cat_str = "\n".join([f"- {k.title()}: {v}" for k, v in data.file_analysis["file_categories"].items()])
@@ -272,7 +291,9 @@ def write_output(report: str) -> None:
     # 2. FIX: Secure Temp File (Address Bandit B303)
     try:
         # delete=False ensures other steps can read it, but the name is random/secure
-        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", delete=False, suffix=".md", prefix="pr_analysis_") as tmp:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", delete=False, suffix=".md", prefix="pr_analysis_"
+        ) as tmp:
             tmp.write(report)
             print(f"Report written to: {tmp.name}")
     except IOError as e:
@@ -284,6 +305,7 @@ def write_output(report: str) -> None:
 
 # --- Main ---
 
+
 def run() -> None:
     """Main execution flow."""
     required_vars = ["GITHUB_TOKEN", "PR_NUMBER", "REPO_OWNER", "REPO_NAME"]
@@ -294,7 +316,7 @@ def run() -> None:
         sys.exit(1)
 
     try:
-        pr_num = int(env_vars["PR_NUMBER"]) # type: ignore
+        pr_num = int(env_vars["PR_NUMBER"])  # type: ignore
     except ValueError:
         print("Error: PR_NUMBER must be an integer", file=sys.stderr)
         sys.exit(1)
@@ -339,6 +361,7 @@ def run() -> None:
         sys.exit(1)
     except Exception:
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 
