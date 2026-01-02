@@ -156,9 +156,10 @@ class TestSecretHandling:
             # Fix: Remove spaces from BOTH the token and the expected string for comparison
             normalized_token = token.replace(" ", "")
             normalized_expected = "${{secrets.DEBRICKED_TOKEN}}"
-            
-            assert normalized_expected in normalized_token, \
-                "Token must use secrets context: ${{ secrets.DEBRICKED_TOKEN }}"
+
+            assert (
+                normalized_expected in normalized_token
+            ), "Token must use secrets context: ${{ secrets.DEBRICKED_TOKEN }}"
 
     def test_no_hardcoded_secrets(self, workflow_content: str):
         """Test for potential hardcoded secrets in the file content."""
