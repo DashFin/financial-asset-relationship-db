@@ -133,7 +133,10 @@ class TestStepsConfiguration:
             action = step["uses"]
             assert "@" in action, f"Checkout must specify version: {action}"
             # Check for v4 (tag or SHA) or later
-            assert "v4" in action or len(action.split("@")[1]) == 40, "Checkout should use v4 or a full SHA"
+            version = action.split("@")[1]
+            if not (len(version) == 40):  # Not a SHA
+                major_version = int(version.lstrip('v').split('.')[0])
+                assert major_version >= 4, "Checkout should use v4 or higher, or a full SHA"
 
     def test_debricked_action_version(self, job_steps: List[Dict[str, Any]]):
         """Test that Debricked action exists and uses at least v4."""
