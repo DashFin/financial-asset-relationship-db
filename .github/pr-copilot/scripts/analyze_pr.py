@@ -37,19 +37,38 @@ CONFIG_PATH = ".github/pr-copilot-config.yml"
 
 EXTENSION_MAP = {
     "py": "python",
-    "js": "javascript", "jsx": "javascript", "ts": "javascript", "tsx": "javascript",
-    "html": "markup", "xml": "markup",
-    "css": "style", "scss": "style", "sass": "style", "less": "style",
-    "json": "config", "yaml": "config", "yml": "config", "toml": "config", "ini": "config",
-    "md": "documentation", "rst": "documentation", "txt": "documentation",
-    "sql": "database", "db": "database", "sqlite": "database",
-    "sh": "shell", "bash": "shell", "zsh": "shell", "fish": "shell",
+    "js": "javascript",
+    "jsx": "javascript",
+    "ts": "javascript",
+    "tsx": "javascript",
+    "html": "markup",
+    "xml": "markup",
+    "css": "style",
+    "scss": "style",
+    "sass": "style",
+    "less": "style",
+    "json": "config",
+    "yaml": "config",
+    "yml": "config",
+    "toml": "config",
+    "ini": "config",
+    "md": "documentation",
+    "rst": "documentation",
+    "txt": "documentation",
+    "sql": "database",
+    "db": "database",
+    "sqlite": "database",
+    "sh": "shell",
+    "bash": "shell",
+    "zsh": "shell",
+    "fish": "shell",
 }
 
 
 @dataclass(frozen=True)
 class AnalysisData:
     """Container for PR analysis results."""
+
     file_analysis: Dict[str, Any]
     complexity_score: int
     risk_level: str
@@ -60,12 +79,13 @@ class AnalysisData:
 
 # --- Core Logic ---
 
+
 def load_config() -> Dict[str, Any]:
     """Load configuration from YAML file safely."""
     if not os.path.exists(CONFIG_PATH):
         print(f"Info: Config file not found at {CONFIG_PATH}, using defaults.", file=sys.stderr)
         return {}
-    
+
     try:
         with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             return yaml.safe_load(f) or {}
@@ -77,12 +97,12 @@ def load_config() -> Dict[str, Any]:
 def categorize_filename(filename: str) -> str:
     """Determine category based on filename or extension."""
     lower_name = filename.lower()
-    
+
     if any(x in lower_name for x in ["test", "spec"]):
         return "test"
     if ".github/workflows" in filename:
         return "workflow"
-    
+
     # Extract extension safely
     suffix = Path(filename).suffix.lstrip(".").lower()
     return EXTENSION_MAP.get(suffix, "other")
@@ -91,7 +111,7 @@ def categorize_filename(filename: str) -> str:
 def analyze_pr_files(pr_files_iterable: Any) -> Dict[str, Any]:
     """
     Iterate through files to gather stats.
-    
+
     Args:
         pr_files_iterable: A PyGithub PaginatedList or iterable of File objects.
     """
@@ -114,12 +134,7 @@ def analyze_pr_files(pr_files_iterable: Any) -> Dict[str, Any]:
         stats["changes"] += total
 
         if total > 500:
-            large_files.append({
-                "filename": pr_file.filename,
-                "changes": total,
-                "additions": adds,
-                "deletions": dels
-            })
+            large_files.append({"filename": pr_file.filename, "changes": total, "additions": adds, "deletions": dels})
 
     return {
         "file_count": file_count,
@@ -143,20 +158,12 @@ def calculate_score(value: int, thresholds: List[Tuple[int, int]], default: int)
 def assess_complexity(file_data: Dict[str, Any], commit_count: int) -> Tuple[int, str]:
     """Calculate 0-100 complexity score and risk level."""
     score = 0
-    
+
     # File count impact
-    score += calculate_score(
-        file_data["file_count"], 
-        [(50, 30), (20, 20), (10, 10)], 
-        default=5
-    )
+    score += calculate_score(file_data["file_count"], [(50, 30), (20, 20), (10, 10)], default=5)
 
     # Line change impact
-    score += calculate_score(
-        file_data["total_changes"], 
-        [(2000, 30), (1000, 20), (500, 15)], 
-        default=5
-    )
+    score += calculate_score(file_data["total_changes"], [(2000, 30), (1000, 20), (500, 15)], default=5)
 
     # Large file penalty
     if file_data["has_large_files"]:
@@ -165,11 +172,7 @@ def assess_complexity(file_data: Dict[str, Any], commit_count: int) -> Tuple[int
         score += min(penalty, 20)
 
     # Commit count impact
-    score += calculate_score(
-        commit_count, 
-        [(50, 20), (20, 15), (10, 10)], 
-        default=5
-    )
+    score += calculate_score(commit_count, [(50, 20), (20, 15), (10, 10)], default=5)
 
     if score >= 70:
         return score, "High"
@@ -219,18 +222,16 @@ def find_related_issues(pr_body: Optional[str], repo_url: str) -> List[Dict[str,
         for match in re.finditer(pattern, pr_body, re.IGNORECASE):
             # Group 1 is usually the ID, but for the second pattern it might be group 1 or 2 depending on regex
             # Simplified: finding the digit group
-            issue_num = match.group(1) if match.lastindex == 1 else match.group(match.lastindex) 
-            
+            issue_num = match.group(1) if match.lastindex == 1 else match.group(match.lastindex)
+
             if issue_num not in found_ids:
                 found_ids.add(issue_num)
-                results.append({
-                    "number": issue_num,
-                    "url": f"{repo_url}/issues/{issue_num}"
-                })
+                results.append({"number": issue_num, "url": f"{repo_url}/issues/{issue_num}"})
     return results
 
 
 # --- Reporting ---
+
 
 def generate_markdown(pr: Any, data: AnalysisData) -> str:
     """Build the markdown report."""
@@ -239,11 +240,12 @@ def generate_markdown(pr: Any, data: AnalysisData) -> str:
 
     # Helper sections
     def list_items(items: List[str], header: str) -> str:
-        if not items: return ""
+        if not items:
+            return ""
         return f"\n**{header}**\n" + "".join([f"- {i}\n" for i in items])
 
     cat_str = "\n".join([f"- {k.title()}: {v}" for k, v in data.file_analysis["file_categories"].items()])
-    
+
     large_files_str = ""
     if data.file_analysis["large_files"]:
         lines = [f"- `{f['filename']}`: {f['changes']} lines" for f in data.file_analysis["large_files"]]
@@ -256,12 +258,16 @@ def generate_markdown(pr: Any, data: AnalysisData) -> str:
     # Recommendations
     recs = []
     if data.risk_level == "High":
-        recs = ["⚠️ Split this PR into smaller changes", "📋 comprehensive testing required", "👥 Request multiple reviewers"]
+        recs = [
+            "⚠️ Split this PR into smaller changes",
+            "📋 comprehensive testing required",
+            "👥 Request multiple reviewers",
+        ]
     elif data.risk_level == "Medium":
         recs = ["✅ Complexity manageable", "📝 Ensure adequate tests"]
     else:
         recs = ["✅ Low complexity", "🚀 Fast merge candidate"]
-    
+
     rec_section = "\n**Recommendations:**\n" + "\n".join([f"- {r}" for r in recs])
 
     return f"""
@@ -302,25 +308,26 @@ def write_output(report: str) -> None:
         print(f"Report written to: {temp_path}")
     except IOError as e:
         print(f"Failed to write temp report: {e}", file=sys.stderr)
-    
+
     # 3. Print to stdout for logs
     print(report)
 
 
 # --- Main ---
 
+
 def run() -> None:
     """Main execution flow."""
     # Validate Env
     required_vars = ["GITHUB_TOKEN", "PR_NUMBER", "REPO_OWNER", "REPO_NAME"]
     env_vars = {var: os.environ.get(var) for var in required_vars}
-    
+
     if not all(env_vars.values()):
         print(f"Error: Missing environment variables: {[k for k, v in env_vars.items() if not v]}", file=sys.stderr)
         sys.exit(1)
 
     try:
-        pr_num = int(env_vars["PR_NUMBER"]) # type: ignore
+        pr_num = int(env_vars["PR_NUMBER"])  # type: ignore
     except ValueError:
         print("Error: PR_NUMBER must be an integer", file=sys.stderr)
         sys.exit(1)
@@ -339,7 +346,7 @@ def run() -> None:
         # Note: We pass the iterator directly, we do not use list() to avoid memory spikes
         files_data = analyze_pr_files(pr.get_files())
         commit_count = pr.commits  # Use attribute if available, else pr.get_commits().totalCount
-        
+
         # Analyze
         score, risk = assess_complexity(files_data, commit_count)
         scope_issues = find_scope_issues(pr.title, files_data, config)
@@ -351,7 +358,7 @@ def run() -> None:
             risk_level=risk,
             scope_issues=scope_issues,
             related_issues=related,
-            commit_count=commit_count
+            commit_count=commit_count,
         )
 
         # Report
@@ -362,7 +369,7 @@ def run() -> None:
         # We generally exit 0 to not break CI, but log warnings for High risk.
         if risk == "High":
             print("::warning::PR Risk is High! Careful review required.")
-        
+
         sys.exit(0)
 
     except GithubException as ge:
@@ -370,6 +377,7 @@ def run() -> None:
         sys.exit(1)
     except Exception:
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 
