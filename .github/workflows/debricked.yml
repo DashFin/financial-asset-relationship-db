@@ -1,1 +1,28 @@
-# This file will be read to understand its current content
+name: Vulnerability Scan
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+jobs:
+  debricked-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Debricked SCA Scan
+        uses: debricked/actions/scan@v1
+        env:
+          DEBRICKED_TOKEN: ${{ secrets.DEBRICKED_TOKEN }}
+        with:
+          upload: true
+          integration: github
+          sarif: true
