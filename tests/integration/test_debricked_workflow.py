@@ -8,7 +8,6 @@ This module validates the debricked.yml workflow file to ensure:
 - Integration with Debricked actions
 - Compliance with issue #492 requirements
 """
-
 import re
 from pathlib import Path
 from typing import Any, Dict, List
