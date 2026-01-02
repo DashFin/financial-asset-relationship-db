@@ -135,7 +135,7 @@ class TestStepsConfiguration:
             # Check for v4 (tag or SHA) or later
             version = action.split("@")[1]
             if not (len(version) == 40):  # Not a SHA
-                major_version = int(version.lstrip('v').split('.')[0])
+                major_version = int(version.lstrip("v").split(".")[0])
                 assert major_version >= 4, "Checkout should use v4 or higher, or a full SHA"
 
     def test_debricked_action_version(self, job_steps: List[Dict[str, Any]]):
