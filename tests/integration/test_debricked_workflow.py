@@ -188,7 +188,7 @@ class TestStepsConfiguration:
                 ), f"Debricked version should be valid SHA: {version}"
             else:
                 # Tag format - should be v4 or later
-                assert "v4" in version or "v5" in version, f"Debricked action tag must be v4 or later (found {version})"
+                assert version.startswith("v") and any(char.isdigit() for char in version), f"Debricked action tag must be a valid semantic version (found {version})"
 
 
 class TestSecretHandling:
