@@ -130,15 +130,14 @@ class TestStepsConfiguration:
         for step in checkout_steps:
             action = step["uses"]
             assert "@" in action, f"Checkout must specify version: {action}"
-
-            # FIX: Logic to accept either v4 tag OR full SHA
+            
+            # Logic to accept either v4 tag OR full SHA
             version = action.split("@")[1]
-
+            
             # Check if it is a SHA (40 chars)
             if len(version) != 40:
                 # If not a SHA, it must contain 'v4'
                 assert "v4" in version, f"Checkout tag must be v4 or later (found {version})"
-            # Implicitly passes if it is a 40-char SHA (assumed valid for security)
 
     def test_debricked_action_version(self, job_steps: List[Dict[str, Any]]):
         """Test that Debricked action exists and uses at least v4 (tag or SHA)."""
@@ -148,8 +147,8 @@ class TestStepsConfiguration:
         for step in debricked_steps:
             action = step["uses"]
             assert "@" in action, f"Debricked action must specify version: {action}"
-
-            # FIX: Logic to accept either v4 tag OR full SHA
+            
+            # Logic to accept either v4 tag OR full SHA
             version = action.split("@")[1]
 
             if len(version) != 40:
