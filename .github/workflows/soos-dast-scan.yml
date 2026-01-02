@@ -33,6 +33,8 @@ jobs:
       security-events: write # for uploading code scanning alert info
       actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
     name: SOOS DAST Analysis
+    # Skip if secrets are not configured
+    if: ${{ secrets.SOOS_API_KEY != '' && secrets.SOOS_CLIENT_ID != '' }}
     runs-on: ubuntu-latest
     steps:
       - name: Run SOOS DAST Analysis
