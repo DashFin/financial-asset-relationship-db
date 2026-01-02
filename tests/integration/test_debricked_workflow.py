@@ -24,6 +24,7 @@ WORKFLOW_DEBRICKED_FILE = WORKFLOWS_DIR / "debricked.yml"
 
 # --- Fixtures ---
 
+
 @pytest.fixture(scope="module")
 def root_debricked_content() -> str:
     """Load raw content of root debricked.yml once for the module."""
@@ -58,12 +59,14 @@ def job_steps(scan_job: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 # --- Helpers ---
 
+
 def get_steps_by_action(steps: List[Dict[str, Any]], action_substring: str) -> List[Dict[str, Any]]:
     """Filter steps by action name (case-insensitive)."""
     return [s for s in steps if "uses" in s and action_substring.lower() in s["uses"].lower()]
 
 
 # --- Tests ---
+
 
 class TestFileBasics:
     """Test file existence and basic properties."""
@@ -89,10 +92,10 @@ class TestWorkflowStructure:
     def test_triggers_events(self, debricked_config: Dict[str, Any]):
         """Test that workflow triggers on necessary events."""
         triggers = debricked_config.get("on", [])
-        
+
         # Normalize triggers (can be list or dict)
         trigger_keys = triggers if isinstance(triggers, dict) else triggers
-        
+
         assert "pull_request" in trigger_keys, "Workflow should trigger on 'pull_request'"
         # Recommendation: Manual triggers are useful for debugging
         assert "workflow_dispatch" in trigger_keys, "Workflow should support 'workflow_dispatch' for manual testing"
@@ -149,8 +152,9 @@ class TestSecretHandling:
 
             token = env["DEBRICKED_TOKEN"]
             # Strict check for secrets context
-            assert "${{ secrets.DEBRICKED_TOKEN }}" in token.replace(" ", ""), \
-                "Token must use secrets context: ${{ secrets.DEBRICKED_TOKEN }}"
+            assert "${{ secrets.DEBRICKED_TOKEN }}" in token.replace(
+                " ", ""
+            ), "Token must use secrets context: ${{ secrets.DEBRICKED_TOKEN }}"
 
     def test_no_hardcoded_secrets(self, root_debricked_content: str):
         """Test for potential hardcoded secrets in the file content."""
@@ -172,9 +176,9 @@ class TestSecurityPatterns:
             r"github\.event\.pull_request\.title",
             r"github\.event\.pull_request\.body",
             r"github\.event\.comment\.body",
-            r"github\.event\.review\.body"
+            r"github\.event\.review\.body",
         ]
-        
+
         for ctx in unsafe_contexts:
             pattern = r"run:.*(\$\{\{\s*" + ctx + r".*\}\})"
             matches = re.findall(pattern, root_debricked_content, re.IGNORECASE)
