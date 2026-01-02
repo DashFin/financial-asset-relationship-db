@@ -1,4 +1,6 @@
 #This workflow uses actions that are not certified by GitHub.
+# This workflow is disabled due to missing credentials and license
+# To re-enable, configure client_id and client_secret secrets and ensure valid license
 #They are provided by a third party and are governed by
 #separate terms of service, privacy policy, and support
 #documentation.
