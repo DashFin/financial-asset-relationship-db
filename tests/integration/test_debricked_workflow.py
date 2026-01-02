@@ -103,6 +103,27 @@ class TestWorkflowStructure:
 
         assert "pull_request" in trigger_keys, "Workflow should trigger on 'pull_request'"
 
+
+    def test_triggers_on_push_to_main(self, workflow_config: Dict[str, Any]):
+        """Test that workflow triggers on push to main branch."""
+        triggers = workflow_config.get("on", {})
+        assert "push" in triggers, "Workflow should trigger on 'push' events"
+
+        # Verify push trigger configuration
+        push_config = triggers.get("push")
+        if isinstance(push_config, dict):
+            branches = push_config.get("branches", [])
+            assert "main" in branches, "Workflow should trigger on push to 'main' branch"
+
+    def test_triggers_on_pull_request_to_main(self, workflow_config: Dict[str, Any]):
+        """Test that workflow triggers on pull requests to main branch."""
+        triggers = workflow_config.get("on", {})
+        assert "pull_request" in triggers, "Workflow should trigger on 'pull_request' events"
+
+        # Verify pull_request trigger configuration
+        pr_config = triggers.get("pull_request")
+        if isinstance(pr_config, dict):
+            branches = pr_config.get("branches", [])
     def test_triggers_on_push_to_main(self, workflow_config: Dict[str, Any]):
         """Test that workflow triggers on push to main branch."""
         triggers = workflow_config.get("on", {})
