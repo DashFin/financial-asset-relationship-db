@@ -780,7 +780,7 @@ class TestUserModels:
         assert user.username == "testuser"
         assert user.email is None
         assert user.full_name is None
-        assert user.disabled is False
+        assert user.disabled is None
 
     def test_user_in_db_model(self):
         """Test UserInDB model includes hashed_password."""
