@@ -206,11 +206,9 @@ class TestSecretHandling:
             assert "DEBRICKED_TOKEN" in env, "Debricked step must define DEBRICKED_TOKEN in env"
 
             token = env["DEBRICKED_TOKEN"]
-            # Normalize by removing all whitespace for comparison
-            normalized_token = "".join(token.split())
-            expected = "${{secrets.DEBRICKED_TOKEN}}"
-
-            assert expected in normalized_token, f"Token must use secrets context: {expected}, got: {token}"
+            # Use strict pattern match to ensure exact secret reference format
+            # Allows optional whitespace around 'secrets.DEBRICKED_TOKEN' but nothing else
+            assert re.fullmatch(
 
     def test_no_hardcoded_secrets(self, workflow_content: str):
         """Test for potential hardcoded secrets in the file content."""
