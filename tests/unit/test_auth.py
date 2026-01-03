@@ -514,7 +514,8 @@ class TestGetCurrentUser:
     """Test suite for get_current_user dependency."""
 
     @patch("api.auth.get_user")
-    def test_get_current_user_valid_token(self, mock_get_user):
+    @pytest.mark.asyncio
+    async def test_get_current_user_valid_token(self, mock_get_user):
         """Test get_current_user with valid token."""
         # Create a valid token
         token = create_access_token({"sub": "testuser"})
