@@ -232,7 +232,7 @@ class TestSecretHandling:
 
             for pattern in suspicious_patterns:
                 if pattern in line:
-                    pytest.fail(f"Found potential hardcoded secret pattern '{pattern}' " f"at line {i}: {line.strip()}")
+                    pytest.fail(f"Found potential hardcoded secret pattern '{pattern}' at line {i}: {line.strip()}")
 
 
 class TestSecurityPatterns:
