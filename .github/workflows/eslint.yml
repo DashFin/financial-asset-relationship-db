@@ -41,6 +41,10 @@ jobs:
         working-directory: ./frontend
         run: npm ci
 
+      - name: Install ESLint SARIF formatter
+        working-directory: ./frontend
+        run: npm install --save-dev @microsoft/eslint-formatter-sarif
+
       - name: Run ESLint
         working-directory: ./frontend
         env:
