@@ -1,3 +1,4 @@
+# pylint: disable=redefined-outer-name, unused-argument
 """
 Unit tests for PR Copilot suggest_fixes.py script.
 
@@ -9,15 +10,11 @@ import sys
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+from suggest_fixes import (categorize_comment, extract_code_suggestions,
+                           generate_fix_proposals, is_actionable, load_config,
+                           parse_review_comments)
+
 import pytest
-from suggest_fixes import (
-    categorize_comment,
-    extract_code_suggestions,
-    generate_fix_proposals,
-    is_actionable,
-    load_config,
-    parse_review_comments,
-)
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts"))
 
