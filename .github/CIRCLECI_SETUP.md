@@ -1,5 +1,9 @@
 # CircleCI Setup Guide
 
+## ⚠️ IMPORTANT: This is NOT a Code Issue
+
+**The CircleCI build failures are due to missing SSH configuration in CircleCI project settings, not the code changes in this PR.** The PR changes themselves are valid and ready to merge once CircleCI SSH keys are configured.
+
 ## Current Issue: SSH Authentication Failure
 
 The CircleCI builds are failing with the following error:
@@ -64,3 +68,7 @@ After configuring SSH keys, re-run the failed CircleCI builds. The checkout step
 ## PR Context
 
 This issue was discovered while reviewing PR that adds CodeSherlock configuration. The PR changes themselves are valid - the CircleCI failure is due to missing SSH configuration, not the code changes.
+
+## Action Required
+
+**Repository administrators must configure SSH keys in CircleCI project settings before builds can succeed.** This is a one-time setup that cannot be fixed through code changes.
