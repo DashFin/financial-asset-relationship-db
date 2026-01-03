@@ -1,3 +1,4 @@
+# pylint: disable=redefined-outer-name, unused-argument
 """
 Unit tests for PR Copilot analyze_pr.py script.
 
