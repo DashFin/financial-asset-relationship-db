@@ -14,7 +14,7 @@ from datetime import timedelta
 from unittest.mock import Mock, patch
 
 import pytest
-from jose import JWTError, jwt
+from jose import jwt
 
 from api.auth import (
     ALGORITHM,
