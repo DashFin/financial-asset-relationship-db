@@ -1,3 +1,4 @@
+from pathlib import Path
 """Shared fixtures for integration tests."""
 
 from pathlib import Path
