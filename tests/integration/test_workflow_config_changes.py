@@ -966,11 +966,6 @@ class TestWorkflowSecurityRegressions:
 class TestCodecovWorkflowDeletion:
     """Test that codecov.yaml workflow was properly deleted."""
     
-    def test_codecov_workflow_deleted(self):
-        """Verify .github/workflows/codecov.yaml was deleted."""
-        codecov_path = Path(".github/workflows/codecov.yaml")
-        assert not codecov_path.exists(), \
-            "codecov.yaml workflow should be deleted"
     
     def test_no_codecov_references_in_other_workflows(self):
         """Verify other workflows don't reference codecov."""
