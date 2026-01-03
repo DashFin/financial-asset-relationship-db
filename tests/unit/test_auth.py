@@ -11,7 +11,7 @@ This module provides extensive test coverage for:
 
 import os
 from datetime import timedelta
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 from jose import JWTError, jwt
