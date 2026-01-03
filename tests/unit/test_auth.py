@@ -586,13 +586,165 @@ class TestGetCurrentUser:
 class TestGetCurrentActiveUser:
     """Test suite for get_current_active_user dependency."""
 
-    def test_get_current_active_user_active_user(self):
+@pytest.mark.unit
+class TestGetCurrentUser:
+    """Test suite for get_current_user dependency."""
+
+    @pytest.mark.asyncio
+    @patch("api.auth.get_user")
+    async def test_get_current_user_valid_token(self, mock_get_user):
+        """Test get_current_user with valid token."""
+        token = create_access_token({"sub": "testuser"})
+
+        mock_user = UserInDB(username="testuser", email="test@example.com", hashed_password="hashed", disabled=False)
+        mock_get_user.return_value = mock_user
+
+        user = await get_current_user(token)
+
+        assert user == mock_user
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_invalid_token(self):
+        """Test get_current_user with invalid token."""
+        from fastapi import HTTPException
+
+        invalid_token = "invalid.token.here"
+
+        with pytest.raises(HTTPException) as exc_info:
+            await get_current_user(invalid_token)
+
+        assert exc_info.value.status_code == 401
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_expired_token(self):
+        """Test get_current_user with expired token."""
+        from datetime import datetime, timedelta, timezone
+
+        from fastapi import HTTPException
+
+        fixed_now = datetime(2030, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+
+        with patch("api.auth.datetime") as mock_datetime:
+            mock_datetime.now.return_value = fixed_now
+            mock_datetime.utcnow.return_value = fixed_now.replace(tzinfo=None)
+            token = create_access_token({"sub": "testuser"}, expires_delta=timedelta(seconds=-1))
+
+        with pytest.raises(HTTPException) as exc_info:
+            await get_current_user(token)
+
+        assert exc_info.value.status_code == 401
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_missing_username(self):
+        """Test get_current_user with token missing username claim."""
+        from fastapi import HTTPException
+
+        token = create_access_token({"role": "admin"})
+
+        with pytest.raises(HTTPException) as exc_info:
+            await get_current_user(token)
+
+        assert exc_info.value.status_code == 401
+
+    @pytest.mark.asyncio
+    @patch("api.auth.get_user")
+    async def test_get_current_user_nonexistent_user(self, mock_get_user):
+        """Test get_current_user when user doesn't exist in database."""
+        from fastapi import HTTPException
+
+        token = create_access_token({"sub": "nonexistent"})
+        mock_get_user.return_value = None
+
+        with pytest.raises(HTTPException) as exc_info:
+            await get_current_user(token)
+
+        assert exc_info.value.status_code == 401
+
+
+@pytest.mark.unit
+class TestGetCurrentActiveUser:
+    """Test suite for get_current_active_user dependency."""
+
+    @pytest.mark.asyncio
+    async def test_get_current_active_user_active_user(self):
         """Test with active (non-disabled) user."""
         active_user = User(username="activeuser", email="active@example.com", disabled=False)
 
-        result = get_current_active_user(active_user)
+        result = await get_current_active_user(active_user)
 
         assert result == active_user
+
+    @pytest.mark.asyncio
+    async def test_get_current_active_user_disabled_user(self):
+        """Test with disabled user raises exception."""
+        from fastapi import HTTPException
+
+        disabled_user = User(username="disableduser", email="disabled@example.com", disabled=True)
+
+        with pytest.raises(HTTPException) as exc_info:
+            await get_current_active_user(disabled_user)
+
+        assert exc_info.value.status_code == 400
+        assert "Inactive user" in str(exc_info.value.detail)
+
+
+@pytest.mark.unit
+class TestAuthenticationIntegration:
+    """Integration tests for complete authentication flows."""
+
+    @pytest.mark.asyncio
+    @patch("api.auth.user_repository")
+    async def test_complete_login_flow(self, mock_repo):
+        """Test complete login flow from password to token to user retrieval."""
+        password = "test_password"
+        hashed_password = get_password_hash(password)
+
+        mock_user = UserInDB(
+            username="testuser", email="test@example.com", hashed_password=hashed_password, disabled=False
+        )
+        mock_repo.get_user.return_value = mock_user
+
+        # Step 1: Authenticate user
+        authenticated = authenticate_user("testuser", password, repository=mock_repo)
+        assert authenticated == mock_user
+
+        # Step 2: Create access token
+        token = create_access_token({"sub": authenticated.username})
+        assert isinstance(token, str)
+
+        # Step 3: Retrieve user from token
+        retrieved_user = await get_current_user(token)
+        assert retrieved_user.username == "testuser"
+
+        # Step 4: Verify user is active
+        active_user = await get_current_active_user(retrieved_user)
+        assert active_user == retrieved_user
+
+    @pytest.mark.asyncio
+    @patch("api.auth.user_repository")
+    async def test_disabled_user_flow(self, mock_repo):
+        """Test that disabled users cannot access protected resources."""
+        from fastapi import HTTPException
+
+        password = "test_password"
+        hashed_password = get_password_hash(password)
+
+        disabled_user = UserInDB(
+            username="disableduser", email="disabled@example.com", hashed_password=hashed_password, disabled=True
+        )
+        mock_repo.get_user.return_value = disabled_user
+
+        authenticated = authenticate_user("disableduser", password, repository=mock_repo)
+        assert authenticated == disabled_user
+
+        token = create_access_token({"sub": authenticated.username})
+
+        retrieved_user = await get_current_user(token)
+        assert retrieved_user.disabled is True
+
+        with pytest.raises(HTTPException) as exc_info:
+            await get_current_active_user(retrieved_user)
+        assert exc_info.value.status_code == 400
 
     def test_get_current_active_user_disabled_user(self):
         """Test with disabled user raises exception."""
