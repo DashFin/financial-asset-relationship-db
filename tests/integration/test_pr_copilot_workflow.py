@@ -44,7 +44,13 @@ def mock_pr_complete():
     pr.changed_files = 12
     pr.additions = 250
     pr.deletions = 75
-    pr.labels = [Mock(name="enhancement"), Mock(name="security")]
+
+    label1 = Mock()
+    label1.name = "enhancement"
+    label2 = Mock()
+    label2.name = "security"
+    pr.labels = [label1, label2]
+
     pr.mergeable = True
     pr.mergeable_state = "clean"
     pr.body = "This PR fixes #123 and resolves #456"
@@ -156,7 +162,8 @@ def test_generate_status_integration(mock_env_vars, mock_pr_complete):
 
 def test_analyze_pr_integration(mock_env_vars, mock_pr_complete):
     """Test analyze_pr.py script integration."""
-    from analyze_pr import analyze_pr_files, assess_complexity, find_scope_issues, generate_markdown
+    from analyze_pr import (analyze_pr_files, assess_complexity,
+                            generate_markdown)
 
     pr, _ = mock_pr_complete
 
@@ -177,7 +184,8 @@ def test_analyze_pr_integration(mock_env_vars, mock_pr_complete):
 
 def test_suggest_fixes_integration(mock_env_vars):
     """Test suggest_fixes.py script integration."""
-    from suggest_fixes import categorize_comment, extract_code_suggestions, is_actionable
+    from suggest_fixes import (categorize_comment, extract_code_suggestions,
+                               is_actionable)
 
     comment1 = "Please fix this security vulnerability"
     category1, priority1 = categorize_comment(comment1)
