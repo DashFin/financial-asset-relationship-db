@@ -576,6 +576,29 @@ def test_fetch_pr_status_with_null_mergeable_state(mock_github_client, mock_pr):
     commit.get_check_runs.return_value = []
     repo.get_commit.return_value = commit
 
+
+def test_generate_markdown_with_null_mergeable_state():
+    """Test markdown generation when mergeable_state is None/unknown."""
+    status = PRStatus(
+        number=1,
+        title="Test PR",
+        author="user",
+        base_ref="main",
+        head_ref="feature",
+        is_draft=False,
+        url="url",
+        commit_count=1,
+        file_count=1,
+        additions=10,
+        deletions=5,
+        labels=[],
+        mergeable=None,
+        mergeable_state="unknown",
+        review_stats={"approved": 0, "changes_requested": 0, "commented": 0, "total": 0},
+        open_thread_count=0,
+        check_runs=[],
+    )
+
     status = fetch_pr_status(mock_github_client, "test/repo", 123)
 
     assert status.mergeable_state == "unknown"
