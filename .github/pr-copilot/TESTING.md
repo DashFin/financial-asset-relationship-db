@@ -105,6 +105,24 @@ The easiest way to run all PR Copilot tests is using the provided test runner sc
 .github/pr-copilot/scripts/run_tests.sh --coverage
 ```
 
+
+### Automated Test Script (Recommended)
+
+Use the provided test script that automatically sets up a virtual environment:
+
+```bash
+# Run all tests with automatic virtual environment setup
+.github/pr-copilot/scripts/run_tests.sh
+
+# Run with coverage report
+.github/pr-copilot/scripts/run_tests.sh --coverage
+```
+
+**Benefits:**
+- ✅ Automatic virtual environment creation and management
+- ✅ Isolated dependency installation
+- ✅ Consistent test environment across runs
+- ✅ Automatic cleanup on exit
 **Benefits of using the test runner:**
 - ✅ Automatic virtual environment creation and management
 - ✅ Isolated dependency installation
