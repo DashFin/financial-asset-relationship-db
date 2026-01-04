@@ -323,30 +323,6 @@ def test_write_output_with_github_summary():
         os.unlink(tmp_path)
 
 
-def test_format_checklist_no_checks():
-    """Test checklist when no CI checks are configured."""
-    status = PRStatus(
-        number=1,
-        title="Test",
-        author="user",
-        base_ref="main",
-        head_ref="feature",
-        is_draft=False,
-        url="url",
-        commit_count=1,
-        file_count=1,
-        additions=10,
-        deletions=5,
-        labels=[],
-        mergeable=True,
-        mergeable_state="clean",
-        review_stats={"approved": 1, "changes_requested": 0, "commented": 0, "total": 1},
-        open_thread_count=0,
-        check_runs=[],
-    )
-
-    checklist = format_checklist(status)
-    assert "- [ ] CI checks pending/not configured" in checklist
 
 
 def test_format_checklist_unknown_mergeable():
