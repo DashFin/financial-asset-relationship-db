@@ -12,9 +12,12 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
+# Add the scripts directory to the path before importing
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts"))
 
-import pytest
-from generate_status import (
+
+import pytest  # noqa: E402
+from generate_status import (  # noqa: E402
     CheckRunInfo,
     PRStatus,
     fetch_pr_status,
@@ -23,9 +26,6 @@ from generate_status import (
     generate_markdown,
     write_output,
 )
-
-# Add the scripts directory to the path before importing
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts"))
 
 
 @pytest.fixture
