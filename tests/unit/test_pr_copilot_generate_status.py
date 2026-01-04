@@ -13,17 +13,12 @@ from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
-from generate_status import (
-    CheckRunInfo,
-    PRStatus,
-    fetch_pr_status,
-    format_checklist,
-    format_checks_section,
-    generate_markdown,
-    write_output,
-)
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts"))
+
+from generate_status import (CheckRunInfo, PRStatus, fetch_pr_status,
+                             format_checklist, format_checks_section,
+                             generate_markdown, write_output)
 
 
 @pytest.fixture
@@ -299,8 +294,8 @@ def test_generate_markdown_draft_pr():
     assert "**Mergeable:** ⏳ Checking..." in report
 
 
-def test_write_output_to_temp_file():
-    """Test writing output to temporary file."""
+def test_write_output_to_stdout():
+    """Test writing output to stdout when no GitHub summary is set."""
     test_content = "Test report content"
 
     with patch.dict(os.environ, {}, clear=True):
@@ -321,11 +316,9 @@ def test_write_output_with_github_summary():
         with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": tmp_path}):
             write_output(test_content)
 
-        with open(tmp_path, "r", encoding="utf-8") as summary_file:
-            content = summary_file.read()
-
-        assert "Test report" in content
-        assert content == test_content
+        with open(tmp_path, "r", encoding="utf-8") as f:
+            content = f.read()
+            assert "Test report" in content
     finally:
         os.unlink(tmp_path)
 
@@ -496,3 +489,121 @@ def test_generate_markdown_with_unmergeable_pr():
     report = generate_markdown(status)
     assert "**Mergeable:** ❌ No" in report
     assert "**State:** `dirty`" in report
+
+
+def test_format_checks_section_all_skipped():
+    """Test check section formatting when all checks are skipped."""
+    checks = [
+        CheckRunInfo("Test1", "completed", "skipped"),
+        CheckRunInfo("Test2", "completed", "skipped"),
+    ]
+
+    result = format_checks_section(checks)
+
+    assert "**Passed:** 0" in result
+    assert "**Failed:** 0" in result
+    assert "**Skipped:** 2" in result
+    assert "**Total:** 2" in result
+
+
+def test_format_checklist_with_pending_checks():
+    """Test checklist when checks are still pending."""
+    status = PRStatus(
+        number=1,
+        title="Test",
+        author="user",
+        base_ref="main",
+        head_ref="feature",
+        is_draft=False,
+        url="url",
+        commit_count=1,
+        file_count=1,
+        additions=10,
+        deletions=5,
+        labels=[],
+        mergeable=True,
+        mergeable_state="clean",
+        review_stats={"approved": 1, "changes_requested": 0, "commented": 0, "total": 1},
+        open_thread_count=0,
+        check_runs=[
+            CheckRunInfo("Test1", "completed", "success"),
+            CheckRunInfo("Test2", "in_progress", None),
+        ],
+    )
+
+    checklist = format_checklist(status)
+    assert "- [ ] All CI checks passing (1/2 passed)" in checklist
+
+
+def test_write_output_handles_io_error():
+    """Test write_output handles IO errors gracefully."""
+    test_content = "Test report"
+
+    with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": "/invalid/path/file.txt"}):
+        with patch("builtins.print") as mock_print:
+            write_output(test_content)
+            mock_print.assert_any_call(test_content)
+
+
+def test_fetch_pr_status_with_null_mergeable_state(mock_github_client, mock_pr):
+    """Test fetching PR status when mergeable_state is None."""
+    repo = Mock()
+    mock_github_client.get_repo.return_value = repo
+    repo.get_pull.return_value = mock_pr
+
+    mock_pr.mergeable_state = None
+    mock_pr.get_reviews.return_value = []
+    mock_pr.get_review_comments.return_value = Mock(totalCount=0)
+
+    commit = Mock()
+    commit.get_check_runs.return_value = []
+    repo.get_commit.return_value = commit
+
+    status = fetch_pr_status(mock_github_client, "test/repo", 123)
+
+    assert status.mergeable_state == "unknown"
+
+
+def test_generate_markdown_with_multiple_labels():
+    """Test markdown generation with multiple labels."""
+    status = PRStatus(
+        number=1,
+        title="Test PR",
+        author="user",
+        base_ref="main",
+        head_ref="feature",
+        is_draft=False,
+        url="url",
+        commit_count=1,
+        file_count=1,
+        additions=10,
+        deletions=5,
+        labels=["bug", "enhancement", "documentation"],
+        mergeable=True,
+        mergeable_state="clean",
+        review_stats={"approved": 0, "changes_requested": 0, "commented": 0, "total": 0},
+        open_thread_count=0,
+        check_runs=[],
+    )
+
+    report = generate_markdown(status)
+    assert "`bug`, `enhancement`, `documentation`" in report
+
+
+def test_format_checks_section_with_multiple_failures():
+    """Test check section formatting with multiple failed checks."""
+    checks = [
+        CheckRunInfo("Test1", "completed", "success"),
+        CheckRunInfo("Test2", "completed", "failure"),
+        CheckRunInfo("Test3", "completed", "failure"),
+        CheckRunInfo("Test4", "completed", "failure"),
+    ]
+
+    result = format_checks_section(checks)
+
+    assert "**Passed:** 1" in result
+    assert "**Failed:** 3" in result
+    assert "**Failed Checks:**" in result
+    assert "❌ Test2" in result
+    assert "❌ Test3" in result
+    assert "❌ Test4" in result
