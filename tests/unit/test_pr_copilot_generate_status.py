@@ -13,12 +13,17 @@ from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
+from generate_status import (
+    CheckRunInfo,
+    PRStatus,
+    fetch_pr_status,
+    format_checklist,
+    format_checks_section,
+    generate_markdown,
+    write_output,
+)
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts"))
-
-from generate_status import (CheckRunInfo, PRStatus, fetch_pr_status,
-                             format_checklist, format_checks_section,
-                             generate_markdown, write_output)
 
 
 @pytest.fixture

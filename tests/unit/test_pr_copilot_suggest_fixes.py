@@ -11,13 +11,18 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
+from suggest_fixes import (
+    extract_code_suggestions,
+    generate_fix_proposals,
+    is_actionable,
+    load_config,
+    parse_review_comments,
+)
 
 # Add the scripts directory to the path before importing
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts"))
 
-from suggest_fixes import (categorize_comment,  # noqa: E402
-                           extract_code_suggestions, generate_fix_proposals,
-                           is_actionable, load_config, parse_review_comments)
+from suggest_fixes import categorize_comment  # noqa: E402
 
 
 def test_extract_code_suggestions_with_suggestion_block():
