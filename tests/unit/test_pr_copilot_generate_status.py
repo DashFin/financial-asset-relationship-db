@@ -25,9 +25,6 @@ from generate_status import (
     write_output,
 )
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts"))
-
-
 @pytest.fixture
 def mock_github_client():
     """Create a mock GitHub client."""
