@@ -28,6 +28,26 @@ def mock_config():
         "scope": {
             "warn_on_long_title": 80,
             "max_files_changed": 20,
+@pytest.fixture
+def mock_config_file_missing():
+    """Mock configuration file that doesn't exist."""
+    with patch("os.path.exists", return_value=False):
+        yield
+
+
+@pytest.fixture
+def mock_config_file_valid():
+    """Mock valid configuration file."""
+    mock_config = {"scope": {"warn_on_long_title": 80}}
+
+    with patch("os.path.exists", return_value=True):
+        with patch("builtins.open", create=True):
+            with patch("yaml.safe_load", return_value=mock_config):
+                yield mock_config
+
+
+# --- File Categorization Tests ---
+
             "max_total_changes": 500,
             "max_file_types_changed": 5,
         },
