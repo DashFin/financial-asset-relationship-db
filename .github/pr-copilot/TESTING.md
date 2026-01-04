@@ -93,6 +93,28 @@ End-to-end tests for the complete PR Copilot system:
 **Coverage:** Complete workflow validation
 
 ## 🚀 Running Tests
+### Quick Start with Test Runner Script
+
+The easiest way to run all PR Copilot tests is using the provided test runner script, which automatically sets up a virtual environment and installs dependencies:
+
+```bash
+# Run all tests with automatic virtual environment setup
+.github/pr-copilot/scripts/run_tests.sh
+
+# Run with coverage report
+.github/pr-copilot/scripts/run_tests.sh --coverage
+```
+
+**Benefits of using the test runner:**
+- ✅ Automatic virtual environment creation and management
+- ✅ Isolated dependency installation
+- ✅ Consistent test execution across environments
+- ✅ Automatic cleanup on exit
+- ✅ Color-coded output for better readability
+
+The script creates a virtual environment at `.venv-pr-copilot/` in the repository root, which is automatically excluded from version control.
+
+### Manual Test Execution
 
 ### Run All PR Copilot Tests
 
