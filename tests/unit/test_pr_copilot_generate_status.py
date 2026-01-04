@@ -605,7 +605,6 @@ def test_fetch_pr_status_with_empty_mergeable_state(mock_github_client, mock_pr)
     assert status.number == 123
 
 
-
 def test_generate_markdown_with_null_mergeable_state():
     """Test markdown generation when mergeable is None."""
     status = PRStatus(
