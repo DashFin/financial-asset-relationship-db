@@ -356,6 +356,33 @@ def test_format_checklist_unknown_mergeable():
         check_runs=[CheckRunInfo("Test", "completed", "success")],
     )
 
+
+
+def test_format_checklist_mergeable_false_but_not_dirty():
+    """Test checklist when mergeable is False but state is not dirty (e.g., blocked)."""
+    status = PRStatus(
+        number=1,
+        title="Test",
+        author="user",
+        base_ref="main",
+        head_ref="feature",
+        is_draft=False,
+        url="url",
+        commit_count=1,
+        file_count=1,
+        additions=10,
+        deletions=5,
+        labels=[],
+        mergeable=False,
+        mergeable_state="blocked",
+        review_stats={"approved": 1, "changes_requested": 0, "commented": 0, "total": 1},
+        open_thread_count=0,
+        check_runs=[CheckRunInfo("Test", "completed", "success")],
+    )
+
+    checklist = format_checklist(status)
+    assert "- [ ] Check for merge conflicts" in checklist
+    assert "- [ ] Resolve merge conflicts" not in checklist
     checklist = format_checklist(status)
     assert "- [ ] Check for merge conflicts" in checklist
 
