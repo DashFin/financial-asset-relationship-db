@@ -560,6 +560,10 @@ def test_write_output_handles_io_error():
 
 def test_fetch_pr_status_with_null_mergeable_state(mock_github_client, mock_pr):
     """Test fetching PR status when mergeable_state is None."""
+
+    When GitHub is still calculating merge status, mergeable_state can be None.
+    The implementation should convert this to 'unknown' for consistent handling.
+
     repo = Mock()
     mock_github_client.get_repo.return_value = repo
     repo.get_pull.return_value = mock_pr
