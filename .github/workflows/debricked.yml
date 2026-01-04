@@ -10,7 +10,10 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   vulnerabilities-scan:
@@ -23,8 +26,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        # Security: Pinned SHA for v4.2.2 (latest stable)
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@v4
 
       - name: Install Debricked CLI
         run: |
@@ -41,10 +43,8 @@ jobs:
 
       - name: Upload Debricked results to GitHub Security
         if: always() && hashFiles('debricked-results.sarif') != ''
-        # Security: Pinned SHA for v3.27.0 (latest stable)
-        uses: github/codeql-action/upload-sarif@f09c1c0a94de965c15400f5634aa42fac8fb8f88
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: debricked-results.sarif
           category: debricked
         continue-on-error: true
-
