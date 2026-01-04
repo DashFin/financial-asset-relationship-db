@@ -14,8 +14,7 @@ from unittest.mock import Mock, patch
 # Add the scripts directory to the path before importing
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts"))
 
-from analyze_pr import (AnalysisData, analyze_pr_files, assess_complexity,
-                        calculate_score, categorize_filename,
+from analyze_pr import (AnalysisData, analyze_pr_files, assess_complexity, categorize_filename,
                         find_related_issues, find_scope_issues,
                         generate_markdown, load_config)
 
@@ -25,7 +24,17 @@ import pytest
 @pytest.fixture
 def mock_config():
     """Provide a mock configuration for tests."""
-
+    return {
+        "scope": {
+            "warn_on_long_title": 80,
+            "max_files_changed": 20,
+            "max_total_changes": 500,
+            "max_file_types_changed": 5,
+        },
+        "thresholds": {
+            "title_length": 80,
+        },
+    }
 
 @pytest.fixture
 def mock_config_missing():
@@ -75,19 +84,6 @@ def mock_pr_low_risk():
     pr.user = Mock(login="testuser")
     return pr
 
-
-    return {
-        "thresholds": {
-            "title_length": 80,
-            "files_changed": 20,
-            "lines_changed": 500,
-        },
-        "scope_keywords": {
-            "feature": ["add", "new", "implement"],
-            "bugfix": ["fix", "bug", "issue"],
-            "refactor": ["refactor", "cleanup", "improve"],
-        },
-    }
 
 
 @pytest.fixture
