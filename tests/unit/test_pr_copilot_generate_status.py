@@ -382,6 +382,9 @@ def test_format_checklist_mergeable_false_but_not_dirty():
         check_runs=[CheckRunInfo("Test", "completed", "success")],
     )
 
+    checklist = format_checklist(status)
+    assert "- [ ] Check for merge conflicts" in checklist
+    assert "- [ ] Resolve merge conflicts" not in checklist
 
 
 def test_generate_markdown_no_labels():
