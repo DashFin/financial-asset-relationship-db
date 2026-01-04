@@ -332,7 +332,10 @@ def test_write_output_with_github_summary():
 
 
 def test_format_checklist_unknown_mergeable():
-    """Test checklist when mergeable state is unknown."""
+    """Test checklist when mergeable state is unknown.
+
+    When mergeable is None and state is 'unknown', the checklist should prompt
+    the user to check for merge conflicts rather than asserting a definitive state.
     status = PRStatus(
         number=1,
         title="Test",
