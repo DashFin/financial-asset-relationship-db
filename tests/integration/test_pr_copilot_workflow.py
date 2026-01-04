@@ -183,7 +183,7 @@ def test_analyze_pr_integration(mock_env_vars, mock_pr_complete):
 
 def test_suggest_fixes_integration(mock_env_vars):
     """Test suggest_fixes.py script integration."""
-                               is_actionable)
+    from suggest_fixes import categorize_comment, extract_code_suggestions, is_actionable
 
     comment1 = "Please fix this security vulnerability"
     category1, priority1 = categorize_comment(comment1)
