@@ -39,3 +39,13 @@ jobs:
         run: |
           debricked scan . --output=sarif --output-file=debricked-results.sarif || true
           debricked scan .
+
+      - name: Upload Debricked results to GitHub Security
+        if: always() && hashFiles('debricked-results.sarif') != ''
+        # Security: Pinned SHA for v3.27.0 (latest stable)
+        uses: github/codeql-action/upload-sarif@f09c1c0a94de965c15400f5634aa42fac8fb8f88
+        with:
+          sarif_file: debricked-results.sarif
+          category: debricked
+        continue-on-error: true
+
