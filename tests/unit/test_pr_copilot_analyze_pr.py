@@ -261,7 +261,11 @@ def test_find_scope_issues_context_switching():
 
     issues = find_scope_issues("Normal title", file_data, config)
 
-    assert any("context switching" in issue for issue in issues)
+    # Assert exactly one context switching issue is found
+    context_switching_issues = [issue for issue in issues if "context switching" in issue]
+    assert len(context_switching_issues) == 1
+    # Verify the exact content: should report 5 file types changed (exceeds max of 3)
+    assert context_switching_issues[0] == "High context switching (5 file types changed)"
 
 
 def test_find_scope_issues_clean_pr():
