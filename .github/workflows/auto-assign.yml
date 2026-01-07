@@ -3,7 +3,7 @@ name: Pull request and issue auto-assign
 on:
   issues:
     types: [opened]
-  pull-requests:
+  pull_requests:
     types: [opened]
 jobs:
   auto-assign:
