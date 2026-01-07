@@ -1,8 +1,10 @@
 # Workflow for automatically assigning issues
 name: Issue auto-assign
-on:
-  issues:
-    types: [opened]
+ on:
+   issues:
+     types: [opened]
++  pull_request:
++    types: [opened]
 jobs:
   auto-assign:
     runs-on: ubuntu-latest
