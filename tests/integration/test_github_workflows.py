@@ -1284,6 +1284,7 @@ class TestWorkflowTriggers:
 
 class TestAutoAssignWorkflowAdvanced:
 
+
 class TestAutoAssignWorkflowAdvanced:
     """Advanced and edge case tests for auto-assign.yml workflow."""
 
