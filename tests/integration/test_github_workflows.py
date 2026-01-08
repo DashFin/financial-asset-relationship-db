@@ -1256,6 +1256,7 @@ class TestWorkflowTriggers:
                     "specify activity types for better control"
                 )
 
+
 class TestAutoAssignDocumentation:
     """Tests for auto-assign workflow documentation files."""
 
