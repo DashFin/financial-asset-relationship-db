@@ -940,7 +940,9 @@ class TestAutoAssignWorkflow:
         assert isinstance(issues_config, dict), "issues trigger should be a dictionary"
         assert "types" in issues_config, "issues trigger should specify types"
         assert "opened" in issues_config["types"], "issues trigger should include 'opened' type"
-        assert issues_config["types"] == ["opened"], "Issues should only trigger on 'opened' to avoid duplicate assignments"
+        assert issues_config["types"] == [
+            "opened"
+        ], "Issues should only trigger on 'opened' to avoid duplicate assignments"
 
     def test_auto_assign_structure_triggers_on_pull_requests(self, auto_assign_workflow: Dict[str, Any]):
         """Test that auto-assign workflow triggers on pull request opened events."""
@@ -951,7 +953,9 @@ class TestAutoAssignWorkflow:
         assert isinstance(pr_config, dict), "pull_request trigger should be a dictionary"
         assert "types" in pr_config, "pull_request trigger should specify types"
         assert "opened" in pr_config["types"], "pull_request trigger should include 'opened' type"
-        assert pr_config["types"] == ["opened"], "Pull requests should only trigger on 'opened' to avoid duplicate assignments"
+        assert pr_config["types"] == [
+            "opened"
+        ], "Pull requests should only trigger on 'opened' to avoid duplicate assignments"
 
     # Permissions tests
     def test_auto_assign_permissions_defined(self, auto_assign_workflow: Dict[str, Any]):
@@ -979,17 +983,20 @@ class TestAutoAssignWorkflow:
         run_job = auto_assign_workflow["jobs"]["run"]
         permissions = run_job.get("permissions", {})
         assert len(permissions) == 2, "Should only have minimal required permissions (issues and pull-requests)"
-        assert set(permissions.keys()) == {"issues", "pull-requests"}, "Should only have 'issues' and 'pull-requests' permissions"
-        
+        assert set(permissions.keys()) == {
+            "issues",
+            "pull-requests",
+        }, "Should only have 'issues' and 'pull-requests' permissions"
+
         # Ensure permissions are not overly broad
         for permission, value in permissions.items():
             assert value in ["read", "write", "none"], f"Permission '{permission}' has invalid value '{value}'"
 
     def test_auto_assign_permissions_scoped_to_job(self, auto_assign_workflow: Dict[str, Any]):
         """Test that permissions are scoped to the job level (security best practice)."""
-        assert "permissions" not in auto_assign_workflow or auto_assign_workflow.get("permissions") is None, (
-            "Permissions should be defined at job level for better security scoping"
-        )
+        assert (
+            "permissions" not in auto_assign_workflow or auto_assign_workflow.get("permissions") is None
+        ), "Permissions should be defined at job level for better security scoping"
         run_job = auto_assign_workflow["jobs"]["run"]
         assert "permissions" in run_job, "Job should define its own permissions"
 
@@ -1006,11 +1013,12 @@ class TestAutoAssignWorkflow:
     def test_auto_assign_security_no_hardcoded_secrets(self, auto_assign_workflow: Dict[str, Any]):
         """Test that no secrets are hardcoded in the workflow."""
         import json
+
         workflow_str = json.dumps(auto_assign_workflow)
         suspicious_patterns = [
-            r'ghp_[a-zA-Z0-9]{36}',
-            r'ghs_[a-zA-Z0-9]{36}',
-            r'github_pat_[a-zA-Z0-9_]{82}',
+            r"ghp_[a-zA-Z0-9]{36}",
+            r"ghs_[a-zA-Z0-9]{36}",
+            r"github_pat_[a-zA-Z0-9_]{82}",
         ]
         for pattern in suspicious_patterns:
             matches = re.findall(pattern, workflow_str)
@@ -1030,19 +1038,25 @@ class TestAutoAssignWorkflow:
         step = run_job.get("steps", [])[0]
         action = step["uses"]
         assert "@" in action, "Action should specify a version tag (e.g., @v1)"
-        
+
         version = action.split("@")[1]
         assert version, "Version tag should not be empty"
-        assert version not in ["main", "master"], "Should use a version tag (e.g., @v1) rather than branch name for stability"
-        
+        assert version not in [
+            "main",
+            "master",
+        ], "Should use a version tag (e.g., @v1) rather than branch name for stability"
+
         # Should follow semantic versioning or commit pinning
         is_semver = version.startswith("v") and any(c.isdigit() for c in version)
         is_commit_sha = len(version) >= 40 or len(version) == 7
-        assert is_semver or is_commit_sha, f"Action version '{version}' should follow semantic versioning or be a commit SHA"
+        assert (
+            is_semver or is_commit_sha
+        ), f"Action version '{version}' should follow semantic versioning or be a commit SHA"
 
     def test_auto_assign_security_no_deprecated_syntax(self, auto_assign_workflow: Dict[str, Any]):
         """Test that the workflow doesn't use deprecated GitHub Actions syntax."""
         import json
+
         workflow_str = json.dumps(auto_assign_workflow)
         assert "::set-output" not in workflow_str, "Should not use deprecated ::set-output syntax"
         assert "::set-env" not in workflow_str, "Should not use deprecated ::set-env syntax"
@@ -1090,22 +1104,24 @@ class TestAutoAssignWorkflow:
         step = run_job.get("steps", [])[0]
         with_config = step.get("with", {})
         assert "assignees" in with_config, "Step should specify assignees"
-        
+
         assignees = with_config["assignees"]
         assert assignees, "Assignees should not be empty"
         assert isinstance(assignees, str), "Assignees should be a string"
         assert assignees.strip(), "assignees should not be empty or whitespace-only"
-        
+
         # Validate GitHub username format
         username_pattern = r"^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$"
         assignee_list = [a.strip() for a in assignees.split(",") if a.strip()]
-        
+
         for assignee in assignee_list:
             assert re.match(username_pattern, assignee), f"Assignee '{assignee}' is not a valid GitHub username"
-        
+
         # Check for no duplicates
         unique_assignees = set(assignee_list)
-        assert len(assignee_list) == len(unique_assignees), f"Assignees should not contain duplicates. Found: {assignee_list}"
+        assert len(assignee_list) == len(
+            unique_assignees
+        ), f"Assignees should not contain duplicates. Found: {assignee_list}"
 
     def test_auto_assign_configuration_num_assignees_valid(self, auto_assign_workflow: Dict[str, Any]):
         """Test that numOfAssignee is valid and matches assignees list."""
@@ -1113,18 +1129,18 @@ class TestAutoAssignWorkflow:
         step = run_job.get("steps", [])[0]
         with_config = step.get("with", {})
         assert "numOfAssignee" in with_config, "Step should specify numOfAssignee"
-        
+
         num_assignees = with_config.get("numOfAssignee")
         assert isinstance(num_assignees, int), "numOfAssignee should be an integer"
         assert num_assignees > 0, "numOfAssignee should be positive"
         assert num_assignees <= 10, "numOfAssignee should be reasonable (≤ 10)"
-        
+
         # Verify it doesn't exceed available assignees
         assignees = with_config.get("assignees", "")
         assignee_list = [a.strip() for a in assignees.split(",") if a.strip()]
-        assert num_assignees <= len(assignee_list), (
-            f"numOfAssignee ({num_assignees}) should not exceed number of specified assignees ({len(assignee_list)})"
-        )
+        assert num_assignees <= len(
+            assignee_list
+        ), f"numOfAssignee ({num_assignees}) should not exceed number of specified assignees ({len(assignee_list)})"
 
     def test_auto_assign_configuration_no_unexpected_fields(self, auto_assign_workflow: Dict[str, Any]):
         """Test that no unexpected configuration fields are present."""
@@ -1149,7 +1165,7 @@ class TestAutoAssignWorkflow:
         if "timeout-minutes" in run_job:
             timeout = run_job["timeout-minutes"]
             assert timeout <= 10, f"Auto-assign should complete quickly, timeout of {timeout} seems high"
-        
+
         step = run_job.get("steps", [])[0]
         assert "timeout-minutes" not in step, "Step-level timeout not necessary for auto-assign"
 
@@ -1157,7 +1173,10 @@ class TestAutoAssignWorkflow:
         """Test that the step doesn't have continue-on-error set."""
         run_job = auto_assign_workflow["jobs"]["run"]
         step = run_job.get("steps", [])[0]
-        assert "continue-on-error" not in step or not step.get("continue-on-error"), "Auto-assign should not continue on error"
+        assert "continue-on-error" not in step or not step.get(
+            "continue-on-error"
+        ), "Auto-assign should not continue on error"
+
 
 class TestWorkflowTriggers:
     """Comprehensive tests for workflow trigger configurations."""
@@ -1258,7 +1277,7 @@ class TestAutoAssignWorkflowAdvanced:
 
         # Should not raise an exception
         try:
-            with open(workflow_path, 'r') as f:
+            with open(workflow_path, "r") as f:
                 yaml.safe_load(f)
         except yaml.YAMLError as e:
             pytest.fail(f"Invalid YAML syntax in auto-assign.yml: {e}")
@@ -1284,12 +1303,8 @@ class TestAutoAssignWorkflowAdvanced:
 
         # Check for proper expression syntax
         if "${{" in token:
-            assert token.count("${{") == token.count("}}"), (
-                "GitHub expression braces should be balanced"
-            )
-            assert "secrets.GITHUB_TOKEN" in token, (
-                "Should use secrets.GITHUB_TOKEN"
-            )
+            assert token.count("${{") == token.count("}}"), "GitHub expression braces should be balanced"
+            assert "secrets.GITHUB_TOKEN" in token, "Should use secrets.GITHUB_TOKEN"
 
     def test_auto_assign_action_source_is_trusted(self, auto_assign_workflow: Dict[str, Any]):
         """Test that the action comes from a trusted source."""
@@ -1301,24 +1316,24 @@ class TestAutoAssignWorkflowAdvanced:
         action_owner = action.split("/")[0]
 
         # pozil is the known trusted owner of this action
-        assert action_owner == "pozil", (
-            f"Action should be from trusted owner 'pozil', got '{action_owner}'"
-        )
+        assert action_owner == "pozil", f"Action should be from trusted owner 'pozil', got '{action_owner}'"
 
     def test_auto_assign_no_hardcoded_secrets(self, auto_assign_workflow: Dict[str, Any]):
         """Test that no secrets are hardcoded in the workflow."""
         import json
+
         workflow_str = json.dumps(auto_assign_workflow)
 
         # Check for common secret patterns
         suspicious_patterns = [
-            r'ghp_[a-zA-Z0-9]{36}',  # GitHub personal access token
-            r'ghs_[a-zA-Z0-9]{36}',  # GitHub server token
-            r'github_pat_[a-zA-Z0-9_]{82}',  # GitHub fine-grained PAT
+            r"ghp_[a-zA-Z0-9]{36}",  # GitHub personal access token
+            r"ghs_[a-zA-Z0-9]{36}",  # GitHub server token
+            r"github_pat_[a-zA-Z0-9_]{82}",  # GitHub fine-grained PAT
         ]
 
         for pattern in suspicious_patterns:
             import re
+
             matches = re.findall(pattern, workflow_str)
             assert not matches, f"Found potential hardcoded secret: {pattern}"
 
@@ -1345,34 +1360,28 @@ class TestAutoAssignWorkflowAdvanced:
         assignee_list = [a.strip() for a in assignees.split(",") if a.strip()]
         unique_assignees = set(assignee_list)
 
-        assert len(assignee_list) == len(unique_assignees), (
-            f"Assignees should not contain duplicates. Found: {assignee_list}"
-        )
+        assert len(assignee_list) == len(
+            unique_assignees
+        ), f"Assignees should not contain duplicates. Found: {assignee_list}"
 
     def test_auto_assign_runner_is_latest(self, auto_assign_workflow: Dict[str, Any]):
         """Test that the workflow uses ubuntu-latest (not a specific version)."""
         run_job = auto_assign_workflow["jobs"]["run"]
         runs_on = run_job.get("runs-on", "")
 
-        assert runs_on == "ubuntu-latest", (
-            f"Should use 'ubuntu-latest' for automatic updates, got '{runs_on}'"
-        )
+        assert runs_on == "ubuntu-latest", f"Should use 'ubuntu-latest' for automatic updates, got '{runs_on}'"
 
     def test_auto_assign_no_environment_specified(self, auto_assign_workflow: Dict[str, Any]):
         """Test that no environment is specified (appropriate for auto-assignment)."""
         run_job = auto_assign_workflow["jobs"]["run"]
 
-        assert "environment" not in run_job, (
-            "Auto-assign should not require environment approval"
-        )
+        assert "environment" not in run_job, "Auto-assign should not require environment approval"
 
     def test_auto_assign_no_matrix_strategy(self, auto_assign_workflow: Dict[str, Any]):
         """Test that no matrix strategy is used (not needed for assignment)."""
         run_job = auto_assign_workflow["jobs"]["run"]
 
-        assert "strategy" not in run_job, (
-            "Auto-assign should not use matrix strategy"
-        )
+        assert "strategy" not in run_job, "Auto-assign should not use matrix strategy"
 
     def test_auto_assign_no_timeout(self, auto_assign_workflow: Dict[str, Any]):
         """Test timeout configuration (should complete quickly or have reasonable timeout)."""
@@ -1381,9 +1390,7 @@ class TestAutoAssignWorkflowAdvanced:
         # If timeout is specified, it should be reasonable (< 10 minutes)
         if "timeout-minutes" in run_job:
             timeout = run_job["timeout-minutes"]
-            assert timeout <= 10, (
-                f"Auto-assign should complete quickly, timeout of {timeout} seems high"
-            )
+            assert timeout <= 10, f"Auto-assign should complete quickly, timeout of {timeout} seems high"
 
     def test_auto_assign_step_no_timeout(self, auto_assign_workflow: Dict[str, Any]):
         """Test that individual step doesn't specify timeout."""
@@ -1392,9 +1399,7 @@ class TestAutoAssignWorkflowAdvanced:
         step = steps[0]
 
         # Step-level timeout not needed for this simple operation
-        assert "timeout-minutes" not in step, (
-            "Step-level timeout not necessary for auto-assign"
-        )
+        assert "timeout-minutes" not in step, "Step-level timeout not necessary for auto-assign"
 
     def test_auto_assign_no_continue_on_error(self, auto_assign_workflow: Dict[str, Any]):
         """Test that the step doesn't have continue-on-error set."""
@@ -1403,17 +1408,15 @@ class TestAutoAssignWorkflowAdvanced:
         step = steps[0]
 
         # Should fail if assignment fails (not continue)
-        assert "continue-on-error" not in step or not step.get("continue-on-error"), (
-            "Auto-assign should not continue on error"
-        )
+        assert "continue-on-error" not in step or not step.get(
+            "continue-on-error"
+        ), "Auto-assign should not continue on error"
 
     def test_auto_assign_no_outputs_defined(self, auto_assign_workflow: Dict[str, Any]):
         """Test that no outputs are defined (not needed for this workflow)."""
         run_job = auto_assign_workflow["jobs"]["run"]
 
-        assert "outputs" not in run_job, (
-            "Auto-assign job should not define outputs"
-        )
+        assert "outputs" not in run_job, "Auto-assign job should not define outputs"
 
     def test_auto_assign_step_no_env_vars(self, auto_assign_workflow: Dict[str, Any]):
         """Test that no environment variables are set (all config in 'with')."""
@@ -1422,9 +1425,7 @@ class TestAutoAssignWorkflowAdvanced:
         step = steps[0]
 
         # All configuration should be in 'with', not env
-        assert "env" not in step, (
-            "Auto-assign configuration should be in 'with', not 'env'"
-        )
+        assert "env" not in step, "Auto-assign configuration should be in 'with', not 'env'"
 
     def test_auto_assign_workflow_name_descriptive(self, auto_assign_workflow: Dict[str, Any]):
         """Test that workflow name is descriptive and follows conventions."""
@@ -1465,9 +1466,7 @@ class TestAutoAssignWorkflowAdvanced:
             # Should not cancel in-progress runs for assignment
             if isinstance(concurrency, dict):
                 cancel_in_progress = concurrency.get("cancel-in-progress", False)
-                assert not cancel_in_progress, (
-                    "Should not cancel in-progress auto-assignments"
-                )
+                assert not cancel_in_progress, "Should not cancel in-progress auto-assignments"
 
     def test_auto_assign_action_inputs_documented(self, auto_assign_workflow: Dict[str, Any]):
         """Test that all action inputs are properly configured."""
@@ -1486,18 +1485,13 @@ class TestAutoAssignWorkflowAdvanced:
     def test_auto_assign_no_deprecated_syntax(self, auto_assign_workflow: Dict[str, Any]):
         """Test that the workflow doesn't use deprecated GitHub Actions syntax."""
         import json
+
         workflow_str = json.dumps(auto_assign_workflow)
 
         # Check for deprecated ::set-output syntax in the workflow
-        assert "::set-output" not in workflow_str, (
-            "Should not use deprecated ::set-output syntax"
-        )
-        assert "::set-env" not in workflow_str, (
-            "Should not use deprecated ::set-env syntax"
-        )
-        assert "::add-path" not in workflow_str, (
-            "Should not use deprecated ::add-path syntax"
-        )
+        assert "::set-output" not in workflow_str, "Should not use deprecated ::set-output syntax"
+        assert "::set-env" not in workflow_str, "Should not use deprecated ::set-env syntax"
+        assert "::add-path" not in workflow_str, "Should not use deprecated ::add-path syntax"
 
     def test_auto_assign_job_name_appropriate(self, auto_assign_workflow: Dict[str, Any]):
         """Test that the job has an appropriate name."""
@@ -1508,9 +1502,7 @@ class TestAutoAssignWorkflowAdvanced:
         assert len(job_keys) == 1, "Should have exactly one job"
 
         job_key = job_keys[0]
-        assert job_key in ["run", "auto-assign", "assign"], (
-            f"Job key '{job_key}' should be simple and descriptive"
-        )
+        assert job_key in ["run", "auto-assign", "assign"], f"Job key '{job_key}' should be simple and descriptive"
 
     def test_auto_assign_permissions_not_overly_broad(self, auto_assign_workflow: Dict[str, Any]):
         """Test that permissions are not set to 'write-all' or overly permissive."""
@@ -1519,12 +1511,8 @@ class TestAutoAssignWorkflowAdvanced:
 
         # Should not have 'write-all' permission
         for permission, value in permissions.items():
-            assert value != "write-all", (
-                f"Permission '{permission}' should not be 'write-all'"
-            )
-            assert value in ["read", "write", "none"], (
-                f"Permission '{permission}' has invalid value '{value}'"
-            )
+            assert value != "write-all", f"Permission '{permission}' should not be 'write-all'"
+            assert value in ["read", "write", "none"], f"Permission '{permission}' has invalid value '{value}'"
 
     def test_auto_assign_uses_semantic_versioning(self, auto_assign_workflow: Dict[str, Any]):
         """Test that the action version follows semantic versioning or commit pinning."""
@@ -1539,9 +1527,9 @@ class TestAutoAssignWorkflowAdvanced:
         is_semver = version.startswith("v") and any(c.isdigit() for c in version)
         is_commit_sha = len(version) >= 40 or len(version) == 7
 
-        assert is_semver or is_commit_sha, (
-            f"Action version '{version}' should follow semantic versioning or be a commit SHA"
-        )
+        assert (
+            is_semver or is_commit_sha
+        ), f"Action version '{version}' should follow semantic versioning or be a commit SHA"
 
     def test_auto_assign_configuration_matches_documentation(self):
         """Test that the workflow configuration matches the documentation."""
@@ -1559,9 +1547,9 @@ class TestAutoAssignWorkflowAdvanced:
 
         # Check that key elements from workflow are mentioned in docs
         if "pozil/auto-assign-issue" in workflow_content:
-            assert "pozil/auto-assign-issue" in doc_content or "auto-assign" in doc_content, (
-                "Documentation should mention the action being used"
-            )
+            assert (
+                "pozil/auto-assign-issue" in doc_content or "auto-assign" in doc_content
+            ), "Documentation should mention the action being used"
 
 
 class TestAutoAssignDocumentation:
@@ -1606,7 +1594,8 @@ class TestAutoAssignDocumentation:
 
         # Should mention test count
         import re
-        test_counts = re.findall(r'\b\d+\s+test', content, re.IGNORECASE)
+
+        test_counts = re.findall(r"\b\d+\s+test", content, re.IGNORECASE)
         assert test_counts, "Documentation should mention number of tests"
 
     def test_auto_assign_summary_has_execution_instructions(self):
@@ -1644,9 +1633,9 @@ class TestAutoAssignDocumentation:
         content = doc_path.read_text()
 
         # Should have executive summary section
-        assert "executive summary" in content.lower() or "## summary" in content.lower(), (
-            "Final report should have an executive summary"
-        )
+        assert (
+            "executive summary" in content.lower() or "## summary" in content.lower()
+        ), "Final report should have an executive summary"
 
     def test_final_report_documents_test_coverage(self):
         """Test that the final report documents test coverage breakdown."""
@@ -1657,9 +1646,9 @@ class TestAutoAssignDocumentation:
         content = doc_path.read_text()
 
         # Should mention coverage or test categories
-        assert "coverage" in content.lower() or "category" in content.lower(), (
-            "Final report should document test coverage"
-        )
+        assert (
+            "coverage" in content.lower() or "category" in content.lower()
+        ), "Final report should document test coverage"
 
     def test_final_report_lists_files_modified(self):
         """Test that the final report lists modified files."""
@@ -1670,16 +1659,13 @@ class TestAutoAssignDocumentation:
         content = doc_path.read_text()
 
         # Should mention test file
-        assert "test_github_workflows.py" in content or "tests/integration" in content, (
-            "Final report should list modified test files"
-        )
+        assert (
+            "test_github_workflows.py" in content or "tests/integration" in content
+        ), "Final report should list modified test files"
 
     def test_documentation_files_have_consistent_formatting(self):
         """Test that documentation files use consistent markdown formatting."""
-        doc_files = [
-            Path("TEST_GENERATION_AUTO_ASSIGN_SUMMARY.md"),
-            Path("FINAL_TEST_GENERATION_REPORT.md")
-        ]
+        doc_files = [Path("TEST_GENERATION_AUTO_ASSIGN_SUMMARY.md"), Path("FINAL_TEST_GENERATION_REPORT.md")]
 
         for doc_path in doc_files:
             if not doc_path.exists():
@@ -1693,16 +1679,11 @@ class TestAutoAssignDocumentation:
 
             if headers:
                 first_header = headers[0]
-                assert first_header.startswith("#"), (
-                    f"{doc_path.name} should start with a markdown header"
-                )
+                assert first_header.startswith("#"), f"{doc_path.name} should start with a markdown header"
 
     def test_documentation_has_no_broken_markdown_syntax(self):
         """Test that documentation files have no obvious markdown syntax errors."""
-        doc_files = [
-            Path("TEST_GENERATION_AUTO_ASSIGN_SUMMARY.md"),
-            Path("FINAL_TEST_GENERATION_REPORT.md")
-        ]
+        doc_files = [Path("TEST_GENERATION_AUTO_ASSIGN_SUMMARY.md"), Path("FINAL_TEST_GENERATION_REPORT.md")]
 
         for doc_path in doc_files:
             if not doc_path.exists():
@@ -1712,14 +1693,10 @@ class TestAutoAssignDocumentation:
 
             # Check for balanced code blocks
             code_block_count = content.count("```")
-            assert code_block_count % 2 == 0, (
-                f"{doc_path.name} has unbalanced code blocks (``` markers)"
-            )
+            assert code_block_count % 2 == 0, f"{doc_path.name} has unbalanced code blocks (``` markers)"
 
             # Check for balanced brackets in links
-            assert content.count("[") == content.count("]"), (
-                f"{doc_path.name} has unbalanced square brackets"
-            )
+            assert content.count("[") == content.count("]"), f"{doc_path.name} has unbalanced square brackets"
 
         """
         Validate that the workflow's triggers are recognised GitHub event types.
