@@ -1,19 +1,22 @@
-# Workflow for automatically assigning issues
 name: Pull request and issue auto-assign
+
 on:
   issues:
-    types: [opened]
+    types: [opened, reopened]
   pull_request:
-    types: [opened]
+    types: [opened, reopened]
+
 jobs:
   auto-assign:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       issues: write
       pull-requests: write
     steps:
       - name: Auto-assign new issues and pull requests
-        uses: pozil/auto-assign-issue@6594700 # v1.14.0
+        # Pinning to v1.14.0 via commit SHA
+        uses: pozil/auto-assign-issue@6594700
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           assignees: 'mohavro'
