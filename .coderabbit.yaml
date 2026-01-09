@@ -1,4 +1,5 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# IMPORTANT: CodeRabbit only loads this config when the file is named ".coderabbit.yaml" and is located at the repository root.
 language: en-GB
 early_access: true
 inheritance: true
