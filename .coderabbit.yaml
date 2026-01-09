@@ -21,6 +21,11 @@ knowledge_base:
     filePatterns:
       - tech_spec.md
       - DashFin-financial-asset-relationship-db-wiki-v2.md
+  knowledge_base:
+  code_guidelines:
+    filePatterns:
+      - tech_spec.md
+      - DashFin-financial-asset-relationship-db-wiki-v2.md
   mcp:
   usage: enabled
   # MCP server selection:
@@ -34,10 +39,6 @@ knowledge_base:
   # Data handling / authorization:
   # - MCP calls may send PR context (diffs, file paths, metadata) required to execute the enabled tools.
   # - Consider requiring explicit user approval for tool execution if your security posture demands it.
-  #
-  # Access controls (especially for private repos):
-  # - Ensure the MCP server/integration is protected via appropriate authentication (OAuth/API keys)
-  #   and network restrictions (firewall/IP allow-lists) where applicable.
 issue_enrichment:
   auto_enrich:
     enabled: true
