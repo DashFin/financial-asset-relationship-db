@@ -1256,12 +1256,12 @@ class TestWorkflowTriggers:
                     "specify activity types for better control"
                 )
 
-
     def test_final_report_exists(self):
         """Test that the final test generation report exists."""
         doc_path = Path("FINAL_TEST_GENERATION_REPORT.md")
         if not doc_path.exists():
             pytest.skip("Documentation file not found")
+
 
 class TestWorkflowJobConfiguration:
     """Tests for job-level configuration in workflows."""
