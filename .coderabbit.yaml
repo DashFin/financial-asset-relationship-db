@@ -18,22 +18,22 @@ knowledge_base:
       - tech_spec.md
       - DashFin-financial-asset-relationship-db-wiki-v2.md
   mcp:
-    usage: enabled
-    # MCP server selection:
-    # - This repository currently uses the CodeRabbit built-in MCP integration.
-    # - Additional options (e.g., self-hosted MCP server URL(s)) can be added in a follow-up PR.
-    #
-    # Allowed tools / capabilities:
-    # - Tool allow-listing is configured per MCP server in the CodeRabbit UI (Integrations → MCP Server).
-    # - Current intent: enable all tools exposed by the selected MCP server.
-    #
-    # Data handling / authorization:
-    # - MCP calls may send PR context (diffs, file paths, metadata) required to execute the enabled tools.
-    # - Consider requiring explicit user approval for tool execution if your security posture demands it.
-    #
-    # Access controls (especially for private repos):
-    # - Ensure the MCP server/integration is protected via appropriate authentication (OAuth/API keys)
-    #   and network restrictions (firewall/IP allow-lists) where applicable.
+  usage: enabled
+  # MCP server selection:
+  # - This repository currently uses the CodeRabbit built-in MCP integration.
+  # - Additional options (e.g., self-hosted MCP server URL(s)) can be added in a follow-up PR.
+  #
+  # Allowed tools / capabilities:
+  # - Tool allow-listing is configured per MCP server in the CodeRabbit UI (Integrations → MCP Server).
+  # - Current intent: enable all tools exposed by the selected MCP server.
+  #
+  # Data handling / authorization:
+  # - MCP calls may send PR context (diffs, file paths, metadata) required to execute the enabled tools.
+  # - Consider requiring explicit user approval for tool execution if your security posture demands it.
+  #
+  # Access controls (especially for private repos):
+  # - Ensure the MCP server/integration is protected via appropriate authentication (OAuth/API keys)
+  #   and network restrictions (firewall/IP allow-lists) where applicable.
 issue_enrichment:
   auto_enrich:
     enabled: true
