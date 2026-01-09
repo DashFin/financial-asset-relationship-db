@@ -1229,8 +1229,6 @@ class TestAutoAssignWorkflow:
         ), "Auto-assign should not continue on error"
 
 
-
-
 class TestAutoAssignWorkflowAdvanced:
     """Advanced validation tests for auto-assign.yml workflow."""
 
@@ -1254,6 +1252,7 @@ class TestAutoAssignWorkflowAdvanced:
     def test_auto_assign_yaml_syntax_valid(self, auto_assign_yaml_content: str):
         """Test that auto-assign.yml has valid YAML syntax."""
         import yaml
+
         try:
             parsed = yaml.safe_load(auto_assign_yaml_content)
             assert parsed is not None, "YAML should parse to non-null value"
@@ -1391,8 +1390,9 @@ class TestAutoAssignWorkflowAdvanced:
         assert name[0].isupper(), "Workflow name should start with capital letter"
         # Check it mentions the purpose
         name_lower = name.lower()
-        assert any(word in name_lower for word in ["assign", "issue", "pr", "pull"]), \
-            "Workflow name should indicate auto-assignment purpose"
+        assert any(
+            word in name_lower for word in ["assign", "issue", "pr", "pull"]
+        ), "Workflow name should indicate auto-assignment purpose"
 
     # Trigger Configuration
     def test_auto_assign_triggers_are_specific(self, auto_assign_workflow: Dict[str, Any]):
@@ -1412,8 +1412,7 @@ class TestAutoAssignWorkflowAdvanced:
         if concurrency:
             # If concurrency is set, it should use a unique group per issue/PR
             group = concurrency.get("group", "")
-            assert "${{ github.event" in group, \
-                "Concurrency group should be unique per issue/PR"
+            assert "${{ github.event" in group, "Concurrency group should be unique per issue/PR"
 
     # Best Practices
     def test_auto_assign_no_deprecated_syntax(self, auto_assign_yaml_content: str):
@@ -1424,8 +1423,7 @@ class TestAutoAssignWorkflowAdvanced:
             "::add-path",
         ]
         for pattern in deprecated_patterns:
-            assert pattern not in auto_assign_yaml_content, \
-                f"Workflow should not use deprecated syntax: {pattern}"
+            assert pattern not in auto_assign_yaml_content, f"Workflow should not use deprecated syntax: {pattern}"
 
     def test_auto_assign_job_name_appropriate(self, auto_assign_workflow: Dict[str, Any]):
         """Test that job name is appropriate and descriptive."""
@@ -1449,8 +1447,7 @@ class TestAutoAssignWorkflowAdvanced:
         # Should only have issues and pull-requests permissions
         expected_perms = {"issues", "pull-requests"}
         actual_perms = set(permissions.keys())
-        assert actual_perms == expected_perms, \
-            f"Should only have {expected_perms} permissions, got {actual_perms}"
+        assert actual_perms == expected_perms, f"Should only have {expected_perms} permissions, got {actual_perms}"
 
     def test_auto_assign_uses_semantic_versioning(self, auto_assign_workflow: Dict[str, Any]):
         """Test that action version follows semantic versioning or commit SHA."""
@@ -1464,8 +1461,7 @@ class TestAutoAssignWorkflowAdvanced:
         # Should be either semantic version or commit SHA
         is_semver = version.startswith("v") and any(c.isdigit() for c in version)
         is_sha = len(version) >= 7 and all(c in "0123456789abcdef" for c in version[:7])
-        assert is_semver or is_sha, \
-            f"Action version should be semantic version (v1.x.x) or commit SHA, got '{version}'"
+        assert is_semver or is_sha, f"Action version should be semantic version (v1.x.x) or commit SHA, got '{version}'"
 
     def test_auto_assign_configuration_matches_documentation(self, auto_assign_workflow: Dict[str, Any]):
         """Test that workflow configuration matches documentation expectations."""
@@ -1482,8 +1478,7 @@ class TestAutoAssignWorkflowAdvanced:
 
         # Validate token uses secrets context
         token = str(with_config["repo-token"])
-        assert "secrets" in token or "github.token" in token, \
-            "Token should use secrets context as documented"
+        assert "secrets" in token or "github.token" in token, "Token should use secrets context as documented"
 
 
 class TestAutoAssignDocumentation:
@@ -1510,15 +1505,13 @@ class TestAutoAssignDocumentation:
     # Documentation Existence
     def test_auto_assign_summary_exists(self, summary_file: Path):
         """Test that auto-assign test summary documentation exists."""
-        assert summary_file.exists(), \
-            f"Test summary documentation should exist at {summary_file}"
+        assert summary_file.exists(), f"Test summary documentation should exist at {summary_file}"
 
     def test_final_report_exists(self, final_report_file: Path):
         """Test that final test report documentation exists."""
         if not final_report_file.exists():
             pytest.skip(f"Final report not found at {final_report_file}")
-        assert final_report_file.exists(), \
-            f"Final report documentation should exist at {final_report_file}"
+        assert final_report_file.exists(), f"Final report documentation should exist at {final_report_file}"
 
     # Content Validation
     def test_auto_assign_summary_not_empty(self, summary_file: Path):
@@ -1560,8 +1553,7 @@ class TestAutoAssignDocumentation:
             r"test.*\d+",
             r"\d+.*method",
         ]
-        has_test_count = any(re.search(pattern, content, re.IGNORECASE)
-                            for pattern in test_count_patterns)
+        has_test_count = any(re.search(pattern, content, re.IGNORECASE) for pattern in test_count_patterns)
         assert has_test_count, "Summary should document test counts"
 
     # Documentation Quality
@@ -1581,8 +1573,7 @@ class TestAutoAssignDocumentation:
         content = final_report_file.read_text()
 
         # Check for executive summary or overview
-        has_summary = any(keyword in content.lower()
-                         for keyword in ["executive summary", "overview", "summary"])
+        has_summary = any(keyword in content.lower() for keyword in ["executive summary", "overview", "summary"])
         assert has_summary, "Final report should have executive summary or overview"
 
     def test_final_report_documents_test_coverage(self, final_report_file: Path):
@@ -1593,8 +1584,7 @@ class TestAutoAssignDocumentation:
 
         # Should mention coverage areas
         coverage_keywords = ["coverage", "test", "validation", "workflow"]
-        keyword_count = sum(1 for keyword in coverage_keywords
-                          if keyword in content.lower())
+        keyword_count = sum(1 for keyword in coverage_keywords if keyword in content.lower())
         assert keyword_count >= 3, "Final report should document test coverage areas"
 
     def test_final_report_lists_files_modified(self, final_report_file: Path):
@@ -1640,8 +1630,10 @@ class TestAutoAssignDocumentation:
         content = summary_file.read_text()
 
         # Should reference pozil/auto-assign-issue action
-        assert "pozil" in content.lower() or "auto-assign" in content.lower(), \
-            "Documentation should reference the auto-assign action"
+        assert (
+            "pozil" in content.lower() or "auto-assign" in content.lower()
+        ), "Documentation should reference the auto-assign action"
+
 
 class TestWorkflowTriggers:
     """Comprehensive tests for workflow trigger configurations."""
