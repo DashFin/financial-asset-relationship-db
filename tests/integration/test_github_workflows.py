@@ -947,9 +947,9 @@ class TestAutoAssignWorkflow:
     def test_auto_assign_structure_triggers_on_pull_requests(self, auto_assign_workflow: Dict[str, Any]):
         """Test that auto-assign workflow triggers on pull request opened events."""
         triggers = auto_assign_workflow.get("on", {})
-        assert "pull_request" in triggers, "auto-assign workflow should trigger on pull_request events"
+        assert "pull_request_target" in triggers, "auto-assign workflow should trigger on pull_request_target events"
 
-        pr_config = triggers["pull_request"]
+        pr_config = triggers["pull_request_target"]
         assert isinstance(pr_config, dict), "pull_request trigger should be a dictionary"
         assert "types" in pr_config, "pull_request trigger should specify types"
         assert "opened" in pr_config["types"], "pull_request trigger should include 'opened' type"
