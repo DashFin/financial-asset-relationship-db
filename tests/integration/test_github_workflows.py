@@ -897,8 +897,8 @@ class TestAutoAssignWorkflow:
 
     # Structure tests
     def test_auto_assign_structure_name(self, auto_assign_workflow: Dict[str, Any]):
-        """Assert the auto-assign workflow's top-level name equals "Auto Assign"."""
-        assert auto_assign_workflow["name"] == "Auto Assign"
+        """Assert the auto-assign workflow's top-level name."""
+        assert auto_assign_workflow["name"] == "Issue and PR auto-assign"
         assert len(auto_assign_workflow["name"]) > 5, "Workflow name should be descriptive"
         assert not auto_assign_workflow["name"].isupper(), "Workflow name should not be all uppercase"
         assert auto_assign_workflow["name"][0].isupper(), "Workflow name should start with capital letter"
