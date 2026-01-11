@@ -380,63 +380,42 @@ class TestPRAgentConfigSecurity:
             if pat in config_str:
                 assert (' null' in config_str) or ('webhook' in config_str), \
                     f"Potential hardcoded credential found around pattern: {pat}"
-            if re.fullmatch(r'[A-Za-z0-9_\-]{20,}', v):
-                # High entropy threshold suggests secret
-                if shannon_entropy(v) >= 3.5:
-                    return True
-            # Hex-encoded long strings (e.g., keys)
-            if re.fullmatch(r'[A-Fa-f0-9]{32,}', v):
-                return True
-            return False
 
-        def walk(obj, path="root"):
-            if isinstance(obj, dict):
-                for k, v in obj.items():
-                    key_path = f"{path}.{k}"
-                    walk(v, key_path)
-            elif isinstance(obj, list):
-                for i, item in enumerate(obj):
-                    walk(item, f"{path}[{i}]")
-            elif isinstance(obj, str):
-                if looks_like_secret(obj):
-                    pytest.fail(f"Suspected secret value at '{path}': {obj[:20]}...")
-            # Non-string scalars (int/bool/None/float) are ignored
-
-        walk(pr_agent_config)
+    def test_no_hardcoded_secrets(self, pr_agent_config):
         """
-        Traverse the parsed YAML and ensure that any key containing sensitive indicators
-        has a safe placeholder value(None, 'null', or 'webhook').
+        Traverse the parsed YAML and ensure that any key or value containing sensitive
+        indicators has a safe placeholder value (None, 'null', 'none', 'placeholder',
+        or a templated variable like '${VAR}').
         """
         sensitive_patterns = [
-            sensitive_patterns = [
-                'password', 'secret', 'token', 'api_key', 'apikey',
-                'access_key', 'private_key'
-            ]
-
-            allowed_placeholders = {'null', 'none', 'placeholder'}
-
-            def value_contains_secret(val: str) -> bool:
-                low = val.lower()
-                # ignore common placeholders and templated variables
-                if low in allowed_placeholders or ('${' in val and '}' in val):
-                    return False
-                return any(pat in low for pat in sensitive_patterns)
-
-            def scan_for_secrets(node, path="root"):
-                if isinstance(node, dict):
-                    for k, v in node.items():
-                        scan_for_secrets(v, f"{path}.{k}")
-                elif isinstance(node, list):
-                    for idx, item in enumerate(node):
-                        scan_for_secrets(item, f"{path}[{idx}]")
-                elif isinstance(node, str):
-                    assert not value_contains_secret(node),
-                        f"Potential hardcoded credential value at {path}"
-                # Non-string scalars (int, float, bool, None) are safe to ignore
-
-            scan_for_secrets(pr_agent_config)
+            'password', 'secret', 'token', 'api_key', 'apikey',
             'access_key', 'private_key'
         ]
+
+        allowed_placeholders = {'null', 'none', 'placeholder', '***'}
+
+        def value_contains_secret(val: str) -> bool:
+            low = val.lower()
+            # Ignore common placeholders and templated variables
+            if low in allowed_placeholders or ('${' in val and '}' in val):
+                return False
+            return any(pat in low for pat in sensitive_patterns)
+
+        def scan_for_secrets(node, path="root"):
+            if isinstance(node, dict):
+                for k, v in node.items():
+                    scan_for_secrets(v, f"{path}.{k}")
+            elif isinstance(node, list):
+                for idx, item in enumerate(node):
+                    scan_for_secrets(item, f"{path}[{idx}]")
+            elif isinstance(node, str):
+                # Fail if a string value looks like it may contain a secret
+                assert not value_contains_secret(node), (
+                    f"Potential hardcoded credential value at {path}"
+                )
+            # Non-string scalars (int, float, bool, None) are safe to ignore
+
+        scan_for_secrets(pr_agent_config)
 
         safe_placeholders = {None, 'null', 'webhook'}
 
