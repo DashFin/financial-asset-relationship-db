@@ -193,19 +193,19 @@ class TestPRAgentConfigSecurity:
         This inspects values(not just serialized text) and traverses nested dicts / lists.
         The heuristic flags:
           """
-        Load and parse the PR agent YAML configuration from .github/pr-agent-config.yml.
+        Load and parse the PR agent YAML configuration from .github / pr - agent - config.yml.
 
-        If the file is missing, contains invalid YAML, or the top-level content is not a mapping, this fixture fails test collection. Empty files return None.
+        If the file is missing, contains invalid YAML, or the top - level content is not a mapping, this fixture fails test collection. Empty files return None.
 
         Returns:
-            The parsed YAML content (typically a dict) or `None` if the file is empty.
+            The parsed YAML content(typically a dict) or `None` if the file is empty.
         """
         - Long high - entropy strings(e.g., tokens)
           - Obvious secret prefixes / suffixes
           - Inline credentials in URLs(e.g., scheme: // user:pass @ host)
         """
-        import re
         import math
+        import re
 
         # Heuristic to detect inline creds in URLs (user:pass@)
         inline_creds_re = re.compile(r'^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\s]+:[^/@\s]+@', re.IGNORECASE)
@@ -247,14 +247,16 @@ class TestPRAgentConfigSecurity:
                 # If marker appears and string is not trivially short, treat as suspicious
                 if len(v) >= 12:
                     return True
+
     def test_no_hardcoded_credentials(self, pr_agent_config):
         """
         Recursively scan configuration values and keys for suspected secrets.
         - Flags high - entropy or secret - like string values.
         - Ensures sensitive keys only use safe placeholders.
         """
-        import re
         import math
+        import re
+
         import yaml
 
         # Heuristic to detect inline creds in URLs (user:pass@)
@@ -392,7 +394,7 @@ class TestPRAgentConfigSecurity:
                     for idx, item in enumerate(node):
                         scan_for_secrets(item, f"{path}[{idx}]")
                 elif isinstance(node, str):
-                    assert not value_contains_secret(node), \
+                    assert not value_contains_secret(node),
                         f"Potential hardcoded credential value at {path}"
                 # Non-string scalars (int, float, bool, None) are safe to ignore
 
@@ -422,7 +424,7 @@ class TestPRAgentConfigSecurity:
         for pattern in sensitive_patterns:
             if pattern in config_str:
                 # Should only appear in field names, not values
-                assert 'null' in config_str or 'webhook' in config_str, \
+                assert 'null' in config_str or 'webhook' in config_str,
                     f"Potential hardcoded credential found: {pattern}"
 
     def test_safe_configuration_values(self, pr_agent_config):
@@ -445,7 +447,7 @@ class TestPRAgentConfigSecurity:
 class TestPRAgentConfigRemovedComplexity:
     """Test that complex features were properly removed."""
 
-    @pytest.fixture
+    @ pytest.fixture
     def pr_agent_config_content(self):
         """
         Return the contents of .github / pr - agent - config.yml as a string.
