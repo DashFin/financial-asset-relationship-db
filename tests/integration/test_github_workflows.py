@@ -1323,7 +1323,7 @@ class TestAutoAssignWorkflowAdvanced:
         run_job = auto_assign_workflow["jobs"]["auto-assign"]
         steps = run_job.get("steps", [])
         repo_root = Path(__file__).resolve().parents[2]
-        return repo_root / "TEST_GENERATION_AUTO_ASSIGN_SUMMARY.md"
+        step = steps[0] if steps else {}
         with_config = step.get("with", {})
         required_inputs = ["repo-token", "assignees", "numOfAssignee"]
         for input_name in required_inputs:
