@@ -433,14 +433,6 @@ class TestPRAgentConfigSecurity:
             # primitives are ignored unless hit via a sensitive key above
 
         check_node(pr_agent_config)
-            'access_key', 'private_key'
-        ]
-
-        for pattern in sensitive_patterns:
-            if pattern in config_str:
-                # Should only appear in field names, not values
-                assert 'null' in config_str or 'webhook' in config_str,
-                    f"Potential hardcoded credential found: {pattern}"
 
     def test_safe_configuration_values(self, pr_agent_config):
         """
