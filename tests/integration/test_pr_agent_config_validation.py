@@ -31,7 +31,7 @@ class TestPRAgentConfigSimplification:
         config_path = Path(".github/pr-agent-config.yml")
         if not config_path.exists():
             pytest.fail(f"Config file not found: {config_path}")
-        with open(config_path, 'r', encoding='utf-8') as f:
+        with open(config_path, "r", encoding="utf-8") as f:
             try:
                 cfg = yaml.safe_load(f)
             except yaml.YAMLError as e:
@@ -42,7 +42,7 @@ class TestPRAgentConfigSimplification:
 
     def test_version_reverted_to_1_0_0(self, pr_agent_config):
         """Check that the PR agent's configured version is '1.0.0'."""
-        assert pr_agent_config['agent']['version'] == '1.0.0'
+        assert pr_agent_config["agent"]["version"] == "1.0.0"
 
     def test_no_context_configuration(self, pr_agent_config):
         """
@@ -50,8 +50,8 @@ class TestPRAgentConfigSimplification:
 
         The test fails if the parsed PR agent configuration includes a 'context' key under the top-level 'agent' section.
         """
-        agent_config = pr_agent_config['agent']
-        assert 'context' not in agent_config
+        agent_config = pr_agent_config["agent"]
+        assert "context" not in agent_config
 
     def test_no_chunking_settings(self, pr_agent_config):
         """
@@ -60,30 +60,30 @@ class TestPRAgentConfigSimplification:
         Checks that the keys 'chunking', 'chunk_size' and 'overlap_tokens' do not appear in the serialized configuration string (case-insensitive).
         """
         config_str = yaml.dump(pr_agent_config)
-        assert 'chunking' not in config_str.lower()
-        assert 'chunk_size' not in config_str.lower()
-        assert 'overlap_tokens' not in config_str.lower()
+        assert "chunking" not in config_str.lower()
+        assert "chunk_size" not in config_str.lower()
+        assert "overlap_tokens" not in config_str.lower()
 
     def test_no_tiktoken_references(self, pr_agent_config):
         """Verify tiktoken references removed."""
         config_str = yaml.dump(pr_agent_config)
-        assert 'tiktoken' not in config_str.lower()
+        assert "tiktoken" not in config_str.lower()
 
     def test_no_fallback_strategies(self, pr_agent_config):
         """
         Ensure the top-level `limits` section does not contain a `fallback` key.
         """
-        limits = pr_agent_config.get('limits', {})
-        assert 'fallback' not in limits
+        limits = pr_agent_config.get("limits", {})
+        assert "fallback" not in limits
 
     def test_basic_config_structure_intact(self, pr_agent_config):
         """Verify basic configuration sections still present."""
         # Essential sections should remain
-        assert 'agent' in pr_agent_config
-        assert 'monitoring' in pr_agent_config
-        assert 'actions' in pr_agent_config
-        assert 'quality' in pr_agent_config
-        assert 'security' in pr_agent_config
+        assert "agent" in pr_agent_config
+        assert "monitoring" in pr_agent_config
+        assert "actions" in pr_agent_config
+        assert "quality" in pr_agent_config
+        assert "security" in pr_agent_config
 
     def test_monitoring_config_present(self, pr_agent_config):
         """
@@ -92,22 +92,22 @@ class TestPRAgentConfigSimplification:
         Parameters:
             pr_agent_config (dict): Parsed PR agent configuration mapping.
         """
-        monitoring = pr_agent_config['monitoring']
-        assert 'check_interval' in monitoring
-        assert 'max_retries' in monitoring
-        assert 'timeout' in monitoring
+        monitoring = pr_agent_config["monitoring"]
+        assert "check_interval" in monitoring
+        assert "max_retries" in monitoring
+        assert "timeout" in monitoring
 
     def test_limits_simplified(self, pr_agent_config):
         """Verify limits section simplified."""
-        limits = pr_agent_config['limits']
+        limits = pr_agent_config["limits"]
 
         # Should not have complex chunking limits
-        assert 'max_files_per_chunk' not in limits
-        assert 'max_diff_lines' not in limits
+        assert "max_files_per_chunk" not in limits
+        assert "max_diff_lines" not in limits
 
         # Should have basic limits
-        assert 'max_execution_time' in limits
-        assert 'max_concurrent_prs' in limits
+        assert "max_execution_time" in limits
+        assert "max_concurrent_prs" in limits
 
 
 class TestPRAgentConfigYAMLValidity:
@@ -120,7 +120,7 @@ class TestPRAgentConfigYAMLValidity:
         Attempts to parse the repository file at .github/pr-agent-config.yml and fails the test with the YAML parser error when parsing fails.
         """
         config_path = Path(".github/pr-agent-config.yml")
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             try:
                 yaml.safe_load(f)
             except yaml.YAMLError as e:
@@ -133,15 +133,15 @@ class TestPRAgentConfigYAMLValidity:
         Scans .github/pr-agent-config.yml, ignores comment lines, and for each non-comment line treats the text before the first ':' as the key; the test fails if a key is encountered more than once.
         """
         config_path = Path(".github/pr-agent-config.yml")
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             content = f.read()
 
         # Simple check for obvious duplicates
-        lines = content.split('\n')
+        lines = content.split("\n")
         seen_keys = set()
         for line in lines:
-            if ':' in line and not line.strip().startswith('#'):
-                key = line.split(':')[0].strip()
+            if ":" in line and not line.strip().startswith("#"):
+                key = line.split(":")[0].strip()
                 if key in seen_keys:
                     pytest.fail(f"Duplicate key found: {key}")
                 seen_keys.add(key)
@@ -153,15 +153,14 @@ class TestPRAgentConfigYAMLValidity:
         Raises an AssertionError indicating the line number when a line's leading spaces are not a multiple of two.
         """
         config_path = Path(".github/pr-agent-config.yml")
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             lines = f.readlines()
 
         for i, line in enumerate(lines, 1):
-            if line.strip() and not line.strip().startswith('#'):
+            if line.strip() and not line.strip().startswith("#"):
                 indent = len(line) - len(line.lstrip())
                 if indent > 0:
-                    assert indent % 2 == 0, \
-                        f"Line {i} has inconsistent indentation: {indent} spaces"
+                    assert indent % 2 == 0, f"Line {i} has inconsistent indentation: {indent} spaces"
 
 
 class TestPRAgentConfigSecurity:
@@ -178,7 +177,7 @@ class TestPRAgentConfigSecurity:
         config_path = Path(".github/pr-agent-config.yml")
         if not config_path.exists():
             pytest.fail(f"Config file not found: {config_path}")
-        with open(config_path, 'r', encoding='utf-8') as f:
+        with open(config_path, "r", encoding="utf-8") as f:
             try:
                 cfg = yaml.safe_load(f)
             except yaml.YAMLError as e:
@@ -244,12 +243,20 @@ class TestPRAgentConfigSecurity:
         import re
 
         # Heuristic to detect inline creds in URLs (user:pass@)
-        inline_creds_re = re.compile(r'^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\s]+:[^/@\s]+@', re.IGNORECASE)
+        inline_creds_re = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\s]+:[^/@\s]+@", re.IGNORECASE)
 
         # Common secret-like prefixes or markers
         secret_markers = (
-            'secret', 'token', 'apikey', 'api_key', 'access_key', 'private_key',
-            'pwd', 'password', 'auth', 'bearer '
+            "secret",
+            "token",
+            "apikey",
+            "api_key",
+            "access_key",
+            "private_key",
+            "pwd",
+            "password",
+            "auth",
+            "bearer ",
         )
 
         def shannon_entropy(s: str) -> float:
@@ -272,7 +279,16 @@ class TestPRAgentConfigSecurity:
             if not v:
                 return False
             # Common placeholders considered safe
-            placeholders = {'<token>', '<secret>', 'changeme', 'your-token-here', 'dummy', 'placeholder', 'null', 'none'}
+            placeholders = {
+                "<token>",
+                "<secret>",
+                "changeme",
+                "your-token-here",
+                "dummy",
+                "placeholder",
+                "null",
+                "none",
+            }
             if v.lower() in placeholders:
                 return False
             # Inline credentials in URL
@@ -296,12 +312,20 @@ class TestPRAgentConfigSecurity:
         import yaml
 
         # Heuristic to detect inline creds in URLs (user:pass@)
-        inline_creds_re = re.compile(r'^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\s]+:[^/@\s]+@', re.IGNORECASE)
+        inline_creds_re = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\s]+:[^/@\s]+@", re.IGNORECASE)
 
         # Common secret-like prefixes or markers
         secret_markers = (
-            'secret', 'token', 'apikey', 'api_key', 'access_key', 'private_key',
-            'pwd', 'password', 'auth', 'bearer '
+            "secret",
+            "token",
+            "apikey",
+            "api_key",
+            "access_key",
+            "private_key",
+            "pwd",
+            "password",
+            "auth",
+            "bearer ",
         )
 
         def shannon_entropy(s: str) -> float:
@@ -322,7 +346,16 @@ class TestPRAgentConfigSecurity:
             v = val.strip()
             if not v:
                 return False
-            placeholders = {'<token>', '<secret>', 'changeme', 'your-token-here', 'dummy', 'placeholder', 'null', 'none'}
+            placeholders = {
+                "<token>",
+                "<secret>",
+                "changeme",
+                "your-token-here",
+                "dummy",
+                "placeholder",
+                "null",
+                "none",
+            }
             if v.lower() in placeholders:
                 return False
             if inline_creds_re.search(v):
@@ -330,10 +363,10 @@ class TestPRAgentConfigSecurity:
             if any(m in v.lower() for m in secret_markers) and len(v) >= 12:
                 return True
             # Base64/URL-safe like long strings
-            if re.fullmatch(r'[A-Za-z0-9_\-]{20,}', v) and shannon_entropy(v) >= 3.5:
+            if re.fullmatch(r"[A-Za-z0-9_\-]{20,}", v) and shannon_entropy(v) >= 3.5:
                 return True
             # Hex-encoded long strings (e.g., keys)
-            if re.fullmatch(r'[A-Fa-f0-9]{32,}', v):
+            if re.fullmatch(r"[A-Fa-f0-9]{32,}", v):
                 return True
             return False
 
@@ -353,10 +386,8 @@ class TestPRAgentConfigSecurity:
         walk_values(pr_agent_config)
 
         # Enforce safe placeholders for sensitive keys
-        sensitive_patterns = [
-            'password', 'secret', 'token', 'api_key', 'apikey', 'access_key', 'private_key'
-        ]
-        safe_placeholders = {None, 'null', 'webhook'}
+        sensitive_patterns = ["password", "secret", "token", "api_key", "apikey", "access_key", "private_key"]
+        safe_placeholders = {None, "null", "webhook"}
 
         def check_sensitive_keys(node, path="root"):
             if isinstance(node, dict):
@@ -378,8 +409,9 @@ class TestPRAgentConfigSecurity:
         for pat in sensitive_patterns:
             # If marker appears in the string, ensure we also see an allowed placeholder somewhere
             if pat in config_str:
-                assert (' null' in config_str) or ('webhook' in config_str), \
-                    f"Potential hardcoded credential found around pattern: {pat}"
+                assert (" null" in config_str) or (
+                    "webhook" in config_str
+                ), f"Potential hardcoded credential found around pattern: {pat}"
 
     def test_no_hardcoded_secrets(self, pr_agent_config):
         """
@@ -387,17 +419,14 @@ class TestPRAgentConfigSecurity:
         indicators has a safe placeholder value (None, 'null', 'none', 'placeholder',
         or a templated variable like '${VAR}').
         """
-        sensitive_patterns = [
-            'password', 'secret', 'token', 'api_key', 'apikey',
-            'access_key', 'private_key'
-        ]
+        sensitive_patterns = ["password", "secret", "token", "api_key", "apikey", "access_key", "private_key"]
 
-        allowed_placeholders = {'null', 'none', 'placeholder', '***'}
+        allowed_placeholders = {"null", "none", "placeholder", "***"}
 
         def value_contains_secret(val: str) -> bool:
             low = val.lower()
             # Ignore common placeholders and templated variables
-            if low in allowed_placeholders or ('${' in val and '}' in val):
+            if low in allowed_placeholders or ("${" in val and "}" in val):
                 return False
             return any(pat in low for pat in sensitive_patterns)
 
@@ -410,14 +439,12 @@ class TestPRAgentConfigSecurity:
                     scan_for_secrets(item, f"{path}[{idx}]")
             elif isinstance(node, str):
                 # Fail if a string value looks like it may contain a secret
-                assert not value_contains_secret(node), (
-                    f"Potential hardcoded credential value at {path}"
-                )
+                assert not value_contains_secret(node), f"Potential hardcoded credential value at {path}"
             # Non-string scalars (int, float, bool, None) are safe to ignore
 
         scan_for_secrets(pr_agent_config)
 
-        safe_placeholders = {None, 'null', 'webhook'}
+        safe_placeholders = {None, "null", "webhook"}
 
         def check_node(node, path=""):
             if isinstance(node, dict):
@@ -443,18 +470,18 @@ class TestPRAgentConfigSecurity:
         - `limits['max_concurrent_prs']` is less than or equal to 10.
         - `limits['rate_limit_requests']` is less than or equal to 1000.
         """
-        limits = pr_agent_config['limits']
+        limits = pr_agent_config["limits"]
 
         # Check for reasonable numeric limits
-        assert limits['max_execution_time'] <= 3600, "Execution time too high"
-        assert limits['max_concurrent_prs'] <= 10, "Too many concurrent PRs"
-        assert limits['rate_limit_requests'] <= 1000, "Rate limit too high"
+        assert limits["max_execution_time"] <= 3600, "Execution time too high"
+        assert limits["max_concurrent_prs"] <= 10, "Too many concurrent PRs"
+        assert limits["rate_limit_requests"] <= 1000, "Rate limit too high"
 
 
 class TestPRAgentConfigRemovedComplexity:
     """Test that complex features were properly removed."""
 
-    @ pytest.fixture
+    @pytest.fixture
     def pr_agent_config_content(self):
         """
         Return the contents of .github / pr - agent - config.yml as a string.
@@ -465,18 +492,18 @@ class TestPRAgentConfigRemovedComplexity:
             str: Raw YAML content of .github / pr - agent - config.yml.
         """
         config_path = Path(".github/pr-agent-config.yml")
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             return f.read()
 
     def test_no_summarization_settings(self, pr_agent_config_content):
         """Verify summarization settings removed."""
-        assert 'summarization' not in pr_agent_config_content.lower()
-        assert 'max_summary_tokens' not in pr_agent_config_content
+        assert "summarization" not in pr_agent_config_content.lower()
+        assert "max_summary_tokens" not in pr_agent_config_content
 
     def test_no_token_management(self, pr_agent_config_content):
         """Verify token management settings removed."""
-        assert 'max_tokens' not in pr_agent_config_content
-        assert 'context_length' not in pr_agent_config_content
+        assert "max_tokens" not in pr_agent_config_content
+        assert "context_length" not in pr_agent_config_content
 
     def test_no_llm_model_references(self, pr_agent_config_content):
         """
@@ -485,5 +512,5 @@ class TestPRAgentConfigRemovedComplexity:
         Parameters:
             pr_agent_config_content(str): Raw contents of .github / pr - agent - config.yml used for pattern checks.
         """
-        assert 'gpt-3.5-turbo' not in pr_agent_config_content
-        assert 'gpt-4' not in pr_agent_config_content
+        assert "gpt-3.5-turbo" not in pr_agent_config_content
+        assert "gpt-4" not in pr_agent_config_content
