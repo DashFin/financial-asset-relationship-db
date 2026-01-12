@@ -183,4 +183,4 @@
             print(f"\nProcessed content:\n{processed}")
 
         if __name__ == "__main__":
-            main()
+            pass
