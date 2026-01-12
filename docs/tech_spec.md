@@ -166,9 +166,6 @@ GET  /api/health              - Health check endpoint
 | FastAPI | 0.109+ | REST API framework |
 | Uvicorn | 0.27+ | ASGI server |
 | Pydantic | v2 | Data validation |
-| FastAPI | 0.109+ | REST API framework |
-| Uvicorn | 0.27+ | ASGI server |
-| Pydantic | v2 | Data validation |
 | NumPy | 1.26+ | Numerical computing |
 | Pandas | 2.1+ | Data analysis |
 
