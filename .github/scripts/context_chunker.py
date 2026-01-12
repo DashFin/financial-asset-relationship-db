@@ -43,16 +43,16 @@ self.config: Dict = {}
         processed_content = self._build_limited_content(chunks)
         return processed_content, True
 
-
     def _build_limited_content(self, chunks):
         """
-        Build limited content from chunks (placeholder implementation).
+        Build limited content from chunks.
 
-        Parameters:
-    # Removed duplicate method signature and docstring; single valid definition remains below
+        This is a placeholder implementation that preserves existing behavior
+        expectations by simply returning the input chunks unchanged.
+        """
+        return chunks
 
-        Parameters:
-def _build_limited_content(self, chunks):
+
         """
         Build a token-limited string from prioritized content chunks.
 
