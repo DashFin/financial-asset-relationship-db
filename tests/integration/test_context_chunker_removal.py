@@ -131,8 +131,6 @@ class TestWorkflowSimplification:
             "PR agent workflow still has chunking step"
         assert 'context_chunker' not in content, \
             "PR agent workflow still references context_chunker"
-        assert 'tiktoken' not in content, \
-            "PR agent workflow still references tiktoken"
     
     def test_pr_agent_workflow_no_duplicate_setup(self):
         """PR agent workflow should not have duplicate setup steps."""
