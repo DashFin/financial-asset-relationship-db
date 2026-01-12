@@ -1274,7 +1274,41 @@ def check_env_vars(env_dict):
             return invalid
 
         # Check top-level env
+        config = load_yaml_safe(workflow_file)
+
+        def check_env_vars(env_dict: Any) -> List[str]:
+            """Return env var keys that are not UPPER_CASE and [A-Z0-9_]-only."""
+            if not isinstance(env_dict, dict):
+                return []
+            invalid: List[str] = []
+            for key in env_dict.keys():
+                if not isinstance(key, str):
+                    invalid.append(str(key))
+                    continue
+                if not key.isupper() or not all(c.isalnum() or c == "_" for c in key):
+                    invalid.append(key)
+            return invalid
+
+        # Check workflow-level env
         if "env" in config:
+            invalid = check_env_vars(config["env"])
+            assert not invalid, (
+                f"MAINTAINABILITY: Workflow {workflow_file.name} has environment variables "
+                f"that don't follow UPPER_CASE convention: {invalid}. This can reduce "
+                "readability and consistency across workflows."
+            )
+
+        # Check job-level env
+        for job_name, job_config in config.get("jobs", {}).items():
+            if not isinstance(job_config, dict):
+                continue
+            if "env" in job_config:
+                invalid = check_env_vars(job_config["env"])
+                assert not invalid, (
+                    f"MAINTAINABILITY: Workflow {workflow_file.name} job '{job_name}' has environment "
+                    f"variables that don't follow UPPER_CASE convention: {invalid}. This can reduce "
+                    "readability and consistency across workflows."
+                )
             invalid = check_env_vars(config["env"])
             assert not invalid, (
                 f"MAINTAINABILITY: Workflow {workflow_file.name} has environment variables "
