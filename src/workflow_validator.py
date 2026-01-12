@@ -63,5 +63,5 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
         return ValidationResult(False, [f"Invalid path component (not a directory): {e}"], {})
     except UnicodeDecodeError as e:
         return ValidationResult(False, [f"Invalid file encoding: {e}"], {})
-        # Re-raise unexpected exceptions to avoid masking programming errors
-        raise
+
+
