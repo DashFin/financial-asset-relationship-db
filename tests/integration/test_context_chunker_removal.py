@@ -231,7 +231,7 @@ class TestNoRegressionOfFixes:
                     
                     if key in mapping:
                         raise yaml.constructor.ConstructorError(
-                            f"while constructing a mapping",
+                            "while constructing a mapping",
                             node.start_mark,
                             f"found duplicate key: {key}",
                             key_node.start_mark
