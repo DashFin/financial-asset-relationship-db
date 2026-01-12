@@ -2786,7 +2786,37 @@ class TestRequirementsDevValidation:
     
     def test_no_conflicting_dependencies(self):
         """Ensure no conflicting dependency versions."""
-        req_file = Path('requirements-dev.txt')
+                workflow = load_yaml_safe(pr_agent_file)
+                jobs = workflow.get("jobs", {})
+        
+                for job_name, job in jobs.items():
+                    steps = job.get("steps", [])
+                    for step in steps:
+                        uses = step.get("uses", "")
+                        if "actions/setup-python" in uses:
+                            step_with = step.get("with", {})
+                            python_version = step_with.get("python-version")
+                    
+                            assert python_version is not None, (
+                                f"Job '{job_name}' setup-python step missing python-version"
+                            )
+                            assert isinstance(python_version, str) and python_version.strip(), (
+                                f"Job '{job_name}' python-version must be a non-empty string"
+                            )
+                            assert python_version != "latest", (
+                                f"Job '{job_name}' should not use 'latest' as python-version"
+                            )
+                    
+                            import re
+                            match = re.match(r"^(\d+)\.(\d+)", python_version)
+                            assert match is not None, (
+                                f"Job '{job_name}' has non-numeric python-version '{python_version}'"
+                            )
+                            major = int(match.group(1))
+                            minor = int(match.group(2))
+                            assert (major > 3) or (major == 3 and minor >= 8), (
+                                f"Job '{job_name}' python-version {python_version} must be >= 3.8"
+                            )
         if not req_file.exists():
             pytest.skip("requirements-dev.txt not found")
         
