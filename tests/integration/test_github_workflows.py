@@ -2602,6 +2602,7 @@ class TestPRAgentWorkflowAdvanced:
         
         # Ensure no hardcoded secrets
         import re
+
         # Look for potential hardcoded tokens (simplified check)
         assert not re.search(r'ghp_[a-zA-Z0-9]{36}', workflow_str), "Potential hardcoded GitHub token"
     
