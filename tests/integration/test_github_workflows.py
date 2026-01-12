@@ -2822,24 +2822,16 @@ class TestWorkflowSecurityHardening:
 class TestWorkflowDocumentationConsistency:
     """Test that workflow changes are properly documented."""
     
-    def test_pr_agent_exactly_one_setup_python_per_job(self):
-        """
-        Ensure each job defines at most one Setup Python step.
+    def test_documentation_mentions_workflow_simplification(self):
+        """Summary docs should mention the pr-agent workflow simplification."""
+        summary_file = Path('TEST_GENERATION_CURRENT_BRANCH_COMPLETE.md')
+        if not summary_file.exists():
+            pytest.skip("Summary documentation not found")
         
-        Checks each job's steps and asserts there is no more than one step named "Setup Python" and no more than one step using an action containing "setup-python". If either form is present, the counts by name and by uses must match.
-        """
-        pr_agent_file = WORKFLOWS_DIR / "pr-agent.yml"
-        if not pr_agent_file.exists():
-            pytest.skip("pr-agent.yml not found")
+        content = summary_file.read_text()
         
-        # Should mention key changes
-        key_changes = [
-            'pr-agent',
-            'workflow',
-            'simplified',
-        ]
-        
-        found_mentions = [change for change in key_changes if change.lower() in content.lower()]
+        key_changes = ['pr-agent', 'workflow', 'simplified']
+        found_mentions = [kw for kw in key_changes if kw in content.lower()]
         assert len(found_mentions) >= 2, "Summary should document key workflow changes"
     
     def test_documentation_files_valid_markdown(self):
