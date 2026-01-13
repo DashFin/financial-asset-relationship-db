@@ -3,6 +3,7 @@ Validation tests for requirements changes.
 """
 
 from pathlib import Path
+
 - PyYAML added with correct version
 """
 - No conflicting dependencies
