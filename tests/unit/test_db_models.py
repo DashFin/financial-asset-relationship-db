@@ -526,7 +526,7 @@ class TestRegulatoryEventAssetORM:
         """Test that RegulatoryEventAssetORM uses correct table name."""
         assert RegulatoryEventAssetORM.__tablename__ == "regulatory_event_assets"
 
-    @staticmethod
+    @ staticmethod
     def test_event_asset_unique_constraint(db_session):
         """Test that duplicate event-asset links are prevented."""
         asset = AssetORM(

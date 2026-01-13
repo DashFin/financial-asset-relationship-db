@@ -210,8 +210,8 @@ class TestPackageJson:
     def test_package_json_version_format(self, package_json):
         """Test that version follows semantic versioning.
 
-        Supports standard semantic versions (e.g., 1.0.0) and pre-release versions
-        (e.g., 1.0.0-beta, 1.0.0-rc.1, 1.0.0-alpha.1).
+        Supports standard semantic versions(e.g., 1.0.0) and pre - release versions
+        (e.g., 1.0.0 - beta, 1.0.0 - rc.1, 1.0.0 - alpha.1).
         """
         version = package_json["version"]
         # Semantic versioning pattern: major.minor.patch with optional pre-release suffix
@@ -443,7 +443,7 @@ class TestRequirementsTxt:
         assert any("pydantic" in req.lower() for req in requirements)
 
     def test_requirements_has_version_constraints(self, requirements):
-        """Test that packages have version constraints (if project policy requires)."""
+        """Test that packages have version constraints(if project policy requires)."""
         # Skip this test if project doesn't require version pinning
         if not self.require_version_pinning:
             pytest.skip("Version pinning not required for this project")

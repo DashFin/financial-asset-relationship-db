@@ -183,6 +183,7 @@ class TestRequiredPackages:
 
     @staticmethod
     def test_has_httpx(package_names: List[str]):
+
     @staticmethod
     def test_has_httpx(package_names: List[str]):
         """Test that httpx is included for HTTP client."""
