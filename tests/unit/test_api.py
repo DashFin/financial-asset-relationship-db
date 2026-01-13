@@ -31,8 +31,13 @@ TEST_ORIGIN_FTP_LOCALHOST = "ftp://localhost:3000"  # Invalid protocol test case
 
 @pytest.fixture
 def client():
-    """Create a test client for the FastAPI app."""
-    return TestClient(app)
+    """Create a test client for the FastAPI app.
+
+    Note: TestClient uses internal ASGI transport, not actual network requests.
+    The base_url is only used for URL construction in tests, not for real HTTP calls.
+    """
+    # nosec B113 - TestClient uses ASGI transport, no actual localhost network access
+    return TestClient(app, base_url="http://testserver")
 
 
 @pytest.fixture
