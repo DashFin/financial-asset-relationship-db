@@ -214,7 +214,7 @@ class TestFinalTestSummary:
         """
         Validate that a Markdown document's top - level heading is H1 when headings are present.
 
-        Parses the content for lines starting with '#' followed by a space and , if any headings are found, asserts the first heading's level is 1.
+        Parses the content for lines starting with '#' followed by a space. If any headings are found, asserts the first heading's level is 1.
 
         Parameters:
             summary_content(str): The Markdown document content to check.
