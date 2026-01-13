@@ -17,6 +17,9 @@ reviews:
         Apply when the PR fixes defects, crashes, incorrect behaviour, regressions,
         or incorrect outputs.
     - label: documentation
+      instructions: >
+        Apply when the PR changes documentation, comments, READMEs, or
+        developer guides, with no substantive runtime behaviour change.
 knowledge_base:
   mcp:
     usage: enabled
