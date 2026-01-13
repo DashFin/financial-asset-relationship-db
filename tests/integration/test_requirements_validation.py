@@ -7,11 +7,9 @@ from pathlib import Path
 
 import pytest
 
-- PyYAML added with correct version
-"""
-- No conflicting dependencies
-- All dependencies installable
-"""
+# PyYAML added with correct version
+# No conflicting dependencies
+# All dependencies installable
 
 
 class TestRequirementsDevChanges:
@@ -32,6 +30,8 @@ class TestRequirementsDevChanges:
     def test_pyyaml_added(self, requirements_dev_content):
         """
         Verify that requirements - dev.txt includes a PyYAML package entry.
+        """
+        pass
 
         Performs a case-insensitive check of the provided requirements content to ensure PyYAML is present.
         """
