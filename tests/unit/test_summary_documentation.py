@@ -5,7 +5,7 @@ This module tests the summary documentation files created in this branch:
 - FINAL_TEST_SUMMARY.md
 - TEST_DOCUMENTATION_SUMMARY.md
 
-Tests ensure:
+"""Tests ensure:
 - Valid markdown structure
 - Required sections are present
 - Content accuracy and consistency
