@@ -68,7 +68,7 @@ class TestWorkflowCanInstallRequirements:
         # Check that at least one job has a step to install dependencies
         has_install_step = False
 
-        for job_name, job in workflow.get("jobs", {}).items():
+        for _, job in workflow.get("jobs", {}).items():
             for step in job.get("steps", []):
                 run_cmd = step.get("run", "")
                 step_name = step.get("name", "").lower()
@@ -222,7 +222,7 @@ class TestRequirementsMatchWorkflowNeeds:
 
         # Extract Python version from workflow
         python_version = None
-        for job_name, job in workflow.get("jobs", {}).items():
+        for _, job in workflow.get("jobs", {}).items():
             for step in job.get("steps", []):
                 if "setup-python" in step.get("uses", "").lower():
                     python_version = step.get("with", {}).get("python-version")

@@ -2333,10 +2333,9 @@ class TestWorkflowPermissionsBestPractices:
 
         def check_perms(perms):
             if isinstance(perms, dict):
-                for key, value in perms.items():
+                for _, value in perms.items():
                     if value == "write":
                         # Common justified write permissions
-                        justified = ["contents", "pull-requests", "issues", "packages"]
 
         # Check workflow-level permissions
         if "permissions" in data:
@@ -2527,7 +2526,6 @@ class TestWorkflowEnvironmentVariables:
         for _, job in jobs.items():
             job_env = set(job.get("env", {}).keys())
             # Check for duplication (informational)
-            duplicates = workflow_env & job_env
 
 
 class TestWorkflowScheduledExecutionBestPractices:
@@ -2563,7 +2561,7 @@ class TestWorkflowScheduledExecutionBestPractices:
         if "schedule" in triggers:
             schedules = triggers["schedule"]
             for schedule in schedules:
-                cron = schedule.get("cron", "")
+                _ = schedule.get("cron", "")
 
 
 # Additional test to verify all new test classes are properly structured
