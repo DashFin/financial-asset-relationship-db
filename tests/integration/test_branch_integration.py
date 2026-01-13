@@ -297,26 +297,70 @@ class TestWorkflowSecurityConsistency:
             for pattern in dangerous:
                 matches = re.findall(pattern, content)
                 if matches:
-                    pytest.fail(f"Potential injection risk in {wf_file}: {matches}")
-        return
+    def test_all_workflows_avoid_pr_injection(self):
+        """Verify no workflows have PR title/body injection risks."""
         workflow_files = list(Path(".github/workflows").glob("*.yml"))
-        
+
+        injection_risks = []
+        risky_vars = [
+            'github.event.pull_request.title',
+            'github.event.pull_request.body',
+            'github.event.issue.title',
+            'github.event.issue.body',
+        ]
+
         for wf_file in workflow_files:
             with open(wf_file, 'r') as f:
-                content = f.read()
-            
-            # Look for potentially dangerous patterns
-            dangerous = [
-                r'\$\{\{.*github\.event\.pull_request\.title.*\}\}.*\|',
-                r'\$\{\{.*github\.event\.pull_request\.body.*\}\}.*\|',
-                r'\$\{\{.*github\.event\.issue\.title.*\}\}.*\$\(',
+                raw_content = f.read()
+
+            # 1) Structured scan: parse YAML and inspect steps and env/with sections
+            try:
+                workflow_yaml = yaml.safe_load(raw_content) or {}
+            except Exception as e:
+                pytest.fail(f"Failed to parse {wf_file} for security scan: {e}")
+
+            jobs = (workflow_yaml or {}).get('jobs', {}) or {}
+            for job_name, job in jobs.items():
+                steps = (job or {}).get('steps', []) or []
+                # Check job-level env as well
+                job_env = (job or {}).get('env', {}) or {}
+                for k, v in job_env.items():
+                    if isinstance(v, str) and any(var in v for var in risky_vars):
+                        injection_risks.append(f"{wf_file}:{job_name} env[{k}] contains risky var: {v}")
+
+                for idx, step in enumerate(steps):
+                    # Check 'run' fields
+                    run_cmd = step.get('run')
+                    if isinstance(run_cmd, str) and any(var in run_cmd for var in risky_vars):
+                        injection_risks.append(f"{wf_file}:{job_name}:step[{idx}] run contains risky var: {run_cmd}")
+
+                    # Check step env
+                    step_env = step.get('env', {}) or {}
+                    for k, v in step_env.items():
+                        if isinstance(v, str) and any(var in v for var in risky_vars):
+                            injection_risks.append(f"{wf_file}:{job_name}:step[{idx}] env[{k}] contains risky var: {v}")
+
+                    # Check 'with' inputs that may flow into commands
+                    with_cfg = step.get('with', {}) or {}
+                    for k, v in with_cfg.items():
+                        if isinstance(v, str) and any(var in v for var in risky_vars):
+                            injection_risks.append(f"{wf_file}:{job_name}:step[{idx}] with[{k}] contains risky var: {v}")
+
+            # 2) Regex fallback: broadened raw content checks for any usage, not only pipes/$()
+            broadened_patterns = [
+                r'\$\{\{\s*github\.event\.pull_request\.title\s*\}\}',
+                r'\$\{\{\s*github\.event\.pull_request\.body\s*\}\}',
+                r'\$\{\{\s*github\.event\.issue\.title\s*\}\}',
+                r'\$\{\{\s*github\.event\.issue\.body\s*\}\}',
             ]
-            
-            for pattern in dangerous:
-                matches = re.findall(pattern, content)
+            for pattern in broadened_patterns:
+                matches = re.findall(pattern, raw_content)
                 if matches:
-                    pytest.fail(f"Potential injection risk in {wf_file}: {matches}")
-    
+                    injection_risks.append(f"{wf_file}: raw usage matches {pattern}: {matches}")
+
+        assert not injection_risks, (
+            "Potential PR injection risks found:\n" + "\n".join(injection_risks)
+        )
     def test_workflows_use_appropriate_checkout_refs(self):
         """
         Verify workflows triggered by pull_request_target specify a safe checkout reference.
