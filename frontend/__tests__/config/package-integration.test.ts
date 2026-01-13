@@ -189,10 +189,10 @@ describe("Package Configuration Integration", () => {
       expect(reactDom?.version).toBeDefined();
 
       if (!react || !react.version) {
-        throw new Error('React version is required');
+        throw new Error("React version is required");
       }
       if (!reactDom || !reactDom.version) {
-        throw new Error('React-DOM version is required');
+        throw new Error("React-DOM version is required");
       }
 
       const reactVersion = react.version.split(".");

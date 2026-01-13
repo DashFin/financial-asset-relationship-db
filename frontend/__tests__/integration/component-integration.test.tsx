@@ -334,12 +334,12 @@ describe("Component Integration Tests", () => {
       });
 
       if (!vizResolve) {
-        throw new Error('vizResolve is null');
+        throw new Error("vizResolve is null");
       }
       vizResolve(mockVisualizationData);
       await new Promise((resolve) => setTimeout(resolve, 10));
       if (!metricsResolve) {
-        throw new Error('metricsResolve is null');
+        throw new Error("metricsResolve is null");
       }
       metricsResolve(mockMetrics);
 
