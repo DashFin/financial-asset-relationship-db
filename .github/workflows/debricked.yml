@@ -23,7 +23,14 @@ jobs:
 
       - name: Install Debricked CLI
         run: |
-          curl -L https://github.com/debricked/cli/releases/latest/download/cli_linux_x86_64.tar.gz | tar -xz
+          set -euo pipefail
+
+          # Pin to a specific version for supply-chain security (avoid mutable `latest`)
+          CLI_VERSION="2.0.0" # TODO: bump intentionally as part of dependency maintenance
+          curl --fail --location --silent --show-error \
+            "https://github.com/debricked/cli/releases/download/v${CLI_VERSION}/cli_linux_x86_64.tar.gz" \
+            | tar -xz
+
           sudo mv debricked /usr/local/bin/
           debricked --version
 
