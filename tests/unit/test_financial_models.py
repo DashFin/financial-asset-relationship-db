@@ -12,6 +12,11 @@ approach for pytest. The S101 rule is suppressed because tests are not run with
 Python optimization flags that would remove assert statements.
 """
 
+# ruff: noqa: S101
+# The S101 rule flags use of assert statements. In pytest test files, assert is the
+# standard and recommended way to make assertions. Pytest rewrites these statements
+# to provide detailed error messages, and test files are not run with Python's -O flag.
+
 import pytest
 
 from src.models.financial_models import Asset, AssetClass, Bond, Equity, RegulatoryActivity, RegulatoryEvent
