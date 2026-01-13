@@ -73,7 +73,7 @@ def _parse_single_requirement(line: str) -> tuple:
         print(f"Could not parse requirement: {line} due to {parse_error}")
 
 
-def _parse_single_requirement(line: str) -> Optional[Tuple[str, str]]:
+def _parse_single_requirement(line: str) -> tuple[str, str] | None:
     """Parse a single requirement line into (package, version_spec) tuple.
 
     Args:
