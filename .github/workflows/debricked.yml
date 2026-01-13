@@ -29,6 +29,7 @@ jobs:
 
       - name: Run Debricked Scan
         env:
+          # Secret is read from GitHub Actions secrets context
           DEBRICKED_TOKEN: ${{ secrets.DEBRICKED_TOKEN }}
         run: |
           debricked scan -t $DEBRICKED_TOKEN -r ${{ github.repository }} -c ${{ github.sha }}

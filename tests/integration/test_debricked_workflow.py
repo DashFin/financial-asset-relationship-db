@@ -8,7 +8,6 @@ This module validates the debricked.yml workflow file to ensure:
 - Security best practices (permissions, injection prevention)
 - Integration with Debricked CLI
 """
-
 import re
 from pathlib import Path
 from typing import Any, Dict, List
@@ -94,7 +93,7 @@ class TestWorkflowStructure:
         assert isinstance(name, str) and name, "Workflow must have a non-empty string name"
 
     def test_triggers_events(self, workflow_config: Dict[str, Any]):
-        """Test that workflow triggers on necessary events."""
+        """Test that workflow triggers on necessary events (PR, push, manual dispatch)."""
         triggers = workflow_config.get("on", {})
         assert triggers, "Workflow triggers must not be empty"
 
@@ -106,6 +105,7 @@ class TestWorkflowStructure:
         else:
             pytest.fail(f"Unexpected type for workflow 'on' triggers: {type(triggers)}")
 
+        # Requirement: Run on PRs to main
         assert "pull_request" in trigger_keys, "Workflow should trigger on 'pull_request'"
         assert "push" in trigger_keys, "Workflow should trigger on 'push' to main branch"
         assert "workflow_dispatch" in trigger_keys, "Workflow should support 'workflow_dispatch' for manual testing"
@@ -147,6 +147,11 @@ class TestWorkflowStructure:
         assert permissions, "Workflow must have explicit permissions defined"
         assert permissions.get("contents") == "read", "Workflow requires 'contents: read'"
         assert permissions.get("security-events") == "write", "Workflow requires 'security-events: write'"
+
+    def test_runs_on_ubuntu(self, scan_job: Dict[str, Any]):
+        """Test that job runs on a supported Ubuntu runner."""
+        runs_on = scan_job.get("runs-on", "")
+        assert "ubuntu" in runs_on.lower(), "Job should run on Ubuntu runner"
 
 
 class TestStepsConfiguration:
@@ -212,9 +217,25 @@ class TestSecretHandling:
 
     def test_no_hardcoded_secrets(self, workflow_content: str):
         """Test for potential hardcoded secrets in the file content."""
-        suspicious_patterns = ["ghp_", "dbr_"]
-        for pattern in suspicious_patterns:
-            assert pattern not in workflow_content, f"Found potential hardcoded secret pattern '{pattern}'"
+        suspicious_patterns=[
+            "ghp_",  # GitHub personal access token
+            "gho_",  # GitHub OAuth token
+            "ghu_",  # GitHub user token
+            "ghs_",  # GitHub server token (except in comments)
+            "ghr_",  # GitHub refresh token
+            "dbr_",  # Debricked token prefix
+        ]
+
+        # Split content into lines to check context
+        lines=workflow_content.split("\n")
+        for i, line in enumerate(lines, 1):
+            # Skip comment lines
+            if line.strip().startswith("#"):
+                continue
+
+            for pattern in suspicious_patterns:
+                if pattern in line:
+                    pytest.fail(f"Found potential hardcoded secret pattern '{pattern}' at line {i}: {line.strip()}")
 
 
 class TestSecurityPatterns:
@@ -222,13 +243,134 @@ class TestSecurityPatterns:
 
     def test_no_script_injection(self, workflow_content: str):
         """Check for unsafe interpolation in run scripts."""
-        unsafe_contexts = [
+        unsafe_contexts=[
             r"github\.event\.issue\.title",
             r"github\.event\.issue\.body",
             r"github\.event\.pull_request\.title",
             r"github\.event\.pull_request\.body",
         ]
         for ctx in unsafe_contexts:
-            pattern = r"run:.*(\$\{\{\s*" + ctx + r".*\}\})"
-            matches = re.findall(pattern, workflow_content, re.IGNORECASE)
+            pattern=r"run:.*(\$\{\{\s*" + ctx + r".*\}\})"
+            matches=re.findall(pattern, workflow_content, re.IGNORECASE)
             assert not matches, f"Potential script injection vulnerability found using context: {ctx}"
+
+    def test_no_secret_logging(self, workflow_content: str):
+        """Test that secrets are not echoed or printed to logs."""
+        secret_logging_patterns=[
+            r"echo.*\$\{\{.*secrets\.",
+            r"print.*\$\{\{.*secrets\.",
+            r"console\.log.*\$\{\{.*secrets\.",
+        ]
+
+        for pattern in secret_logging_patterns:
+            matches=re.findall(pattern, workflow_content, re.IGNORECASE)
+            assert not matches, f"Potential secret logging detected with pattern: {pattern}"
+
+
+class TestWorkflowDocumentation:
+    """Test that workflow has proper documentation."""
+
+    def test_has_comments(self, workflow_content: str):
+        """Test that workflow file contains explanatory comments."""
+        # Should have at least some comment lines
+        comment_lines=[line for line in workflow_content.split("\n") if line.strip().startswith("#")]
+        assert len(comment_lines) > 0, "Workflow should have explanatory comments"
+
+    def test_documents_security_features(self, workflow_content: str):
+        """Test that security features are documented."""
+        content_lower=workflow_content.lower()
+
+        # Should document key security aspects
+        security_keywords=["secret", "permission", "security"]
+        found_keywords=[kw for kw in security_keywords if kw in content_lower]
+
+        assert len(found_keywords) > 0, "Workflow should document security features in comments"
+
+
+class TestVersionConsistency:
+    """Test version consistency and supply-chain security."""
+
+    def test_actions_use_consistent_versioning(self, job_steps: List[Dict[str, Any]]):
+        """Test that all actions use consistent versioning approach."""
+        for step in job_steps:
+            if "uses" in step:
+                action=step["uses"]
+                assert "@" in action, f"Action must specify version: {action}"
+
+                # Extract version
+                version=action.split("@")[1]
+
+                # Should be either SHA (40 hex chars) or semantic version tag
+                is_sha=len(version) == 40 and all(c in "0123456789abcdef" for c in version.lower())
+                is_semver=version.startswith("v") and any(char.isdigit() for char in version)
+
+                assert is_sha or is_semver, f"Action version should be SHA or semantic version tag: {action}"
+
+    def test_no_mutable_tags(self, job_steps: List[Dict[str, Any]]):
+        """Test that actions don't use mutable tags like 'latest', 'main', 'master'."""
+        mutable_tags=["latest", "main", "master", "develop"]
+
+        for step in job_steps:
+            if "uses" in step:
+                action=step["uses"]
+                version=action.split("@")[1] if "@" in action else ""
+
+                assert version.lower() not in mutable_tags, f"Action should not use mutable tag '{version}': {action}"
+
+
+class TestComplianceWithIssue492:
+    """Test compliance with specific requirements from issue #492."""
+
+    def test_workflow_location(self):
+        """Test that workflow is at the correct location."""
+        expected_path=REPO_ROOT / ".github" / "workflows" / "debricked.yml"
+        assert expected_path.exists(), "Workflow must be at .github/workflows/debricked.yml"
+
+    def test_supports_all_required_triggers(self, workflow_config: Dict[str, Any]):
+        """Test that workflow supports all required trigger events."""
+        triggers=workflow_config.get("on", {})
+
+        if isinstance(triggers, dict):
+            trigger_keys=set(triggers.keys())
+        elif isinstance(triggers, list):
+            trigger_keys=set(triggers)
+        else:
+            trigger_keys=set()
+
+        required_triggers={"pull_request", "push", "workflow_dispatch"}
+        missing_triggers=required_triggers - trigger_keys
+
+        assert not missing_triggers, f"Workflow missing required triggers: {missing_triggers}"
+
+    def test_uses_github_secrets(self, job_steps: List[Dict[str, Any]]):
+        """Test that workflow uses GitHub Actions secrets for authentication."""
+        debricked_steps=get_steps_by_action(job_steps, "debricked")
+
+        for step in debricked_steps:
+            env=step.get("env", {})
+            if "DEBRICKED_TOKEN" in env:
+                token_value=env["DEBRICKED_TOKEN"]
+                assert "secrets.DEBRICKED_TOKEN" in token_value, "Must use GitHub Actions secrets for DEBRICKED_TOKEN"
+
+    def test_minimal_permissions(self, scan_job: Dict[str, Any]):
+        """Test that workflow uses minimal required permissions."""
+        permissions=scan_job.get("permissions", {})
+
+        # Should have exactly the required permissions, no more
+        required_permissions={"contents", "security-events"}
+        granted_permissions=set(permissions.keys())
+
+        # All required permissions should be present
+        assert required_permissions.issubset(
+            granted_permissions
+        ), f"Missing required permissions: {required_permissions - granted_permissions}"
+
+        # No write permissions except security-events
+        for perm, value in permissions.items():
+            if perm != "security-events" and value == "write":
+                pytest.fail(f"Unnecessary write permission granted: {perm}")
+
+    def test_ubuntu_runner(self, scan_job: Dict[str, Any]):
+        """Test that workflow uses a supported Ubuntu runner."""
+        runs_on=scan_job.get("runs-on", "")
+        assert "ubuntu" in runs_on.lower(), "Workflow must use a supported Ubuntu runner"

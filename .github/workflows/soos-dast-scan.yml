@@ -33,6 +33,15 @@ jobs:
     name: SOOS DAST Analysis
     runs-on: ubuntu-latest
     steps:
+      - name: Check if SOOS secrets are configured
+        id: check_secrets
+        run: |
+          if [ -z "${{ secrets.SOOS_API_KEY }}" ] || [ -z "${{ secrets.SOOS_CLIENT_ID }}" ]; then
+            echo "SOOS secrets not configured, skipping scan"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
       - name: Run SOOS DAST Analysis
         if: ${{ secrets.SOOS_API_KEY != '' && secrets.SOOS_CLIENT_ID != '' }}
         uses: soos-io/soos-dast-github-action@a7eb40b94c1c81eb76b178ba1befdc21823f86fa
