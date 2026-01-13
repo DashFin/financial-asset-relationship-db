@@ -101,7 +101,7 @@ class TestEnhancedTestSummary:
         Assert that every Markdown heading in the provided content has a space after the leading `  # ` characters.
 
         Parameters:
-            summary_content(str): Full text of the summary Markdown file to validate.
+            summary_content(str): Full text content of the summary Markdown file to validate.
 
         Raises:
             AssertionError: If any heading line does not have a space after its `  # ` markers; the error message includes the failing line number.
@@ -232,6 +232,5 @@ class TestDocumentationSummary:
 
         Returns:
             Path: Path to "TEST_DOCUMENTATION_SUMMARY.md".
-        """
         """
         return Path("TEST_DOCUMENTATION_SUMMARY.md")
