@@ -1,13 +1,10 @@
 # This workflow uses Debricked (OpenText Core SCA) for vulnerability scanning
 # Debricked documentation: https://docs.debricked.com/
-
-name: Vulnerability Scan
-
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "master" ]
+  workflow_dispatch:
   workflow_dispatch:
 
 permissions:
