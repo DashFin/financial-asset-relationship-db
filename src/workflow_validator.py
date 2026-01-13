@@ -1,3 +1,4 @@
+import os
 from typing import Any, Dict, List
 
 import yaml
@@ -39,8 +40,18 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
     Returns:
         ValidationResult: Validation outcome containing `is_valid`, `errors`, and `workflow_data`.
     """
+    filename = os.path.basename(workflow_path)
+    allowed_workflow_filenames = globals().get(
+        "ALLOWED_WORKFLOW_FILENAMES"
+    ) or set(  # may be defined elsewhere at module scope
+        os.listdir(os.environ.get("WORKFLOW_DIR") or os.path.join(os.path.dirname(__file__), "workflows"))
+    )  # fallback: allow only filenames present in the trusted directory
+    if filename not in allowed_workflow_filenames:
+        return ValidationResult(False, [f"Invalid workflow filename: {filename}"], {})
+    workflow_dir = os.environ.get("WORKFLOW_DIR") or os.path.join(os.path.dirname(__file__), "workflows")
+    safe_path = os.path.join(workflow_dir, filename)
     try:
-        with open(workflow_path, "r", encoding="utf-8") as f:
+        with open(safe_path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
         if data is None:
@@ -52,7 +63,7 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
 
         return ValidationResult(True, [], data)
     except FileNotFoundError:
-        return ValidationResult(False, [f"File not found: {workflow_path}"], {})
+        return ValidationResult(False, [f"File not found: {safe_path}"], {})
     except yaml.YAMLError as e:
         return ValidationResult(False, [f"Invalid YAML syntax: {e}"], {})
     except PermissionError as e:
