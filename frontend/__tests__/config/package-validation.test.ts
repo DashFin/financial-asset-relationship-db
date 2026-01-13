@@ -573,8 +573,7 @@ describe("Package.json Validation", () => {
     it("axios version should support all required features", () => {
       // Axios 1.x supports TypeScript, interceptors, and modern features
       const axiosVersion = packageJson.dependencies.axios;
-      const versionMatch = axiosVersion.match(/[
-      \d.]+/);
+      const versionMatch = axiosVersion.match(/[\d.]+/);
       if (!versionMatch) {
         throw new Error(`Invalid axios version: ${axiosVersion}`);
       }
