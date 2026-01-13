@@ -238,6 +238,7 @@ class TestDocumentationSummary:
 
     @pytest.fixture
     def summary_path(self):
+        pass
         """
 """
 # Should have at least one code block

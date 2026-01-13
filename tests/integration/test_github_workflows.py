@@ -548,9 +548,10 @@ class TestWorkflowEdgeCases:
         Parameters:
             workflow_file (Path): Path to the workflow file being tested.
         """
-        assert workflow_file.suffix in [".yml", ".yaml"], (
-            f"Workflow file {workflow_file.name} has invalid extension. " "Use .yml or .yaml"
-        )
+        assert workflow_file.suffix in [
+            ".yml",
+            ".yaml",
+        ], f"Workflow file {workflow_file.name} has invalid extension. Use .yml or .yaml"
 
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     @staticmethod
@@ -560,9 +561,7 @@ class TestWorkflowEdgeCases:
             with open(workflow_file, "r", encoding="utf-8") as f:
                 f.read()
         except UnicodeDecodeError:
-            pytest.fail(
-                f"Workflow {workflow_file.name} is not valid UTF-8. " "Ensure file is saved with UTF-8 encoding."
-            )
+            pytest.fail(f"Workflow {workflow_file.name} is not valid UTF-8. Ensure file is saved with UTF-8 encoding.")
 
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_no_tabs(self, workflow_file: Path):
@@ -574,10 +573,9 @@ class TestWorkflowEdgeCases:
         with open(workflow_file, "r", encoding="utf-8") as f:
             content = f.read()
 
-        assert "\t" not in content, (
-            f"Workflow {workflow_file.name} contains tab characters. "
-            "YAML files should use spaces for indentation, not tabs."
-        )
+        assert (
+            "\t" not in content
+        ), f"Workflow {workflow_file.name} contains tab characters. YAML files should use spaces for indentation, not tabs."
 
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_consistent_indentation(self, workflow_file: Path):

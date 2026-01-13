@@ -68,12 +68,13 @@ class TestFormulaicVisualizer:
                     {"asset1": "MSFT", "asset2": "GOOGL", "correlation": 0.75, "strength": "Strong"},
                 ],
             },
+            "asset_class_relationships": {
+                "Equity": {"asset_count": 3, "avg_price": 150.0, "total_value": 450.0}
+            },
+            "sector_relationships": {
+                "Technology": {"asset_count": 3, "avg_price": 150.0, "price_range": "$100.00 - $200.00"}
+            },
         }
-                ],
-                "asset_class_relationships": {"Equity": {"asset_count": 3, "avg_price": 150.0, "total_value": 450.0}},
-                "sector_relationships": {
-                    "Technology": {"asset_count": 3, "avg_price": 150.0, "price_range": "$100.00 - $200.00"}
-                },
             },
         }
 
@@ -325,34 +326,34 @@ class TestFormulaicVisualizer:
         results = {
             "formulas": [
                 Formula(
-                    name = "Formula 1",
-                    formula = "F1",
-                    latex = "F1",
-                    description = "Desc 1",
-                    variables = {},
-                    example_calculation = "Ex 1",
-                    category = "Valuation",
-                    r_squared = 0.9,
+                    name="Formula 1",
+                    formula="F1",
+                    latex="F1",
+                    description="Desc 1",
+                    variables={},
+                    example_calculation="Ex 1",
+                    category="Valuation",
+                    r_squared=0.9,
                 ),
                 Formula(
-                    name = "Formula 2",
-                    formula = "F2",
-                    latex = "F2",
-                    description = "Desc 2",
-                    variables = {},
-                    example_calculation = "Ex 2",
-                    category = "Valuation",
-                    r_squared = 0.8,
+                    name="Formula 2",
+                    formula="F2",
+                    latex="F2",
+                    description="Desc 2",
+                    variables={},
+                    example_calculation="Ex 2",
+                    category="Valuation",
+                    r_squared=0.8,
                 ),
                 Formula(
-                    name = "Formula 3",
-                    formula = "F3",
-                    latex = "F3",
-                    description = "Desc 3",
-                    variables = {},
-                    example_calculation = "Ex 3",
-                    category = "Risk Management",
-                    r_squared = 0.7,
+                    name="Formula 3",
+                    formula="F3",
+                    latex="F3",
+                    description="Desc 3",
+                    variables={},
+                    example_calculation="Ex 3",
+                    category="Risk Management",
+                    r_squared=0.7,
                 ),
             ]
         }
@@ -448,24 +449,24 @@ class TestFormulaicVisualizer:
         results = {
             "formulas": [
                 Formula(
-                    name = "F1",
-                    formula = "F1",
-                    latex = "F1",
-                    description = "D1",
-                    variables = {},
-                    example_calculation = "E1",
-                    category = "Valuation",
-                    r_squared = 0.9,
+                    name="F1",
+                    formula="F1",
+                    latex="F1",
+                    description="D1",
+                    variables={},
+                    example_calculation="E1",
+                    category="Valuation",
+                    r_squared=0.9,
                 ),
                 Formula(
-                    name = "F2",
-                    formula = "F2",
-                    latex = "F2",
-                    description = "D2",
-                    variables = {},
-                    example_calculation = "E2",
-                    category = "Valuation",
-                    r_squared = 0.7,
+                    name="F2",
+                    formula="F2",
+                    latex="F2",
+                    description="D2",
+                    variables={},
+                    example_calculation="E2",
+                    category="Valuation",
+                    r_squared=0.7,
                 ),
             ]
         }
