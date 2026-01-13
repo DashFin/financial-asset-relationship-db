@@ -4,11 +4,9 @@
 name: "Custom CodeQL Config"
 
 # Exclude test files from certain queries that produce false positives
-paths-ignore:
-  - "**/tests/**"
-  - "**/test_*.py"
-  - "**/*_test.py"
-  - "**/conftest.py"
+# NOTE: Do not ignore test files globally (via `paths-ignore`), as that would
+# suppress all CodeQL findings in tests. Instead, use query-level filters below
+# to exclude only the specific false positives we want to silence.
 
 # Query filters to exclude specific rules that are not applicable for this project
 query-filters:
