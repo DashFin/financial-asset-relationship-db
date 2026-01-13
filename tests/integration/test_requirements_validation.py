@@ -190,7 +190,8 @@ class TestRequirementsDocumentation:
         """
         Verify that requirements - dev.txt contains at least one comment line.
 
-        Asserts the file has at least one line which, after trimming leading whitespace, begins with `  # `, indicating an explanatory comment for the dependency list.
+        Asserts the file has at least one line, which after trimming leading whitespace,
+        begins with "#", indicating an explanatory comment for the dependency list.
         """
         req_dev_path = Path("requirements-dev.txt")
         with open(req_dev_path, "r") as f:
