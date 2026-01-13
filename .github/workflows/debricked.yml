@@ -21,6 +21,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Run Debricked Scan
+        uses: debricked/actions/scan@v1.4.0
+        with:
+          token: ${{ secrets.DEBRICKED_TOKEN }}
+        uses: actions/checkout@v4
+
       - name: Install Debricked CLI
         run: |
           set -euo pipefail
