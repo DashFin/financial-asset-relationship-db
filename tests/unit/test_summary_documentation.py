@@ -4,7 +4,7 @@ This module tests the summary documentation files created in this branch:
 - ENHANCED_TEST_SUMMARY.md
 - FINAL_TEST_SUMMARY.md
 - TEST_DOCUMENTATION_SUMMARY.md
-
+"""
 Tests ensure:
 - Valid markdown structure
 - Required sections are present
@@ -22,9 +22,6 @@ import pytest
 class TestEnhancedTestSummary:
     """Test cases for ENHANCED_TEST_SUMMARY.md."""
 
-    @pytest.fixture
-    def summary_path(self):
-        """
     @staticmethod
     @pytest.fixture
     def summary_path():
