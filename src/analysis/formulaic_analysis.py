@@ -358,25 +358,7 @@ class FormulaicdAnalyzer:
         return formulas
 
     def _calculate_empirical_relationships(self, graph: AssetRelationshipGraph) -> Dict[str, Any]:
-        def _calculate_asset_class_relationships(self, graph: AssetRelationshipGraph) -> Dict:
-            """Calculate relationships between asset classes"""
-            asset_classes = {}
-            for asset in graph.assets.values():
-                class_name = asset.asset_class.value
-                if class_name not in asset_classes:
-                    asset_classes[class_name] = []
-                asset_classes[class_name].append(asset)
-
-            class_stats = {}
-            for class_name, assets in asset_classes.items():
-                avg_price = sum(asset.price for asset in assets) / len(assets)
-                class_stats[class_name] = {
-                    "asset_count": len(assets),
-                    "avg_price": avg_price,
-                    "total_value": sum(asset.price for asset in assets),
-                }
-
-            return class_stats
+        pass
 
     @staticmethod
     def _calculate_avg_correlation_strength(graph: AssetRelationshipGraph) -> float:
