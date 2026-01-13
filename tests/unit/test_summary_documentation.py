@@ -233,7 +233,4 @@ class TestDocumentationSummary:
         Returns:
             Path: Path to "TEST_DOCUMENTATION_SUMMARY.md".
         """
-        """
-        return Path("TEST_DOCUMENTATION_SUMMARY.md")
-        """
         return Path("TEST_DOCUMENTATION_SUMMARY.md")
