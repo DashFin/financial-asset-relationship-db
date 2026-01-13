@@ -621,7 +621,7 @@ class TestDocumentationRealisticContent:
         r"""
         Verify that file paths listed in the system manifest correspond to actual files in the repository.
 
-        Searches the manifest for file entries formatted as "### \\path\\to\\file.ext" (common Python, TS/TSX, JSX/JSX patterns), normalises Windows-style backslashes to POSIX paths, strips any leading slash, and checks existence for up to the first 20 discovered paths. Entries that are placeholders or clearly test-related (containing "...", "test_", or "__tests__") are skipped.
+        Searches the manifest for file entries formatted as "### \\path\\to\\file.ext" (common Python, TS / TSX, JSX / JSX patterns), normalises Windows - style backslashes to POSIX paths, strips any leading slash, and checks existence for up to the first 20 discovered paths. Entries that are placeholders or clearly test - related(containing "...", "test_", or "__tests__") are skipped.
         """
         manifest_path = Path(".elastic-copilot/memory/systemManifest.md")
         with open(manifest_path, encoding="utf-8") as f:
