@@ -34,9 +34,8 @@ def test_supabase_connection():
         if response and hasattr(response, "data"):
             logger.info("Successfully connected to Supabase! Found %d records.", len(response.data))
             return True
-        else:
-            logger.error("Connection successful but no data returned.")
-            return False
+        logger.error("Connection successful but no data returned.")
+        return False
 
     except Exception:
         logger.exception("Failed to connect to Supabase")
