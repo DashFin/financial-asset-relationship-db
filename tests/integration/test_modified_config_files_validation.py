@@ -17,9 +17,9 @@ import yaml
 
 class TestPRAgentConfigChanges:
     """Validate changes to PR Agent configuration file."""
-
     @pytest.fixture
-    def config_path(self) -> Path:
+    @staticmethod
+    def config_path() -> Path:
         """
         Return the Path to the PR Agent YAML configuration file relative to the test module.
 
@@ -311,7 +311,8 @@ class TestGitignoreChanges:
         """
         return Path(__file__).parent.parent.parent / ".gitignore"
 
-    def test_codacy_instructions_ignored(self, gitignore_path: Path):
+    @staticmethod
+    def test_codacy_instructions_ignored(gitignore_path: Path):
         """
         Verify .gitignore includes 'codacy.instructions.md'.
 
@@ -322,7 +323,8 @@ class TestGitignoreChanges:
 
         assert "codacy.instructions.md" in content, "codacy.instructions.md should be in .gitignore"
 
-    def test_test_artifacts_not_ignored(self, gitignore_path: Path):
+    @staticmethod
+    def test_test_artifacts_not_ignored(gitignore_path: Path):
         """
         Ensure the repository .gitignore does not ignore test database files.
 
@@ -335,7 +337,8 @@ class TestGitignoreChanges:
         # This allows test results to be tracked if needed
         assert "test_*.db" not in content, "Test database patterns should not be in gitignore"
 
-    def test_standard_ignores_present(self, gitignore_path: Path):
+    @staticmethod
+    def test_standard_ignores_present(gitignore_path: Path):
         """Verify standard ignore patterns are present."""
         with open(gitignore_path, "r") as f:
             content = f.read()
@@ -350,7 +353,8 @@ class TestCodacyInstructionsChanges:
     """Validate changes to Codacy instructions."""
 
     @pytest.fixture
-    def codacy_instructions_path(self) -> Path:
+    @staticmethod
+    def codacy_instructions_path() -> Path:
         """
         Compute the path to the repository's Codacy instructions file.
 

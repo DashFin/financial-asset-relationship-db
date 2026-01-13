@@ -148,7 +148,8 @@ class TestVisualize2DGraph:
 class TestLayoutAlgorithms:
     """Test suite for layout algorithms."""
 
-    def test_create_circular_layout_empty_list(self):
+    @staticmethod
+    def test_create_circular_layout_empty_list():
         """Test circular layout with empty asset list."""
         # Execute
         positions = _create_circular_layout([])
@@ -261,7 +262,6 @@ class TestLayoutAlgorithms:
         # Assert
         assert len(positions_2d) == 2
 
-
 @pytest.mark.unit
 class TestRelationshipTraces:
     """Test suite for relationship trace creation."""
@@ -346,7 +346,6 @@ class TestRelationshipTraces:
         # Assert
         assert isinstance(traces, list)
         assert len(traces) == 0
-
 
 @pytest.mark.unit
 class TestEdgeCases:

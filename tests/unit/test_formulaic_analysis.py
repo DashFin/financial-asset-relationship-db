@@ -19,7 +19,8 @@ from src.models.financial_models import AssetClass, Equity
 class TestFormula:
     """Test suite for the Formula dataclass."""
 
-    def test_formula_creation(self):
+    @staticmethod
+    def test_formula_creation():
         """Test creating a Formula instance."""
         formula = Formula(
             name="Test Formula",
@@ -40,7 +41,8 @@ class TestFormula:
         assert formula.r_squared == 0.95
         assert len(formula.variables) == 3
 
-    def test_formula_default_r_squared(self):
+    @staticmethod
+    def test_formula_default_r_squared():
         """Test that r_squared defaults to 0.0."""
         formula = Formula(
             name="Test",
@@ -478,7 +480,6 @@ class TestFormulaicdAnalyzer:
         assert "key_insights" in summary
         assert isinstance(summary["key_insights"], list)
 
-
 @pytest.mark.unit
 class TestExampleCalculationMethods:
     """Test suite for example calculation methods."""
@@ -629,7 +630,6 @@ class TestExampleCalculationMethods:
         # Assert
         assert isinstance(examples, str)
         assert "Gold" in examples or "commodity" in examples.lower()
-
 
 @pytest.mark.unit
 class TestEdgeCases:
