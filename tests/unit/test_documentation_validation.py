@@ -117,7 +117,7 @@ class TestDependencyMatrix:
         Asserts the presence of a "- File types: ..." entry in the provided document and that it lists at least one file type. Also ensures every listed type is within the allowed set(py, js, ts, tsx) or permitted extras(jsx, json, md).
 
         Parameters:
-                dependency_matrix_content(str): Full text content of .elastic - copilot / memory / dependencyMatrix.md to inspect.
+            dependency_matrix_content(str): Full text content of .elastic - copilot / memory / dependencyMatrix.md to inspect.
         """
         pattern = r"- File types: (.+)"
         match = re.search(pattern, dependency_matrix_content)
@@ -204,7 +204,8 @@ class TestDependencyMatrix:
         Ensure each "Top dependencies:" section in the dependency matrix contains non - empty content.
 
         Parameters:
-            dependency_matrix_content(str): Full Markdown content of the dependency matrix file; the test splits this by the "Top dependencies:" marker and asserts that the text preceding the next "###" heading is not empty for each section.
+            dependency_matrix_content(str): Full Markdown content of the dependency matrix file
+            the test splits this by the "Top dependencies:" marker and asserts that the text preceding the next "###" heading is not empty for each section.
         """
         # After "Top dependencies:" should be either dependencies or explicit message
         sections = dependency_matrix_content.split("Top dependencies:")
@@ -222,7 +223,8 @@ class TestDependencyMatrix:
             dependency_matrix_lines(list[str]): Lines of the dependency matrix markdown file to validate.
 
         Raises:
-            AssertionError: If a heading line(one or more '#' characters followed by content) does not have a space after the hashes; message includes the offending line number and content.
+            AssertionError: If a heading line(one or more '#' characters followed by content) does not have a space after the hashes
+            message includes the offending line number and content.
         """
         for i, line in enumerate(dependency_matrix_lines):
             # Check heading formatting
