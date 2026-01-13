@@ -212,7 +212,7 @@ class TestFinalTestSummary:
 
     def test_summary_valid_markdown_structure(self, summary_content):
         """
-        Validate that a Markdown document's top-level heading is H1 when headings are present.
+        Validate that a Markdown document's top - level heading is H1 when headings are present.
 
         Parses the content for lines starting with '#' followed by a space. If any headings are found, asserts the first heading's level is 1.
 
