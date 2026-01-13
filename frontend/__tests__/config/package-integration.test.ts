@@ -9,7 +9,7 @@
  * - Breaking change detection
  */
 
-import { readFileSync, existsSync } from "fs";
+import { readFileSync } from "fs";
 import { join } from "path";
 
 describe("Package Configuration Integration", () => {
