@@ -312,7 +312,7 @@ class TestEdgeCasesAndErrorHandling:
         """Test that packages with extras are parsed correctly."""
         requirements = parse_requirements(REQUIREMENTS_FILE)
         # Ensure extras are stripped from package names
-        for pkg, ver in requirements:
+        for pkg, _ in requirements:
             assert "[" not in pkg, f"Package name should not contain '[': {pkg}"
             assert "]" not in pkg, f"Package name should not contain ']': {pkg}"
 
@@ -640,9 +640,7 @@ class TestSecurityBestPractices:
                     # Most modern packages should be at least version 1.0
                     # Allow exceptions for certain packages
                     if pkg not in ["types-PyYAML"] and not pkg.startswith("types-"):
-                        # Just log if version is 0.x (not necessarily an error)
-                        if major == 0:
-                            pass  # Could add warning
+                        assert major >= 1, f"{pkg} should be at least major version 1, got {ver}"
 
     def test_critical_packages_pinned(self, requirements: List[Tuple[str, str]]):
         """Test that critical security-related packages have minimum versions."""
@@ -671,7 +669,6 @@ class TestPyYAMLIntegration:
     def test_pyyaml_version_compatible_with_types(self, requirements: List[Tuple[str, str]]):
         """Test that PyYAML version is compatible with types-PyYAML."""
         pyyaml_ver = [ver for pkg, ver in requirements if pkg.lower() == "pyyaml"]
-        types_ver = [ver for pkg, ver in requirements if pkg.lower() == "types-pyyaml"]
 
         # Both should exist
         assert len(pyyaml_ver) > 0, "PyYAML should have version constraint"
