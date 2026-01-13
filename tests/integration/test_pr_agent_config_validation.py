@@ -258,20 +258,6 @@ class TestPRAgentConfigSecurity:
         # Heuristic to detect inline creds in URLs (user:pass@)
         re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\\s]+:[^/@\\s]+@", re.IGNORECASE)
 
-        # Common secret-like prefixes or markers
-        secret_markers = (
-            "secret",
-            "token",
-            "apikey",
-            "api_key",
-            "access_key",
-            "private_key",
-            "pwd",
-            "password",
-            "auth",
-            "bearer ",
-        )
-
     @staticmethod
     def test_no_hardcoded_credentials(pr_agent_config):
         """

@@ -270,7 +270,7 @@ class TestWorkflowSecurityBestPractices:
                 workflow = yaml.safe_load(f)
 
             # Check all jobs and steps
-            for job_name, job in workflow.get("jobs", {}).items():
+            for _, job in workflow.get("jobs", {}).items():
                 for step in job.get("steps", []):
                     if "uses" in step:
                         action = step["uses"]
