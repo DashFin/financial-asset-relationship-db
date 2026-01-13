@@ -18,8 +18,9 @@ import yaml
 class TestPRAgentConfigSimplification:
     """Test PR agent config simplification changes."""
 
+    @staticmethod
     @pytest.fixture
-    def pr_agent_config(self):
+    def pr_agent_config():
         """
         Load and parse the PR agent YAML configuration from .github/pr-agent-config.yml.
 
@@ -113,7 +114,8 @@ class TestPRAgentConfigSimplification:
 class TestPRAgentConfigYAMLValidity:
     """Test YAML validity and structure."""
 
-    def test_config_is_valid_yaml(self):
+    @staticmethod
+    def test_config_is_valid_yaml():
         """
         Fail the test if .github/pr-agent-config.yml contains invalid YAML.
 
@@ -126,7 +128,8 @@ class TestPRAgentConfigYAMLValidity:
             except yaml.YAMLError as e:
                 pytest.fail(f"PR agent config has invalid YAML: {e}")
 
-    def test_no_duplicate_keys(self):
+    @staticmethod
+    def test_no_duplicate_keys():
         """
         Fail the test if any top-level YAML key appears more than once in the file.
 
@@ -146,7 +149,8 @@ class TestPRAgentConfigYAMLValidity:
                     pytest.fail(f"Duplicate key found: {key}")
                 seen_keys.add(key)
 
-    def test_consistent_indentation(self):
+    @staticmethod
+    def test_consistent_indentation():
         """
         Verify that every non-empty, non-comment line in the PR agent YAML uses 2-space indentation increments.
 
@@ -166,8 +170,9 @@ class TestPRAgentConfigYAMLValidity:
 class TestPRAgentConfigSecurity:
     """Test security aspects of configuration."""
 
+    @staticmethod
     @pytest.fixture
-    def pr_agent_config(self):
+    def pr_agent_config():
         """
         Load and parse the PR agent YAML configuration from .github/pr-agent-config.yml.
 
@@ -259,7 +264,8 @@ class TestPRAgentConfigSecurity:
             "bearer ",
         )
 
-    def test_no_hardcoded_credentials(self, pr_agent_config):
+    @staticmethod
+    def test_no_hardcoded_credentials(pr_agent_config):
         """
         Recursively scan configuration values and keys for suspected secrets.
         - Flags high - entropy or secret - like string values.
@@ -372,7 +378,8 @@ class TestPRAgentConfigSecurity:
                     "webhook" in config_str
                 ), f"Potential hardcoded credential found around pattern: {pat}"
 
-    def test_no_hardcoded_secrets(self, pr_agent_config):
+    @staticmethod
+    def test_no_hardcoded_secrets(pr_agent_config):
         """
         Traverse the parsed YAML and ensure that any key or value containing sensitive
         indicators has a safe placeholder value (None, 'null', 'none', 'placeholder',
@@ -420,7 +427,8 @@ class TestPRAgentConfigSecurity:
 
         check_node(pr_agent_config)
 
-    def test_safe_configuration_values(self, pr_agent_config):
+    @staticmethod
+    def test_safe_configuration_values(pr_agent_config):
         """
         Assert that key numeric limits in the PR agent configuration fall within safe bounds.
 
@@ -441,7 +449,8 @@ class TestPRAgentConfigRemovedComplexity:
     """Test that complex features were properly removed."""
 
     @pytest.fixture
-    def pr_agent_config_content(self):
+    @staticmethod
+    def pr_agent_config_content():
         """
         Return the contents of .github / pr - agent - config.yml as a string.
 
@@ -454,17 +463,20 @@ class TestPRAgentConfigRemovedComplexity:
         with open(config_path, "r") as f:
             return f.read()
 
-    def test_no_summarization_settings(self, pr_agent_config_content):
+    @staticmethod
+    def test_no_summarization_settings(pr_agent_config_content):
         """Verify summarization settings removed."""
         assert "summarization" not in pr_agent_config_content.lower()
         assert "max_summary_tokens" not in pr_agent_config_content
 
-    def test_no_token_management(self, pr_agent_config_content):
+    @staticmethod
+    def test_no_token_management(pr_agent_config_content):
         """Verify token management settings removed."""
         assert "max_tokens" not in pr_agent_config_content
         assert "context_length" not in pr_agent_config_content
 
-    def test_no_llm_model_references(self, pr_agent_config_content):
+    @staticmethod
+    def test_no_llm_model_references(pr_agent_config_content):
         """
         Ensure no explicit LLM model identifiers appear in the raw PR agent configuration.
 

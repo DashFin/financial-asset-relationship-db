@@ -267,7 +267,6 @@ class TestWorkflowActions:
                 has_name = "name" in step
                 has_uses = "uses" in step
                 has_run = "run" in step
-
                 assert has_name or has_uses or has_run, (
                     f"Step {idx} in job '{job_name}' of {workflow_file.name} "
                     "must have at least a 'name', 'uses', or 'run' field"
@@ -278,7 +277,8 @@ class TestPrAgentWorkflow:
     """Specific tests for the pr-agent.yml workflow."""
 
     @pytest.fixture
-    def pr_agent_workflow(self) -> Dict[str, Any]:
+    @staticmethod
+    def pr_agent_workflow() -> Dict[str, Any]:
         """
         Load the 'pr-agent' workflow YAML and provide its parsed mapping for tests.
 
@@ -500,43 +500,48 @@ class TestWorkflowMaintainability:
 
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_reasonable_size(self, workflow_file: Path):
-        """
-        Assert the workflow file is within reasonable size limits.
+        @staticmethod
+        def assert_workflow_file_size(workflow_file: Path):
+            """
+            Assert the workflow file is within reasonable size limits.
 
-        If the file is larger than 10,240 bytes (10 KB) a warning is printed to encourage splitting complex workflows.
-        If the file is 51,200 bytes (50 KB) or larger the test fails with an assertion instructing to split the workflow or use reusable workflows.
-        """
-        file_size = workflow_file.stat().st_size
+            If the file is larger than 10,240 bytes (10 KB) a warning is printed to encourage splitting complex workflows.
+            If the file is 51,200 bytes (50 KB) or larger the test fails with an assertion instructing to split the workflow or use reusable workflows.
+            """
+            file_size = workflow_file.stat().st_size
 
-        # Warn if workflow file exceeds 10KB (reasonable limit)
-        if file_size > 10240:
-            print(
-                f"\nWarning: {workflow_file.name} is {file_size} bytes. "
-                "Consider splitting into multiple workflows if it gets too complex."
+            # Warn if workflow file exceeds 10KB (reasonable limit)
+            if file_size > 10240:
+                print(
+                    f"\nWarning: {workflow_file.name} is {file_size} bytes. "
+                    "Consider splitting into multiple workflows if it gets too complex."
+                )
+
+            # Fail if exceeds 50KB (definitely too large)
+            assert file_size < 51200, (
+                f"Workflow {workflow_file.name} is too large ({file_size} bytes). "
+                "Consider splitting into multiple workflows or using reusable workflows."
             )
-
-        # Fail if exceeds 50KB (definitely too large)
-        assert file_size < 51200, (
-            f"Workflow {workflow_file.name} is too large ({file_size} bytes). "
-            "Consider splitting into multiple workflows or using reusable workflows."
-        )
 
 
 class TestWorkflowEdgeCases:
     """Test suite for edge cases and error conditions."""
 
-    def test_workflow_directory_exists(self):
+    @staticmethod
+    def test_workflow_directory_exists():
         """Test that .github/workflows directory exists."""
         assert WORKFLOWS_DIR.exists(), ".github/workflows directory does not exist"
         assert WORKFLOWS_DIR.is_dir(), ".github/workflows exists but is not a directory"
 
-    def test_at_least_one_workflow_exists(self):
+    @staticmethod
+    def test_at_least_one_workflow_exists():
         """Test that at least one workflow file exists."""
         workflow_files = get_workflow_files()
         assert len(workflow_files) > 0, "No workflow files found in .github/workflows directory"
 
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
-    def test_workflow_file_extension(self, workflow_file: Path):
+    @staticmethod
+    def test_workflow_file_extension(workflow_file: Path):
         """
         Verify that a workflow file uses the .yml or .yaml extension.
 
@@ -548,7 +553,8 @@ class TestWorkflowEdgeCases:
         )
 
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
-    def test_workflow_encoding(self, workflow_file: Path):
+    @staticmethod
+    def test_workflow_encoding(workflow_file: Path):
         """Test that workflow files use UTF-8 encoding."""
         try:
             with open(workflow_file, "r", encoding="utf-8") as f:
@@ -557,8 +563,9 @@ class TestWorkflowEdgeCases:
             pytest.fail(
                 f"Workflow {workflow_file.name} is not valid UTF-8. " "Ensure file is saved with UTF-8 encoding."
             )
+            )
 
-    @pytest.mark.parametrize("workflow_file", get_workflow_files())
+    @ pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_no_tabs(self, workflow_file: Path):
         """
         Ensure the workflow YAML file contains no tab characters.
@@ -573,7 +580,7 @@ class TestWorkflowEdgeCases:
             "YAML files should use spaces for indentation, not tabs."
         )
 
-    @pytest.mark.parametrize("workflow_file", get_workflow_files())
+    @ pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_consistent_indentation(self, workflow_file: Path):
         """
         Ensure all non-empty, non-comment lines in the workflow file use indentation in multiples of two spaces.
@@ -1638,8 +1645,9 @@ class TestAutoAssignDocumentation:
 class TestWorkflowTriggers:
     """Comprehensive tests for workflow trigger configurations."""
 
+    @staticmethod
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
-    def test_workflow_triggers_are_valid_types(self, workflow_file: Path):
+    def test_workflow_triggers_are_valid_types(workflow_file: Path):
         """
         Validate that the workflow's triggers are recognised GitHub event types.
 
@@ -1697,7 +1705,8 @@ class TestWorkflowTriggers:
             assert event in valid_events, f"Workflow {workflow_file.name} uses invalid event type: {event}"
 
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
-    def test_workflow_pr_triggers_specify_types(self, workflow_file: Path):
+    @staticmethod
+    def test_workflow_pr_triggers_specify_types(workflow_file: Path):
         """Test that pull_request triggers specify activity types."""
         config = load_yaml_safe(workflow_file)
         triggers = config.get("on", {})
@@ -1713,7 +1722,8 @@ class TestWorkflowTriggers:
                     "specify activity types for better control"
                 )
 
-    def test_final_report_exists(self):
+    @staticmethod
+    def test_final_report_exists():
         """Test that the final test generation report exists."""
         # Use repository root, not CWD
         repo_root = Path(__file__).resolve().parents[2]
@@ -2564,7 +2574,8 @@ class TestWorkflowScheduledExecutionBestPractices:
 class TestTestSuiteCompleteness:
     """Meta-test to ensure test suite is comprehensive."""
 
-    def test_all_workflow_files_tested(self):
+    @staticmethod
+    def test_all_workflow_files_tested():
         """Verify that all workflow files are included in tests."""
         workflow_files = get_workflow_files()
         assert len(workflow_files) > 0, "Should find at least one workflow file"
@@ -2573,7 +2584,8 @@ class TestTestSuiteCompleteness:
             assert wf.exists(), f"Workflow file {wf} should exist"
             assert wf.suffix in [".yml", ".yaml"], f"Workflow file {wf} should be YAML"
 
-    def test_test_coverage_is_comprehensive(self):
+    @staticmethod
+    def test_test_coverage_is_comprehensive():
         """Ensure we have multiple test categories."""
         # Count test classes in this module
         import inspect
