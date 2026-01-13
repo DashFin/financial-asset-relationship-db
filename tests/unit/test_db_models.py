@@ -463,6 +463,8 @@ class TestRegulatoryEventORM:
         # Create main asset and related assets
         main_asset = AssetORM(
             id="MAIN_ASSET",
+        main_asset=AssetORM(
+            id="MAIN_ASSET",
             symbol="MA",
             name="Main Asset",
             asset_class="equity",
@@ -470,7 +472,7 @@ class TestRegulatoryEventORM:
             price=100.0,
             currency="USD",
         )
-        related1 = AssetORM(
+        related1=AssetORM(
             id="RELATED1",
             symbol="R1",
             name="Related 1",
@@ -479,7 +481,7 @@ class TestRegulatoryEventORM:
             price=50.0,
             currency="USD",
         )
-        related2 = AssetORM(
+        related2=AssetORM(
             id="RELATED2",
             symbol="R2",
             name="Related 2",
@@ -488,33 +490,29 @@ class TestRegulatoryEventORM:
             price=50.0,
             currency="USD",
         )
-            sector = "Tech",
-            price = 75.0,
-            currency = "USD",
-        )
         db_session.add_all([main_asset, related1, related2])
         db_session.commit()
 
         # Create event
-        event = RegulatoryEventORM(
-            id = "EVENT_003",
-            asset_id = "MAIN_ASSET",
-            event_type = "MERGER",
-            date = "2024-03-01",
-            description = "Merger announcement",
-            impact_score = 0.9,
+        event=RegulatoryEventORM(
+            id="EVENT_003",
+            asset_id="MAIN_ASSET",
+            event_type="MERGER",
+            date="2024-03-01",
+            description="Merger announcement",
+            impact_score=0.9,
         )
         db_session.add(event)
         db_session.commit()
 
         # Add related assets
-        rel1 = RegulatoryEventAssetORM(event_id="EVENT_003", asset_id="RELATED1")
-        rel2 = RegulatoryEventAssetORM(event_id="EVENT_003", asset_id="RELATED2")
+        rel1=RegulatoryEventAssetORM(event_id="EVENT_003", asset_id="RELATED1")
+        rel2=RegulatoryEventAssetORM(event_id="EVENT_003", asset_id="RELATED2")
         db_session.add_all([rel1, rel2])
         db_session.commit()
 
         # Verify
-        event = db_session.query(RegulatoryEventORM).filter_by(id="EVENT_003").first()
+        event=db_session.query(RegulatoryEventORM).filter_by(id="EVENT_003").first()
         assert len(event.related_assets) == 2
 
 
@@ -529,45 +527,45 @@ class TestRegulatoryEventAssetORM:
     @ staticmethod
     def test_event_asset_unique_constraint(db_session):
         """Test that duplicate event-asset links are prevented."""
-        asset = AssetORM(
-            id = "UNIQUE_ASSET",
-            symbol = "UA",
-            name = "Unique Asset",
-            asset_class = "equity",
-            sector = "Tech",
-            price = 100.0,
-            currency = "USD",
+        asset=AssetORM(
+            id="UNIQUE_ASSET",
+            symbol="UA",
+            name="Unique Asset",
+            asset_class="equity",
+            sector="Tech",
+            price=100.0,
+            currency="USD",
         )
-        related = AssetORM(
-            id = "UNIQUE_RELATED",
-            symbol = "UR",
-            name = "Unique Related",
-            asset_class = "equity",
-            sector = "Tech",
-            price = 50.0,
-            currency = "USD",
+        related=AssetORM(
+            id="UNIQUE_RELATED",
+            symbol="UR",
+            name="Unique Related",
+            asset_class="equity",
+            sector="Tech",
+            price=50.0,
+            currency="USD",
         )
         db_session.add_all([asset, related])
         db_session.commit()
 
-        event = RegulatoryEventORM(
-            id = "UNIQUE_EVENT",
-            asset_id = "UNIQUE_ASSET",
-            event_type = "TEST",
-            date = "2024-01-01",
-            description = "Test",
-            impact_score = 0.5,
+        event=RegulatoryEventORM(
+            id="UNIQUE_EVENT",
+            asset_id="UNIQUE_ASSET",
+            event_type="TEST",
+            date="2024-01-01",
+            description="Test",
+            impact_score=0.5,
         )
         db_session.add(event)
         db_session.commit()
 
         # Add related asset
-        rel1 = RegulatoryEventAssetORM(event_id="UNIQUE_EVENT", asset_id="UNIQUE_RELATED")
+        rel1=RegulatoryEventAssetORM(event_id="UNIQUE_EVENT", asset_id="UNIQUE_RELATED")
         db_session.add(rel1)
         db_session.commit()
 
         # Try to add duplicate
-        rel2 = RegulatoryEventAssetORM(event_id="UNIQUE_EVENT", asset_id="UNIQUE_RELATED")
+        rel2=RegulatoryEventAssetORM(event_id="UNIQUE_EVENT", asset_id="UNIQUE_RELATED")
         db_session.add(rel2)
 
         with pytest.raises(IntegrityError):
@@ -575,39 +573,39 @@ class TestRegulatoryEventAssetORM:
 
     def test_event_asset_cascade_delete_on_event(self, db_session):
         """Test cascade delete when event is removed."""
-        asset = AssetORM(
-            id = "CASCADE_ASSET",
-            symbol = "CA",
-            name = "Cascade Asset",
-            asset_class = "equity",
-            sector = "Tech",
-            price = 100.0,
-            currency = "USD",
+        asset=AssetORM(
+            id="CASCADE_ASSET",
+            symbol="CA",
+            name="Cascade Asset",
+            asset_class="equity",
+            sector="Tech",
+            price=100.0,
+            currency="USD",
         )
-        related = AssetORM(
-            id = "CASCADE_RELATED",
-            symbol = "CR",
-            name = "Cascade Related",
-            asset_class = "equity",
-            sector = "Tech",
-            price = 50.0,
-            currency = "USD",
+        related=AssetORM(
+            id="CASCADE_RELATED",
+            symbol="CR",
+            name="Cascade Related",
+            asset_class="equity",
+            sector="Tech",
+            price=50.0,
+            currency="USD",
         )
         db_session.add_all([asset, related])
         db_session.commit()
 
-        event = RegulatoryEventORM(
-            id = "CASCADE_EVENT",
-            asset_id = "CASCADE_ASSET",
-            event_type = "TEST",
-            date = "2024-01-01",
-            description = "Test",
-            impact_score = 0.5,
+        event=RegulatoryEventORM(
+            id="CASCADE_EVENT",
+            asset_id="CASCADE_ASSET",
+            event_type="TEST",
+            date="2024-01-01",
+            description="Test",
+            impact_score=0.5,
         )
         db_session.add(event)
         db_session.commit()
 
-        rel = RegulatoryEventAssetORM(event_id="CASCADE_EVENT", asset_id="CASCADE_RELATED")
+        rel=RegulatoryEventAssetORM(event_id="CASCADE_EVENT", asset_id="CASCADE_RELATED")
         db_session.add(rel)
         db_session.commit()
 
@@ -616,5 +614,5 @@ class TestRegulatoryEventAssetORM:
         db_session.commit()
 
         # Related asset link should be deleted
-        remaining = db_session.query(RegulatoryEventAssetORM).filter_by(event_id="CASCADE_EVENT").first()
+        remaining=db_session.query(RegulatoryEventAssetORM).filter_by(event_id="CASCADE_EVENT").first()
         assert remaining is None
