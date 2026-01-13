@@ -242,21 +242,14 @@ def validate_origin(origin_url: str) -> bool:
     current_env = os.getenv("ENV", "development").lower()
 
     # Get allowed origins from environment variable or use default
-    env_allowed_origins = [
-        o
-        for o in os.getenv("ALLOWED_ORIGINS", "").split(",")
-        if o
-    ]
+    env_allowed_origins = [o for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o]
 
     # If origin is in explicitly allowed list, return True
     if origin_url in env_allowed_origins and origin_url:
         return True
 
     # Allow HTTP localhost only in development
-    if (
-        current_env == "development"
-        and re.match(r"^http://(localhost|127\\.0\\.0\\.1)(:\\d+)?$", origin_url)
-    ):
+    if current_env == "development" and re.match(r"^http://(localhost|127\\.0\\.0\\.1)(:\\d+)?$", origin_url):
         return True
     # Allow HTTPS localhost in any environment
     if re.match(
