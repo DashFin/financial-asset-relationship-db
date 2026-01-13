@@ -47,7 +47,10 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
     )
     if filename not in allowed_workflow_filenames:
         return ValidationResult(False, [f"Invalid workflow filename: {filename}"], {})
-    safe_path = os.path.join(WORKFLOW_DIR, filename)
+    workflow_dir = os.environ.get("WORKFLOW_DIR") or os.path.join(
+        os.path.dirname(__file__), "workflows"
+    )
+    safe_path = os.path.join(workflow_dir, filename)
     try:
         with open(safe_path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
