@@ -1,7 +1,8 @@
 """
 Validation tests for requirements changes.
+"""
 
-Tests that requirements-dev.txt changes are valid:
+from pathlib import Path
 - PyYAML added with correct version
 """
 - No conflicting dependencies
