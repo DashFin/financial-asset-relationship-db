@@ -22,7 +22,6 @@ jobs:
         uses: debricked/actions/scan@v1.4.0
         with:
           token: ${{ secrets.DEBRICKED_TOKEN }}
-        uses: actions/checkout@v4
 
       - name: Install Debricked CLI
         run: |
