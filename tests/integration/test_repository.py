@@ -6,14 +6,16 @@ import sqlite3
 from pathlib import Path
 
 import pytest
+
+import pytest
+
+pytest.importorskip("sqlalchemy")
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from src.data.repository import AssetGraphRepository
 from src.models.financial_models import AssetClass, Bond, Equity, RegulatoryActivity, RegulatoryEvent
-
-pytest.importorskip("sqlalchemy")
-
 
 def _apply_migration(database_path: Path) -> None:
     sql = Path("migrations/001_initial.sql").read_text(encoding="utf-8")
