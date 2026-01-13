@@ -26,6 +26,9 @@ class TestWorkflowConsistency:
 
         Only files from the internal list are considered; files that are not present are omitted from the result.
 
+    @staticmethod
+    def all_workflows():
+        """
         Returns:
             dict: Mapping from workflow file path (str) to the parsed YAML content (dict) for each workflow file that exists.
         """
@@ -262,7 +265,7 @@ class TestWorkflowSecurityConsistency:
             dangerous = [
                 r"\$\{\{.*github\.event\.pull_request\.title.*\}\}.*\|",
                 r"\$\{\{.*github\.event\.pull_request\.body.*\}\}.*\|",
-                r"\$\{\{.*github\.event\.issue\.title.*\}\}.*\$\(",
+                r"\$\{\{.*github\.event\.issue\.title.*\}\}.*\$(",
             ]
 
             for pattern in dangerous:
@@ -270,7 +273,8 @@ class TestWorkflowSecurityConsistency:
                 if matches:
                     print(f"Potential injection risk in {wf_file}: {matches}")
 
-    def test_workflows_use_appropriate_checkout_refs(self):
+    @staticmethod
+    def test_workflows_use_appropriate_checkout_refs():
         """
         Verify workflows triggered by pull_request_target specify a safe checkout reference.
 
@@ -300,7 +304,6 @@ class TestWorkflowSecurityConsistency:
                             assert (
                                 "ref" in with_config or "fetch-depth" in with_config
                             ), f"{wf_file}: Checkout in pull_request_target should specify safe ref"
-
 
 class TestBranchCoherence:
     """Test overall branch changes are coherent."""
@@ -366,7 +369,7 @@ class TestBranchCoherence:
         """
         Verify the branch no longer depends on removed external configuration and limits workflow references to external files.
 
-        Asserts that .github/labeler.yml and .github/scripts/context_chunker.py do not exist, and that each workflow file under .github/workflows contains at most one run step referencing paths that include ".github/" or "scripts/".
+        Asserts that .github/labeler.yml and .github/scripts/context_chunker.py do not exist, and that each workflow file under .github/workflows contains at most one run step referencing paths that include ".github/" or "scripts/.".
         """
         # labeler.yml was removed - workflows should work without it
         assert not Path(".github/labeler.yml").exists()
@@ -391,7 +394,6 @@ class TestBranchCoherence:
 
             # Should have minimal external references
             assert external_refs <= 1, f"{wf_file} has {external_refs} external file references (should be <=1)"
-
 
 class TestBranchQuality:
     """Test overall quality of branch changes."""
