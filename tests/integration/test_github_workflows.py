@@ -554,7 +554,6 @@ class TestPrAgentWorkflow:
         ]
 
         for step in checkout_steps:
-            step_with = step.get("with", {})
             # It's acceptable for fetch-depth to be omitted entirely
             if "fetch-depth" not in step_with:
                 continue
