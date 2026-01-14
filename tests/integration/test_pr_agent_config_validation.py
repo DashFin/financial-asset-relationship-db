@@ -237,11 +237,6 @@ class TestPRAgentConfigYAMLValidity:
 
                     # Most YAML keys here are scalars (strings). For safety, fall back
                     # to string representation for unhashable keys.
-                    try:
-                        key_id = key
-                        is_hashable = True
-                        hash(key_id)
-                    except Exception:
                         key_id = repr(key)
                         is_hashable = False
 
