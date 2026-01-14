@@ -32,8 +32,10 @@ class AppConstants:
     MARKDOWN_HEADER = """
     # 🏦 Financial Asset Relationship Network
 
-    A comprehensive 3D visualization of interconnected financial assets across all major classes:
-    **Equities, Bonds, Commodities, Currencies, and Regulatory Events**
+    A comprehensive 3D visualization of interconnected financial
+    assets across all major classes:
+    **Equities, Bonds, Commodities, Currencies, and Regulatory
+    Events**
     """
     TAB_3D_VISUALIZATION = "3D Network Visualization"
     TAB_METRICS_ANALYTICS = "Metrics & Analytics"
@@ -58,8 +60,9 @@ class AppConstants:
     INTERACTIVE_3D_GRAPH_MD = """
     ## Interactive 3D Network Graph
 
-    Explore the relationships between financial assets in three dimensions. Each node represents an asset,
-    and edges show the strength and type of relationships between them.
+    Explore the relationships between financial assets in three dimensions.
+    Each node represents an asset, and edges show the strength and type of
+    relationships between them.
 
     **Asset Colors:**
     - 🔵 Blue: Equities (Stocks)
@@ -72,19 +75,22 @@ class AppConstants:
     NETWORK_METRICS_ANALYSIS_MD = """
     ## Network Metrics & Analytics
 
-    Comprehensive analysis of asset relationships, distributions, and regulatory event impacts.
+    Comprehensive analysis of asset relationships, distributions, and
+    regulatory event impacts.
     """
 
     SCHEMA_RULES_GUIDE_MD = """
     ## Database Schema & Business Rules
 
-    View the automatically generated schema documentation including relationship types, business rules, and validation constraints.
+    View the automatically generated schema documentation including
+    relationship types, business rules, and validation constraints.
     """
 
     DETAILED_ASSET_INFO_MD = """
     ## Asset Explorer
 
-    Select any asset to view detailed information including financial metrics, relationships, and connected assets.
+    Select any asset to view detailed information including financial
+    metrics, relationships, and connected assets.
     """
 
     DOC_MARKDOWN = """
