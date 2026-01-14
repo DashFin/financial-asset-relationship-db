@@ -332,7 +332,7 @@ class TestPrAgentWorkflow:
         for step in checkout_steps:
             step_with = step.get("with", {})
             token = step_with.get("token")
-    
+            assert token, "Checkout steps must specify a non-empty token"
     def test_pr_agent_has_python_setup(self, pr_agent_workflow: Dict[str, Any]):
         """Asserts the workflow's trigger job includes a setup-python step."""
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
