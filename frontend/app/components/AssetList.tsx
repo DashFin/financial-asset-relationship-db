@@ -214,7 +214,7 @@ export default function AssetList() {
     updateQueryParams({ per_page: String(nextSize), page: "1" });
   };
 
-  const goToPage = (requestedPage: number) => {
+  const _goToPage = (requestedPage: number) => {
     const lowerBounded = Math.max(1, requestedPage);
     const bounded =
       totalPages !== null ? Math.min(lowerBounded, totalPages) : lowerBounded;
@@ -238,8 +238,6 @@ export default function AssetList() {
               htmlFor="asset-class-filter"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Asset Class
-            </label>
             <select
               className="w-full border border-gray-300 rounded-md px-3 py-2"
               id="asset-class-filter"
