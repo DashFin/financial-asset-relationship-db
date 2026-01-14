@@ -41,6 +41,8 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
     """
     Validate a workflow YAML file located at the given filesystem path.
 
+    
+
     Performs YAML parsing and verifies the file is a mapping with a top-level
     'jobs' key. On success returns a ValidationResult with is_valid set to True
     and the parsed workflow data; on failure returns a ValidationResult with
@@ -54,35 +56,34 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
         ValidationResult: Validation outcome containing
             `is_valid`, `errors`, and `workflow_data`.
     """
-    filename = os.path.basename(workflow_path)
-    allowed_workflow_filenames = globals().get(
-        "ALLOWED_WORKFLOW_FILENAMES"
-    ) or set(  # may be defined elsewhere at module scope
-        os.listdir(os.environ.get("WORKFLOW_DIR") or os.path.join(os.path.dirname(__file__), "workflows"))
-    )  # fallback: allow only filenames present in the trusted directory
-    if filename not in allowed_workflow_filenames:
-        return ValidationResult(False, [f"Invalid workflow filename: {filename}"], {})
-    workflow_dir = os.environ.get("WORKFLOW_DIR") or os.path.join(os.path.dirname(__file__), "workflows")
-    safe_path = os.path.join(workflow_dir, filename)
     try:
+        # Resolve the full path to ensure we can open it safely
+        safe_path = os.path.abspath(workflow_path)
+
+        if not os.path.isfile(safe_path):
+            return ValidationResult(False, [f"File not found: {safe_path}"], {})
+
         with open(safe_path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
         if data is None:
             return ValidationResult(False, ["Workflow file is empty or contains only nulls."], {})
+        
         if not isinstance(data, dict):
             return ValidationResult(False, ["Workflow must be a dict"], {})
+        
         if "jobs" not in data:
             return ValidationResult(False, ["Workflow must have a 'jobs' key"], data)
 
         return ValidationResult(True, [], data)
+
     except FileNotFoundError:
-        return ValidationResult(False, [f"File not found: {safe_path}"], {})
+        return ValidationResult(False, [f"File not found: {workflow_path}"], {})
     except yaml.YAMLError as e:
         return ValidationResult(False, [f"Invalid YAML syntax: {e}"], {})
     except PermissionError as e:
         return ValidationResult(False, [f"Permission denied: {e}"], {})
     except IsADirectoryError as e:
         return ValidationResult(False, [f"Expected a file but found a directory: {e}"], {})
-    except NotADirectoryError as e:
-        return ValidationResult(False, [f"Invalid path component (not a directory): {e}"], {})
+    except OSError as e:
+        return ValidationResult(False, [f"OS Error reading file: {e}"], {})
