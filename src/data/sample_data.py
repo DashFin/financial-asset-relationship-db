@@ -344,7 +344,9 @@ def create_sample_database() -> AssetRelationshipGraph:
         asset_count = len(graph.assets)
         relationship_count = sum(len(rels) for rels in graph.relationships.values())
         logger.info(
-            "Expanded sample database created with %s assets and %s relationships", asset_count, relationship_count
+            "Expanded sample database created with %s assets and %s relationships",
+            asset_count,
+            relationship_count,
         )
         logger.info(
             "Asset classes covered: Equity (%s), Fixed Income (%s), Commodity (%s), Currency (%s)",

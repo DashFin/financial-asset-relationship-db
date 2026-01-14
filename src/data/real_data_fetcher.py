@@ -60,10 +60,14 @@ class RealDataFetcher:
                 logger.info("Loading asset graph from cache at %s", self.cache_path)
                 return _load_from_cache(self.cache_path)
             except Exception:
-                logger.exception("Failed to load cached dataset; proceeding with standard fetch")
+                logger.exception(
+                    "Failed to load cached dataset; proceeding with standard fetch"
+                )
 
         if not self.enable_network:
-            logger.info("Network fetching disabled. Using fallback dataset if available.")
+            logger.info(
+                "Network fetching disabled. Using fallback dataset if available."
+            )
             return self._fallback()
 
         logger.info("Creating database with real financial data from Yahoo Finance")
@@ -95,12 +99,16 @@ class RealDataFetcher:
 
                 try:
                     cache_dir = os.path.dirname(self.cache_path)
-                    with tempfile.NamedTemporaryFile("wb", dir=cache_dir, delete=False) as tmp_file:
+                    with tempfile.NamedTemporaryFile(
+                        "wb", dir=cache_dir, delete=False
+                    ) as tmp_file:
                         tmp_path = tmp_file.name
                         _save_to_cache(graph, tmp_path)
                     os.replace(tmp_path, self.cache_path)
                 except Exception:
-                    logger.exception("Failed to persist dataset cache to %s", self.cache_path)
+                    logger.exception(
+                        "Failed to persist dataset cache to %s", self.cache_path
+                    )
 
             logger.info(
                 "Real database created with %s assets and %s relationships",
@@ -173,7 +181,9 @@ class RealDataFetcher:
                     book_value=info.get("bookValue"),
                 )
                 equities.append(equity)
-                logger.info("Fetched price for %s (%s): %s", symbol, name, current_price)
+                logger.info(
+                    "Fetched price for %s (%s): %s", symbol, name, current_price
+                )
 
             except Exception as e:
                 logger.error("Failed to fetch data for %s: %s", symbol, e)
@@ -187,8 +197,18 @@ class RealDataFetcher:
         # For bonds, we'll use Treasury ETFs and bond proxies since individual bonds are harder to access
         bond_symbols = {
             "TLT": ("iShares 20+ Year Treasury Bond ETF", "Government", None, "AAA"),
-            "LQD": ("iShares iBoxx $ Investment Grade Corporate Bond ETF", "Corporate", None, "A"),
-            "HYG": ("iShares iBoxx $ High Yield Corporate Bond ETF", "Corporate", None, "BB"),
+            "LQD": (
+                "iShares iBoxx $ Investment Grade Corporate Bond ETF",
+                "Corporate",
+                None,
+                "A",
+            ),
+            "HYG": (
+                "iShares iBoxx $ High Yield Corporate Bond ETF",
+                "Corporate",
+                None,
+                "BB",
+            ),
         }
 
         bonds = []
@@ -211,7 +231,9 @@ class RealDataFetcher:
                     asset_class=AssetClass.FIXED_INCOME,
                     sector=sector,
                     price=current_price,
-                    yield_to_maturity=info.get("yield", 0.03),  # Default 3% if not available
+                    yield_to_maturity=info.get(
+                        "yield", 0.03
+                    ),  # Default 3% if not available
                     coupon_rate=info.get("yield", 0.025),  # Approximate
                     maturity_date="2035-01-01",  # Approximate for ETFs
                     credit_rating=rating,
@@ -249,7 +271,11 @@ class RealDataFetcher:
 
                 # Calculate simple volatility from recent data
                 hist_week = ticker.history(period="5d")
-                volatility = float(hist_week["Close"].pct_change().std()) if len(hist_week) > 1 else 0.20
+                volatility = (
+                    float(hist_week["Close"].pct_change().std())
+                    if len(hist_week) > 1
+                    else 0.20
+                )
 
                 commodity = Commodity(
                     id=symbol.replace("=F", "_FUTURE"),
@@ -426,7 +452,9 @@ def _serialize_graph(graph: AssetRelationshipGraph) -> Dict[str, Any]:
     """
     return {
         "assets": [_serialize_dataclass(asset) for asset in graph.assets.values()],
-        "regulatory_events": [_serialize_dataclass(event) for event in graph.regulatory_events],
+        "regulatory_events": [
+            _serialize_dataclass(event) for event in graph.regulatory_events
+        ],
         "relationships": {
             source: [
                 {"target": target, "relationship_type": rel_type, "strength": strength}
