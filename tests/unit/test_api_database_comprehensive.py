@@ -196,7 +196,7 @@ class TestThreadSafety:
             """
             Obtain a database connection and record its identity for tracking.
             
-            Calls _connect() to acquire a connection and appends the connection object's id to the module-level `connections` list.
+            Calls _connect() to acquire a connection and appends the connection object's id to the outer scope's `connections` list.
             """
             conn = _connect()
             connections.append(id(conn))
