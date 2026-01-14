@@ -34,7 +34,9 @@ def all_workflows() -> List[dict]:
                     raw = f.read()
                     content = yaml.safe_load(raw)
                     if isinstance(content, dict):
-                        workflows.append({"path": workflow_file, "content": content, "raw": raw})
+                        workflows.append(
+                            {"path": workflow_file, "content": content, "raw": raw}
+                        )
             except Exception:
                 continue
     return workflows
