@@ -24,7 +24,9 @@ def _get_database_url() -> str:
 
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
-        raise ValueError("DATABASE_URL environment variable must be set before using the database")
+        raise ValueError(
+            "DATABASE_URL environment variable must be set before using the database"
+        )
     return database_url
 
 
@@ -107,7 +109,9 @@ def _is_memory_db(path: str | None = None) -> bool:
     from urllib.parse import urlparse
 
     parsed = urlparse(target)
-    if parsed.scheme == "file" and (parsed.path == ":memory:" or ":memory:" in parsed.query):
+    if parsed.scheme == "file" and (
+        parsed.path == ":memory:" or ":memory:" in parsed.query
+    ):
         return True
 
     return False
