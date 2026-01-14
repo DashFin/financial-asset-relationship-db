@@ -630,7 +630,7 @@ class TestGetCurrentActiveUser:
             disabled=True
         )
 
-    `@pytest.mark.asyncio`
+    @pytest.mark.asyncio
     async def test_get_current_active_user_success(self, active_user):
         """Test getting active user succeeds."""
         user = await get_current_active_user(active_user)
