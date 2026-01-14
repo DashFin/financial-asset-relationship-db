@@ -35,15 +35,12 @@ class TestGet3DVisualizationDataEnhanced:
         
         assert isinstance(positions, np.ndarray)
         # Empty graph returns placeholder values per implementation
-        assert isinstance(positions, np.ndarray)
-        # Empty graph returns placeholder values per implementation
         assert len(asset_ids) == 1
         assert asset_ids == ["A"]
         assert len(colors) == 1
         assert isinstance(colors[0], str) and colors[0].startswith("#") and len(colors[0]) in (4, 7)
         assert len(hover) == 1
         assert asset_ids[0] in hover[0]
-
     def test_get_3d_visualization_with_single_relationship(self):
         """Test visualization data with single relationship."""
         graph = AssetRelationshipGraph()
