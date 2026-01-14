@@ -41,7 +41,7 @@ class TestWorkflowConfigurationIntegration:
             with open(workflow_file, 'r') as f:
                 data = yaml.safe_load(f)
             
-            jobs = data.get('jobs', {})
+                        data = yaml.safe_load(f) or {}
             for job_name, job_data in jobs.items():
                 steps = job_data.get('steps', [])
                 
