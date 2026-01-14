@@ -126,10 +126,7 @@ class AssetGraphRepository:
         ]
 
     def get_relationship(
-        self,
-        source_id: str,
-        target_id: str,
-        rel_type: str,
+        self, source_id: str, target_id: str, rel_type: str
     ) -> Optional[RelationshipRecord]:
         """Fetch a single relationship if it exists."""
 
@@ -150,10 +147,7 @@ class AssetGraphRepository:
         )
 
     def delete_relationship(
-        self,
-        source_id: str,
-        target_id: str,
-        rel_type: str,
+        self, source_id: str, target_id: str, rel_type: str
     ) -> None:
         """Remove a relationship."""
 

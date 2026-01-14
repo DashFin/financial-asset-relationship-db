@@ -67,94 +67,9 @@ class FormulaicdAnalyzer:
             "formula_count": len(all_formulas),
             "categories": self._categorize_formulas(all_formulas),
             "summary": self._generate_formula_summary(
-                all_formulas,
-                empirical_relationships,
+                all_formulas, empirical_relationships
             ),
         }
-
-    # --- Helper Methods Stubs (Assumed implementation based on context) ---
-
-    def _has_equities(self, graph: AssetRelationshipGraph) -> bool:
-        """Check if graph contains equity assets."""
-        # Placeholder implementation
-        return True
-
-    def _has_dividend_stocks(self, graph: AssetRelationshipGraph) -> bool:
-        """Check if graph contains dividend-paying stocks."""
-        return True
-
-    def _has_bonds(self, graph: AssetRelationshipGraph) -> bool:
-        """Check if graph contains bond assets."""
-        return True
-
-    def _has_currencies(self, graph: AssetRelationshipGraph) -> bool:
-        """Check if graph contains currency assets."""
-        return True
-
-    def _has_commodities(self, graph: AssetRelationshipGraph) -> bool:
-        """Check if graph contains commodity assets."""
-        return True
-
-    @staticmethod
-    def _calculate_pe_examples(graph: AssetRelationshipGraph) -> str:
-        """Generate example PE calculation string."""
-        return "Example: PE = 150 / 10 = 15.0"
-
-    def _calculate_dividend_examples(self, graph: AssetRelationshipGraph) -> str:
-        """Generate example Dividend Yield calculation string."""
-        return "Example: Yield = (5.0 / 100.0) * 100% = 5.0%"
-
-    def _calculate_ytm_examples(self, graph: AssetRelationshipGraph) -> str:
-        """Generate example YTM calculation string."""
-        return "Example: YTM calculation..."
-
-    def _calculate_market_cap_examples(self, graph: AssetRelationshipGraph) -> str:
-        """Generate example Market Cap calculation string."""
-        return "Example: Market Cap = 100 * 1000000 = 100M"
-
-    def _calculate_beta_examples(self, graph: AssetRelationshipGraph) -> str:
-        """Generate example Beta calculation string."""
-        return "Example: Beta = 1.2"
-
-    def _calculate_correlation_examples(self, graph: AssetRelationshipGraph) -> str:
-        """Generate example Correlation calculation string."""
-        return "Example: Correlation = 0.85"
-
-    def _calculate_pb_examples(self, graph: AssetRelationshipGraph) -> str:
-        """Generate example Price-to-Book calculation string."""
-        return "Example: P/B = 2.5"
-
-    def _calculate_sharpe_examples(self, graph: AssetRelationshipGraph) -> str:
-        """Generate example Sharpe Ratio calculation string."""
-        return "Example: Sharpe = (10% - 2%) / 15% = 0.53"
-
-    def _calculate_volatility_examples(self, graph: AssetRelationshipGraph) -> str:
-        """Generate example Volatility calculation string."""
-        return "Example: Volatility = 12.5%"
-
-    def _calculate_portfolio_return_examples(
-        self, graph: AssetRelationshipGraph
-    ) -> str:
-        """Generate example Portfolio Return calculation string."""
-        return "Example: Return = 0.5*10% + 0.5*5% = 7.5%"
-
-    def _calculate_portfolio_variance_examples(
-        self, graph: AssetRelationshipGraph
-    ) -> str:
-        """Generate example Portfolio Variance calculation string."""
-        return "Example: Variance calculation..."
-
-    def _calculate_exchange_rate_examples(self, graph: AssetRelationshipGraph) -> str:
-        """Generate example Exchange Rate calculation string."""
-        return "Example: USD/GBP = 1.2 * 0.85 = 1.02"
-
-    def _calculate_commodity_currency_examples(
-        self, graph: AssetRelationshipGraph
-    ) -> str:
-        """Generate example Commodity-Currency calculation string."""
-        return "Example: Relationship description..."
-
-    # --- End Helper Methods Stubs ---
 
     def _extract_fundamental_formulas(
         self, graph: AssetRelationshipGraph
@@ -381,8 +296,7 @@ class FormulaicdAnalyzer:
         return formulas
 
     def _extract_portfolio_theory_formulas(
-        self,
-        graph: AssetRelationshipGraph,
+        self, graph: AssetRelationshipGraph
     ) -> List[Formula]:
         """Extract Modern Portfolio Theory formulas"""
         formulas = []
@@ -429,8 +343,7 @@ class FormulaicdAnalyzer:
         return formulas
 
     def _analyze_cross_asset_relationships(
-        self,
-        graph: AssetRelationshipGraph,
+        self, graph: AssetRelationshipGraph
     ) -> List[Formula]:
         """Analyze relationships between different asset classes"""
         formulas = []
@@ -457,20 +370,14 @@ class FormulaicdAnalyzer:
         if self._has_commodities(graph) and self._has_currencies(graph):
             commodity_currency_formula = Formula(
                 name="Commodity-Currency Relationship",
-                formula=(
-                    "Currency_Value ∝ 1/Commodity_Price (for commodity exporters)"
-                ),
-                latex=(r"FX_{commodity} \propto \frac{1}{P_{commodity}}"),
-                description=(
-                    "Inverse relationship between commodity prices and currency values"
-                ),
+                formula="Currency_Value ∝ 1/Commodity_Price (for commodity exporters)",
+                latex=r"FX_{commodity} \propto \frac{1}{P_{commodity}}",
+                description="Inverse relationship between commodity prices and currency values",
                 variables={
                     "FX_commodity": "Currency value of commodity exporter",
                     "P_commodity": "Commodity price",
                 },
-                example_calculation=(
-                    self._calculate_commodity_currency_examples(graph)
-                ),
+                example_calculation=self._calculate_commodity_currency_examples(graph),
                 category="Cross-Asset",
                 r_squared=0.65,
             )
@@ -478,15 +385,10 @@ class FormulaicdAnalyzer:
 
         return formulas
 
-    @staticmethod
     def _calculate_empirical_relationships(
-        graph: AssetRelationshipGraph,
+        self, graph: AssetRelationshipGraph
     ) -> Dict[str, Any]:
-        """
-        Calculate empirical relationships from the data.
-        Implementation specific to the data available in the graph.
-        """
-        return {"correlation_matrix": {}}
+        pass
 
     @staticmethod
     def _calculate_avg_correlation_strength(graph: AssetRelationshipGraph) -> float:
@@ -505,9 +407,7 @@ class FormulaicdAnalyzer:
         return categories
 
     def _generate_formula_summary(
-        self,
-        formulas: List[Formula],
-        empirical_relationships: Dict,
+        self, formulas: List[Formula], empirical_relationships: Dict
     ) -> Dict[str, Any]:
         """Generate a comprehensive summary of formulaic analysis"""
         avg_corr_strength = self._calculate_avg_correlation_strength_from_empirical(
@@ -515,15 +415,12 @@ class FormulaicdAnalyzer:
         )
         return {
             "total_formulas": len(formulas),
-            "avg_r_squared": (
-                sum(f.r_squared for f in formulas) / len(formulas) if formulas else 0
-            ),
+            "avg_r_squared": sum(f.r_squared for f in formulas) / len(formulas)
+            if formulas
+            else 0,
             "formula_categories": self._categorize_formulas(formulas),
             "empirical_data_points": len(
-                empirical_relationships.get(
-                    "correlation_matrix",
-                    {},
-                )
+                empirical_relationships.get("correlation_matrix", {})
             ),
             "key_insights": [
                 f"Identified {len(formulas)} mathematical relationships",

@@ -130,16 +130,13 @@ class RegulatoryEventAssetORM(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     event_id: Mapped[str] = mapped_column(
-        ForeignKey("regulatory_events.id", ondelete="CASCADE"),
-        nullable=False,
+        ForeignKey("regulatory_events.id", ondelete="CASCADE"), nullable=False
     )
     asset_id: Mapped[str] = mapped_column(
-        ForeignKey("assets.id", ondelete="CASCADE"),
-        nullable=False,
+        ForeignKey("assets.id", ondelete="CASCADE"), nullable=False
     )
 
     event: Mapped[RegulatoryEventORM] = relationship(
-        "RegulatoryEventORM",
-        back_populates="related_assets",
+        "RegulatoryEventORM", back_populates="related_assets"
     )
     asset: Mapped[AssetORM] = relationship("AssetORM")

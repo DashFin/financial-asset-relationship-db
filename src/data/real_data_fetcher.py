@@ -194,10 +194,7 @@ class RealDataFetcher:
                 )
                 equities.append(equity)
                 logger.info(
-                    "Fetched price for %s (%s): %s",
-                    symbol,
-                    name,
-                    current_price,
+                    "Fetched price for %s (%s): %s", symbol, name, current_price
                 )
 
             except Exception as e:

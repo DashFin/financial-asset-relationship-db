@@ -49,13 +49,8 @@ def init_db(engine: Engine) -> None:
 def session_scope(
     session_factory: Callable[[], Session],
 ) -> Generator[Session, None, None]:
-    """
-    Provide a transactional scope around a series of operations.
+    """Provide a transactional scope around a series of operations."""
 
-    Yields:
-        Session: A SQLAlchemy session context that automatically commits
-        on success or rolls back on exception.
-    """
     session = session_factory()
     try:
         yield session

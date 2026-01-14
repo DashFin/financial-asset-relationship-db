@@ -21,8 +21,7 @@ from src.visualizations.metric_visuals import visualize_metrics
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -193,15 +192,13 @@ class FinancialAssetApp:
         outgoing = {
             target_id: {"relationship_type": rel_type, "strength": strength}
             for target_id, rel_type, strength in graph.relationships.get(
-                selected_asset,
-                [],
+                selected_asset, []
             )
         }
         incoming = {
             src_id: {"relationship_type": rel_type, "strength": strength}
             for src_id, rel_type, strength in graph.incoming_relationships.get(
-                selected_asset,
-                [],
+                selected_asset, []
             )
         }
         return asset_dict, {"outgoing": outgoing, "incoming": incoming}
@@ -396,7 +393,7 @@ class FinancialAssetApp:
                 f"{summary.get('empirical_data_points', 0)}"
             ),
             "",
-            "📋 **Formula Categories:**",
+            "📋 **Formula Categories:",
         ]
 
         categories = summary.get("formula_categories", {})
@@ -498,13 +495,11 @@ class FinancialAssetApp:
                     with gr.Row():
                         with gr.Column(scale=1):
                             refresh_btn = gr.Button(
-                                AppConstants.REFRESH_BUTTON_LABEL,
-                                variant="primary",
+                                AppConstants.REFRESH_BUTTON_LABEL, variant="primary"
                             )
                         with gr.Column(scale=1):
                             reset_view_btn = gr.Button(
-                                "Reset View & Show All",
-                                variant="secondary",
+                                "Reset View & Show All", variant="secondary"
                             )
                         with gr.Column(scale=2):
                             gr.Markdown(
@@ -526,8 +521,7 @@ class FinancialAssetApp:
                         )
                     with gr.Row():
                         refresh_metrics_btn = gr.Button(
-                            AppConstants.REFRESH_BUTTON_LABEL,
-                            variant="primary",
+                            AppConstants.REFRESH_BUTTON_LABEL, variant="primary"
                         )
 
                 with gr.Tab(AppConstants.TAB_SCHEMA_RULES):
@@ -540,8 +534,7 @@ class FinancialAssetApp:
                         )
                     with gr.Row():
                         refresh_schema_btn = gr.Button(
-                            AppConstants.GENERATE_SCHEMA_BUTTON_LABEL,
-                            variant="primary",
+                            AppConstants.GENERATE_SCHEMA_BUTTON_LABEL, variant="primary"
                         )
 
                 with gr.Tab(AppConstants.TAB_ASSET_EXPLORER):
@@ -566,8 +559,7 @@ class FinancialAssetApp:
 
                     with gr.Row():
                         refresh_explorer_btn = gr.Button(
-                            AppConstants.REFRESH_BUTTON_LABEL,
-                            variant="primary",
+                            AppConstants.REFRESH_BUTTON_LABEL, variant="primary"
                         )
 
                 with gr.Tab(AppConstants.TAB_DOCUMENTATION):
@@ -611,8 +603,7 @@ class FinancialAssetApp:
                     with gr.Row():
                         with gr.Column(scale=1):
                             refresh_formulas_btn = gr.Button(
-                                "🔄 Refresh Formulaic Analysis",
-                                variant="primary",
+                                "🔄 Refresh Formulaic Analysis", variant="primary"
                             )
                         with gr.Column(scale=2):
                             formula_summary = gr.Textbox(
@@ -739,10 +730,10 @@ class FinancialAssetApp:
 
             # Reset view button to show all relationships
             reset_view_btn.click(
-                lambda gs, vm, lt: self.refresh_visualization(
-                    gs,
-                    vm,
-                    lt,
+                lambda graph_state, view_mode, layout_type: self.refresh_visualization(
+                    graph_state,
+                    view_mode,
+                    layout_type,
                     True,
                     True,
                     True,
