@@ -136,7 +136,7 @@ These tests are designed to:
 - `passlib >= 1.7.0` (for password testing)
 - `numpy >= 1.20.0` (for graph testing)
 
-All dependencies are already listed in `requirements-dev.txt`.
+Test packages (`pytest`, `pytest-asyncio`) are in `requirements-dev.txt`. Runtime packages (`fastapi`, `passlib`, `numpy`) are in `requirements.txt`. JWT support (`python-jose`) may need to be added separately.
 
 ## Future Enhancements
 
