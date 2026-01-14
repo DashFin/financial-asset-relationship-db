@@ -309,7 +309,6 @@ class FormulaicVisualizer:
         )
 
         return fig
-        )
 
         fig.update_layout(
             title = "📊 Formula Categories: Reliability vs Count",

@@ -122,31 +122,31 @@ def _create_2d_relationship_traces(
         show_same_sector: Show same sector relationships
         show_market_cap: Show market cap relationships
         show_correlation: Show correlation relationships
-        show_corporate_bond: Show corporate bond relationships
-        show_commodity_currency: Show commodity currency relationships
-        show_income_comparison: Show income comparison relationships
-        show_regulatory: Show regulatory relationships
-        show_all_relationships: Master toggle to show all relationships
+       show_corporate_bond: Show corporate bond relationships
+       show_commodity_currency: Show commodity currency relationships
+       show_income_comparison: Show income comparison relationships
+       show_regulatory: Show regulatory relationships
+       show_all_relationships: Master toggle to show all relationships
 
-    Returns:
-        List of Plotly Scatter traces for relationships
-    """
-    if not asset_ids or not positions:
-        return []
+   Returns:
+       List of Plotly Scatter traces for relationships
+   """
+   if not asset_ids or not positions:
+       return []
 
-    # Build relationship filter
-    if not show_all_relationships:
-        relationship_filters = {
-            "same_sector": show_same_sector,
-            "market_cap_similar": show_market_cap,
-            "correlation": show_correlation,
-            "corporate_bond_to_equity": show_corporate_bond,
-            "commodity_currency": show_commodity_currency,
-            "income_comparison": show_income_comparison,
-            "regulatory_impact": show_regulatory,
-        }
-    else:
-        relationship_filters = None
+   # Build relationship filter
+   if not show_all_relationships:
+       relationship_filters = {
+           "same_sector": show_same_sector,
+           "market_cap_similar": show_market_cap,
+           "correlation": show_correlation,
+           "corporate_bond_to_equity": show_corporate_bond,
+           "commodity_currency": show_commodity_currency,
+           "income_comparison": show_income_comparison,
+           "regulatory_impact": show_regulatory,
+       }
+   else:
+       relationship_filters = None
    traces = []
    asset_id_set = set(asset_ids)
 

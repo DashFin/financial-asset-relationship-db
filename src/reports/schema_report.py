@@ -58,8 +58,8 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
         "   when available\n"
         "4. **Income Linkage**: Equity dividends compared to bond yields using similarity\n"
         "   score\n"
-        "5. **Commodity Exposure**: Energy equities link to crude oil; miners link to metal\n"
-        "   commodities\n\n"
+        "5. **Commodity Exposure**: Energy equities link to crude oil;\n"
+        "   miners link to metal commodities\n\n"
         "### Regulatory Rules\n"
         "1. **Event Propagation**: Earnings events impact related bond and currency\n"
         "   assets\n"
@@ -67,8 +67,8 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
         "3. **Related Assets**: Each event automatically creates relationships to\n"
         "   impacted securities\n\n"
         "### Valuation Rules\n"
-        "1. **Bond-Stock Spread**: Corporate bond yield - equity dividend yield indicates\n"
-        "   relative value\n"
+        "1. **Bond-Stock Spread**: Corporate bond yield - equity dividend yield\n"
+        "   indicates relative value\n"
         "2. **Sector Rotation**: Commodity prices trigger evaluation of sector\n"
         "   exposure\n"
         "3. **Currency Adjustment**: All cross-border assets adjusted for FX\n"
@@ -95,8 +95,8 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
     report += "- Relationship strengths normalized to 0-1 range\n"
     report += "- Impact scores on -1 to +1 scale for comparability\n"
     report += (
-        "- Relationship directionality: some types are bidirectional (e.g., same_sector,\n"
-        "  income_comparison);\n"
+        "- Relationship directionality: some types are bidirectional (e.g.,\n"
+        "  same_sector, income_comparison);\n"
         "  others are directional\n"
     )
 

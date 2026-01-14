@@ -47,7 +47,7 @@ def _is_valid_color_format(color: str) -> bool:
         return False
 
     # Hex colors
-    if re.match(r"^  # (?:[0-9A-Fa-f]{3}){1,2}(?:[0-9A-Fa-f]{2})?$, color):
+    if re.match(r"^#(?:[0-9A-Fa-f]{3}){1,2}(?:[0-9A-Fa-f]{2})?$", color):
         return True
 
     # rgb/rgba functions

@@ -390,7 +390,7 @@ def _format_formula_summary(summary: Dict, analysis_results: Dict) -> str:
             f"{summary.get('empirical_data_points', 0)}"
         ),
         "",
-        "📋 **Formula Categories:**",
+        "📋 **Formula Categories:",
     ]
 
     categories = summary.get("formula_categories", {})
@@ -409,11 +409,7 @@ def _format_formula_summary(summary: Dict, analysis_results: Dict) -> str:
         summary_lines.extend(["", "🔗 **Strongest Asset Correlations:**"])
         for corr in correlations[:3]:
             summary_lines.append(
-                (
-                    f"  • {corr['pair']}: "
-                    f"{corr['correlation']:.3f} "
-                    f"({corr['strength']})"
-                )
+                f"  • {corr['pair']}: {corr['correlation']:.3f} ({corr['strength']})"
             )
 
     return "\n".join(summary_lines)
