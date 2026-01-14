@@ -187,7 +187,7 @@ class TestCleanupMemoryConnection:
 class TestThreadSafety:
     """Test cases for thread-safety of database connections."""
 
-    `@patch`("api.database.DATABASE_PATH", ":memory:")
+    @patch("api.database.DATABASE_PATH", ":memory:")
     def test_memory_connection_thread_safety(self):
         """Test that memory connection is thread-safe."""
         import api.database
