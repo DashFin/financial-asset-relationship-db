@@ -123,7 +123,7 @@ class TestWorkflowModifications:
             data = yaml.safe_load(f)
         
         jobs = data.get('jobs', {})
-        greeting_job = jobs.get('greeting', {})
+        jobs.get('greeting', {})
     
     def test_labeler_config_deleted(self):
         """Labeler.yml configuration should be deleted."""
