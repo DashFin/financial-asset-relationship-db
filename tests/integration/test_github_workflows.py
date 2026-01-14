@@ -345,7 +345,7 @@ class TestPrAgentWorkflow:
         assert "gh api" in parse_step["run"]
 
         with pytest.raises(AssertionError):
-            self._assert_valid_fetch_depth({"fetch-depth": invalid_fetch_depth})
+            self._assert_valid_fetch_depth({"fetch-depth": "not-an-int"})
 
     def test_pr_agent_fetch_depth_allows_absent(self):
         """Missing fetch-depth is permitted for checkout steps."""
