@@ -39,10 +39,11 @@ from api.auth import (
 @pytest.fixture
 def mock_user_repository():
     """
-    Create a MagicMock simulating a UserRepository for tests.
+    Create a MagicMock-based UserRepository suitable for tests.
     
     Returns:
-        repo (MagicMock): Mocked UserRepository with `get_user`, `has_users`, and `create_or_update_user` methods stubbed.
+        MagicMock: A mock implementing the UserRepository interface (spec=UserRepository)
+        with `get_user`, `has_users`, and `create_or_update_user` attributes mocked.
     """
     repo = MagicMock(spec=UserRepository)
     repo.get_user = MagicMock()
@@ -54,10 +55,10 @@ def mock_user_repository():
 @pytest.fixture
 def sample_user():
     """
-    Create a sample UserInDB instance for use in tests.
+    Create a reusable sample UserInDB instance for tests.
     
     Returns:
-        UserInDB: A user with username "testuser", email "test@example.com", full_name "Test User", disabled False, and a preset hashed_password.
+        UserInDB: A UserInDB populated with username "testuser", email "test@example.com", full_name "Test User", disabled False, and a placeholder hashed_password.
     """
     return UserInDB(
         username="testuser",
