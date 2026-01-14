@@ -1,4 +1,6 @@
-"""Pytest configuration and fixtures for the financial asset relationship database tests."""
+"""Pytest configuration and fixtures for the financial asset relationship
+database tests.
+"""
 
 from typing import TYPE_CHECKING
 
@@ -165,7 +167,9 @@ def dividend_stock():
     Provide a sample Equity representing a dividend-paying stock for tests.
 
     Returns:
-        Equity: An Equity instance configured for testing with id "DIV_STOCK", symbol "DIVS", sector "Utilities", price 100.0, dividend_yield 0.04 and other common financial fields populated.
+        Equity: An Equity instance configured for testing with id "DIV_STOCK",
+            symbol "DIVS", sector "Utilities", price 100.0,
+            dividend_yield 0.04 and other common financial fields populated.
     """
     return Equity(
         id="DIV_STOCK",
