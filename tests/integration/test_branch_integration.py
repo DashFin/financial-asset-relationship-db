@@ -265,8 +265,8 @@ class TestWorkflowSecurityConsistency:
             for pattern in dangerous:
                 matches = re.findall(pattern, content)
                 if matches:
-                    pytest.fail(f"Potential injection risk in {wf_file}: {matches}")
-        return
+    def test_all_workflows_avoid_pr_injection(self):
+        """Verify no workflows have PR title/body injection risks."""
         workflow_files = list(Path(".github/workflows").glob("*.yml"))
 
         for wf_file in workflow_files:
@@ -279,12 +279,14 @@ class TestWorkflowSecurityConsistency:
                 r'\$\{\{.*github\.event\.pull_request\.body.*\}\}.*\|',
                 r'\$\{\{.*github\.event\.issue\.title.*\}\}.*\$\(',
             ]
-            
-            for pattern in dangerous:
-                matches = re.findall(pattern, content)
+            for pattern in broadened_patterns:
+                matches = re.findall(pattern, raw_content)
                 if matches:
-                    print(f"Potential injection risk in {wf_file}: {matches}")
-    
+                    injection_risks.append(f"{wf_file}: raw usage matches {pattern}: {matches}")
+
+        assert not injection_risks, (
+            "Potential PR injection risks found:\n" + "\n".join(injection_risks)
+        )
     def test_workflows_use_appropriate_checkout_refs(self):
         """
         Verify workflows triggered by pull_request_target specify a safe checkout reference.

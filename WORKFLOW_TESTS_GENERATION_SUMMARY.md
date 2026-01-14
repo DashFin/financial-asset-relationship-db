@@ -22,7 +22,7 @@ Generated comprehensive unit and integration tests for GitHub workflow modificat
 
 ## Generated Test Files
 
-### 1. test_workflow_changes_validation.py (764 lines)
++### 1. test_workflow_changes_validation.py (553 lines)
 
 **Purpose**: Comprehensive validation of all GitHub workflow modifications
 
@@ -93,7 +93,7 @@ Generated comprehensive unit and integration tests for GitHub workflow modificat
 
 **Total**: 44 comprehensive test methods
 
-### 2. test_requirements_validation.py (536 lines)
++### 2. test_requirements_validation.py (357 lines)
 
 **Purpose**: Comprehensive validation of requirements-dev.txt changes
 
@@ -143,7 +143,7 @@ Generated comprehensive unit and integration tests for GitHub workflow modificat
 
 **Total**: 19 comprehensive test methods
 
-### 3. test_branch_integration.py (451 lines)
++### 3. test_branch_integration.py (368 lines)
 
 **Purpose**: Integration tests validating all branch changes work together
 

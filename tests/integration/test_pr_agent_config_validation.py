@@ -11,6 +11,7 @@ Tests the simplified PR agent configuration, ensuring:
 from pathlib import Path
 
 import pytest
+import ruamel.yaml
 import yaml
 
 
@@ -128,6 +129,54 @@ class TestPRAgentConfigYAMLValidity:
         Attempts to parse the repository file at .github/pr-agent-config.yml and fails the test with the YAML parser error when parsing fails.
         """
         config_path = Path(".github/pr-agent-config.yml")
+
+        try:
+            with open(config_path, "r", encoding="utf-8") as f:
+                config = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            pytest.fail(f"Invalid YAML syntax: {e}")
+
+        assert config is not None
+        assert isinstance(config, dict)
+        config_path = Path(".github/pr-agent-config.yml")
+
+        class _NoDuplicateKeysSafeLoader(yaml.SafeLoader):
+            """YAML loader that fails on duplicate mapping keys."""
+
+            def construct_mapping(self, node, deep=False):
+                mapping = {}
+                seen = set()
+
+                for key_node, value_node in node.value:
+                    key = self.construct_object(key_node, deep=deep)
+
+                    # Most YAML keys here are scalars (strings). For safety, fall back
+                    # to string representation for unhashable keys.
+                        key_id = repr(key)
+                        is_hashable = False
+
+                    if key_id in seen:
+                        # Use the key node mark for precise location info.
+                        mark = getattr(key_node, "start_mark", None)
+                        if mark is not None:
+                            pytest.fail(
+                                f"Duplicate key '{key}' at line {mark.line + 1}, column {mark.column + 1}"
+                            )
+                        pytest.fail(f"Duplicate key '{key}' found in YAML mapping")
+
+                    seen.add(key_id)
+                    mapping[key] = self.construct_object(value_node, deep=deep)
+
+                return mapping
+
+        try:
+            with open(config_path, "r") as f:
+                config = yaml.load(f, Loader=_NoDuplicateKeysSafeLoader)
+            assert config is not None
+            assert isinstance(config, dict)
+        except yaml.YAMLError as e:
+            pytest.fail(f"Invalid YAML syntax: {e}")
+        
         with open(config_path, 'r') as f:
             try:
                 yaml.safe_load(f)
@@ -141,14 +190,51 @@ class TestPRAgentConfigYAMLValidity:
         Scans .github/pr-agent-config.yml, ignores comment lines, and for each non-comment line treats the text before the first ':' as the key; the test fails if a key is encountered more than once.
         """
         config_path = Path(".github/pr-agent-config.yml")
+
+        with open(config_path, "r", encoding="utf-8") as f:
+            try:
+                # DuplicateKeyLoader is expected to raise ConstructorError on duplicates
+                yaml.load(f, Loader=DuplicateKeyLoader)
+            except yaml.constructor.ConstructorError as e:
+                # ConstructorError can be raised for reasons other than duplicate keys;
+                # only fail this test when the error is actually about duplicates.
+                if "duplicate" in str(e).lower():
+                    pytest.fail(f"Duplicate key found: {e}")
+                raise
+            except yaml.YAMLError as e:
+                pytest.fail(f"Invalid YAML syntax while checking duplicates: {e}")
+
         with open(config_path, 'r') as f:
             content = f.read()
 
         # Simple check for obvious duplicates
         lines = content.split('\n')
-        seen_keys = set()
-        for line in lines:
-            if ':' in line and not line.strip().startswith('#'):
+        with open(config_path, 'r') as f:
+            try:
+                config = yaml.safe_load(f)
+            except yaml.YAMLError as e:
+                pytest.fail(f"Invalid YAML syntax while checking duplicates: {e}")
+
+        def find_duplicates(obj, path=""):
+            duplicates = []
+            if isinstance(obj, dict):
+                keys_seen = set()
+                for key, value in obj.items():
+                    current_path = f"{path}.{key}" if path else key
+                    if key in keys_seen:
+                        duplicates.append(current_path)
+                    else:
+                        keys_seen.add(key)
+                    duplicates.extend(find_duplicates(value, current_path))
+            elif isinstance(obj, list):
+                for idx, item in enumerate(obj):
+                    item_path = f"{path}[{idx}]" if path else f"[{idx}]"
+                    duplicates.extend(find_duplicates(item, item_path))
+            return duplicates
+
+        duplicates = find_duplicates(config)
+        if duplicates:
+            pytest.fail(f"Duplicate keys found at paths: {', '.join(duplicates)}")
                 key = line.split(':')[0].strip()
                 if key in seen_keys:
                     pytest.fail(f"Duplicate key found: {key}")
@@ -165,11 +251,22 @@ class TestPRAgentConfigYAMLValidity:
             lines = f.readlines()
 
         for i, line in enumerate(lines, 1):
-            if line.strip() and not line.strip().startswith('#'):
-                indent = len(line) - len(line.lstrip())
-                if indent > 0:
-                    assert indent % 2 == 0, \
-                        f"Line {i} has inconsistent indentation: {indent} spaces"
+            # Disallow tabs anywhere (especially in indentation)
+            assert '\t' not in line, f"Line {i}: Tab character found; tabs are not allowed"
+
+            # If line starts with spaces, ensure multiple of 2 indentation
+            if line.strip() and line[0] == ' ':
+                spaces = len(line) - len(line.lstrip(' '))
+                assert spaces % 2 == 0, \
+                    f"Line {i}: Inconsistent indentation (not multiple of 2)"
+        config_path = Path(".github/pr-agent-config.yml")
+
+        with open(config_path, 'r') as f:
+            lines = f.readlines()
+
+        for line_num, line in enumerate(lines, 1):
+            # Use the shared validation helper
+            self._validate_line_indentation(line, line_num)
 
 
 class TestPRAgentConfigSecurity:
