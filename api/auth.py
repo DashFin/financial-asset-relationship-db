@@ -187,19 +187,6 @@ def _seed_credentials_from_env(repository: UserRepository) -> None:
     If both ADMIN_USERNAME and ADMIN_PASSWORD are set, create or update that user in the repository using optional ADMIN_EMAIL, ADMIN_FULL_NAME and ADMIN_DISABLED (interpreted as a truthy flag). The provided password is stored hashed. If either ADMIN_USERNAME or ADMIN_PASSWORD is missing, no changes are made.
     """
 
-
-username = os.getenv("ADMIN_USERNAME")
-password = os.getenv("ADMIN_PASSWORD")
-if not username or not password:
-
-
-def _seed_credentials_from_env(repository: UserRepository) -> None:
-    """
-    Seed an administrative user into the repository from environment variables.
-
-    If both ADMIN_USERNAME and ADMIN_PASSWORD are set, create or update that user in the repository using optional ADMIN_EMAIL, ADMIN_FULL_NAME and ADMIN_DISABLED (interpreted as a truthy flag). The provided password is stored hashed. If either ADMIN_USERNAME or ADMIN_PASSWORD is missing, no changes are made.
-    """
-
     username = os.getenv("ADMIN_USERNAME")
     password = os.getenv("ADMIN_PASSWORD")
     if not username or not password:
@@ -217,9 +204,6 @@ def _seed_credentials_from_env(repository: UserRepository) -> None:
         full_name=full_name,
         disabled=disabled,
     )
-
-
-hashed_password = get_password_hash(password)
 email = os.getenv("ADMIN_EMAIL")
 full_name = os.getenv("ADMIN_FULL_NAME")
 disabled = _is_truthy(os.getenv("ADMIN_DISABLED", "false"))
