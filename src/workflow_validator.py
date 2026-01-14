@@ -41,7 +41,7 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
     """
     Validate a workflow YAML file located at the given filesystem path.
 
-    
+
 
     Performs YAML parsing and verifies the file is a mapping with a top-level
     'jobs' key. On success returns a ValidationResult with is_valid set to True
@@ -68,10 +68,10 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
 
         if data is None:
             return ValidationResult(False, ["Workflow file is empty or contains only nulls."], {})
-        
+
         if not isinstance(data, dict):
             return ValidationResult(False, ["Workflow must be a dict"], {})
-        
+
         if "jobs" not in data:
             return ValidationResult(False, ["Workflow must have a 'jobs' key"], data)
 
