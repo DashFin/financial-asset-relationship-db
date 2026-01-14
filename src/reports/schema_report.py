@@ -56,21 +56,43 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
 ## Business Rules & Constraints
 
 ### Cross-Asset Rules
-1. **Corporate Bond Linkage**: Corporate bonds link to issuing company equity (directional)
-2. **Sector Affinity**: Assets in same sector have baseline relationship strength of 0.7 (bidirectional)
-3. **Currency Exposure**: Non-USD assets link to their native currency asset when available
-4. **Income Linkage**: Equity dividends compared to bond yields using similarity score
-5. **Commodity Exposure**: Energy equities link to crude oil; miners link to metal commodities
+"""
+    report += (
+        "1. **Corporate Bond Linkage**: Corporate bonds link to issuing company "
+        "equity (directional)\n"
+        "2. **Sector Affinity**: Assets in same sector have baseline relationship "
+        "strength of 0.7 (bidirectional)\n"
+        "3. **Currency Exposure**: Non-USD assets link to their native currency "
+        "asset when available\n"
+        "4. **Income Linkage**: Equity dividends compared to bond yields using "
+        "similarity score\n"
+        "5. **Commodity Exposure**: Energy equities link to crude oil; miners link "
+        "to metal commodities\n"
+    )
+    report += """
 
 ### Regulatory Rules
-1. **Event Propagation**: Earnings events impact related bond and currency assets
-2. **Impact Scoring**: Events range from -1 (negative) to +1 (positive)
-3. **Related Assets**: Each event automatically creates relationships to impacted securities
+"""
+    report += (
+        "1. **Event Propagation**: Earnings events impact related bond and currency "
+        "assets\n"
+        "2. **Impact Scoring**: Events range from -1 (negative) to +1 (positive)\n"
+        "3. **Related Assets**: Each event automatically creates relationships to "
+        "impacted securities\n"
+    )
+    report += """
 
 ### Valuation Rules
-1. **Bond-Stock Spread**: Corporate bond yield - equity dividend yield indicates relative value
-2. **Sector Rotation**: Commodity prices trigger evaluation of sector exposure
-3. **Currency Adjustment**: All cross-border assets adjusted for FX exposure
+"""
+    report += (
+        "1. **Bond-Stock Spread**: Corporate bond yield - equity dividend yield "
+        "indicates relative value\n"
+        "2. **Sector Rotation**: Commodity prices trigger evaluation of sector "
+        "exposure\n"
+        "3. **Currency Adjustment**: All cross-border assets adjusted for FX "
+        "exposure\n"
+    )
+    report += """
 
 ## Schema Optimization Metrics
 
@@ -99,5 +121,4 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
         "  same_sector, income_comparison);\n"
         "  others are directional\n"
     )
-
     return report
