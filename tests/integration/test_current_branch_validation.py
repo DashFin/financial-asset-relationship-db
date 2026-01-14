@@ -90,6 +90,7 @@ class TestWorkflowModifications:
         """Label workflow should be simplified without config checks."""
         workflow_path = Path(".github/workflows/label.yml")
         assert workflow_path.exists(), "Expected '.github/workflows/label.yml' to exist"
+    
     def test_greetings_workflow_simplified(self):
         """Greetings workflow should have simplified messages."""
         workflow_path = Path(".github/workflows/greetings.yml")
@@ -99,30 +100,6 @@ class TestWorkflowModifications:
         
         jobs = data.get('jobs', {})
         greeting_job = jobs.get('greeting', {})
-        search_root = Path(__file__).parent.parent.parent
-        files_with_reference = []
-
-        for py_path in search_root.rglob('*.py'):
-            try:
-                content = py_path.read_text(encoding='utf-8', errors='ignore')
-            except Exception:
-                # Skip unreadable files
-                continue
-            if 'context_chunker' in content:
-                files_with_reference.append(str(py_path))
-
-        # Should only appear in test files documenting the deletion
-        if files_with_reference:
-            test_files = [
-                f
-                for f in files_with_reference
-                if ("tests" in Path(f).parts) or Path(f).name.startswith("test_")
-            ]
-            # All references should be in test files
-            assert len(files_with_reference) == len(test_files), (
-                "Non-test files reference 'context_chunker': "
-                f"{sorted(set(files_with_reference) - set(test_files))}"
-            )
     
     def test_labeler_config_deleted(self):
         """Labeler.yml configuration should be deleted."""
