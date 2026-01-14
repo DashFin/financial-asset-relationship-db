@@ -390,7 +390,7 @@ def _format_formula_summary(summary: Dict, analysis_results: Dict) -> str:
             f"{summary.get('empirical_data_points', 0)}"
         ),
         "",
-        "📋 **Formula Categories:",
+        "📋 **Formula Categories:**",
     ]
 
     categories = summary.get("formula_categories", {})

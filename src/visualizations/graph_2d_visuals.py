@@ -113,49 +113,49 @@ def _create_2d_relationship_traces(
     show_regulatory: bool = True,
     show_all_relationships: bool = False,
 ) -> List[go.Scatter]:
-    """Create 2D relationship traces with filtering.
+        """Create 2D relationship traces with filtering.
 
-    Args:
-        graph: Asset relationship graph
-        positions: Dictionary mapping asset IDs to (x, y) positions
-        asset_ids: List of asset IDs
-        show_same_sector: Show same sector relationships
-        show_market_cap: Show market cap relationships
-        show_correlation: Show correlation relationships
-       show_corporate_bond: Show corporate bond relationships
-       show_commodity_currency: Show commodity currency relationships
-       show_income_comparison: Show income comparison relationships
-       show_regulatory: Show regulatory relationships
-       show_all_relationships: Master toggle to show all relationships
+        Args:
+            graph: Asset relationship graph
+            positions: Dictionary mapping asset IDs to (x, y) positions
+            asset_ids: List of asset IDs
+            show_same_sector: Show same sector relationships
+            show_market_cap: Show market cap relationships
+            show_correlation: Show correlation relationships
+            show_corporate_bond: Show corporate bond relationships
+            show_commodity_currency: Show commodity currency relationships
+            show_income_comparison: Show income comparison relationships
+            show_regulatory: Show regulatory relationships
+            show_all_relationships: Master toggle to show all relationships
 
-   Returns:
-       List of Plotly Scatter traces for relationships
-   """
-   if not asset_ids or not positions:
-       return []
+        Returns:
+            List of Plotly Scatter traces for relationships
+        """
+        if not asset_ids or not positions:
+            return []
 
-   # Build relationship filter
-   if not show_all_relationships:
-       relationship_filters = {
-           "same_sector": show_same_sector,
-           "market_cap_similar": show_market_cap,
-           "correlation": show_correlation,
-           "corporate_bond_to_equity": show_corporate_bond,
-           "commodity_currency": show_commodity_currency,
-           "income_comparison": show_income_comparison,
-           "regulatory_impact": show_regulatory,
-       }
-   else:
-       relationship_filters = None
-   traces = []
-   asset_id_set = set(asset_ids)
+        # Build relationship filter
+        if not show_all_relationships:
+            relationship_filters = {
+                "same_sector": show_same_sector,
+                "market_cap_similar": show_market_cap,
+                "correlation": show_correlation,
+                "corporate_bond_to_equity": show_corporate_bond,
+                "commodity_currency": show_commodity_currency,
+                "income_comparison": show_income_comparison,
+                "regulatory_impact": show_regulatory,
+            }
+        else:
+            relationship_filters = None
+        traces = []
+        asset_id_set = set(asset_ids)
 
-   # Group relationships by type
-   relationship_groups = {}
+        # Group relationships by type
+        relationship_groups = {}
 
-   for source_id in asset_ids:
-       if source_id not in graph.relationships:
-           continue
+        for source_id in asset_ids:
+            if source_id not in graph.relationships:
+                continue
 
        for target_id, rel_type, strength in graph.relationships[source_id]:
            # Skip if target not in positions

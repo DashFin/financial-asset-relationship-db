@@ -43,26 +43,28 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
 ## Top Relationships
 """
 
-    for idx, (source, target, rel_type, strength) in enumerate(metrics["top_relationships"], 1):
+    for idx, (source, target, rel_type, strength) in enumerate(
+        metrics["top_relationships"], 1
+    ):
         report += f"{idx}. {source} → {target} ({rel_type}): {strength:.2%}\n"
 
     report += (
         "\n"
         "## Business Rules & Constraints\n\n"
         "### Cross-Asset Rules\n"
-        "1. **Corporate Bond Linkage**: Corporate bonds link to issuing company equity\n"
-        "   (directional)\n"
-        "2. **Sector Affinity**: Assets in same sector have baseline relationship strength\n"
-        "   of 0.7 (bidirectional)\n"
-        "3. **Currency Exposure**: Non-USD assets link to their native currency asset\n"
-        "   when available\n"
-        "4. **Income Linkage**: Equity dividends compared to bond yields using similarity\n"
-        "   score\n"
+        "1. **Corporate Bond Linkage**: Corporate bonds link to\n"
+        "   issuing company equity (directional)\n"
+        "2. **Sector Affinity**: Assets in same sector have baseline\n"
+        "   relationship strength of 0.7 (bidirectional)\n"
+        "3. **Currency Exposure**: Non-USD assets link to their native\n"
+        "   currency asset when available\n"
+        "4. **Income Linkage**: Equity dividends compared to bond yields\n"
+        "   using similarity score\n"
         "5. **Commodity Exposure**: Energy equities link to crude oil;\n"
         "   miners link to metal commodities\n\n"
         "### Regulatory Rules\n"
-        "1. **Event Propagation**: Earnings events impact related bond and currency\n"
-        "   assets\n"
+        "1. **Event Propagation**: Earnings events impact related bond\n"
+        "   and currency assets\n"
         "2. **Impact Scoring**: Events range from -1 (negative) to +1 (positive)\n"
         "3. **Related Assets**: Each event automatically creates relationships to\n"
         "   impacted securities\n\n"

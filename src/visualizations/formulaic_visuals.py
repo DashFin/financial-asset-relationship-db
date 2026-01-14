@@ -1,4 +1,3 @@
-import math
 from typing import Any, Dict
 
 import plotly.graph_objects as go
@@ -236,8 +235,14 @@ class FormulaicVisualizer:
                 f"<b>Category:</b> {formula.category}<br>"
                 f"<b>Reliability (R²):</b> {formula.r_squared:.3f}<br><br>"
                 "<b>Variables:</b><br>"
-                + "<br>".join([f"• {var}: {desc}" for var, desc in formula.variables.items()])
-                + f"<br><br><b>Example Calculation:</b><br>{formula.example_calculation}"
+                + "<br>".join(
+                    [
+                        f"• {var}: {desc}"
+                        for var, desc in formula.variables.items()
+                    ]
+                )
+                + "<br><br><b>Example Calculation:</b><br>"
+                + f"{formula.example_calculation}"
             ),
             xref="paper",
             yref="paper",
@@ -259,19 +264,6 @@ class FormulaicVisualizer:
             paper_bgcolor="#F8F9FA",
             height=600,
             margin=dict(l=50, r=50, t=80, b=50),
-        )
-
-        return fig
-
-        fig.update_layout(
-            title="📊 Formula Categories: Reliability vs Count",
-            xaxis=dict(title="Category"),
-            yaxis=dict(title="Average R-squared", side="left"),
-            yaxis2=dict(title="Number of Formulas", side="right", overlaying="y"),
-            barmode="group",
-            plot_bgcolor="white",
-            paper_bgcolor="#F8F9FA",
-            legend=dict(x=0.7, y=1),
         )
 
         return fig
