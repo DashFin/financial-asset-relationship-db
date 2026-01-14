@@ -350,7 +350,46 @@ class TestPrAgentWorkflow:
     def test_pr_agent_fetch_depth_allows_absent(self):
         """Missing fetch-depth is permitted for checkout steps."""
         # Test empty configuration
-        self._assert_valid_fetch_depth({})
+        def _assert_valid_fetch_depth(self, step_with: Dict[str, Any]) -> None:
+            """Assert that a checkout step's `with` mapping has a valid optional `fetch-depth`."""
+            if "fetch-depth" not in step_with:
+                return
+
+            fetch_depth = step_with["fetch-depth"]
+
+            # Reject non-integer types (including strings)
+            assert isinstance(fetch_depth, int), f"fetch-depth should be an integer, got {type(fetch_depth).__name__}"
+            # Reject negative integers
+            assert fetch_depth >= 0, "fetch-depth cannot be negative"
+
+        def test_pr_agent_parse_comments_step(self, pr_agent_workflow: Dict[str, Any]):
+            """Verify the "Parse PR Review Comments" step in the pr-agent-trigger job."""
+            job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
+            steps = job.get("steps", [])
+
+            parse_step = None
+            for step in steps:
+                if step.get("name") == "Parse PR Review Comments":
+                    parse_step = step
+                    break
+
+            assert parse_step is not None
+            assert parse_step.get("id") == "parse-comments"
+            assert "GITHUB_TOKEN" in parse_step.get("env", {})
+            assert "gh api" in parse_step["run"]
+
+        def test_pr_agent_fetch_depth_allows_absent(self):
+            """Missing fetch-depth is permitted for checkout steps."""
+            # Test empty configuration
+            self._assert_valid_fetch_depth({})
+            # Test configuration with other parameters but no fetch-depth
+            self._assert_valid_fetch_depth({"token": "${{ secrets.GITHUB_TOKEN }}"})
+
+        def test_pr_agent_fetch_depth_rejects_invalid_values(self):
+            """Invalid fetch-depth values are rejected."""
+            for invalid in ["0", -1, 1.5, None]:
+                with pytest.raises(AssertionError):
+                    self._assert_valid_fetch_depth({"fetch-depth": invalid})
         # Test configuration with other parameters but no fetch-depth
         self._assert_valid_fetch_depth({"token": "${{ secrets.GITHUB_TOKEN }}"})
 
