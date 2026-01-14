@@ -264,7 +264,7 @@ class TestGetCurrentUser:
     async def test_get_current_user_with_expired_token(self):
         """Test get_current_user with expired token."""
         exp_time = datetime.now(timezone.utc) - timedelta(minutes=10)
-        token_data = {"sub": "testuser", "exp": exp_time}
+        token_data = {"sub": "testuser", "exp": int(exp_time.timestamp())}
         token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
 
         with pytest.raises(HTTPException) as exc_info:
@@ -272,7 +272,6 @@ class TestGetCurrentUser:
 
         assert exc_info.value.status_code == 401
         assert exc_info.value.detail == "Token has expired"
-
     @pytest.mark.asyncio
     async def test_get_current_user_with_invalid_token(self):
         """Test get_current_user with invalid token."""
