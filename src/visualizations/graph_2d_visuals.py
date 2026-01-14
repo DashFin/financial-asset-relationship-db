@@ -134,19 +134,6 @@ def _create_2d_relationship_traces(
         if not asset_ids or not positions:
             return []
 
-        # Build relationship filter
-        if not show_all_relationships:
-            relationship_filters = {
-                "same_sector": show_same_sector,
-                "market_cap_similar": show_market_cap,
-                "correlation": show_correlation,
-                "corporate_bond_to_equity": show_corporate_bond,
-                "commodity_currency": show_commodity_currency,
-                "income_comparison": show_income_comparison,
-                "regulatory_impact": show_regulatory,
-            }
-        else:
-            relationship_filters = None
         traces = []
         asset_id_set = set(asset_ids)
 
