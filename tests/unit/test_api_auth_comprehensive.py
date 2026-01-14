@@ -242,7 +242,7 @@ class TestCreateAccessToken:
 
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         exp_timestamp = payload["exp"]
-        now_timestamp = datetime.utcnow().timestamp()
+        now_timestamp = datetime.now(timezone.utc).timestamp()
         assert exp_timestamp > now_timestamp
 
 
