@@ -1,11 +1,12 @@
+import math
 from typing import Any, Dict, List
 
-import math
 import networkx as nx
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 from src.analysis.formulaic_analysis import Formula
+
 
 class FormulaicVisualizer:
     """Visualizes mathematical formulas and relationships from financial analysis."""
@@ -252,10 +253,7 @@ class FormulaicVisualizer:
                 f"{formula.r_squared:.3f}<br><br>"
                 + "<b>Variables:</b><br>"
                 + "<br>".join(
-                    [
-                        f"• {var}: {desc}"
-                        for var, desc in formula.variables.items()
-                    ]
+                    [f"• {var}: {desc}" for var, desc in formula.variables.items()]
                 )
                 + (
                     f"<br><br><b>Example Calculation:</b><br>"
