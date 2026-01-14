@@ -214,8 +214,7 @@ _seed_credentials_from_env(user_repository)
 
 if not user_repository.has_users():
     raise ValueError(
-        "No user credentials available. Provide ADMIN_USERNAME "
-        "and ADMIN_PASSWORD or pre-populate the database."
+        "No user credentials available. Provide ADMIN_USERNAME " "and ADMIN_PASSWORD or pre-populate the database."
     )
 
 
@@ -290,8 +289,8 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     """
     Return the user represented by the provided JWT.
-    
-    
+
+
 
     Returns:
         User: The User model corresponding to the token's subject.
