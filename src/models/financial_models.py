@@ -46,8 +46,7 @@ class Asset:
         if not isinstance(self.price, (int, float)) or self.price < 0:
             raise ValueError("Asset price must be a non-negative number")
         if self.market_cap is not None and (
-            not isinstance(self.market_cap, (int, float))
-            or self.market_cap < 0
+            not isinstance(self.market_cap, (int, float)) or self.market_cap < 0
         ):
             raise ValueError("Market cap must be a non-negative number or None")
         if not re.match(r"^[A-Z]{3}$", self.currency.upper()):
@@ -118,6 +117,6 @@ class RegulatoryEvent:
             raise ValueError("Impact score must be a float between -1 and 1")
         # Basic ISO 8601 date validation
         if not re.match(r"^\d{4}-\d{2}-\d{2}", self.date):
-            raise ValueError("Date must be in ISO 8601 format (YYYY-MM-DD...)" )
+            raise ValueError("Date must be in ISO 8601 format (YYYY-MM-DD...)")
         if not self.description or not isinstance(self.description, str):
             raise ValueError("Description must be a non-empty string")

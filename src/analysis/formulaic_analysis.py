@@ -353,22 +353,14 @@ class FormulaicdAnalyzer:
             exchange_rate_formula = Formula(
                 name="Exchange Rate Relationships",
                 formula="USD/EUR × EUR/GBP = USD/GBP",
-                latex=(
-                    r"\frac{USD}{EUR} \times "
-                    r"\frac{EUR}{GBP} = \frac{USD}{GBP}"
-                ),
-                description=(
-                    "Triangular arbitrage relationship between "
-                    "currencies"
-                ),
+                latex=(r"\frac{USD}{EUR} \times " r"\frac{EUR}{GBP} = \frac{USD}{GBP}"),
+                description=("Triangular arbitrage relationship between currencies"),
                 variables={
                     "USD/EUR": "US Dollar to Euro exchange rate",
                     "EUR/GBP": "Euro to British Pound exchange rate",
                     "USD/GBP": "US Dollar to British Pound exchange rate",
                 },
-                example_calculation=(
-                    self._calculate_exchange_rate_examples(graph)
-                ),
+                example_calculation=(self._calculate_exchange_rate_examples(graph)),
                 category="Currency Markets",
                 r_squared=0.99,
             )
@@ -379,13 +371,11 @@ class FormulaicdAnalyzer:
             commodity_currency_formula = Formula(
                 name="Commodity-Currency Relationship",
                 formula=(
-                    "Currency_Value ∝ 1/Commodity_Price "
-                    "(for commodity exporters)"
+                    "Currency_Value ∝ 1/Commodity_Price (for commodity exporters)"
                 ),
                 latex=r"FX_{commodity} \propto \frac{1}{P_{commodity}}",
                 description=(
-                    "Inverse relationship between commodity prices "
-                    "and currency values"
+                    "Inverse relationship between commodity prices and currency values"
                 ),
                 variables={
                     "FX_commodity": "Currency value of commodity exporter",
