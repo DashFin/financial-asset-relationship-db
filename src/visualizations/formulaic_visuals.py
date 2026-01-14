@@ -1,5 +1,6 @@
-from typing import Any, Dict
+from typing import Any, Dict, List
 
+import networkx as nx
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
@@ -7,7 +8,10 @@ from src.analysis.formulaic_analysis import Formula
 
 
 class FormulaicVisualizer:
-    """Visualizes mathematical formulas and relationships from financial analysis"""
+    """
+    Visualizes mathematical formulas and relationships from financial analysis.
+
+    """
 
     def __init__(self):
         self.color_scheme = {
@@ -83,6 +87,7 @@ class FormulaicVisualizer:
             )
 
         # 3. Empirical Correlation Heatmap
+        # 
         correlation_matrix = empirical_relationships.get("correlation_matrix", {})
         if correlation_matrix:
             # Convert correlation matrix to heatmap format
@@ -226,6 +231,7 @@ class FormulaicVisualizer:
         fig = go.Figure()
 
         # Create a text-based visualization of the formula
+        # 
         fig.add_annotation(
             text=(
                 f"<b>{formula.name}</b><br><br>"
@@ -261,4 +267,113 @@ class FormulaicVisualizer:
             margin=dict(l=50, r=50, t=80, b=50),
         )
 
+        return fig
+
+    def create_correlation_network(self, empirical_relationships: Dict[str, Any]) -> go.Figure:
+        """Create a network graph visualization of asset correlations."""
+        correlation_matrix = empirical_relationships.get("correlation_matrix", {})
+        
+        # Build graph from correlations
+        G = nx.Graph()
+        for pair, corr_value in correlation_matrix.items():
+            if abs(corr_value) > 0.3:  # Only show significant correlations
+                assets = pair.split("-")
+                if len(assets) == 2:
+                    G.add_edge(assets[0], assets[1], weight=corr_value)
+
+        # Generate layout
+        pos = nx.spring_layout(G, seed=42)
+
+        edge_x = []
+        edge_y = []
+        for edge in G.edges():
+            x0, y0 = pos[edge[0]]
+            x1, y1 = pos[edge[1]]
+            edge_x.extend([x0, x1, None])
+            edge_y.extend([y0, y1, None])
+
+        edge_trace = go.Scatter(
+            x=edge_x, y=edge_y,
+            line=dict(width=0.5, color='#888'),
+            hoverinfo='none',
+            mode='lines')
+
+        node_x = []
+        node_y = []
+        node_text = []
+        for node in G.nodes():
+            x, y = pos[node]
+            node_x.append(x)
+            node_y.append(y)
+            node_text.append(node)
+
+        node_trace = go.Scatter(
+            x=node_x, y=node_y,
+            mode='markers+text',
+            hoverinfo='text',
+            text=node_text,
+            textposition="top center",
+            marker=dict(
+                showscale=True,
+                colorscale='YlGnBu',
+                size=10,
+                colorbar=dict(
+                    thickness=15,
+                    title='Node Connections',
+                    xanchor='left',
+                    titleside='right'
+                ),
+                line_width=2))
+
+        # Color nodes by degree
+        node_adjacencies = []
+        for node, adjacencies in enumerate(G.adjacency()):
+            node_adjacencies.append(len(adjacencies[1]))
+        node_trace.marker.color = node_adjacencies
+
+        fig = go.Figure(data=[edge_trace, node_trace],
+             layout=go.Layout(
+                title='Correlation Network Graph',
+                titlefont_size=16,
+                showlegend=False,
+                hovermode='closest',
+                margin=dict(b=20,l=5,r=5,t=40),
+                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))
+                )
+        return fig
+
+    def create_metric_comparison_chart(self, analysis_results: Dict[str, Any]) -> go.Figure:
+        """Create a chart comparing different metrics derived from formulas."""
+        fig = go.Figure()
+        
+        # Example logic: Compare theoretical vs empirical values if available
+        # For now, we plot R-squared distribution by category
+        formulas = analysis_results.get("formulas", [])
+        if not formulas:
+            return fig
+
+        categories = {}
+        for f in formulas:
+            if f.category not in categories:
+                categories[f.category] = []
+            categories[f.category].append(f.r_squared)
+        
+        for cat, values in categories.items():
+            fig.add_trace(go.Box(
+                y=values,
+                name=cat,
+                boxpoints='all',
+                jitter=0.3,
+                pointpos=-1.8,
+                marker_color=self.color_scheme.get(cat, "#CCCCCC")
+            ))
+
+        fig.update_layout(
+            title='Formula Reliability Distribution by Category',
+            yaxis_title='R-Squared Score',
+            xaxis_title='Formula Category',
+            showlegend=False,
+            template="plotly_white"
+        )
         return fig
