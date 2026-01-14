@@ -519,6 +519,7 @@ class TestGetCurrentActiveUser:
             disabled=True
         )
 
+    `@pytest.mark.asyncio`
     async def test_get_current_active_user_success(self, active_user):
         """Test getting active user succeeds."""
         user = await get_current_active_user(active_user)
@@ -526,6 +527,7 @@ class TestGetCurrentActiveUser:
         assert user.username == "activeuser"
         assert user.disabled is False
 
+    `@pytest.mark.asyncio`
     async def test_get_current_active_user_disabled(self, disabled_user):
         """Test that disabled user raises HTTPException."""
         with pytest.raises(HTTPException) as exc_info:
@@ -534,6 +536,7 @@ class TestGetCurrentActiveUser:
         assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
         assert "Inactive user" in exc_info.value.detail
 
+    `@pytest.mark.asyncio`
     async def test_get_current_active_user_none_disabled(self):
         """Test user with None disabled field is treated as active."""
         user = User(username="user", disabled=None)
@@ -541,7 +544,6 @@ class TestGetCurrentActiveUser:
         result = await get_current_active_user(user)
         
         assert result.username == "user"
-
 
 class TestEdgeCases:
     """Test edge cases and error conditions."""
