@@ -390,10 +390,7 @@ class FinancialAssetApp:
             "🔍 **Formulaic Analysis Summary**",
             "",
             f"📊 **Total Formulas Identified:** {len(formulas)}",
-            (
-                f"📈 **Average Reliability (R²):** "
-                f"{summary.get('avg_r_squared', 0):.3f}"
-            ),
+            (f"📈 **Average Reliability (R²):** {summary.get('avg_r_squared', 0):.3f}"),
             (
                 f"🔗 **Empirical Data Points:** "
                 f"{summary.get('empirical_data_points', 0)}"
@@ -455,7 +452,6 @@ class FinancialAssetApp:
                             )
                         with gr.Column(scale=1):
                             layout_type = gr.Radio(
-                                
                                 label="2D Layout Type",
                                 choices=["spring", "circular", "grid"],
                                 value="spring",

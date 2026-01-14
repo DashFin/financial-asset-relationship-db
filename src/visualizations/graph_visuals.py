@@ -259,9 +259,7 @@ def _create_node_trace(
             f"asset_ids must be a list or tuple, got {type(asset_ids).__name__}"
         )
     if not isinstance(colors, (list, tuple)):
-        raise ValueError(
-            f"colors must be a list or tuple, got {type(colors).__name__}"
-        )
+        raise ValueError(f"colors must be a list or tuple, got {type(colors).__name__}")
     if not isinstance(hover_texts, (list, tuple)):
         raise ValueError(
             f"hover_texts must be a list or tuple, got {type(hover_texts).__name__}"

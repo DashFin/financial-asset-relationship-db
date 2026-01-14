@@ -287,9 +287,7 @@ class TestWorkflowSecurity:
                     steps = job_data.get("steps", [])
 
                     for step in steps:
-                        if step.get("uses", "").startswith(
-                                "actions/checkout"
-                        ):
+                        if step.get("uses", "").startswith("actions/checkout"):
                             # Should specify ref or not checkout HEAD
                             # If no ref specified, it's okay (checks out merge commit)
                             # If ref specified, shouldn't be dangerous
@@ -318,7 +316,9 @@ class TestWorkflowSecurity:
             if permissions:
                 if isinstance(permissions, str):
                     if permissions == "write-all":
-                        raise AssertionError(f"{workflow_file.name} uses write-all permissions (too broad)")
+                        raise AssertionError(
+                            f"{workflow_file.name} uses write-all permissions (too broad)"
+                        )
                 elif isinstance(permissions, dict):
                     # Check individual permissions
                     for perm, level in permissions.items():
@@ -326,7 +326,7 @@ class TestWorkflowSecurity:
                             # Write permissions should have justification in comments
                             warnings.warn(
                                 f"{workflow_file.name} uses write permission for '{perm}' (too broad)",
-                                UserWarning
+                                UserWarning,
                             )
 
 
@@ -432,10 +432,7 @@ class TestWorkflowCrossPlatform:
 
                 for step in steps:
                     run_command = step.get("run", "")
-                    shell = step.get(
-                        "shell",
-                        "bash" if not is_windows else "pwsh"
-                    )
+                    shell = step.get("shell", "bash" if not is_windows else "pwsh")
 
                     if run_command:
                         # Check for Unix-specific commands on Windows
@@ -465,7 +462,9 @@ class TestWorkflowCrossPlatform:
                         and "windows" not in str(job_data.get("runs-on", "")).lower()
                     ):
                         # Might be legitimate (escaped chars), so just warn
-                        self.fail(f"Windows-style path (backslashes) found in run command: {run_command}")
+                        self.fail(
+                            f"Windows-style path (backslashes) found in run command: {run_command}"
+                        )
 
 
 class TestWorkflowMaintainability:
@@ -485,7 +484,9 @@ class TestWorkflowMaintainability:
             lines = content.split("\n")
             comment_lines = [line for line in lines if line.strip().startswith("#")]
             code_lines = [
-                line for line in lines if line.strip() and not line.strip().startswith("#")
+                line
+                for line in lines
+                if line.strip() and not line.strip().startswith("#")
             ]
 
             if len(code_lines) > 20:

@@ -164,7 +164,11 @@ def _create_2d_relationship_traces(
                 continue
 
             # Apply filters if not showing all relationships
-            if not show_all_relationships and rel_type in relationship_filters and not relationship_filters[rel_type]:
+            if (
+                not show_all_relationships
+                and rel_type in relationship_filters
+                and not relationship_filters[rel_type]
+            ):
                 continue
 
             # Group by relationship type

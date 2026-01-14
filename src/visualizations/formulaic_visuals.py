@@ -279,7 +279,7 @@ class FormulaicVisualizer:
 
     @staticmethod
     def create_correlation_network(
-        empirical_relationships: Dict[str, Any]
+        empirical_relationships: Dict[str, Any],
     ) -> go.Figure:
         """Create a network graph visualization of asset correlations."""
         correlation_matrix = empirical_relationships.get("correlation_matrix", {})
