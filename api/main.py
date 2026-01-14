@@ -40,6 +40,7 @@ class TestWorkflowYAMLSyntax:
             try:
                 with open(workflow_file, "r") as f:
 
+
                     data = yaml.safe_load(f)
 
 
