@@ -20,6 +20,8 @@ print("Supabase URL:", SUPABASE_URL)
 print("Supabase Key:", SUPABASE_KEY[:5] + "..." if SUPABASE_KEY else "Not found")
 print("Certificate path:", CERT_PATH)
 
+# 
+
 # Try Supabase API connection
 try:
     print("\n--- Testing Supabase API Connection with New Credentials ---")
@@ -64,6 +66,10 @@ try:
     # Parse connection parameters from DATABASE_URL or use individual parameters
     if updated_db_url:
         print(f"Using connection string: {updated_db_url[:20]}...")
+
+        if not os.path.exists(CERT_PATH):
+            print(f"⚠️ Warning: Certificate file not found at {CERT_PATH}")
+            print("Connection may fail if SSL is required.")
 
         # Add SSL parameters to connection
         connection = psycopg2.connect(
