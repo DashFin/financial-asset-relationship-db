@@ -132,7 +132,7 @@ These tests are designed to:
 - `pytest >= 7.0.0`
 - `pytest-asyncio >= 0.21.0`
 - `fastapi >= 0.100.0`
-- `jose >= 3.3.0` (for JWT testing)
+- `python-jose >= 3.3.0` (for JWT testing)
 - `passlib >= 1.7.0` (for password testing)
 - `numpy >= 1.20.0` (for graph testing)
 
