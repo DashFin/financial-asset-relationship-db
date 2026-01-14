@@ -156,7 +156,8 @@ def _build_relationship_index(
         asset_ids_set = set(asset_ids)
     except TypeError as exc:
         raise TypeError(
-            f"Invalid input: asset_ids must be an iterable, got {type(asset_ids).__name__}"
+            f"Invalid input: asset_ids must be an iterable, "
+            f"got {type(asset_ids).__name__}"
         ) from exc
 
     # Validate asset_ids contains only strings
@@ -318,7 +319,10 @@ def _create_node_trace(
             size=15,
             color=colors,
             opacity=0.9,
-            line=dict(color="rgba(0,0,0,0.8)", width=2),
+            line=dict(
+                color="rgba(0,0,0,0.8)",
+                width=2,
+            ),
             symbol="circle",
         ),
         text=asset_ids,
