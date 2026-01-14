@@ -1,4 +1,8 @@
-"""SQLAlchemy ORM models for the asset relationship database."""
+"""
+SQLAlchemy ORM models for the asset relationship database.
+
+
+"""
 
 from __future__ import annotations
 
