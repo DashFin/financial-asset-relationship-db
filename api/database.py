@@ -113,7 +113,7 @@ def _connect() -> sqlite3.Connection:
     """
     Open a configured SQLite connection for the module's database path.
 
-    
+
 
     Returns a persistent shared connection when the configured database is in-memory; for file-backed databases, returns a new connection instance. The connection has type detection enabled (PARSE_DECLTYPES), allows use from multiple threads (check_same_thread=False) and uses sqlite3.Row for rows. When the database path is a URI beginning with "file:" the connection is opened with URI handling enabled.
 
