@@ -11,7 +11,7 @@ This module provides extensive test coverage for api/auth.py including:
 """
 
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
