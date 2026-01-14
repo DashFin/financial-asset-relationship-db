@@ -20,6 +20,7 @@ from .auth import (
     get_current_active_user,
 )
 
+
 class TestWorkflowYAMLSyntax:
     """Test YAML syntax and structure validity."""
 
