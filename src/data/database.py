@@ -19,8 +19,10 @@ DEFAULT_DATABASE_URL = os.getenv("ASSET_GRAPH_DATABASE_URL", "sqlite:///./asset_
 
 def create_engine_from_url(url: Optional[str] = None) -> Engine:
     """Create a SQLAlchemy engine for the configured database URL."""
-
     resolved_url = url or DEFAULT_DATABASE_URL
+    
+    # 
+    
     if resolved_url.startswith("sqlite") and ":memory:" in resolved_url:
         return create_engine(
             resolved_url,
@@ -33,13 +35,11 @@ def create_engine_from_url(url: Optional[str] = None) -> Engine:
 
 def create_session_factory(engine: Engine) -> sessionmaker:
     """Create a configured session factory bound to the supplied engine."""
-
     return sessionmaker(bind=engine, autocommit=False, autoflush=False, future=True)
 
 
 def init_db(engine: Engine) -> None:
     """Initialise database schema if it has not been created."""
-
     Base.metadata.create_all(engine)
 
 
@@ -47,8 +47,13 @@ def init_db(engine: Engine) -> None:
 def session_scope(
     session_factory: Callable[[], Session],
 ) -> Generator[Session, None, None]:
-    """Provide a transactional scope around a series of operations."""
+    """
+    Provide a transactional scope around a series of operations.
 
+    Yields:
+        Session: A SQLAlchemy session context that automatically commits
+        on success or rolls back on exception.
+    """
     session = session_factory()
     try:
         yield session
