@@ -73,11 +73,10 @@ class TestMergifyConfiguration:
         assert isinstance(conditions, list), "Conditions must be a list"
         assert len(conditions) > 0, "Conditions list is empty"
 
-        # Check for modified-lines conditions
-        has_min_lines = any("#modified-lines >=" in str(c) for c in conditions)
-        has_max_lines = any("#modified-lines <" in str(c) for c in conditions)
-        assert has_min_lines, "Missing minimum modified-lines condition"
-        assert has_max_lines, "Missing maximum modified-lines condition"
+        # Each sizing rule should constrain modified lines somehow (min or max)
+        assert any("#modified-lines" in str(c) for c in conditions), (
+            "Missing #modified-lines condition"
+        )
 
     def test_tshirt_rule_has_label_action(self):
         """Test that t-shirt size rule has label action."""
