@@ -410,13 +410,14 @@ class TestPathValidation:
 
 class TestConnectionPooling:
     """Test connection pooling behavior."""
-
-    def test_memory_connection_cleanup_on_exit(self):
         """Test that cleanup function is registered."""
-        import atexit
+        import importlib
 
-        # Verify cleanup is registered
-        from api.database import _cleanup_memory_connection
+        with patch("atexit.register") as mock_register:
+            import api.database as db_module
+            importlib.reload(db_module)
+
+            mock_register.assert_any_call(db_module._cleanup_memory_connection)
 
         assert _cleanup_memory_connection in [
             func for func, args, kwargs in atexit._exithandlers
