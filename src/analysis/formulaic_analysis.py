@@ -416,13 +416,14 @@ class FormulaicdAnalyzer:
         self, formulas: List[Formula], empirical_relationships: Dict
     ) -> Dict[str, Any]:
         """Generate a comprehensive summary of formulaic analysis"""
+        # Guard clause to ensure empirical_relationships is a dict
+        if not isinstance(empirical_relationships, dict):
+            empirical_relationships = {}
+        
         avg_corr_strength = self._calculate_avg_correlation_strength_from_empirical(
             empirical_relationships
         )
         return {
-            if not isinstance(empirical_relationships, dict):
-            empirical_relationships = {}
-
             "avg_r_squared": sum(f.r_squared for f in formulas) / len(formulas)
             if formulas
             else 0,

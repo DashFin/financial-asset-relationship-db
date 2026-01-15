@@ -675,3 +675,310 @@ class TestEdgeCases:
 
         # Assert
         assert len(analyzer.formulas) == initial_length, "Should not modify analyzer's formulas list"
+
+
+class TestFormulaSummaryEdgeCases:
+    """Comprehensive edge case tests for _generate_formula_summary method."""
+
+    @staticmethod
+    def test_generate_formula_summary_with_none_empirical_relationships(analyzer):
+        """Test _generate_formula_summary with None as empirical_relationships."""
+        formulas = [
+            Formula(
+                name="Test Formula",
+                formula="P/E",
+                latex=r"P/E",
+                description="Test",
+                variables={"P": "Price", "E": "Earnings"},
+                example_calculation="150/10 = 15",
+                category="Valuation",
+                r_squared=0.85,
+            )
+        ]
+
+        # Should not raise an error with None
+        summary = analyzer._generate_formula_summary(formulas, None)
+
+        assert isinstance(summary, dict)
+        assert "avg_r_squared" in summary
+        assert summary["avg_r_squared"] == 0.85
+        assert "formula_categories" in summary
+        assert "empirical_data_points" in summary
+        assert summary["empirical_data_points"] == 0
+
+    @staticmethod
+    def test_generate_formula_summary_with_list_instead_of_dict(analyzer):
+        """Test _generate_formula_summary with list instead of dict."""
+        formulas = [
+            Formula(
+                name="Test Formula",
+                formula="P/E",
+                latex=r"P/E",
+                description="Test",
+                variables={"P": "Price", "E": "Earnings"},
+                example_calculation="150/10 = 15",
+                category="Valuation",
+                r_squared=0.90,
+            )
+        ]
+
+        # Should handle list gracefully by converting to dict
+        summary = analyzer._generate_formula_summary(formulas, ["not", "a", "dict"])
+
+        assert isinstance(summary, dict)
+        assert summary["avg_r_squared"] == 0.90
+        assert summary["empirical_data_points"] == 0
+
+    @staticmethod
+    def test_generate_formula_summary_with_string_empirical_relationships(analyzer):
+        """Test _generate_formula_summary with string instead of dict."""
+        formulas = []
+
+        # Should handle string gracefully
+        summary = analyzer._generate_formula_summary(formulas, "invalid_type")
+
+        assert isinstance(summary, dict)
+        assert summary["avg_r_squared"] == 0
+        assert summary["empirical_data_points"] == 0
+
+    @staticmethod
+    def test_generate_formula_summary_with_valid_correlation_matrix(analyzer):
+        """Test _generate_formula_summary with valid correlation matrix."""
+        formulas = [
+            Formula(
+                name="Test 1",
+                formula="A",
+                latex=r"A",
+                description="Test",
+                variables={},
+                example_calculation="",
+                category="Test",
+                r_squared=0.75,
+            ),
+            Formula(
+                name="Test 2",
+                formula="B",
+                latex=r"B",
+                description="Test",
+                variables={},
+                example_calculation="",
+                category="Test",
+                r_squared=0.85,
+            ),
+        ]
+
+        empirical_relationships = {
+            "correlation_matrix": {
+                "AAPL-MSFT": 0.75,
+                "AAPL-GOOGL": 0.80,
+                "MSFT-GOOGL": 0.70,
+            }
+        }
+
+        summary = analyzer._generate_formula_summary(formulas, empirical_relationships)
+
+        assert summary["avg_r_squared"] == 0.80  # (0.75 + 0.85) / 2
+        assert summary["empirical_data_points"] == 3
+        assert "key_insights" in summary
+        assert isinstance(summary["key_insights"], list)
+        assert len(summary["key_insights"]) > 0
+
+    @staticmethod
+    def test_generate_formula_summary_key_insights_content(analyzer):
+        """Test that key_insights contain expected information."""
+        formulas = [
+            Formula(
+                name="P/E Ratio",
+                formula="P/E",
+                latex=r"P/E",
+                description="Price to Earnings",
+                variables={"P": "Price", "E": "Earnings"},
+                example_calculation="150/10 = 15",
+                category="Valuation",
+                r_squared=0.95,
+            )
+        ]
+
+        empirical_relationships = {"correlation_matrix": {"AAPL-MSFT": 0.80}}
+
+        summary = analyzer._generate_formula_summary(formulas, empirical_relationships)
+
+        insights = summary["key_insights"]
+        assert any("1 mathematical relationships" in insight for insight in insights)
+        assert any("correlation strength" in insight.lower() for insight in insights)
+
+    @staticmethod
+    def test_generate_formula_summary_with_mixed_r_squared_values(analyzer):
+        """Test average r_squared calculation with mixed values."""
+        formulas = [
+            Formula(
+                name="High R2",
+                formula="A",
+                latex=r"A",
+                description="High",
+                variables={},
+                example_calculation="",
+                category="Test",
+                r_squared=0.95,
+            ),
+            Formula(
+                name="Low R2",
+                formula="B",
+                latex=r"B",
+                description="Low",
+                variables={},
+                example_calculation="",
+                category="Test",
+                r_squared=0.35,
+            ),
+            Formula(
+                name="Medium R2",
+                formula="C",
+                latex=r"C",
+                description="Medium",
+                variables={},
+                example_calculation="",
+                category="Test",
+                r_squared=0.65,
+            ),
+        ]
+
+        summary = analyzer._generate_formula_summary(formulas, {})
+
+        expected_avg = (0.95 + 0.35 + 0.65) / 3
+        assert abs(summary["avg_r_squared"] - expected_avg) < 0.01
+
+    @staticmethod
+    def test_generate_formula_summary_empty_correlation_matrix(analyzer):
+        """Test with empty correlation matrix in empirical_relationships."""
+        formulas = [
+            Formula(
+                name="Test",
+                formula="T",
+                latex=r"T",
+                description="Test",
+                variables={},
+                example_calculation="",
+                category="Test",
+                r_squared=0.80,
+            )
+        ]
+
+        empirical_relationships = {"correlation_matrix": {}}
+
+        summary = analyzer._generate_formula_summary(formulas, empirical_relationships)
+
+        assert summary["empirical_data_points"] == 0
+        assert summary["avg_r_squared"] == 0.80
+
+    @staticmethod
+    def test_generate_formula_summary_missing_correlation_matrix_key(analyzer):
+        """Test with empirical_relationships missing correlation_matrix key."""
+        formulas = [
+            Formula(
+                name="Test",
+                formula="T",
+                latex=r"T",
+                description="Test",
+                variables={},
+                example_calculation="",
+                category="Test",
+                r_squared=0.75,
+            )
+        ]
+
+        empirical_relationships = {"other_key": "some_value"}
+
+        summary = analyzer._generate_formula_summary(formulas, empirical_relationships)
+
+        assert summary["empirical_data_points"] == 0
+        assert "formula_categories" in summary
+
+    @staticmethod
+    def test_generate_formula_summary_formula_categories_structure(analyzer):
+        """Test that formula_categories has correct structure."""
+        formulas = [
+            Formula(
+                name="Val1",
+                formula="V1",
+                latex=r"V1",
+                description="Valuation 1",
+                variables={},
+                example_calculation="",
+                category="Valuation",
+                r_squared=0.80,
+            ),
+            Formula(
+                name="Val2",
+                formula="V2",
+                latex=r"V2",
+                description="Valuation 2",
+                variables={},
+                example_calculation="",
+                category="Valuation",
+                r_squared=0.85,
+            ),
+            Formula(
+                name="Risk1",
+                formula="R1",
+                latex=r"R1",
+                description="Risk 1",
+                variables={},
+                example_calculation="",
+                category="Risk",
+                r_squared=0.70,
+            ),
+        ]
+
+        summary = analyzer._generate_formula_summary(formulas, {})
+
+        categories = summary["formula_categories"]
+        assert isinstance(categories, dict)
+        assert categories.get("Valuation") == 2
+        assert categories.get("Risk") == 1
+
+    @staticmethod
+    def test_generate_formula_summary_preserves_input_formulas(analyzer):
+        """Test that _generate_formula_summary doesn't modify input formulas list."""
+        formulas = [
+            Formula(
+                name="Test",
+                formula="T",
+                latex=r"T",
+                description="Test",
+                variables={},
+                example_calculation="",
+                category="Test",
+                r_squared=0.80,
+            )
+        ]
+
+        original_length = len(formulas)
+        original_r_squared = formulas[0].r_squared
+
+        analyzer._generate_formula_summary(formulas, {})
+
+        assert len(formulas) == original_length
+        assert formulas[0].r_squared == original_r_squared
+
+    @staticmethod
+    def test_generate_formula_summary_with_integer_instead_of_dict(analyzer):
+        """Test _generate_formula_summary with integer instead of dict."""
+        formulas = []
+
+        # Should handle integer gracefully
+        summary = analyzer._generate_formula_summary(formulas, 12345)
+
+        assert isinstance(summary, dict)
+        assert summary["empirical_data_points"] == 0
+
+    @staticmethod
+    def test_generate_formula_summary_with_boolean_instead_of_dict(analyzer):
+        """Test _generate_formula_summary with boolean instead of dict."""
+        formulas = []
+
+        # Should handle boolean gracefully
+        summary = analyzer._generate_formula_summary(formulas, True)
+
+        assert isinstance(summary, dict)
+        assert summary["empirical_data_points"] == 0
