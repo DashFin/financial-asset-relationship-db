@@ -419,38 +419,41 @@ class FormulaicdAnalyzer:
         # Guard clause to ensure empirical_relationships is a dict
         if not isinstance(empirical_relationships, dict):
             empirical_relationships = {}
+
+
 if not isinstance(empirical_relationships, dict):
     empirical_relationships = {}
 
 return {
     "total_formulas": len(formulas),
     "avg_r_squared": sum(f.r_squared for f in formulas) / len(formulas)
-            "avg_r_squared": sum(f.r_squared for f in formulas) / len(formulas)
-            if formulas
-            else 0,
-            "formula_categories": self._categorize_formulas(formulas),
-            "empirical_data_points": len(
-                empirical_relationships.get("correlation_matrix", {})
-            ),
-            "key_insights": [
-                f"Identified {len(formulas)} mathematical relationships",
-                f"Average correlation strength: {avg_corr_strength:.2f}",
+    "avg_r_squared": sum(f.r_squared for f in formulas) / len(formulas)
+    if formulas
+    else 0,
+    "formula_categories": self._categorize_formulas(formulas),
+    "empirical_data_points": len(
+        empirical_relationships.get("correlation_matrix", {})
+    ),
+    "key_insights": [
+        f"Identified {len(formulas)} mathematical relationships",
+        f"Average correlation strength: {avg_corr_strength:.2f}",
                 "Valuation models applicable to equity assets",
                 ("Portfolio theory formulas available for multi-asset analysis"),
                 (
                     "Cross-asset relationships identified between "
                     "commodities and currencies"
                 ),
-            ],
-        }
+    ],
+}
 
-    @staticmethod
-    def _calculate_avg_correlation_strength_from_empirical(
-        empirical_relationships: Dict,
-    ) -> float:
-        """Calculate average correlation from empirical data"""
-        correlations = empirical_relationships.get("correlation_matrix", {})
-        if correlations:
+
+@staticmethod
+def _calculate_avg_correlation_strength_from_empirical(
+     empirical_relationships: Dict,
+     ) -> float:
+     """Calculate average correlation from empirical data"""
+      correlations = empirical_relationships.get("correlation_matrix", {})
+       if correlations:
             valid_correlations = [v for v in correlations.values() if v < 1.0]
             return (
                 sum(valid_correlations) / len(valid_correlations)
