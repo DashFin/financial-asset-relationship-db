@@ -33,7 +33,7 @@ pytest tests/integration/test_pr_agent_config.py \
        tests/integration/test_workflow_simplifications.py -v
 ```
 
-Expected: **48 passed** ✅
+Expected: **all tests pass (0 failures)** ✅
 
 ### Individual Files
 ```bash
