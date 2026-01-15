@@ -419,11 +419,12 @@ class FormulaicdAnalyzer:
         # Guard clause to ensure empirical_relationships is a dict
         if not isinstance(empirical_relationships, dict):
             empirical_relationships = {}
+if not isinstance(empirical_relationships, dict):
+    empirical_relationships = {}
 
-        avg_corr_strength = self._calculate_avg_correlation_strength_from_empirical(
-            empirical_relationships
-        )
-        return {
+return {
+    "total_formulas": len(formulas),
+    "avg_r_squared": sum(f.r_squared for f in formulas) / len(formulas)
             "avg_r_squared": sum(f.r_squared for f in formulas) / len(formulas)
             if formulas
             else 0,
