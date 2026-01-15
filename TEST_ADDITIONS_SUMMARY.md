@@ -98,7 +98,7 @@ pytest tests/integration/test_github_workflows.py tests/integration/test_pr_agen
 ✅ Greetings messages are short and plain text
 ✅ Label workflow has no config checking
 ✅ PR agent workflow has no chunking code
-✅ APISecworkflow has no credential checking
+✅ APISec workflow has no credential checking
 
 ### Configuration Simplifications
 ✅ No context management section
