@@ -395,19 +395,36 @@ class TestGetCurrentActiveUser:
         mock_user.username = "testuser"
 
         with pytest.raises(HTTPException) as exc_info:
-            await get_current_active_user(mock_user)
+                """Test that SECRET_KEY is set from environment."""
+                with patch.dict(os.environ, {"SECRET_KEY": "test-secret", "ACCESS_TOKEN_EXPIRE_MINUTES": "30"}, clear=False):
+                    import importlib
+                    from api import auth as auth_module
 
-        assert exc_info.value.status_code == 400
-        assert "Inactive user" in exc_info.value.detail
+                    importlib.reload(auth_module)
 
+                    assert auth_module.SECRET_KEY == "test-secret"
+                    assert len(auth_module.SECRET_KEY) > 0
 
-class TestEnvironmentVariableHandling:
-    """Test handling of environment variables."""
+            def test_algorithm_is_hs256(self):
+                """Test that ALGORITHM is set to HS256."""
+                with patch.dict(os.environ, {"SECRET_KEY": "test-secret", "ACCESS_TOKEN_EXPIRE_MINUTES": "30"}, clear=False):
+                    import importlib
+                    from api import auth as auth_module
 
-    def test_secret_key_is_set(self):
-        """Test that SECRET_KEY is set from environment."""
-        assert SECRET_KEY is not None
-        assert len(SECRET_KEY) > 0
+                    importlib.reload(auth_module)
+
+                    assert auth_module.ALGORITHM == "HS256"
+
+            def test_access_token_expire_minutes_is_set(self):
+                """Test that ACCESS_TOKEN_EXPIRE_MINUTES is set."""
+                with patch.dict(os.environ, {"SECRET_KEY": "test-secret", "ACCESS_TOKEN_EXPIRE_MINUTES": "30"}, clear=False):
+                    import importlib
+                    from api import auth as auth_module
+
+                    importlib.reload(auth_module)
+
+                    assert isinstance(auth_module.ACCESS_TOKEN_EXPIRE_MINUTES, int)
+                    assert auth_module.ACCESS_TOKEN_EXPIRE_MINUTES > 0
 
     def test_algorithm_is_hs256(self):
         """Test that ALGORITHM is set to HS256."""
