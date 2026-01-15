@@ -84,17 +84,18 @@ class TestMergifyConfiguration:
             config = yaml.safe_load(f)
 
         rules = config["pull_request_rules"]
-        tshirt_rule = next(
-            (r for r in rules if "t-shirt" in r.get("name", "").lower()), None
-        )
+        tshirt_rules = [r for r in rules if "t-shirt" in r.get("name", "").lower()]
 
-        actions = tshirt_rule.get("actions", {})
-        assert "label" in actions, "Missing label action"
+        for rule in tshirt_rules:
+            actions = rule.get("actions", {})
+            assert "label" in actions, f"Missing label action in rule {rule.get('name')}"
 
-        label_action = actions["label"]
-        assert "toggle" in label_action, "Missing toggle in label action"
-        assert isinstance(label_action["toggle"], list), "Toggle must be a list"
-        assert len(label_action["toggle"]) > 0, "Toggle list is empty"
+            label_action = actions["label"]
+            assert "toggle" in label_action, (
+                f"Missing toggle in label action for rule {rule.get('name')}"
+            )
+            assert isinstance(label_action["toggle"], list), "Toggle must be a list"
+            assert len(label_action["toggle"]) > 0, "Toggle list is empty"
 
     def test_tshirt_rule_assigns_size_l_label(self):
         """Test that t-shirt rule assigns size/L label."""
