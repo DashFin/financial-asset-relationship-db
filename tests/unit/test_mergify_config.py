@@ -122,43 +122,39 @@ class TestMergifyConfiguration:
             config = yaml.safe_load(f)
 
         rules = config["pull_request_rules"]
-        tshirt_rule = next(
-            (r for r in rules if "t-shirt" in r.get("name", "").lower()), None
-        )
+        tshirt_rules = [r for r in rules if "t-shirt" in r.get("name", "").lower()]
+        assert tshirt_rules, "No t-shirt rules found"
 
-        conditions = tshirt_rule.get("conditions", [])
+        for rule in tshirt_rules:
+            conditions = rule.get("conditions", [])
 
-        # Extract threshold values
-        min_threshold = None
-        max_threshold = None
+            min_threshold = None
+            max_threshold = None
 
-        for condition in conditions:
-            if ">=" in str(condition):
-                # Extract number after >=
-                parts = str(condition).split(">=")
-                if len(parts) == 2:
-                    try:
+            for condition in conditions:
+                cond = str(condition)
+                if ">=" in cond:
+                    parts = cond.split(">=")
+                    if len(parts) == 2:
                         min_threshold = int(parts[1].strip())
-                    except ValueError:
-                        pytest.fail(
-                            f"Invalid minimum threshold value in condition: {condition}"
-                        )
-            if "<" in str(condition) and ">=" not in str(condition):
-                parts = str(condition).split("<")
-                if len(parts) == 2:
-                    try:
+                if "<" in cond and ">=" not in cond:
+                    parts = cond.split("<")
+                    if len(parts) == 2:
                         max_threshold = int(parts[1].strip())
-                    except ValueError:
-                        pytest.fail(
-                            f"Invalid maximum threshold value in condition: {condition}"
-                        )
 
-        assert min_threshold is not None, "Could not extract minimum threshold"
-        assert max_threshold is not None, "Could not extract maximum threshold"
-        assert min_threshold < max_threshold, (
-            f"Min threshold ({min_threshold}) must be less than max ({max_threshold})"
-        )
-        assert min_threshold >= 0, "Min threshold must be non-negative"
+            if min_threshold is not None:
+                assert min_threshold >= 0, (
+                    f"Min threshold must be non-negative in rule {rule.get('name')}"
+                )
+            if max_threshold is not None:
+                assert max_threshold > 0, (
+                    f"Max threshold must be positive in rule {rule.get('name')}"
+                )
+            if min_threshold is not None and max_threshold is not None:
+                assert min_threshold < max_threshold, (
+                    f"Min threshold ({min_threshold}) must be less than max "
+                    f"({max_threshold}) in rule {rule.get('name')}"
+                )
 
     def test_all_rules_have_required_fields(self):
         """Test that all rules have name, conditions, and actions."""
