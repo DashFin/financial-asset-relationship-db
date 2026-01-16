@@ -451,7 +451,7 @@ class TestBearerWorkflowSecurity:
                 uses = step["uses"]
                 assert "@" in uses, f"Action should be pinned to version: {uses}"
                 version = uses.split("@")[1]
-                assert version != "main" and version != "master", (
+                assert version not in ("main", "master"), (
                     f"Action should not use branch references: {uses}"
                 )
 
