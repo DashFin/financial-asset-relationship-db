@@ -570,7 +570,8 @@ This repository includes multiple automated security scanning workflows. Each wo
 
 #### Workflow Skips or Doesn't Run
 
-- Validate workflow syntax using GitHub CLI: `gh workflow view <workflow-name>`
+- GitHub automatically validates workflow syntax when you push changes
+- Use GitHub's workflow editor for syntax highlighting and validation
 - Verify branch and path filters match your changes
 - Review GitHub Actions logs for error messages
 
@@ -582,11 +583,11 @@ This repository includes multiple automated security scanning workflows. Each wo
 
 ### Optional Workflow Secrets
 
-Some workflows can operate without secrets but with reduced functionality:
+Some workflows can operate without additional secrets beyond the automatically provided `GITHUB_TOKEN`:
 
-- **CodeQL**: Uses `GITHUB_TOKEN` (automatically provided)
+- **CodeQL**: Uses `GITHUB_TOKEN` (automatically provided by GitHub Actions)
+- **Bandit**: Uses `GITHUB_TOKEN` (automatically provided by GitHub Actions)
 - **Trivy**: No secrets required for basic scanning
-- **Bandit**: No secrets required (Python-only linter)
 - **ESLint**: No secrets required (JavaScript linter)
 - **Hadolint**: No secrets required (Dockerfile linter)
 
