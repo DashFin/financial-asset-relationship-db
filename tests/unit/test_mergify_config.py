@@ -322,11 +322,11 @@ class TestMergifyAdditionalEdgeCases:
 
         rules = config["pull_request_rules"]
         size_labels = []
-
-        for rule in rules:
             if "t-shirt" in rule.get("name", "").lower():
-                toggle_labels = rule.get("actions", {}).get("label", {}).get("toggle", [])
-                size_labels.extend(toggle_labels)
+                label_action = rule.get("actions", {}).get("label", {})
+                toggle_labels = label_action.get("toggle", [])
+                add_labels = label_action.get("add", [])
+                size_labels.extend(toggle_labels + add_labels)
 
         # Check for duplicates
         assert len(size_labels) == len(set(size_labels)), "Duplicate size labels found"
