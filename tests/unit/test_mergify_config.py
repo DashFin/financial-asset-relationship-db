@@ -89,7 +89,9 @@ class TestMergifyConfiguration:
 
         for rule in tshirt_rules:
             actions = rule.get("actions", {})
-            assert "label" in actions, f"Missing label action in rule {rule.get('name')}"
+            assert "label" in actions, (
+                f"Missing label action in rule {rule.get('name')}"
+            )
 
             label_action = actions["label"]
             assert "toggle" in label_action, (

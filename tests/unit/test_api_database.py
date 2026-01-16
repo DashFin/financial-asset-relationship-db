@@ -410,10 +410,10 @@ class TestPathValidation:
 
 class TestConnectionPooling:
     """Test connection pooling behavior."""
-        """Test that cleanup function is registered."""
-        import importlib
+     """Test that cleanup function is registered."""
+      import importlib
 
-        with patch("atexit.register") as mock_register:
+       with patch("atexit.register") as mock_register:
             import api.database as db_module
             importlib.reload(db_module)
 

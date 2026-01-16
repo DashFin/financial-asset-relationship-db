@@ -398,6 +398,7 @@ class TestGetCurrentActiveUser:
                 """Test that SECRET_KEY is set from environment."""
                 with patch.dict(os.environ, {"SECRET_KEY": "test-secret", "ACCESS_TOKEN_EXPIRE_MINUTES": "30"}, clear=False):
                     import importlib
+
                     from api import auth as auth_module
 
                     importlib.reload(auth_module)
@@ -409,6 +410,7 @@ class TestGetCurrentActiveUser:
                 """Test that ALGORITHM is set to HS256."""
                 with patch.dict(os.environ, {"SECRET_KEY": "test-secret", "ACCESS_TOKEN_EXPIRE_MINUTES": "30"}, clear=False):
                     import importlib
+
                     from api import auth as auth_module
 
                     importlib.reload(auth_module)
@@ -419,6 +421,7 @@ class TestGetCurrentActiveUser:
                 """Test that ACCESS_TOKEN_EXPIRE_MINUTES is set."""
                 with patch.dict(os.environ, {"SECRET_KEY": "test-secret", "ACCESS_TOKEN_EXPIRE_MINUTES": "30"}, clear=False):
                     import importlib
+
                     from api import auth as auth_module
 
                     importlib.reload(auth_module)
