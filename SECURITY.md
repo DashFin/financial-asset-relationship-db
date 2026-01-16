@@ -454,6 +454,7 @@ This repository includes multiple automated security scanning workflows. Each wo
 **Required Secret:** `BEARER_TOKEN`
 
 **Setup Instructions:**
+
 1. Create a free account at [Bearer.com](https://www.bearer.com/)
 2. Navigate to your Bearer dashboard
 3. Generate an API key/token for your project
@@ -467,7 +468,8 @@ This repository includes multiple automated security scanning workflows. Each wo
 
 #### Snyk Security Scanning
 
-**Workflows:** 
+**Workflows:**
+
 - `.github/workflows/snyk-security.yml`
 - `.github/workflows/snyk-container.yml`
 - `.github/workflows/snyk-infrastructure.yml`
@@ -475,6 +477,7 @@ This repository includes multiple automated security scanning workflows. Each wo
 **Required Secret:** `SNYK_TOKEN`
 
 **Setup Instructions:**
+
 1. Sign up for free at [Snyk.io](https://snyk.io/login)
 2. Go to Account Settings > General > API Token
 3. Click "Generate new token" or copy existing token
@@ -489,6 +492,7 @@ This repository includes multiple automated security scanning workflows. Each wo
 **Required Secret:** `SONAR_TOKEN`
 
 **Setup Instructions:**
+
 1. Login to [SonarCloud.io](https://sonarcloud.io/) using your GitHub account
 2. Import your project/repository
 3. Go to My Account > Security (or https://sonarcloud.io/account/security/)
@@ -503,10 +507,12 @@ This repository includes multiple automated security scanning workflows. Each wo
 **Workflow:** `.github/workflows/sonarqube.yml`
 
 **Required Secrets:**
+
 - `SONAR_TOKEN` - Authentication token for SonarQube instance
 - `SONAR_HOST_URL` - URL of your SonarQube instance
 
 **Setup Instructions:**
+
 1. Access your SonarQube instance
 2. Navigate to My Account > Security
 3. Generate a new token
@@ -519,6 +525,7 @@ This repository includes multiple automated security scanning workflows. Each wo
 **Required Secret:** `CODACY_PROJECT_TOKEN`
 
 **Setup Instructions:**
+
 1. Sign up at [Codacy.com](https://www.codacy.com/)
 2. Add your repository to Codacy
 3. Go to Project Settings > Integrations > GitHub
@@ -534,10 +541,12 @@ This repository includes multiple automated security scanning workflows. Each wo
 **Workflow:** `.github/workflows/veracode.yml`
 
 **Required Secrets:**
+
 - `VERACODE_API_ID` - Veracode API credentials ID
 - `VERACODE_API_KEY` - Veracode API credentials key
 
 **Setup Instructions:**
+
 1. Log in to [Veracode Platform](https://web.analysiscenter.veracode.com/)
 2. Go to Account > API Credentials
 3. Generate API credentials
