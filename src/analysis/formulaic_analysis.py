@@ -427,7 +427,6 @@ if not isinstance(empirical_relationships, dict):
 return {
     "total_formulas": len(formulas),
     "avg_r_squared": sum(f.r_squared for f in formulas) / len(formulas)
-    "avg_r_squared": sum(f.r_squared for f in formulas) / len(formulas)
     if formulas
     else 0,
     "formula_categories": self._categorize_formulas(formulas),
