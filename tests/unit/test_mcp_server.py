@@ -400,8 +400,9 @@ class TestEdgeCases:
         mock_mcp.tool.return_value = capture_tool_func
         mock_fastmcp.return_value = mock_mcp
 
-        # Mock graph without add_asset
-        delattr(mock_graph, "add_asset")
+
+        # Mock graph without add_asset (non-callable simulates "not supported")
+        mock_graph.add_asset = None
 
         _build_mcp_app()
 
@@ -409,9 +410,7 @@ class TestEdgeCases:
             asset_id="TEST", symbol="TST", name="Test", sector="Tech", price=100.0
         )
 
-        # Should indicate validation-only mode
         assert "validated" in result.lower() or "not supported" in result.lower()
-
     def test_thread_safe_graph_handles_exceptions(self):
         """Test that ThreadSafeGraph handles exceptions in wrapped methods."""
         graph = Mock()
