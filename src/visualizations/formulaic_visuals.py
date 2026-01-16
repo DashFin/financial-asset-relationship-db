@@ -430,9 +430,11 @@ class FormulaicVisualizer:
 
         categories = {}
         for f in formulas:
-            if f.category not in categories:
-                categories[f.category] = []
-            categories[f.category].append(f.r_squared)
+            category = getattr(f, "category", None) if not isinstance(f, dict) else f.get("category")
+            r2 = getattr(f, "r_squared", None) if not isinstance(f, dict) else f.get("r_squared")
+            if category is None or r2 is None:
+                continue
+            categories.setdefault(category, []).append(r2)            
 
         fig = go.Figure()
 
