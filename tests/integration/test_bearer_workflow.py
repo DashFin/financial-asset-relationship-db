@@ -534,9 +534,7 @@ class TestBearerWorkflowEdgeCases:
     """Test edge cases and error handling."""
 
     @staticmethod
-    def test_workflow_handles_schedule_trigger_independently(
-        bearer_workflow_content
-    ):
+    def test_workflow_handles_schedule_trigger_independently(bearer_workflow_content):
         """Verify schedule trigger works independently of push/PR."""
         triggers = bearer_workflow_content["on"]
         # Schedule should be able to run independently
