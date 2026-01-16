@@ -10,7 +10,6 @@ Tests cover:
 - Error handling and edge cases
 """
 
-import os
 from datetime import timedelta
 from unittest.mock import Mock, patch
 
