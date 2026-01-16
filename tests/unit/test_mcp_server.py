@@ -133,7 +133,7 @@ class TestMCPAppBuilding:
 class TestAddEquityNodeTool:
     """Test the add_equity_node MCP tool."""
 
-    @patch("mcp_server.FastMCP")
+    @patch("mcp.server.fastmcp.FastMCP")
     @patch("mcp_server.graph")
     def test_add_equity_node_valid_input(self, mock_graph, mock_fastmcp):
         """Test adding valid equity node."""
