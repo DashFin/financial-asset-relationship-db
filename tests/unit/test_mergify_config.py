@@ -60,23 +60,21 @@ class TestMergifyConfiguration:
             assert "actions" in rule
 
     def test_tshirt_rule_has_valid_conditions(self):
-        """Test that t-shirt size rule has valid conditions."""
+        """Test that t-shirt size rules have valid conditions."""
         with open(self.MERGIFY_PATH, "r") as f:
             config = yaml.safe_load(f)
 
         rules = config["pull_request_rules"]
-        tshirt_rule = next(
-            (r for r in rules if "t-shirt" in r.get("name", "").lower()), None
-        )
+        tshirt_rules = [r for r in rules if "t-shirt" in r.get("name", "").lower()]
+        assert tshirt_rules, "No t-shirt rules found"
 
-        conditions = tshirt_rule.get("conditions", [])
-        assert isinstance(conditions, list), "Conditions must be a list"
-        assert len(conditions) > 0, "Conditions list is empty"
-
-        # Each sizing rule should constrain modified lines somehow (min or max)
-        assert any("#modified-lines" in str(c) for c in conditions), (
-            "Missing #modified-lines condition"
-        )
+        for rule in tshirt_rules:
+            conditions = rule.get("conditions", [])
+            assert isinstance(conditions, list), "Conditions must be a list"
+            assert len(conditions) > 0, f"Conditions list is empty in {rule.get('name')}"
+            assert any("#modified-lines" in str(c) for c in conditions), (
+                f"Missing #modified-lines condition in {rule.get('name')}"
+            )
 
     def test_tshirt_rule_has_label_action(self):
         """Test that t-shirt size rule has label action."""
