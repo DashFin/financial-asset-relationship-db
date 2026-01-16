@@ -2,57 +2,57 @@
 \hypertarget{namespacetests_1_1integration_1_1test__requirements__dev}{}\label{namespacetests_1_1integration_1_1test__requirements__dev}\index{tests.integration.test\_requirements\_dev@{tests.integration.test\_requirements\_dev}}
 \doxysubsubsection*{Classes}
 \begin{DoxyCompactItemize}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestComprehensivePackageValidation}{Test\+Comprehensive\+Package\+Validation}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestDevelopmentToolsPresence}{Test\+Development\+Tools\+Presence}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestEdgeCasesAndErrorHandling}{Test\+Edge\+Cases\+And\+Error\+Handling}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestFileOrganization}{Test\+File\+Organization}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestFileStructureAndOrganization}{Test\+File\+Structure\+And\+Organization}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestPackageConsistency}{Test\+Package\+Consistency}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestPackageNamingAndCasing}{Test\+Package\+Naming\+And\+Casing}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestPytestEcosystem}{Test\+Pytest\+Ecosystem}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestPyYAMLIntegration}{Test\+Py\+YAMLIntegration}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestRequiredPackages}{Test\+Required\+Packages}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestRequirementsFileExists}{Test\+Requirements\+File\+Exists}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestRequirementsFileFormat}{Test\+Requirements\+File\+Format}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestSecurityBestPractices}{Test\+Security\+Best\+Practices}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestSpecificChanges}{Test\+Specific\+Changes}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestTypeStubConsistency}{Test\+Type\+Stub\+Consistency}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestVersionConstraintValidation}{Test\+Version\+Constraint\+Validation}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements__dev_1_1TestVersionSpecifications}{Test\+Version\+Specifications}}
 \end{DoxyCompactItemize}
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
-\item 
+\item
 List\mbox{[}Tuple\mbox{[}str, str\mbox{]}\mbox{]} \mbox{\hyperlink{namespacetests_1_1integration_1_1test__requirements__dev_a0e99790ad4cd3ca0e45a21b27b42e0c1}{parsed\+\_\+requirements}} ()
-\item 
+\item
 str \mbox{\hyperlink{namespacetests_1_1integration_1_1test__requirements__dev_a597cde3f54d87654fdd6023724cffbc4}{\+\_\+extract\+\_\+package\+\_\+name}} (str line, Requirement req)
-\item 
+\item
 str \mbox{\hyperlink{namespacetests_1_1integration_1_1test__requirements__dev_af93939058281d84f82ef7de8476489d7}{\+\_\+normalize\+\_\+specifier}} (str specifier\+\_\+str)
-\item 
+\item
 tuple \mbox{\hyperlink{namespacetests_1_1integration_1_1test__requirements__dev_a1d98458011c778690270b664e89e9d0d}{\+\_\+parse\+\_\+single\+\_\+requirement}} (str line)
-\item 
+\item
 List\mbox{[}Tuple\mbox{[}str, str\mbox{]}\mbox{]} \mbox{\hyperlink{namespacetests_1_1integration_1_1test__requirements__dev_a28656bbba69e63a658555ed6989a9a1b}{parse\+\_\+requirements}} (Path file\+\_\+path)
 \end{DoxyCompactItemize}
 \doxysubsubsection*{Variables}
 \begin{DoxyCompactItemize}
-\item 
+\item
 str \mbox{\hyperlink{namespacetests_1_1integration_1_1test__requirements__dev_a32289b3f4166f09591fea4e6cfc29ea6}{REQUIREMENTS\+\_\+\+FILE}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent.\+parent / "{}requirements-\/dev.\+txt"{}
 \end{DoxyCompactItemize}
 
@@ -66,13 +66,13 @@ formatted, contains required packages, and has valid version specifications.
 Note: Bandit B101 (assert_used) is suppressed for this test file as assert
 statements are the standard and required pattern in pytest test files.
 \end{DoxyVerb}
- 
+
 
 \doxysubsection{Function Documentation}
 \Hypertarget{namespacetests_1_1integration_1_1test__requirements__dev_a597cde3f54d87654fdd6023724cffbc4}\index{tests.integration.test\_requirements\_dev@{tests.integration.test\_requirements\_dev}!\_extract\_package\_name@{\_extract\_package\_name}}
 \index{\_extract\_package\_name@{\_extract\_package\_name}!tests.integration.test\_requirements\_dev@{tests.integration.test\_requirements\_dev}}
 \doxysubsubsection{\texorpdfstring{\_extract\_package\_name()}{\_extract\_package\_name()}}
-{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements__dev_a597cde3f54d87654fdd6023724cffbc4} 
+{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements__dev_a597cde3f54d87654fdd6023724cffbc4}
  str tests.\+integration.\+test\+\_\+requirements\+\_\+dev.\+\_\+extract\+\_\+package\+\_\+name (\begin{DoxyParamCaption}\item[{str}]{line}{, }\item[{Requirement}]{req}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Extract the package name from a requirement line, preserving original casing.
@@ -95,7 +95,7 @@ Returns:
 \Hypertarget{namespacetests_1_1integration_1_1test__requirements__dev_af93939058281d84f82ef7de8476489d7}\index{tests.integration.test\_requirements\_dev@{tests.integration.test\_requirements\_dev}!\_normalize\_specifier@{\_normalize\_specifier}}
 \index{\_normalize\_specifier@{\_normalize\_specifier}!tests.integration.test\_requirements\_dev@{tests.integration.test\_requirements\_dev}}
 \doxysubsubsection{\texorpdfstring{\_normalize\_specifier()}{\_normalize\_specifier()}}
-{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements__dev_af93939058281d84f82ef7de8476489d7} 
+{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements__dev_af93939058281d84f82ef7de8476489d7}
  str tests.\+integration.\+test\+\_\+requirements\+\_\+dev.\+\_\+normalize\+\_\+specifier (\begin{DoxyParamCaption}\item[{str}]{specifier\+\_\+str}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Normalize a version specifier string by removing spaces around commas.
@@ -117,7 +117,7 @@ Returns:
 \Hypertarget{namespacetests_1_1integration_1_1test__requirements__dev_a1d98458011c778690270b664e89e9d0d}\index{tests.integration.test\_requirements\_dev@{tests.integration.test\_requirements\_dev}!\_parse\_single\_requirement@{\_parse\_single\_requirement}}
 \index{\_parse\_single\_requirement@{\_parse\_single\_requirement}!tests.integration.test\_requirements\_dev@{tests.integration.test\_requirements\_dev}}
 \doxysubsubsection{\texorpdfstring{\_parse\_single\_requirement()}{\_parse\_single\_requirement()}}
-{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements__dev_a1d98458011c778690270b664e89e9d0d} 
+{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements__dev_a1d98458011c778690270b664e89e9d0d}
  tuple tests.\+integration.\+test\+\_\+requirements\+\_\+dev.\+\_\+parse\+\_\+single\+\_\+requirement (\begin{DoxyParamCaption}\item[{str}]{line}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Parse a single requirement line into (package, version_spec) tuple.
@@ -139,7 +139,7 @@ Returns:
 \Hypertarget{namespacetests_1_1integration_1_1test__requirements__dev_a28656bbba69e63a658555ed6989a9a1b}\index{tests.integration.test\_requirements\_dev@{tests.integration.test\_requirements\_dev}!parse\_requirements@{parse\_requirements}}
 \index{parse\_requirements@{parse\_requirements}!tests.integration.test\_requirements\_dev@{tests.integration.test\_requirements\_dev}}
 \doxysubsubsection{\texorpdfstring{parse\_requirements()}{parse\_requirements()}}
-{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements__dev_a28656bbba69e63a658555ed6989a9a1b} 
+{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements__dev_a28656bbba69e63a658555ed6989a9a1b}
  List\mbox{[}Tuple\mbox{[}str, str\mbox{]}\mbox{]} tests.\+integration.\+test\+\_\+requirements\+\_\+dev.\+parse\+\_\+requirements (\begin{DoxyParamCaption}\item[{Path}]{file\+\_\+path}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Parse requirements file and return list of (package, version_spec) tuples.
@@ -171,7 +171,7 @@ Raises:
 \Hypertarget{namespacetests_1_1integration_1_1test__requirements__dev_a0e99790ad4cd3ca0e45a21b27b42e0c1}\index{tests.integration.test\_requirements\_dev@{tests.integration.test\_requirements\_dev}!parsed\_requirements@{parsed\_requirements}}
 \index{parsed\_requirements@{parsed\_requirements}!tests.integration.test\_requirements\_dev@{tests.integration.test\_requirements\_dev}}
 \doxysubsubsection{\texorpdfstring{parsed\_requirements()}{parsed\_requirements()}}
-{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements__dev_a0e99790ad4cd3ca0e45a21b27b42e0c1} 
+{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements__dev_a0e99790ad4cd3ca0e45a21b27b42e0c1}
  List\mbox{[}Tuple\mbox{[}str, str\mbox{]}\mbox{]} tests.\+integration.\+test\+\_\+requirements\+\_\+dev.\+parsed\+\_\+requirements (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Parse requirements file and return list of (package, version_spec) tuples.\end{DoxyVerb}
@@ -189,6 +189,5 @@ Raises:
 \Hypertarget{namespacetests_1_1integration_1_1test__requirements__dev_a32289b3f4166f09591fea4e6cfc29ea6}\index{tests.integration.test\_requirements\_dev@{tests.integration.test\_requirements\_dev}!REQUIREMENTS\_FILE@{REQUIREMENTS\_FILE}}
 \index{REQUIREMENTS\_FILE@{REQUIREMENTS\_FILE}!tests.integration.test\_requirements\_dev@{tests.integration.test\_requirements\_dev}}
 \doxysubsubsection{\texorpdfstring{REQUIREMENTS\_FILE}{REQUIREMENTS\_FILE}}
-{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements__dev_a32289b3f4166f09591fea4e6cfc29ea6} 
+{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements__dev_a32289b3f4166f09591fea4e6cfc29ea6}
 str tests.\+integration.\+test\+\_\+requirements\+\_\+dev.\+REQUIREMENTS\+\_\+\+FILE = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent.\+parent / "{}requirements-\/dev.\+txt"{}}
-

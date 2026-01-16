@@ -2,87 +2,87 @@
 \hypertarget{namespaceapi_1_1main}{}\label{namespaceapi_1_1main}\index{api.main@{api.main}}
 \doxysubsubsection*{Classes}
 \begin{DoxyCompactItemize}
-\item 
+\item
 class \mbox{\hyperlink{classapi_1_1main_1_1AssetResponse}{Asset\+Response}}
-\item 
+\item
 class \mbox{\hyperlink{classapi_1_1main_1_1MetricsResponse}{Metrics\+Response}}
-\item 
+\item
 class \mbox{\hyperlink{classapi_1_1main_1_1RelationshipResponse}{Relationship\+Response}}
-\item 
+\item
 class \mbox{\hyperlink{classapi_1_1main_1_1TestWorkflowBestPractices}{Test\+Workflow\+Best\+Practices}}
-\item 
+\item
 class \mbox{\hyperlink{classapi_1_1main_1_1TestWorkflowCrossPlatform}{Test\+Workflow\+Cross\+Platform}}
-\item 
+\item
 class \mbox{\hyperlink{classapi_1_1main_1_1TestWorkflowGitHubActionsSchema}{Test\+Workflow\+Git\+Hub\+Actions\+Schema}}
-\item 
+\item
 class \mbox{\hyperlink{classapi_1_1main_1_1TestWorkflowMaintainability}{Test\+Workflow\+Maintainability}}
-\item 
+\item
 class \mbox{\hyperlink{classapi_1_1main_1_1TestWorkflowSecurity}{Test\+Workflow\+Security}}
-\item 
+\item
 class \mbox{\hyperlink{classapi_1_1main_1_1TestWorkflowYAMLSyntax}{Test\+Workflow\+YAMLSyntax}}
-\item 
+\item
 class \mbox{\hyperlink{classapi_1_1main_1_1VisualizationDataResponse}{Visualization\+Data\+Response}}
 \end{DoxyCompactItemize}
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
-\item 
+\item
 \mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}} \mbox{\hyperlink{namespaceapi_1_1main_a36e38405e838cf6847b86f3ef103e262}{get\+\_\+graph}} ()
-\item 
+\item
 None \mbox{\hyperlink{namespaceapi_1_1main_a96faa5bda5e638da3b325540aedcf235}{set\+\_\+graph}} (\mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}} graph\+\_\+instance)
-\item 
+\item
 None \mbox{\hyperlink{namespaceapi_1_1main_ab9d3f7110a39d7e2cee8a046527783d6}{set\+\_\+graph\+\_\+factory}} (Optional\mbox{[}Callable\mbox{[}\mbox{[}$\,$\mbox{]}, \mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}}\mbox{]}\mbox{]} factory)
-\item 
+\item
 None \mbox{\hyperlink{namespaceapi_1_1main_a98aa6df819941b0a1b4dc5202ebb5153}{reset\+\_\+graph}} ()
-\item 
+\item
 \mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}} \mbox{\hyperlink{namespaceapi_1_1main_ae01417ef61271933f6fa186011018274}{\+\_\+initialize\+\_\+graph}} ()
-\item 
+\item
 bool \mbox{\hyperlink{namespaceapi_1_1main_ac3285016e88cfbffb67e774549fc3a33}{\+\_\+should\+\_\+use\+\_\+real\+\_\+data\+\_\+fetcher}} ()
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_ae4595ce91fa5331777bf56cbd51f10a7}{lifespan}} (Fast\+API \+\_\+fastapi\+\_\+app)
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_aa3e5d8f8dc11b20ad05ee42dbeb72dfb}{login\+\_\+for\+\_\+access\+\_\+token}} (Request request, OAuth2\+Password\+Request\+Form form\+\_\+data=Depends())
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_a574efab533358b53a0c8d7dcc0be8ad9}{read\+\_\+users\+\_\+me}} (Request request, \mbox{\hyperlink{classapi_1_1auth_1_1User}{User}} current\+\_\+user=Depends(get\+\_\+current\+\_\+active\+\_\+user))
-\item 
+\item
 bool \mbox{\hyperlink{namespaceapi_1_1main_a63ea8c77818300f6f8b2464596c57407}{validate\+\_\+origin}} (str origin\+\_\+url)
-\item 
+\item
 None \mbox{\hyperlink{namespaceapi_1_1main_ad5568f262e69dcaf5f1b3e3cd498c9a4}{raise\+\_\+asset\+\_\+not\+\_\+found}} (str asset\+\_\+id, str resource\+\_\+type="{}Asset"{})
-\item 
+\item
 Dict\mbox{[}str, Any\mbox{]} \mbox{\hyperlink{namespaceapi_1_1main_a01d5b997c7c518457e2a8503526bf65a}{serialize\+\_\+asset}} (Any asset, bool include\+\_\+issuer=False)
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_a0310b837dae9253adee650f5978e92ea}{root}} ()
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_a681769f2b8d07288312d911111ea9500}{health\+\_\+check}} ()
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_ae9e0206bc776c0671651abde39b897ed}{get\+\_\+assets}} (Optional\mbox{[}str\mbox{]} asset\+\_\+class=None, Optional\mbox{[}str\mbox{]} sector=None)
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_a03617816549accf6f06906b0fc784998}{get\+\_\+asset\+\_\+detail}} (str asset\+\_\+id)
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_a4dbc679bdd140b907036fee6a9ee8092}{get\+\_\+asset\+\_\+relationships}} (str asset\+\_\+id)
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_a82617850299efb7763024c5bfd919759}{get\+\_\+all\+\_\+relationships}} ()
 \end{DoxyCompactItemize}
 \doxysubsubsection*{Variables}
 \begin{DoxyCompactItemize}
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_aa35f82e16993d32164403dbd79db6298}{limiter}} = Limiter(key\+\_\+func=get\+\_\+remote\+\_\+address)
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_a86a3c1e804b448002d2081ef90cb01ca}{app}}
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_ad251e4d9950b84be47146c8d547a858b}{ENV}} = os.\+getenv("{}ENV"{}, "{}development"{}).lower()
-\item 
+\item
 list \mbox{\hyperlink{namespaceapi_1_1main_a11230e43afa52d45c4fb15370aafd83b}{allowed\+\_\+origins}} = \mbox{[}$\,$\mbox{]}
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_a5faac58687e620f7e5a07dbcd020cc06}{additional\+\_\+origins}} = os.\+getenv("{}ALLOWED\+\_\+\+ORIGINS"{}).split("{},"{})
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_acc6b5b1fccda6c9765fb9e689ec3b441}{stripped\+\_\+origin}} = origin.\+strip()
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_a89792fe5170fc29d309d070db8bea953}{allow\+\_\+origins}}
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_a64a0ff52685ea26f48b6bbc1cd034075}{allow\+\_\+credentials}}
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_ab7da13625cc2a11a850c97c8d5509a20}{allow\+\_\+methods}}
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1main_ae28ee3f43325ba4bebdb1e3637420119}{allow\+\_\+headers}}
 \end{DoxyCompactItemize}
 
@@ -93,13 +93,13 @@ list \mbox{\hyperlink{namespaceapi_1_1main_a11230e43afa52d45c4fb15370aafd83b}{al
 Tests validate YAML structure, syntax, and GitHub Actions schema compliance
 for all workflow files in .github/workflows/
 \end{DoxyVerb}
- 
+
 
 \doxysubsection{Function Documentation}
 \Hypertarget{namespaceapi_1_1main_ae01417ef61271933f6fa186011018274}\index{api.main@{api.main}!\_initialize\_graph@{\_initialize\_graph}}
 \index{\_initialize\_graph@{\_initialize\_graph}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{\_initialize\_graph()}{\_initialize\_graph()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_ae01417ef61271933f6fa186011018274} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_ae01417ef61271933f6fa186011018274}
  \mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}} api.\+main.\+\_\+initialize\+\_\+graph (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Construct the asset relationship graph using the configured factory or environment-backed data sources.
@@ -128,7 +128,7 @@ Here is the caller graph for this function\+:
 \Hypertarget{namespaceapi_1_1main_ac3285016e88cfbffb67e774549fc3a33}\index{api.main@{api.main}!\_should\_use\_real\_data\_fetcher@{\_should\_use\_real\_data\_fetcher}}
 \index{\_should\_use\_real\_data\_fetcher@{\_should\_use\_real\_data\_fetcher}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{\_should\_use\_real\_data\_fetcher()}{\_should\_use\_real\_data\_fetcher()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_ac3285016e88cfbffb67e774549fc3a33} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_ac3285016e88cfbffb67e774549fc3a33}
  bool api.\+main.\+\_\+should\+\_\+use\+\_\+real\+\_\+data\+\_\+fetcher (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Decides whether the application should use the real data fetcher based on the `USE_REAL_DATA_FETCHER` environment variable.
@@ -147,7 +147,7 @@ Returns:
 \Hypertarget{namespaceapi_1_1main_a82617850299efb7763024c5bfd919759}\index{api.main@{api.main}!get\_all\_relationships@{get\_all\_relationships}}
 \index{get\_all\_relationships@{get\_all\_relationships}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{get\_all\_relationships()}{get\_all\_relationships()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a82617850299efb7763024c5bfd919759} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a82617850299efb7763024c5bfd919759}
 api.\+main.\+get\+\_\+all\+\_\+relationships (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}List all directed relationships in the initialized asset graph.
@@ -166,7 +166,7 @@ Returns:
 \Hypertarget{namespaceapi_1_1main_a03617816549accf6f06906b0fc784998}\index{api.main@{api.main}!get\_asset\_detail@{get\_asset\_detail}}
 \index{get\_asset\_detail@{get\_asset\_detail}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{get\_asset\_detail()}{get\_asset\_detail()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a03617816549accf6f06906b0fc784998} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a03617816549accf6f06906b0fc784998}
 api.\+main.\+get\+\_\+asset\+\_\+detail (\begin{DoxyParamCaption}\item[{str}]{asset\+\_\+id}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Retrieve detailed information for the asset identified by `asset_id`.
@@ -192,7 +192,7 @@ Raises:
 \Hypertarget{namespaceapi_1_1main_a4dbc679bdd140b907036fee6a9ee8092}\index{api.main@{api.main}!get\_asset\_relationships@{get\_asset\_relationships}}
 \index{get\_asset\_relationships@{get\_asset\_relationships}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{get\_asset\_relationships()}{get\_asset\_relationships()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a4dbc679bdd140b907036fee6a9ee8092} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a4dbc679bdd140b907036fee6a9ee8092}
 api.\+main.\+get\+\_\+asset\+\_\+relationships (\begin{DoxyParamCaption}\item[{str}]{asset\+\_\+id}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}List outgoing relationships for the specified asset.
@@ -217,7 +217,7 @@ Raises:
 \Hypertarget{namespaceapi_1_1main_ae9e0206bc776c0671651abde39b897ed}\index{api.main@{api.main}!get\_assets@{get\_assets}}
 \index{get\_assets@{get\_assets}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{get\_assets()}{get\_assets()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_ae9e0206bc776c0671651abde39b897ed} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_ae9e0206bc776c0671651abde39b897ed}
 api.\+main.\+get\+\_\+assets (\begin{DoxyParamCaption}\item[{Optional\mbox{[}str\mbox{]} }]{asset\+\_\+class}{ = {\ttfamily None}, }\item[{Optional\mbox{[}str\mbox{]} }]{sector}{ = {\ttfamily None}}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}List assets, optionally filtered by asset class and sector.
@@ -240,7 +240,7 @@ Returns:
 \Hypertarget{namespaceapi_1_1main_a36e38405e838cf6847b86f3ef103e262}\index{api.main@{api.main}!get\_graph@{get\_graph}}
 \index{get\_graph@{get\_graph}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{get\_graph()}{get\_graph()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a36e38405e838cf6847b86f3ef103e262} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a36e38405e838cf6847b86f3ef103e262}
  \mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}} api.\+main.\+get\+\_\+graph (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Provide the global AssetRelationshipGraph, initialising it on first access if necessary.
@@ -267,14 +267,14 @@ Here is the caller graph for this function\+:
 \Hypertarget{namespaceapi_1_1main_a681769f2b8d07288312d911111ea9500}\index{api.main@{api.main}!health\_check@{health\_check}}
 \index{health\_check@{health\_check}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{health\_check()}{health\_check()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a681769f2b8d07288312d911111ea9500} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a681769f2b8d07288312d911111ea9500}
 api.\+main.\+health\+\_\+check (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Health check endpoint\end{DoxyVerb}
  \Hypertarget{namespaceapi_1_1main_ae4595ce91fa5331777bf56cbd51f10a7}\index{api.main@{api.main}!lifespan@{lifespan}}
 \index{lifespan@{lifespan}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{lifespan()}{lifespan()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_ae4595ce91fa5331777bf56cbd51f10a7} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_ae4595ce91fa5331777bf56cbd51f10a7}
 api.\+main.\+lifespan (\begin{DoxyParamCaption}\item[{Fast\+API}]{\+\_\+fastapi\+\_\+app}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Manage the application's lifespan by initialising the global graph on startup and logging shutdown.
@@ -295,7 +295,7 @@ Parameters:
 \Hypertarget{namespaceapi_1_1main_aa3e5d8f8dc11b20ad05ee42dbeb72dfb}\index{api.main@{api.main}!login\_for\_access\_token@{login\_for\_access\_token}}
 \index{login\_for\_access\_token@{login\_for\_access\_token}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{login\_for\_access\_token()}{login\_for\_access\_token()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_aa3e5d8f8dc11b20ad05ee42dbeb72dfb} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_aa3e5d8f8dc11b20ad05ee42dbeb72dfb}
 api.\+main.\+login\+\_\+for\+\_\+access\+\_\+token (\begin{DoxyParamCaption}\item[{Request}]{request}{, }\item[{OAuth2\+Password\+Request\+Form }]{form\+\_\+data}{ = {\ttfamily Depends()}}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Create a JWT access token for a user authenticated with a username and password.
@@ -309,7 +309,7 @@ Returns:
  \Hypertarget{namespaceapi_1_1main_ad5568f262e69dcaf5f1b3e3cd498c9a4}\index{api.main@{api.main}!raise\_asset\_not\_found@{raise\_asset\_not\_found}}
 \index{raise\_asset\_not\_found@{raise\_asset\_not\_found}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{raise\_asset\_not\_found()}{raise\_asset\_not\_found()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_ad5568f262e69dcaf5f1b3e3cd498c9a4} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_ad5568f262e69dcaf5f1b3e3cd498c9a4}
  None api.\+main.\+raise\+\_\+asset\+\_\+not\+\_\+found (\begin{DoxyParamCaption}\item[{str}]{asset\+\_\+id}{, }\item[{str }]{resource\+\_\+type}{ = {\ttfamily "{}Asset"{}}}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Raise HTTPException for missing resources.
@@ -329,7 +329,7 @@ Args:
 \Hypertarget{namespaceapi_1_1main_a574efab533358b53a0c8d7dcc0be8ad9}\index{api.main@{api.main}!read\_users\_me@{read\_users\_me}}
 \index{read\_users\_me@{read\_users\_me}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{read\_users\_me()}{read\_users\_me()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a574efab533358b53a0c8d7dcc0be8ad9} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a574efab533358b53a0c8d7dcc0be8ad9}
 api.\+main.\+read\+\_\+users\+\_\+me (\begin{DoxyParamCaption}\item[{Request}]{request}{, }\item[{\mbox{\hyperlink{classapi_1_1auth_1_1User}{User}} }]{current\+\_\+user}{ = {\ttfamily Depends(get\+\_\+current\+\_\+active\+\_\+user)}}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Retrieve the currently authenticated user.
@@ -344,7 +344,7 @@ Returns:
  \Hypertarget{namespaceapi_1_1main_a98aa6df819941b0a1b4dc5202ebb5153}\index{api.main@{api.main}!reset\_graph@{reset\_graph}}
 \index{reset\_graph@{reset\_graph}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{reset\_graph()}{reset\_graph()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a98aa6df819941b0a1b4dc5202ebb5153} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a98aa6df819941b0a1b4dc5202ebb5153}
  None api.\+main.\+reset\+\_\+graph (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Clear the global graph and any configured factory so the graph will be reinitialised on next access.
@@ -362,7 +362,7 @@ This removes any existing graph instance and clears the graph factory.
 \Hypertarget{namespaceapi_1_1main_a0310b837dae9253adee650f5978e92ea}\index{api.main@{api.main}!root@{root}}
 \index{root@{root}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{root()}{root()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a0310b837dae9253adee650f5978e92ea} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a0310b837dae9253adee650f5978e92ea}
 api.\+main.\+root (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Provide basic API metadata and a listing of available endpoints.
@@ -376,7 +376,7 @@ Returns:
  \Hypertarget{namespaceapi_1_1main_a01d5b997c7c518457e2a8503526bf65a}\index{api.main@{api.main}!serialize\_asset@{serialize\_asset}}
 \index{serialize\_asset@{serialize\_asset}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{serialize\_asset()}{serialize\_asset()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a01d5b997c7c518457e2a8503526bf65a} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a01d5b997c7c518457e2a8503526bf65a}
  Dict\mbox{[}str, Any\mbox{]} api.\+main.\+serialize\+\_\+asset (\begin{DoxyParamCaption}\item[{Any}]{asset}{, }\item[{bool }]{include\+\_\+issuer}{ = {\ttfamily False}}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Serialize an Asset object to a dictionary representation.
@@ -399,7 +399,7 @@ Returns:
 \Hypertarget{namespaceapi_1_1main_a96faa5bda5e638da3b325540aedcf235}\index{api.main@{api.main}!set\_graph@{set\_graph}}
 \index{set\_graph@{set\_graph}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{set\_graph()}{set\_graph()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a96faa5bda5e638da3b325540aedcf235} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a96faa5bda5e638da3b325540aedcf235}
  None api.\+main.\+set\+\_\+graph (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}}}]{graph\+\_\+instance}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Set the module-level graph to the provided AssetRelationshipGraph and clear any configured graph factory.
@@ -410,7 +410,7 @@ Parameters:
  \Hypertarget{namespaceapi_1_1main_ab9d3f7110a39d7e2cee8a046527783d6}\index{api.main@{api.main}!set\_graph\_factory@{set\_graph\_factory}}
 \index{set\_graph\_factory@{set\_graph\_factory}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{set\_graph\_factory()}{set\_graph\_factory()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_ab9d3f7110a39d7e2cee8a046527783d6} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_ab9d3f7110a39d7e2cee8a046527783d6}
  None api.\+main.\+set\+\_\+graph\+\_\+factory (\begin{DoxyParamCaption}\item[{Optional\mbox{[}Callable\mbox{[}\mbox{[}$\,$\mbox{]}, \mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}}\mbox{]}\mbox{]}}]{factory}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Set the callable used to construct the global AssetRelationshipGraph on demand.
@@ -431,7 +431,7 @@ Parameters:
 \Hypertarget{namespaceapi_1_1main_a63ea8c77818300f6f8b2464596c57407}\index{api.main@{api.main}!validate\_origin@{validate\_origin}}
 \index{validate\_origin@{validate\_origin}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{validate\_origin()}{validate\_origin()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a63ea8c77818300f6f8b2464596c57407} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a63ea8c77818300f6f8b2464596c57407}
  bool api.\+main.\+validate\+\_\+origin (\begin{DoxyParamCaption}\item[{str}]{origin\+\_\+url}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Determine whether an HTTP origin is permitted by the application's CORS rules.
@@ -447,49 +447,49 @@ Parameters:
 Returns:
     True if the origin is allowed, False otherwise.
 \end{DoxyVerb}
- 
+
 
 \doxysubsection{Variable Documentation}
 \Hypertarget{namespaceapi_1_1main_a5faac58687e620f7e5a07dbcd020cc06}\index{api.main@{api.main}!additional\_origins@{additional\_origins}}
 \index{additional\_origins@{additional\_origins}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{additional\_origins}{additional\_origins}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a5faac58687e620f7e5a07dbcd020cc06} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a5faac58687e620f7e5a07dbcd020cc06}
 api.\+main.\+additional\+\_\+origins = os.\+getenv("{}ALLOWED\+\_\+\+ORIGINS"{}).split("{},"{})}
 
 \Hypertarget{namespaceapi_1_1main_a64a0ff52685ea26f48b6bbc1cd034075}\index{api.main@{api.main}!allow\_credentials@{allow\_credentials}}
 \index{allow\_credentials@{allow\_credentials}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{allow\_credentials}{allow\_credentials}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a64a0ff52685ea26f48b6bbc1cd034075} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a64a0ff52685ea26f48b6bbc1cd034075}
 api.\+main.\+allow\+\_\+credentials}
 
 \Hypertarget{namespaceapi_1_1main_ae28ee3f43325ba4bebdb1e3637420119}\index{api.main@{api.main}!allow\_headers@{allow\_headers}}
 \index{allow\_headers@{allow\_headers}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{allow\_headers}{allow\_headers}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_ae28ee3f43325ba4bebdb1e3637420119} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_ae28ee3f43325ba4bebdb1e3637420119}
 api.\+main.\+allow\+\_\+headers}
 
 \Hypertarget{namespaceapi_1_1main_ab7da13625cc2a11a850c97c8d5509a20}\index{api.main@{api.main}!allow\_methods@{allow\_methods}}
 \index{allow\_methods@{allow\_methods}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{allow\_methods}{allow\_methods}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_ab7da13625cc2a11a850c97c8d5509a20} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_ab7da13625cc2a11a850c97c8d5509a20}
 api.\+main.\+allow\+\_\+methods}
 
 \Hypertarget{namespaceapi_1_1main_a89792fe5170fc29d309d070db8bea953}\index{api.main@{api.main}!allow\_origins@{allow\_origins}}
 \index{allow\_origins@{allow\_origins}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{allow\_origins}{allow\_origins}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a89792fe5170fc29d309d070db8bea953} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a89792fe5170fc29d309d070db8bea953}
 api.\+main.\+allow\+\_\+origins}
 
 \Hypertarget{namespaceapi_1_1main_a11230e43afa52d45c4fb15370aafd83b}\index{api.main@{api.main}!allowed\_origins@{allowed\_origins}}
 \index{allowed\_origins@{allowed\_origins}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{allowed\_origins}{allowed\_origins}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a11230e43afa52d45c4fb15370aafd83b} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a11230e43afa52d45c4fb15370aafd83b}
 list api.\+main.\+allowed\+\_\+origins = \mbox{[}$\,$\mbox{]}}
 
 \Hypertarget{namespaceapi_1_1main_a86a3c1e804b448002d2081ef90cb01ca}\index{api.main@{api.main}!app@{app}}
 \index{app@{app}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{app}{app}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_a86a3c1e804b448002d2081ef90cb01ca} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_a86a3c1e804b448002d2081ef90cb01ca}
 api.\+main.\+app}
 
 {\bfseries Initial value\+:}
@@ -505,18 +505,17 @@ api.\+main.\+app}
 \Hypertarget{namespaceapi_1_1main_ad251e4d9950b84be47146c8d547a858b}\index{api.main@{api.main}!ENV@{ENV}}
 \index{ENV@{ENV}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{ENV}{ENV}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_ad251e4d9950b84be47146c8d547a858b} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_ad251e4d9950b84be47146c8d547a858b}
 api.\+main.\+ENV = os.\+getenv("{}ENV"{}, "{}development"{}).lower()}
 
 \Hypertarget{namespaceapi_1_1main_aa35f82e16993d32164403dbd79db6298}\index{api.main@{api.main}!limiter@{limiter}}
 \index{limiter@{limiter}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{limiter}{limiter}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_aa35f82e16993d32164403dbd79db6298} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_aa35f82e16993d32164403dbd79db6298}
 api.\+main.\+limiter = Limiter(key\+\_\+func=get\+\_\+remote\+\_\+address)}
 
 \Hypertarget{namespaceapi_1_1main_acc6b5b1fccda6c9765fb9e689ec3b441}\index{api.main@{api.main}!stripped\_origin@{stripped\_origin}}
 \index{stripped\_origin@{stripped\_origin}!api.main@{api.main}}
 \doxysubsubsection{\texorpdfstring{stripped\_origin}{stripped\_origin}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1main_acc6b5b1fccda6c9765fb9e689ec3b441} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1main_acc6b5b1fccda6c9765fb9e689ec3b441}
 api.\+main.\+stripped\+\_\+origin = origin.\+strip()}
-

@@ -555,19 +555,19 @@ span.xmlcdata {
 	color: black;
 }
 
-span.vhdldigit { 
+span.vhdldigit {
 	color: #FF00FF;
 }
 
-span.vhdlchar { 
+span.vhdlchar {
 	color: #000000;
 }
 
-span.vhdlkeyword { 
+span.vhdlkeyword {
 	color: #700070;
 }
 
-span.vhdllogic { 
+span.vhdllogic {
 	color: #FF0000;
 }
 
@@ -1846,4 +1846,3 @@ details[open]>summary::before {
     padding-right:4px;
     font-size: 80%;
 }
-

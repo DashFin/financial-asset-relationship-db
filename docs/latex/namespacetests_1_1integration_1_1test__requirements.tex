@@ -2,33 +2,33 @@
 \hypertarget{namespacetests_1_1integration_1_1test__requirements}{}\label{namespacetests_1_1integration_1_1test__requirements}\index{tests.integration.test\_requirements@{tests.integration.test\_requirements}}
 \doxysubsubsection*{Classes}
 \begin{DoxyCompactItemize}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements_1_1TestComprehensiveValidation}{Test\+Comprehensive\+Validation}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements_1_1TestEdgeCases}{Test\+Edge\+Cases}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements_1_1TestFileOrganization}{Test\+File\+Organization}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements_1_1TestPackageConsistency}{Test\+Package\+Consistency}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements_1_1TestRequiredPackages}{Test\+Required\+Packages}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements_1_1TestRequirementsFileExists}{Test\+Requirements\+File\+Exists}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements_1_1TestRequirementsFileFormat}{Test\+Requirements\+File\+Format}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements_1_1TestSecurityAndCompliance}{Test\+Security\+And\+Compliance}}
-\item 
+\item
 class \mbox{\hyperlink{classtests_1_1integration_1_1test__requirements_1_1TestVersionSpecifications}{Test\+Version\+Specifications}}
 \end{DoxyCompactItemize}
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
-\item 
+\item
 List\mbox{[}Tuple\mbox{[}str, str\mbox{]}\mbox{]} \mbox{\hyperlink{namespacetests_1_1integration_1_1test__requirements_a979f85cc6fc4eaa1143477069cb8b99a}{parse\+\_\+requirements}} (Path file\+\_\+path)
 \end{DoxyCompactItemize}
 \doxysubsubsection*{Variables}
 \begin{DoxyCompactItemize}
-\item 
+\item
 str \mbox{\hyperlink{namespacetests_1_1integration_1_1test__requirements_a74f1a9ad4502de77613aec1cc7ad3260}{REQUIREMENTS\+\_\+\+FILE}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent.\+parent / "{}requirements.\+txt"{}
 \end{DoxyCompactItemize}
 
@@ -43,13 +43,13 @@ and includes security-pinned dependencies.
 Note: Bandit B101 (assert_used) is suppressed for this test file as assert
 statements are the standard and required pattern in pytest test files.
 \end{DoxyVerb}
- 
+
 
 \doxysubsection{Function Documentation}
 \Hypertarget{namespacetests_1_1integration_1_1test__requirements_a979f85cc6fc4eaa1143477069cb8b99a}\index{tests.integration.test\_requirements@{tests.integration.test\_requirements}!parse\_requirements@{parse\_requirements}}
 \index{parse\_requirements@{parse\_requirements}!tests.integration.test\_requirements@{tests.integration.test\_requirements}}
 \doxysubsubsection{\texorpdfstring{parse\_requirements()}{parse\_requirements()}}
-{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements_a979f85cc6fc4eaa1143477069cb8b99a} 
+{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements_a979f85cc6fc4eaa1143477069cb8b99a}
  List\mbox{[}Tuple\mbox{[}str, str\mbox{]}\mbox{]} tests.\+integration.\+test\+\_\+requirements.\+parse\+\_\+requirements (\begin{DoxyParamCaption}\item[{Path}]{file\+\_\+path}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Parse requirements file and return list of (package, version_spec) tuples.
@@ -85,6 +85,5 @@ Raises:
 \Hypertarget{namespacetests_1_1integration_1_1test__requirements_a74f1a9ad4502de77613aec1cc7ad3260}\index{tests.integration.test\_requirements@{tests.integration.test\_requirements}!REQUIREMENTS\_FILE@{REQUIREMENTS\_FILE}}
 \index{REQUIREMENTS\_FILE@{REQUIREMENTS\_FILE}!tests.integration.test\_requirements@{tests.integration.test\_requirements}}
 \doxysubsubsection{\texorpdfstring{REQUIREMENTS\_FILE}{REQUIREMENTS\_FILE}}
-{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements_a74f1a9ad4502de77613aec1cc7ad3260} 
+{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1test__requirements_a74f1a9ad4502de77613aec1cc7ad3260}
 str tests.\+integration.\+test\+\_\+requirements.\+REQUIREMENTS\+\_\+\+FILE = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent.\+parent / "{}requirements.\+txt"{}}
-

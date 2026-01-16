@@ -2,29 +2,29 @@
 \hypertarget{namespacetests_1_1integration_1_1conftest}{}\label{namespacetests_1_1integration_1_1conftest}\index{tests.integration.conftest@{tests.integration.conftest}}
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
-\item 
+\item
 List\mbox{[}Tuple\mbox{[}str, str\mbox{]}\mbox{]} \mbox{\hyperlink{namespacetests_1_1integration_1_1conftest_a9e50885d5ebf8754427442e8fe76115c}{\+\_\+parse\+\_\+requirements\+\_\+file}} (Path file\+\_\+path)
-\item 
+\item
 List\mbox{[}Tuple\mbox{[}str, str\mbox{]}\mbox{]} \mbox{\hyperlink{namespacetests_1_1integration_1_1conftest_aec82707acc67d297679847219b266886}{parsed\+\_\+requirements}} ()
-\item 
+\item
 List\mbox{[}dict\mbox{]} \mbox{\hyperlink{namespacetests_1_1integration_1_1conftest_a8aba8d1c1d89b1872be0e439c26173f9}{all\+\_\+workflows}} ()
 \end{DoxyCompactItemize}
 \doxysubsubsection*{Variables}
 \begin{DoxyCompactItemize}
-\item 
+\item
 str \mbox{\hyperlink{namespacetests_1_1integration_1_1conftest_a825b01fea347a0abe216fec253fda3b1}{REQUIREMENTS\+\_\+\+DEV\+\_\+\+FILE}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent.\+parent / "{}requirements-\/dev.\+txt"{}
 \end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
 \begin{DoxyVerb}Shared fixtures for integration tests.\end{DoxyVerb}
- 
+
 
 \doxysubsection{Function Documentation}
 \Hypertarget{namespacetests_1_1integration_1_1conftest_a9e50885d5ebf8754427442e8fe76115c}\index{tests.integration.conftest@{tests.integration.conftest}!\_parse\_requirements\_file@{\_parse\_requirements\_file}}
 \index{\_parse\_requirements\_file@{\_parse\_requirements\_file}!tests.integration.conftest@{tests.integration.conftest}}
 \doxysubsubsection{\texorpdfstring{\_parse\_requirements\_file()}{\_parse\_requirements\_file()}}
-{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1conftest_a9e50885d5ebf8754427442e8fe76115c} 
+{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1conftest_a9e50885d5ebf8754427442e8fe76115c}
  List\mbox{[}Tuple\mbox{[}str, str\mbox{]}\mbox{]} tests.\+integration.\+conftest.\+\_\+parse\+\_\+requirements\+\_\+file (\begin{DoxyParamCaption}\item[{Path}]{file\+\_\+path}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Helper to parse requirements file into (package, version) tuples.\end{DoxyVerb}
@@ -39,7 +39,7 @@ str \mbox{\hyperlink{namespacetests_1_1integration_1_1conftest_a825b01fea347a0ab
 \Hypertarget{namespacetests_1_1integration_1_1conftest_a8aba8d1c1d89b1872be0e439c26173f9}\index{tests.integration.conftest@{tests.integration.conftest}!all\_workflows@{all\_workflows}}
 \index{all\_workflows@{all\_workflows}!tests.integration.conftest@{tests.integration.conftest}}
 \doxysubsubsection{\texorpdfstring{all\_workflows()}{all\_workflows()}}
-{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1conftest_a8aba8d1c1d89b1872be0e439c26173f9} 
+{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1conftest_a8aba8d1c1d89b1872be0e439c26173f9}
  List\mbox{[}dict\mbox{]} tests.\+integration.\+conftest.\+all\+\_\+workflows (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Load and parse all GitHub Actions workflow YAML files from .github/workflows.
@@ -50,7 +50,7 @@ Returns:
  \Hypertarget{namespacetests_1_1integration_1_1conftest_aec82707acc67d297679847219b266886}\index{tests.integration.conftest@{tests.integration.conftest}!parsed\_requirements@{parsed\_requirements}}
 \index{parsed\_requirements@{parsed\_requirements}!tests.integration.conftest@{tests.integration.conftest}}
 \doxysubsubsection{\texorpdfstring{parsed\_requirements()}{parsed\_requirements()}}
-{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1conftest_aec82707acc67d297679847219b266886} 
+{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1conftest_aec82707acc67d297679847219b266886}
  List\mbox{[}Tuple\mbox{[}str, str\mbox{]}\mbox{]} tests.\+integration.\+conftest.\+parsed\+\_\+requirements (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Parse requirements-dev.txt and return list of (package, version) tuples.\end{DoxyVerb}
@@ -68,6 +68,5 @@ Returns:
 \Hypertarget{namespacetests_1_1integration_1_1conftest_a825b01fea347a0abe216fec253fda3b1}\index{tests.integration.conftest@{tests.integration.conftest}!REQUIREMENTS\_DEV\_FILE@{REQUIREMENTS\_DEV\_FILE}}
 \index{REQUIREMENTS\_DEV\_FILE@{REQUIREMENTS\_DEV\_FILE}!tests.integration.conftest@{tests.integration.conftest}}
 \doxysubsubsection{\texorpdfstring{REQUIREMENTS\_DEV\_FILE}{REQUIREMENTS\_DEV\_FILE}}
-{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1conftest_a825b01fea347a0abe216fec253fda3b1} 
+{\footnotesize\ttfamily \label{namespacetests_1_1integration_1_1conftest_a825b01fea347a0abe216fec253fda3b1}
 str tests.\+integration.\+conftest.\+REQUIREMENTS\+\_\+\+DEV\+\_\+\+FILE = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent.\+parent / "{}requirements-\/dev.\+txt"{}}
-

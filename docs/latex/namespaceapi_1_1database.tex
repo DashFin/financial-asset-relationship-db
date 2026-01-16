@@ -2,56 +2,56 @@
 \hypertarget{namespaceapi_1_1database}{}\label{namespaceapi_1_1database}\index{api.database@{api.database}}
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
-\item 
+\item
 str \mbox{\hyperlink{namespaceapi_1_1database_adaae779a24d119d106ff0a16ba2fc908}{\+\_\+get\+\_\+database\+\_\+url}} ()
-\item 
+\item
 str \mbox{\hyperlink{namespaceapi_1_1database_a67db33fa9ae24bc163341385dbd406ae}{\+\_\+resolve\+\_\+sqlite\+\_\+path}} (str url)
-\item 
+\item
 bool \mbox{\hyperlink{namespaceapi_1_1database_a2b55d2e5b55f35ea1fdaefbf1fd87ac3}{\+\_\+is\+\_\+memory\+\_\+db}} (str\texorpdfstring{$\vert$}{|}None path=None)
-\item 
+\item
 sqlite3.\+Connection \mbox{\hyperlink{namespaceapi_1_1database_add5bd37c7ccad20f0844cf169de107d2}{\+\_\+connect}} ()
-\item 
+\item
 Iterator\mbox{[}sqlite3.\+Connection\mbox{]} \mbox{\hyperlink{namespaceapi_1_1database_a6e6aa213df0f9401217ec521935184c5}{get\+\_\+connection}} ()
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1database_a19f8482578343a9585b0b18cf5517654}{\+\_\+cleanup\+\_\+memory\+\_\+connection}} ()
-\item 
+\item
 None \mbox{\hyperlink{namespaceapi_1_1database_ad11e531eb65a89c7f8f2b4a41dd57b7d}{execute}} (str query, tuple\texorpdfstring{$\vert$}{|}list\texorpdfstring{$\vert$}{|}None parameters=None)
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1database_a71b75b8190d8ed80254f80faa05a7948}{fetch\+\_\+one}} (str query, tuple\texorpdfstring{$\vert$}{|}list\texorpdfstring{$\vert$}{|}None parameters=None)
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1database_ac1c087e886aa857ebb7fb847b74b896f}{fetch\+\_\+value}} (str query, tuple\texorpdfstring{$\vert$}{|}list\texorpdfstring{$\vert$}{|}None parameters=None)
-\item 
+\item
 None \mbox{\hyperlink{namespaceapi_1_1database_a60790c5dbf753da6b2bccf09d471b534}{initialize\+\_\+schema}} ()
 \end{DoxyCompactItemize}
 \doxysubsubsection*{Variables}
 \begin{DoxyCompactItemize}
-\item 
+\item
 str \mbox{\hyperlink{namespaceapi_1_1database_a5014ed8f23fc4c5f66b950f75619ad58}{DATABASE\+\_\+\+URL}} = \mbox{\hyperlink{namespaceapi_1_1database_adaae779a24d119d106ff0a16ba2fc908}{\+\_\+get\+\_\+database\+\_\+url}}()
-\item 
+\item
 str \mbox{\hyperlink{namespaceapi_1_1database_ade7aafc0c3e9df952ce813ab06dd518f}{DATABASE\+\_\+\+PATH}} = \mbox{\hyperlink{namespaceapi_1_1database_a67db33fa9ae24bc163341385dbd406ae}{\+\_\+resolve\+\_\+sqlite\+\_\+path}}(\mbox{\hyperlink{namespaceapi_1_1database_a5014ed8f23fc4c5f66b950f75619ad58}{DATABASE\+\_\+\+URL}})
-\item 
+\item
 sqlite3 \mbox{\hyperlink{namespaceapi_1_1database_a648f6bb53e1820a79b97c45ee1850419}{\+\_\+\+MEMORY\+\_\+\+CONNECTION}} = None
-\item 
+\item
 \mbox{\hyperlink{namespaceapi_1_1database_aabb3043c4751dac46f440c64ebbca1ae}{\+\_\+\+MEMORY\+\_\+\+CONNECTION\+\_\+\+LOCK}} = threading.\+Lock()
 \end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
 \begin{DoxyVerb}Lightweight database helpers for the API layer.\end{DoxyVerb}
- 
+
 
 \doxysubsection{Function Documentation}
 \Hypertarget{namespaceapi_1_1database_a19f8482578343a9585b0b18cf5517654}\index{api.database@{api.database}!\_cleanup\_memory\_connection@{\_cleanup\_memory\_connection}}
 \index{\_cleanup\_memory\_connection@{\_cleanup\_memory\_connection}!api.database@{api.database}}
 \doxysubsubsection{\texorpdfstring{\_cleanup\_memory\_connection()}{\_cleanup\_memory\_connection()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1database_a19f8482578343a9585b0b18cf5517654} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1database_a19f8482578343a9585b0b18cf5517654}
 api.\+database.\+\_\+cleanup\+\_\+memory\+\_\+connection (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Clean up the global memory connection when the program exits.\end{DoxyVerb}
  \Hypertarget{namespaceapi_1_1database_add5bd37c7ccad20f0844cf169de107d2}\index{api.database@{api.database}!\_connect@{\_connect}}
 \index{\_connect@{\_connect}!api.database@{api.database}}
 \doxysubsubsection{\texorpdfstring{\_connect()}{\_connect()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1database_add5bd37c7ccad20f0844cf169de107d2} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1database_add5bd37c7ccad20f0844cf169de107d2}
  sqlite3.\+Connection api.\+database.\+\_\+connect (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Open a configured SQLite connection for the module's database path.
@@ -87,7 +87,7 @@ Here is the caller graph for this function\+:
 \Hypertarget{namespaceapi_1_1database_adaae779a24d119d106ff0a16ba2fc908}\index{api.database@{api.database}!\_get\_database\_url@{\_get\_database\_url}}
 \index{\_get\_database\_url@{\_get\_database\_url}!api.database@{api.database}}
 \doxysubsubsection{\texorpdfstring{\_get\_database\_url()}{\_get\_database\_url()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1database_adaae779a24d119d106ff0a16ba2fc908} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1database_adaae779a24d119d106ff0a16ba2fc908}
  str api.\+database.\+\_\+get\+\_\+database\+\_\+url (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Read the DATABASE_URL environment variable and return its value.
@@ -101,7 +101,7 @@ Raises:
  \Hypertarget{namespaceapi_1_1database_a2b55d2e5b55f35ea1fdaefbf1fd87ac3}\index{api.database@{api.database}!\_is\_memory\_db@{\_is\_memory\_db}}
 \index{\_is\_memory\_db@{\_is\_memory\_db}!api.database@{api.database}}
 \doxysubsubsection{\texorpdfstring{\_is\_memory\_db()}{\_is\_memory\_db()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1database_a2b55d2e5b55f35ea1fdaefbf1fd87ac3} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1database_a2b55d2e5b55f35ea1fdaefbf1fd87ac3}
  bool api.\+database.\+\_\+is\+\_\+memory\+\_\+db (\begin{DoxyParamCaption}\item[{str \texorpdfstring{$\vert$}{|} None }]{path}{ = {\ttfamily None}}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Determine whether the given or configured database refers to an in-memory
@@ -125,7 +125,7 @@ Returns:
 \Hypertarget{namespaceapi_1_1database_a67db33fa9ae24bc163341385dbd406ae}\index{api.database@{api.database}!\_resolve\_sqlite\_path@{\_resolve\_sqlite\_path}}
 \index{\_resolve\_sqlite\_path@{\_resolve\_sqlite\_path}!api.database@{api.database}}
 \doxysubsubsection{\texorpdfstring{\_resolve\_sqlite\_path()}{\_resolve\_sqlite\_path()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1database_a67db33fa9ae24bc163341385dbd406ae} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1database_a67db33fa9ae24bc163341385dbd406ae}
  str api.\+database.\+\_\+resolve\+\_\+sqlite\+\_\+path (\begin{DoxyParamCaption}\item[{str}]{url}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Resolve a SQLite URL to either a filesystem path or the special
@@ -150,7 +150,7 @@ Returns:
  \Hypertarget{namespaceapi_1_1database_ad11e531eb65a89c7f8f2b4a41dd57b7d}\index{api.database@{api.database}!execute@{execute}}
 \index{execute@{execute}!api.database@{api.database}}
 \doxysubsubsection{\texorpdfstring{execute()}{execute()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1database_ad11e531eb65a89c7f8f2b4a41dd57b7d} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1database_ad11e531eb65a89c7f8f2b4a41dd57b7d}
  None api.\+database.\+execute (\begin{DoxyParamCaption}\item[{str}]{query}{, }\item[{tuple \texorpdfstring{$\vert$}{|} list \texorpdfstring{$\vert$}{|} None }]{parameters}{ = {\ttfamily None}}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Execute a SQL write statement and commit the transaction using the module's
@@ -180,7 +180,7 @@ Here is the caller graph for this function\+:
 \Hypertarget{namespaceapi_1_1database_a71b75b8190d8ed80254f80faa05a7948}\index{api.database@{api.database}!fetch\_one@{fetch\_one}}
 \index{fetch\_one@{fetch\_one}!api.database@{api.database}}
 \doxysubsubsection{\texorpdfstring{fetch\_one()}{fetch\_one()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1database_a71b75b8190d8ed80254f80faa05a7948} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1database_a71b75b8190d8ed80254f80faa05a7948}
 api.\+database.\+fetch\+\_\+one (\begin{DoxyParamCaption}\item[{str}]{query}{, }\item[{tuple \texorpdfstring{$\vert$}{|} list \texorpdfstring{$\vert$}{|} None }]{parameters}{ = {\ttfamily None}}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Retrieve the first row produced by an SQL query.
@@ -213,7 +213,7 @@ Here is the caller graph for this function\+:
 \Hypertarget{namespaceapi_1_1database_ac1c087e886aa857ebb7fb847b74b896f}\index{api.database@{api.database}!fetch\_value@{fetch\_value}}
 \index{fetch\_value@{fetch\_value}!api.database@{api.database}}
 \doxysubsubsection{\texorpdfstring{fetch\_value()}{fetch\_value()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1database_ac1c087e886aa857ebb7fb847b74b896f} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1database_ac1c087e886aa857ebb7fb847b74b896f}
 api.\+database.\+fetch\+\_\+value (\begin{DoxyParamCaption}\item[{str}]{query}{, }\item[{tuple \texorpdfstring{$\vert$}{|} list \texorpdfstring{$\vert$}{|} None }]{parameters}{ = {\ttfamily None}}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Fetches the first column value from the first row of a query result.
@@ -237,7 +237,7 @@ Returns:
 \Hypertarget{namespaceapi_1_1database_a6e6aa213df0f9401217ec521935184c5}\index{api.database@{api.database}!get\_connection@{get\_connection}}
 \index{get\_connection@{get\_connection}!api.database@{api.database}}
 \doxysubsubsection{\texorpdfstring{get\_connection()}{get\_connection()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1database_a6e6aa213df0f9401217ec521935184c5} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1database_a6e6aa213df0f9401217ec521935184c5}
  Iterator\mbox{[}sqlite3.\+Connection\mbox{]} api.\+database.\+get\+\_\+connection (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Provide a context-managed SQLite connection for the configured database.
@@ -268,7 +268,7 @@ Here is the caller graph for this function\+:
 \Hypertarget{namespaceapi_1_1database_a60790c5dbf753da6b2bccf09d471b534}\index{api.database@{api.database}!initialize\_schema@{initialize\_schema}}
 \index{initialize\_schema@{initialize\_schema}!api.database@{api.database}}
 \doxysubsubsection{\texorpdfstring{initialize\_schema()}{initialize\_schema()}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1database_a60790c5dbf753da6b2bccf09d471b534} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1database_a60790c5dbf753da6b2bccf09d471b534}
  None api.\+database.\+initialize\+\_\+schema (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Create the `user_credentials` table if it does not already exist.
@@ -295,24 +295,23 @@ The table has the following columns:
 \Hypertarget{namespaceapi_1_1database_a648f6bb53e1820a79b97c45ee1850419}\index{api.database@{api.database}!\_MEMORY\_CONNECTION@{\_MEMORY\_CONNECTION}}
 \index{\_MEMORY\_CONNECTION@{\_MEMORY\_CONNECTION}!api.database@{api.database}}
 \doxysubsubsection{\texorpdfstring{\_MEMORY\_CONNECTION}{\_MEMORY\_CONNECTION}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1database_a648f6bb53e1820a79b97c45ee1850419} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1database_a648f6bb53e1820a79b97c45ee1850419}
 sqlite3 api.\+database.\+\_\+\+MEMORY\+\_\+\+CONNECTION = None\hspace{0.3cm}{\ttfamily [protected]}}
 
 \Hypertarget{namespaceapi_1_1database_aabb3043c4751dac46f440c64ebbca1ae}\index{api.database@{api.database}!\_MEMORY\_CONNECTION\_LOCK@{\_MEMORY\_CONNECTION\_LOCK}}
 \index{\_MEMORY\_CONNECTION\_LOCK@{\_MEMORY\_CONNECTION\_LOCK}!api.database@{api.database}}
 \doxysubsubsection{\texorpdfstring{\_MEMORY\_CONNECTION\_LOCK}{\_MEMORY\_CONNECTION\_LOCK}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1database_aabb3043c4751dac46f440c64ebbca1ae} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1database_aabb3043c4751dac46f440c64ebbca1ae}
 api.\+database.\+\_\+\+MEMORY\+\_\+\+CONNECTION\+\_\+\+LOCK = threading.\+Lock()\hspace{0.3cm}{\ttfamily [protected]}}
 
 \Hypertarget{namespaceapi_1_1database_ade7aafc0c3e9df952ce813ab06dd518f}\index{api.database@{api.database}!DATABASE\_PATH@{DATABASE\_PATH}}
 \index{DATABASE\_PATH@{DATABASE\_PATH}!api.database@{api.database}}
 \doxysubsubsection{\texorpdfstring{DATABASE\_PATH}{DATABASE\_PATH}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1database_ade7aafc0c3e9df952ce813ab06dd518f} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1database_ade7aafc0c3e9df952ce813ab06dd518f}
 str api.\+database.\+DATABASE\+\_\+\+PATH = \mbox{\hyperlink{namespaceapi_1_1database_a67db33fa9ae24bc163341385dbd406ae}{\+\_\+resolve\+\_\+sqlite\+\_\+path}}(\mbox{\hyperlink{namespaceapi_1_1database_a5014ed8f23fc4c5f66b950f75619ad58}{DATABASE\+\_\+\+URL}})}
 
 \Hypertarget{namespaceapi_1_1database_a5014ed8f23fc4c5f66b950f75619ad58}\index{api.database@{api.database}!DATABASE\_URL@{DATABASE\_URL}}
 \index{DATABASE\_URL@{DATABASE\_URL}!api.database@{api.database}}
 \doxysubsubsection{\texorpdfstring{DATABASE\_URL}{DATABASE\_URL}}
-{\footnotesize\ttfamily \label{namespaceapi_1_1database_a5014ed8f23fc4c5f66b950f75619ad58} 
+{\footnotesize\ttfamily \label{namespaceapi_1_1database_a5014ed8f23fc4c5f66b950f75619ad58}
 str api.\+database.\+DATABASE\+\_\+\+URL = \mbox{\hyperlink{namespaceapi_1_1database_adaae779a24d119d106ff0a16ba2fc908}{\+\_\+get\+\_\+database\+\_\+url}}()}
-

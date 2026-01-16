@@ -2,33 +2,33 @@
 \hypertarget{namespacereal__data__fetcher}{}\label{namespacereal__data__fetcher}\index{real\_data\_fetcher@{real\_data\_fetcher}}
 \doxysubsubsection*{Classes}
 \begin{DoxyCompactItemize}
-\item 
+\item
 class \mbox{\hyperlink{classreal__data__fetcher_1_1RealDataFetcher}{Real\+Data\+Fetcher}}
 \end{DoxyCompactItemize}
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
-\item 
+\item
 \mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}} \mbox{\hyperlink{namespacereal__data__fetcher_a6144b47d2e5ca1e477beee30b760d519}{create\+\_\+real\+\_\+database}} ()
-\item 
+\item
 Any \mbox{\hyperlink{namespacereal__data__fetcher_af21d5c52e7d58d6cfe7230e7f54a35f3}{\+\_\+enum\+\_\+to\+\_\+value}} (Any value)
-\item 
+\item
 Dict\mbox{[}str, Any\mbox{]} \mbox{\hyperlink{namespacereal__data__fetcher_aa49e9b3286af259490d5da8498795117}{\+\_\+serialize\+\_\+dataclass}} (Any obj)
-\item 
+\item
 Dict\mbox{[}str, Any\mbox{]} \mbox{\hyperlink{namespacereal__data__fetcher_a8e813225fc6d948bb9d5f56142b9daf2}{\+\_\+serialize\+\_\+graph}} (\mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}} graph)
-\item 
+\item
 Asset \mbox{\hyperlink{namespacereal__data__fetcher_abdf7273df04c3bbad4f9ff50ab955e7a}{\+\_\+deserialize\+\_\+asset}} (Dict\mbox{[}str, Any\mbox{]} data)
-\item 
+\item
 Regulatory\+Event \mbox{\hyperlink{namespacereal__data__fetcher_aa7a191723a1829e72eb81b5d5702968f}{\+\_\+deserialize\+\_\+event}} (Dict\mbox{[}str, Any\mbox{]} data)
-\item 
+\item
 \mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}} \mbox{\hyperlink{namespacereal__data__fetcher_a454b8e340291b892a6c6ac22628e176d}{\+\_\+deserialize\+\_\+graph}} (Dict\mbox{[}str, Any\mbox{]} payload)
-\item 
+\item
 \mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}} \mbox{\hyperlink{namespacereal__data__fetcher_a2710dfe9b01edbd77d126e04b9219f81}{\+\_\+load\+\_\+from\+\_\+cache}} (Path path)
-\item 
+\item
 None \mbox{\hyperlink{namespacereal__data__fetcher_a34a36a48285836a9ee924d54d668ac17}{\+\_\+save\+\_\+to\+\_\+cache}} (\mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}} graph, Path path)
 \end{DoxyCompactItemize}
 \doxysubsubsection*{Variables}
 \begin{DoxyCompactItemize}
-\item 
+\item
 \mbox{\hyperlink{namespacereal__data__fetcher_a0bf812c770ef44f5a55f1669e31431fa}{logger}} = logging.\+get\+Logger(\+\_\+\+\_\+name\+\_\+\+\_\+)
 \end{DoxyCompactItemize}
 
@@ -37,7 +37,7 @@ None \mbox{\hyperlink{namespacereal__data__fetcher_a34a36a48285836a9ee924d54d668
 \Hypertarget{namespacereal__data__fetcher_abdf7273df04c3bbad4f9ff50ab955e7a}\index{real\_data\_fetcher@{real\_data\_fetcher}!\_deserialize\_asset@{\_deserialize\_asset}}
 \index{\_deserialize\_asset@{\_deserialize\_asset}!real\_data\_fetcher@{real\_data\_fetcher}}
 \doxysubsubsection{\texorpdfstring{\_deserialize\_asset()}{\_deserialize\_asset()}}
-{\footnotesize\ttfamily \label{namespacereal__data__fetcher_abdf7273df04c3bbad4f9ff50ab955e7a} 
+{\footnotesize\ttfamily \label{namespacereal__data__fetcher_abdf7273df04c3bbad4f9ff50ab955e7a}
  Asset real\+\_\+data\+\_\+fetcher.\+\_\+deserialize\+\_\+asset (\begin{DoxyParamCaption}\item[{Dict\mbox{[}str, Any\mbox{]}}]{data}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Deserialize a dictionary representation of an asset back into an Asset instance.
@@ -61,7 +61,7 @@ Returns:
 \Hypertarget{namespacereal__data__fetcher_aa7a191723a1829e72eb81b5d5702968f}\index{real\_data\_fetcher@{real\_data\_fetcher}!\_deserialize\_event@{\_deserialize\_event}}
 \index{\_deserialize\_event@{\_deserialize\_event}!real\_data\_fetcher@{real\_data\_fetcher}}
 \doxysubsubsection{\texorpdfstring{\_deserialize\_event()}{\_deserialize\_event()}}
-{\footnotesize\ttfamily \label{namespacereal__data__fetcher_aa7a191723a1829e72eb81b5d5702968f} 
+{\footnotesize\ttfamily \label{namespacereal__data__fetcher_aa7a191723a1829e72eb81b5d5702968f}
  Regulatory\+Event real\+\_\+data\+\_\+fetcher.\+\_\+deserialize\+\_\+event (\begin{DoxyParamCaption}\item[{Dict\mbox{[}str, Any\mbox{]}}]{data}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Reconstructs a RegulatoryEvent from its serialized dictionary
@@ -88,7 +88,7 @@ Returns:
 \Hypertarget{namespacereal__data__fetcher_a454b8e340291b892a6c6ac22628e176d}\index{real\_data\_fetcher@{real\_data\_fetcher}!\_deserialize\_graph@{\_deserialize\_graph}}
 \index{\_deserialize\_graph@{\_deserialize\_graph}!real\_data\_fetcher@{real\_data\_fetcher}}
 \doxysubsubsection{\texorpdfstring{\_deserialize\_graph()}{\_deserialize\_graph()}}
-{\footnotesize\ttfamily \label{namespacereal__data__fetcher_a454b8e340291b892a6c6ac22628e176d} 
+{\footnotesize\ttfamily \label{namespacereal__data__fetcher_a454b8e340291b892a6c6ac22628e176d}
  \mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}} real\+\_\+data\+\_\+fetcher.\+\_\+deserialize\+\_\+graph (\begin{DoxyParamCaption}\item[{Dict\mbox{[}str, Any\mbox{]}}]{payload}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Reconstructs an AssetRelationshipGraph from a serialized payload.
@@ -119,7 +119,7 @@ Here is the caller graph for this function\+:
 \Hypertarget{namespacereal__data__fetcher_af21d5c52e7d58d6cfe7230e7f54a35f3}\index{real\_data\_fetcher@{real\_data\_fetcher}!\_enum\_to\_value@{\_enum\_to\_value}}
 \index{\_enum\_to\_value@{\_enum\_to\_value}!real\_data\_fetcher@{real\_data\_fetcher}}
 \doxysubsubsection{\texorpdfstring{\_enum\_to\_value()}{\_enum\_to\_value()}}
-{\footnotesize\ttfamily \label{namespacereal__data__fetcher_af21d5c52e7d58d6cfe7230e7f54a35f3} 
+{\footnotesize\ttfamily \label{namespacereal__data__fetcher_af21d5c52e7d58d6cfe7230e7f54a35f3}
  Any real\+\_\+data\+\_\+fetcher.\+\_\+enum\+\_\+to\+\_\+value (\begin{DoxyParamCaption}\item[{Any}]{value}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Convert an Enum instance to its underlying value.
@@ -144,7 +144,7 @@ Returns:
 \Hypertarget{namespacereal__data__fetcher_a2710dfe9b01edbd77d126e04b9219f81}\index{real\_data\_fetcher@{real\_data\_fetcher}!\_load\_from\_cache@{\_load\_from\_cache}}
 \index{\_load\_from\_cache@{\_load\_from\_cache}!real\_data\_fetcher@{real\_data\_fetcher}}
 \doxysubsubsection{\texorpdfstring{\_load\_from\_cache()}{\_load\_from\_cache()}}
-{\footnotesize\ttfamily \label{namespacereal__data__fetcher_a2710dfe9b01edbd77d126e04b9219f81} 
+{\footnotesize\ttfamily \label{namespacereal__data__fetcher_a2710dfe9b01edbd77d126e04b9219f81}
  \mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}} real\+\_\+data\+\_\+fetcher.\+\_\+load\+\_\+from\+\_\+cache (\begin{DoxyParamCaption}\item[{Path}]{path}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Load an AssetRelationshipGraph from a JSON cache file.
@@ -174,7 +174,7 @@ Here is the caller graph for this function\+:
 \Hypertarget{namespacereal__data__fetcher_a34a36a48285836a9ee924d54d668ac17}\index{real\_data\_fetcher@{real\_data\_fetcher}!\_save\_to\_cache@{\_save\_to\_cache}}
 \index{\_save\_to\_cache@{\_save\_to\_cache}!real\_data\_fetcher@{real\_data\_fetcher}}
 \doxysubsubsection{\texorpdfstring{\_save\_to\_cache()}{\_save\_to\_cache()}}
-{\footnotesize\ttfamily \label{namespacereal__data__fetcher_a34a36a48285836a9ee924d54d668ac17} 
+{\footnotesize\ttfamily \label{namespacereal__data__fetcher_a34a36a48285836a9ee924d54d668ac17}
  None real\+\_\+data\+\_\+fetcher.\+\_\+save\+\_\+to\+\_\+cache (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}}}]{graph}{, }\item[{Path}]{path}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Persist an AssetRelationshipGraph to a JSON file at the given filesystem path.
@@ -207,7 +207,7 @@ Here is the caller graph for this function\+:
 \Hypertarget{namespacereal__data__fetcher_aa49e9b3286af259490d5da8498795117}\index{real\_data\_fetcher@{real\_data\_fetcher}!\_serialize\_dataclass@{\_serialize\_dataclass}}
 \index{\_serialize\_dataclass@{\_serialize\_dataclass}!real\_data\_fetcher@{real\_data\_fetcher}}
 \doxysubsubsection{\texorpdfstring{\_serialize\_dataclass()}{\_serialize\_dataclass()}}
-{\footnotesize\ttfamily \label{namespacereal__data__fetcher_aa49e9b3286af259490d5da8498795117} 
+{\footnotesize\ttfamily \label{namespacereal__data__fetcher_aa49e9b3286af259490d5da8498795117}
  Dict\mbox{[}str, Any\mbox{]} real\+\_\+data\+\_\+fetcher.\+\_\+serialize\+\_\+dataclass (\begin{DoxyParamCaption}\item[{Any}]{obj}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Serialize a dataclass instance into a JSON-friendly dictionary
@@ -240,7 +240,7 @@ Here is the caller graph for this function\+:
 \Hypertarget{namespacereal__data__fetcher_a8e813225fc6d948bb9d5f56142b9daf2}\index{real\_data\_fetcher@{real\_data\_fetcher}!\_serialize\_graph@{\_serialize\_graph}}
 \index{\_serialize\_graph@{\_serialize\_graph}!real\_data\_fetcher@{real\_data\_fetcher}}
 \doxysubsubsection{\texorpdfstring{\_serialize\_graph()}{\_serialize\_graph()}}
-{\footnotesize\ttfamily \label{namespacereal__data__fetcher_a8e813225fc6d948bb9d5f56142b9daf2} 
+{\footnotesize\ttfamily \label{namespacereal__data__fetcher_a8e813225fc6d948bb9d5f56142b9daf2}
  Dict\mbox{[}str, Any\mbox{]} real\+\_\+data\+\_\+fetcher.\+\_\+serialize\+\_\+graph (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}}}]{graph}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
 \begin{DoxyVerb}Serialize an AssetRelationshipGraph into a JSON-serialisable dictionary.
@@ -276,7 +276,7 @@ Here is the caller graph for this function\+:
 \Hypertarget{namespacereal__data__fetcher_a6144b47d2e5ca1e477beee30b760d519}\index{real\_data\_fetcher@{real\_data\_fetcher}!create\_real\_database@{create\_real\_database}}
 \index{create\_real\_database@{create\_real\_database}!real\_data\_fetcher@{real\_data\_fetcher}}
 \doxysubsubsection{\texorpdfstring{create\_real\_database()}{create\_real\_database()}}
-{\footnotesize\ttfamily \label{namespacereal__data__fetcher_a6144b47d2e5ca1e477beee30b760d519} 
+{\footnotesize\ttfamily \label{namespacereal__data__fetcher_a6144b47d2e5ca1e477beee30b760d519}
  \mbox{\hyperlink{classAssetRelationshipGraph}{Asset\+Relationship\+Graph}} real\+\_\+data\+\_\+fetcher.\+create\+\_\+real\+\_\+database (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
 
 \begin{DoxyVerb}Builds an AssetRelationshipGraph populated with market data, falling back to
@@ -293,12 +293,11 @@ Returns:
     regulatory events and relationship mappings; the content may come from the
     cache, a real-data fetch, or the sample fallback.
 \end{DoxyVerb}
- 
+
 
 \doxysubsection{Variable Documentation}
 \Hypertarget{namespacereal__data__fetcher_a0bf812c770ef44f5a55f1669e31431fa}\index{real\_data\_fetcher@{real\_data\_fetcher}!logger@{logger}}
 \index{logger@{logger}!real\_data\_fetcher@{real\_data\_fetcher}}
 \doxysubsubsection{\texorpdfstring{logger}{logger}}
-{\footnotesize\ttfamily \label{namespacereal__data__fetcher_a0bf812c770ef44f5a55f1669e31431fa} 
+{\footnotesize\ttfamily \label{namespacereal__data__fetcher_a0bf812c770ef44f5a55f1669e31431fa}
 real\+\_\+data\+\_\+fetcher.\+logger = logging.\+get\+Logger(\+\_\+\+\_\+name\+\_\+\+\_\+)}
-
