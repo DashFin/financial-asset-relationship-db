@@ -137,14 +137,18 @@ class TestMergifyConfiguration:
                     try:
                         min_threshold = int(parts[1].strip())
                     except ValueError:
-                        pass
+                        pytest.fail(
+                            f"Invalid minimum threshold value in condition: {condition}"
+                        )
             if "<" in str(condition) and ">=" not in str(condition):
                 parts = str(condition).split("<")
                 if len(parts) == 2:
                     try:
                         max_threshold = int(parts[1].strip())
                     except ValueError:
-                        pass
+                        pytest.fail(
+                            f"Invalid maximum threshold value in condition: {condition}"
+                        )
 
         assert min_threshold is not None, "Could not extract minimum threshold"
         assert max_threshold is not None, "Could not extract maximum threshold"
