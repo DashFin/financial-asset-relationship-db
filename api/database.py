@@ -13,15 +13,7 @@ from urllib.parse import unquote, urlparse
 
 
 def _get_database_url() -> str:
-    """
-    Read the DATABASE_URL environment variable and return its value.
-
-    Returns:
-        The value of the `DATABASE_URL` environment variable.
-
-    Raises:
-        ValueError: If the `DATABASE_URL` environment variable is not set.
-    """
+    """Retrieve the DATABASE_URL environment variable."""
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
         raise ValueError(
@@ -31,25 +23,18 @@ def _get_database_url() -> str:
 
 
 def _resolve_sqlite_path(url: str) -> str:
-    """
-    Resolve a SQLite URL to either a filesystem path or the special
-    in-memory indicator.
-
-    Accepts SQLite URLs with schemes like `sqlite:///relative.db`,
-    `sqlite:////absolute/path.db`, and `sqlite:///:memory:`.
-    Percent-encodings in the URL path are decoded before resolution.
-    For in-memory URLs (`:memory:` or `/:memory:`)
-    the literal string `":memory:"` is returned.
-    URI-style memory databases like `sqlite:///file::memory:?cache=shared`
-    are returned as-is.
-
-    Parameters:
+    """Resolve a SQLite URL to a filesystem path or the in-memory indicator.
+    
+    This function accepts SQLite URLs with various schemes, including
+    `sqlite:///relative.db`, `sqlite:////absolute/path.db`, and
+    `sqlite:///:memory:`. It decodes percent-encodings in the URL path  before
+    resolution. For in-memory URLs, it returns the string  `":memory:"`, while URI-
+    style memory databases are returned as-is.  The function also handles the
+    normalization of paths based on their  leading slashes to determine if they are
+    absolute or relative.
+    
+    Args:
         url (str): SQLite URL to resolve.
-
-    Returns:
-        str: Filesystem path for file-based URLs,
-             or the literal string `":memory:"` for in-memory databases,
-             or the original path for URI-style memory databases.
     """
     parsed = urlparse(url)
     if parsed.scheme != "sqlite":
@@ -93,16 +78,16 @@ _MEMORY_CONNECTION_LOCK = threading.Lock()
 
 
 def _is_memory_db(path: str | None = None) -> bool:
-    """
-    Determine whether the given or configured database refers to an in-memory
-    SQLite database.
-
-    Parameters:
+    """Determine if the specified database is an in-memory SQLite database.
+    
+    This function checks whether the provided database path or the configured
+    DATABASE_PATH refers to an in-memory SQLite database. It evaluates the  path
+    against the literal ":memory:" and also supports URI-style memory  databases,
+    such as "file::memory:?cache=shared", by parsing the URI  and checking its
+    scheme and query parameters.
+    
+    Args:
         path (str | None): Optional database path or URI to evaluate.
-        If omitted, the configured DATABASE_PATH is used.
-    Returns:
-        True if the path (or configured database) is an in-memory SQLite database.
-        For example, ":memory:" or "file::memory:?cache=shared", False otherwise.
     """
     target = DATABASE_PATH if path is None else path
     if target == ":memory:":
@@ -161,16 +146,7 @@ def _connect() -> sqlite3.Connection:
 
 @contextmanager
 def get_connection() -> Iterator[sqlite3.Connection]:
-    """
-    Provide a context-managed SQLite connection for the configured database.
-
-    For file-backed databases the connection is closed when the context exits;
-    for in-memory databases the shared connection is kept open.
-
-    Returns:
-        sqlite3.Connection: The SQLite connection — closed on context exit for
-            file-backed databases, kept open for in-memory databases.
-    """
+    """Provide a context-managed SQLite connection for the configured database."""
     connection = _connect()
     try:
         yield connection
@@ -180,7 +156,7 @@ def get_connection() -> Iterator[sqlite3.Connection]:
 
 
 def _cleanup_memory_connection():
-    """Clean up the global memory connection when the program exits."""
+    """Clean up the global memory connection."""
     global _MEMORY_CONNECTION
     if _MEMORY_CONNECTION is not None:
         _MEMORY_CONNECTION.close()
@@ -191,11 +167,9 @@ atexit.register(_cleanup_memory_connection)
 
 
 def execute(query: str, parameters: tuple | list | None = None) -> None:
-    """
-    Execute a SQL write statement and commit the transaction using the module's
-    managed SQLite connection.
-
-    Parameters:
+    """Execute a SQL write statement and commit the transaction.
+    
+    Args:
         query (str): SQL statement to execute.
         parameters (tuple | list | None): Sequence of values to bind to the statement;
             use `None` or an empty sequence if there are no parameters.
@@ -206,17 +180,15 @@ def execute(query: str, parameters: tuple | list | None = None) -> None:
 
 
 def fetch_one(query: str, parameters: tuple | list | None = None):
-    """
-    Retrieve the first row produced by an SQL query.
-
-    Parameters:
+    """Retrieve the first row produced by an SQL query.
+    
+    Args:
         query (str): SQL statement to execute.
-        parameters (tuple | list | None): Optional sequence of parameters
-            to bind into the query.
-
+        parameters (tuple | list | None): Optional sequence of parameters to bind into the query.
+    
     Returns:
-        sqlite3.Row | None: The first row of the result set
-            as a `sqlite3.Row`, or `None` if the query returned no rows.
+        sqlite3.Row | None: The first row of the result set as a `sqlite3.Row`, or
+            `None` if the query returned no rows.
     """
     with get_connection() as connection:
         cursor = connection.execute(query, parameters or ())
@@ -242,17 +214,7 @@ def fetch_value(query: str, parameters: tuple | list | None = None):
 
 
 def initialize_schema() -> None:
-    """
-    Create the `user_credentials` table if it does not already exist.
-
-    The table has the following columns:
-    - `id`: INTEGER PRIMARY KEY AUTOINCREMENT
-    - `username`: TEXT, unique and not null
-    - `email`: TEXT
-    - `full_name`: TEXT
-    - `hashed_password`: TEXT, not null
-    - `disabled`: INTEGER, not null, defaults to 0
-    """
+    """Create the user_credentials table if it does not exist."""
     execute(
         """
         CREATE TABLE IF NOT EXISTS user_credentials (

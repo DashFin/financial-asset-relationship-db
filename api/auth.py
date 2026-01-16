@@ -69,12 +69,7 @@ class UserRepository:
 
     @staticmethod
     def get_user(username: str) -> Optional[UserInDB]:
-        """
-        Retrieve a user record by username from the repository.
-
-        Returns:
-            `UserInDB` for the matching username, `None` if no such user exists.
-        """
+        """Retrieve a user record by username from the repository."""
         row = fetch_one(
             """
             SELECT username, email, full_name, hashed_password, disabled
@@ -112,14 +107,9 @@ class UserRepository:
         user_full_name: Optional[str] = None,
         is_disabled: bool = False,
     ) -> None:
-        """
-        Create or update a user credential record in the repository.
-
-        Performs an upsert into the user_credentials table using the
-        provided fields so the record for `username` is inserted or
-        updated.
-
-        Parameters:
+        """Create or update a user credential record in the repository.
+        
+        Args:
             username (str): Unique identifier for the user.
             hashed_password (str): Password hash; must already be hashed.
             user_email (Optional[str]): User email address, if available.
@@ -157,22 +147,16 @@ user_repository = UserRepository()
 
 
 def verify_password(plain_password, hashed_password):
-    """
-    Verify whether a plaintext password matches a stored hashed password.
-
-    Returns:
-        `True` if the plaintext password matches the hashed password, `False` otherwise.
-    """
+    """Verify if the plaintext password matches the hashed password."""
     return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password):
-    """
-    Hash a plaintext password using the configured password-hashing context.
-
-    Parameters:
+    """Hash a plaintext password.
+    
+    Args:
         password (str): Plaintext password to hash.
-
+    
     Returns:
         str: The hashed password.
     """
@@ -180,15 +164,7 @@ def get_password_hash(password):
 
 
 def _seed_credentials_from_env(repository: UserRepository) -> None:
-    """
-    Seed an administrative user into the repository from environment variables.
-
-    If both ADMIN_USERNAME and ADMIN_PASSWORD are set, create or update that
-    user in the repository using optional ADMIN_EMAIL, ADMIN_FULL_NAME and
-    ADMIN_DISABLED (interpreted as a truthy flag). The provided password is
-    stored hashed. If either ADMIN_USERNAME or ADMIN_PASSWORD is missing, no
-    changes are made.
-    """
+    """Seed an administrative user into the repository from environment variables."""
     username = os.getenv("ADMIN_USERNAME")
     password = os.getenv("ADMIN_PASSWORD")
     if not username or not password:
@@ -262,20 +238,7 @@ def authenticate_user(
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    """
-    Create a JWT access token that includes an expiry (`exp`) claim.
-
-    Parameters:
-        data (dict):
-            Claims to include in the token payload.
-            The function will add or overwrite the `exp` claim.
-        expires_delta (Optional[timedelta]):
-            Time span after which the token expires; if omitted the token
-            expires in 15 minutes.
-
-    Returns:
-        str: Encoded JWT as a compact string.
-    """
+    """Create a JWT access token with an expiry claim."""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -287,18 +250,16 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
-    """
-    Return the user represented by the provided JWT.
-
-
-    Returns:
-        User: The User model corresponding to the token's subject.
-
-    Raises:
-        HTTPException: 401 with detail "Token has expired" if the token has expired.
-        HTTPException: 401 with detail "Could not validate credentials"
-            if the token is invalid,
-            missing the subject, or no matching user is found.
+    """async def get_current_user(token: str = Depends(oauth2_scheme)):
+    
+    Retrieve the user associated with the provided JWT.  This function decodes the
+    JWT using a specified secret key and algorithm to extract the username from the
+    token's subject.  It raises an HTTPException if the token is expired or
+    invalid, or if the user cannot be found.  The function relies on the get_user
+    function to retrieve the user model corresponding to the username.
+    
+    Args:
+        token (str): The JWT token used to authenticate the user.
     """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -328,16 +289,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
-    """
-    Get the currently authenticated active user.
-
-    Raises:
-        HTTPException: 400 with detail "Inactive user" if the user's account is
-        disabled.
-
-    Returns:
-        The authenticated user's public profile as a `User` instance.
-    """
+    """Get the currently authenticated active user."""
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
