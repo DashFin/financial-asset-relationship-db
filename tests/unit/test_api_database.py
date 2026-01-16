@@ -420,7 +420,10 @@ class TestConnectionPooling:
 
             importlib.reload(db_module)
 
-            mock_register.assert_any_call(db_module._cleanup_memory_connection)
+            assert any(
+                call.args and call.args[0] is db_module._cleanup_memory_connection
+                for call in mock_register.call_args_list
+            )
 
     @patch("api.database._MEMORY_CONNECTION")
     def test_cleanup_closes_memory_connection(self, mock_conn):
