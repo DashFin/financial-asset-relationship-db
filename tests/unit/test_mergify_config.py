@@ -109,12 +109,14 @@ class TestMergifyConfiguration:
             config = yaml.safe_load(f)
 
         rules = config["pull_request_rules"]
-        tshirt_rule = next(
-            (r for r in rules if "t-shirt" in r.get("name", "").lower()), None
+        size_l_rule = next(
+            (r for r in rules if "size/L" in str(r.get("actions", {}))), None
         )
+        assert size_l_rule is not None, "size/L rule not found"
 
-        labels = tshirt_rule["actions"]["label"]["toggle"]
-        assert "size/L" in labels, "size/L label not in toggle list"
+        label_action = size_l_rule["actions"]["label"]
+        labels = label_action.get("toggle", []) + label_action.get("add", [])
+        assert "size/L" in labels, "size/L label not assigned"
 
     def test_modified_lines_thresholds_are_valid(self):
         """Test that modified lines thresholds are sensible."""
