@@ -20,7 +20,7 @@ DEFAULT_DATABASE_URL = os.getenv(
 
 
 def create_engine_from_url(url: Optional[str] = None) -> Engine:
-    """Create a SQLAlchemy engine for the configured database URL."""
+    """Create a SQLAlchemy engine from the given database URL."""
     resolved_url = url or DEFAULT_DATABASE_URL
 
     #
@@ -41,7 +41,7 @@ def create_session_factory(engine: Engine) -> sessionmaker:
 
 
 def init_db(engine: Engine) -> None:
-    """Initialise database schema if it has not been created."""
+    """Initialise the database schema."""
     Base.metadata.create_all(engine)
 
 
