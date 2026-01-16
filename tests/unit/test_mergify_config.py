@@ -256,12 +256,14 @@ class TestMergifyEdgeCases:
                         val = int(cond_str.split(">=")[1].strip().strip('"').strip("'"))
                         min_values.append(val)
                     except (ValueError, IndexError):
+                        # Ignore conditions that don't contain a valid integer threshold
                         pass
                 if "#modified-lines <" in cond_str and ">=" not in cond_str:
                     try:
                         val = int(cond_str.split("<")[1].strip().strip('"').strip("'"))
                         max_values.append(val)
                     except (ValueError, IndexError):
+                        # Ignore conditions that don't contain a valid integer threshold
                         pass
 
             # If both min and max are specified, min should be less than max
