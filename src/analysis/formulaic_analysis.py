@@ -421,8 +421,11 @@ class FormulaicdAnalyzer:
             empirical_relationships = {}
 
         # Calculate average correlation strength from empirical data
-        avg_corr_strength = self._calculate_avg_correlation_strength_from_empirical(
-            empirical_relationships
+        corr_matrix = empirical_relationships.get("correlation_matrix", {})
+        avg_corr_strength = (
+            sum(corr_matrix.values()) / len(corr_matrix)
+            if corr_matrix
+            else 0
         )
 
         return {
