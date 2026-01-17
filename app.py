@@ -351,7 +351,13 @@ class FinancialAssetApp:
     def show_formula_details(self, formula_name: str, graph_state: AssetRelationshipGraph):
         """Show detailed view of a specific formula."""
         try:
-            pass
+            # Placeholder implementation to avoid implicit None and keep return types consistent.
+            # This can be replaced with real formula detail visualization logic.
+            info_text = f"Details for formula: {formula_name}"
+            return (
+                go.Figure(),
+                gr.update(value=info_text, visible=True),
+            )
         except Exception as e:
             logger.error("Error showing formula details: %s", e)
             return (
