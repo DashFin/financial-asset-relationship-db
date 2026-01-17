@@ -359,7 +359,7 @@ class TestBearerActionConfiguration:
     @staticmethod
     def test_sarif_file_reference_matches(bearer_workflow_content):
         """Verify SARIF file reference consistency across steps.
-        
+
         This function checks that the output from the bearer step matches the SARIF
         file  specified in the upload step of the workflow. It retrieves the steps from
         the  bearer_workflow_content, identifies the relevant steps, and asserts that
@@ -421,7 +421,7 @@ class TestBearerWorkflowSecurity:
     def test_no_hardcoded_secrets(bearer_workflow_raw):
         # Common patterns for secrets
         """Verify no secrets are hardcoded in the workflow.
-        
+
         This function checks the provided bearer_workflow_raw for hardcoded secrets  by
         searching for common patterns such as 'password', 'api_key', 'token',  and
         'secret'. It processes each line of the workflow, ignoring comment lines  and
@@ -483,7 +483,7 @@ class TestBearerWorkflowIntegration:
     @staticmethod
     def test_sarif_upload_depends_on_report(bearer_workflow_content):
         """Verify the order of SARIF upload relative to Bearer report.
-        
+
         This function checks that the SARIF upload step occurs after the Bearer report
         step  in the workflow defined by bearer_workflow_content. It retrieves the
         indices of both  steps and asserts their existence and order, ensuring that the
@@ -529,7 +529,7 @@ class TestBearerWorkflowIntegration:
     @staticmethod
     def test_step_order_is_logical(bearer_workflow_content):
         """Verify the steps follow a logical order.
-        
+
         This function checks that the steps in the given bearer_workflow_content  are
         executed in the expected sequence: checkout, bearer scan, and upload  results.
         It extracts the step names from the workflow content and asserts  that they
