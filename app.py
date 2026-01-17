@@ -321,23 +321,38 @@ class FinancialAssetApp:
             # Initialize analyzers
             formulaic_analyzer = FormulaicdAnalyzer()
             formulaic_visualizer = FormulaicVisualizer()
-
             # Perform analysis
             analysis_results = formulaic_analyzer.analyze_graph(graph)
+
+            # Validate results structure early for clearer errors
+            if not analysis_results or not isinstance(analysis_results, dict):
+                raise ValueError("Formulaic analysis failed: No results returned.")
+
+            required_keys = ("formulas", "summary", "empirical_relationships")
+            missing_keys = [k for k in required_keys if k not in analysis_results]
+            if missing_keys:
+                raise ValueError(
+                    f"Formulaic analysis failed: Missing keys in results: {', '.join(missing_keys)}"
+                )
 
             # Generate visualizations
             dashboard_fig = formulaic_visualizer.create_formula_dashboard(
                 analysis_results
             )
             correlation_network_fig = formulaic_visualizer.create_correlation_network(
-                analysis_results.get("empirical_relationships", {})
+                analysis_results.get("empirical_relationships", {}) or {}
             )
             metric_comparison_fig = formulaic_visualizer.create_metric_comparison_chart(
                 analysis_results
             )
 
             # Generate formula selector options
-            formulas = analysis_results.get("formulas", [])
+            formulas = analysis_results.get("formulas", []) or []
+            formula_choices = [f.name for f in formulas]
+
+            # Generate summary
+            summary = analysis_results.get("summary", {}) or {}
+            summary_text = self._format_formula_summary(summary, analysis_results)
             formula_choices = [f.name for f in formulas]
 
             # Generate summary
@@ -375,7 +390,13 @@ class FinancialAssetApp:
     ):
         """Show detailed view of a specific formula."""
         try:
-            pass
+            # Placeholder implementation to avoid implicit None and keep return types consistent.
+            # This can be replaced with real formula detail visualization logic.
+            info_text = f"Details for formula: {formula_name}"
+            return (
+                go.Figure(),
+                gr.update(value=info_text, visible=True),
+            )
         except Exception as e:
             logger.error("Error showing formula details: %s", e)
             return (
