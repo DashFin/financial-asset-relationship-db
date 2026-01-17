@@ -335,13 +335,22 @@ class FormulaicVisualizer:
         )
 
         # Create positions in a circle
+        # Create positions in a circle based on strongest correlations
+        assets = sorted(
+            {corr["asset1"] for corr in strongest_correlations}
+            | {corr["asset2"] for corr in strongest_correlations}
+        )
+        if not assets:
+            assets = list(G.nodes())
         n_assets = len(assets)
-        angles = [2 * math.pi * i / n_assets for i in range(n_assets)]
-        positions = {
-            asset: (math.cos(angle), math.sin(angle))
-            for asset, angle in zip(assets, angles)
-        }
-
+        if n_assets == 0:
+            positions = {}
+        else:
+            angles = [2 * math.pi * i / n_assets for i in range(n_assets)]
+            positions = {
+                asset: (math.cos(angle), math.sin(angle))
+                for asset, angle in zip(assets, angles)
+            }
         # Create edge traces
         edge_traces = []
         for corr in strongest_correlations[:10]:  # Limit to top 10 correlations
