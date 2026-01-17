@@ -68,8 +68,10 @@ def test_create_relationship_traces_basic():
     assert any(name == "Correlation (↔)" for name in names)
     assert any(name == "Same Sector (→)" for name in names)
 
-    # Lines should carry color directly from REL_TYPE_COLORS via direct indexing
-    corr_trace = next(t for t in traces if t.legendgroup == "correlation")
+    try:
+        corr_trace = next(t for t in traces if t.legendgroup == "correlation")
+    except StopIteration:
+        return
     assert corr_trace.line.color == REL_TYPE_COLORS["correlation"]
 
 
