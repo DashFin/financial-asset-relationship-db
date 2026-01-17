@@ -319,6 +319,13 @@ class FormulaicVisualizer:
         )
 
         # Create positions in a circle
+        # Create positions in a circle based on strongest correlations
+        assets = sorted(
+            {corr["asset1"] for corr in strongest_correlations}
+            | {corr["asset2"] for corr in strongest_correlations}
+        )
+        if not assets:
+            assets = list(G.nodes())
         n_assets = len(assets)
         if n_assets == 0:
             fig = go.Figure()
