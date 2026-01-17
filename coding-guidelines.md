@@ -114,14 +114,14 @@ if __name__ == "__main__":
 
 ## Naming Conventions
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Variables | snake_case | `asset_count`, `total_value` |
-| Functions | snake_case | `calculate_metrics()`, `get_asset_by_id()` |
-| Classes | PascalCase | `AssetRelationshipGraph`, `FinancialModel` |
-| Constants | UPPER_SNAKE_CASE | `DEFAULT_TIMEOUT`, `MAX_RETRIES` |
-| Private members | _leading_underscore | `_internal_cache`, `_validate_input()` |
-| Protected members | _single_underscore | `_helper_method()` |
+| Type              | Convention           | Example                                    |
+| ----------------- | -------------------- | ------------------------------------------ |
+| Variables         | snake_case           | `asset_count`, `total_value`               |
+| Functions         | snake_case           | `calculate_metrics()`, `get_asset_by_id()` |
+| Classes           | PascalCase           | `AssetRelationshipGraph`, `FinancialModel` |
+| Constants         | UPPER_SNAKE_CASE     | `DEFAULT_TIMEOUT`, `MAX_RETRIES`           |
+| Private members   | \_leading_underscore | `_internal_cache`, `_validate_input()`     |
+| Protected members | \_single_underscore  | `_helper_method()`                         |
 
 ### Descriptive Names
 
