@@ -222,12 +222,12 @@ class TestDocumentMaintainability:
     @staticmethod
     h1_count = len(re.findall(r"^#\s", summary_content, re.MULTILINE))
     h2_count = len(re.findall(r"^##\s", summary_content, re.MULTILINE))
-        """Test that document has clear hierarchical structure."""
-        h1_count = summary_content.count("\n# ")
-        h2_count = summary_content.count("\n## ")
+    """Test that document has clear hierarchical structure."""
+    h1_count = summary_content.count("\n# ")
+    h2_count = summary_content.count("\n## ")
 
-        assert h1_count >= 1, "Should have at least one H1 heading"
-        assert h2_count >= 3, "Should have at least 3 H2 headings for organization"
+    assert h1_count >= 1, "Should have at least one H1 heading"
+    assert h2_count >= 3, "Should have at least 3 H2 headings for organization"
 
     @staticmethod
     def test_sections_have_content(summary_content: str):
