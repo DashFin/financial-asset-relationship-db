@@ -31,6 +31,12 @@ pull_request_rules:
           - size/L
           - size/XL
           - size/XXL
+        remove:
+          - size/XS
+          - size/M
+          - size/L
+          - size/XL
+          - size/XXL
 
   - name: Assign M t-shirt size to PR
     description: Assign a t-shirt size label to a pull request based on the number
