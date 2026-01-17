@@ -59,7 +59,9 @@ class TestPRAgentConfigChanges:
         """Verify context chunking configuration has been removed."""
         # Should not have context configuration
         if config_data.get("agent", {}).get("version") != "1.0.0":
-            pytest.skip("Context chunking config is only validated for agent version 1.0.0")
+            pytest.skip(
+                "Context chunking config is only validated for agent version 1.0.0"
+            )
             assert "context" not in config_data["agent"], (
                 "Context chunking config should be removed in v1.0.0"
             )
