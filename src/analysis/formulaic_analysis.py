@@ -394,7 +394,12 @@ class FormulaicdAnalyzer:
     def _calculate_empirical_relationships(
         self, graph: AssetRelationshipGraph
     ) -> Dict[str, Any]:
-        pass
+        """Calculate empirical relationships from the asset graph."""
+        # Minimal implementation to provide a well-formed structure
+        # that other methods can safely consume.
+        return {
+            "correlation_matrix": {},
+        }
 
     @staticmethod
     def _calculate_avg_correlation_strength(graph: AssetRelationshipGraph) -> float:
