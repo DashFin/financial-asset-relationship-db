@@ -2773,12 +2773,11 @@ workflow levels.
             data = load_yaml_safe(workflow_file)
 
             def check_env_names(env_dict):
-                """Check that environment variable names are uppercase or contain underscores."""
+                """Check that environment variable names are uppercase and underscore-separated."""
                 if isinstance(env_dict, dict):
-                    for key in env_dict.keys():
-                        # Env vars should be UPPER_CASE
-                        assert key.isupper() or "_" in key, (
-                            f"Env var '{key}' should follow UPPER_CASE convention"
+                    for key in env_dict:
+                        assert re.match(r'^[A-Z][A-Z0-9_]*$', key), (
+                            f"Env var '{key}' should consist of uppercase letters, digits, or underscores"
                         )
 
             # Workflow-level env
