@@ -2852,11 +2852,9 @@ class TestWorkflowEnvironmentVariables:
         """Test that env vars aren't unnecessarily duplicated."""
         data = load_yaml_safe(workflow_file)
 
-        workflow_env = set(data.get("env", {}).keys())
         jobs = data.get("jobs", {})
 
         for _, job in jobs.items():
-            job_env = set(job.get("env", {}).keys())
             # Check for duplication (informational)
 
 
@@ -2886,7 +2884,7 @@ class TestWorkflowScheduledExecutionBestPractices:
                 # Check each part is valid
                 for _, part in enumerate(parts):
                     # Should be number, *, */n, or range
-                    assert re.match(r"^(\d+|\*|,|\-|\/)+$", part), (
+                    assert re.match(r"^[\\d*,/-]+$", part), (
                         f"Invalid cron part '{part}' in {workflow_file.name}"
                     )
 
