@@ -321,6 +321,7 @@ class FinancialAssetApp:
             # Initialize analyzers
             formulaic_analyzer = FormulaicdAnalyzer()
             formulaic_visualizer = FormulaicVisualizer()
+
     def generate_formulaic_analysis(self, graph_state: AssetRelationshipGraph):
         """Generate comprehensive formulaic analysis of the asset graph."""
         try:
