@@ -2852,10 +2852,40 @@ class TestWorkflowEnvironmentVariables:
         """Test that env vars aren't unnecessarily duplicated."""
         data = load_yaml_safe(workflow_file)
 
+        # Get workflow-level env vars
+        workflow_env = set(data.get("env", {}).keys())
+
         jobs = data.get("jobs", {})
 
-        for _, job in jobs.items():
-            # Check for duplication (informational)
+        for job_name, job in jobs.items():
+            # Get job-level env vars
+            job_env = set(job.get("env", {}).keys())
+
+            # Check for duplication between workflow and job level
+            duplicated_in_job = workflow_env & job_env
+            assert not duplicated_in_job, (
+                f"Job '{job_name}' in {workflow_file.name} duplicates workflow-level env vars: {duplicated_in_job}"
+            )
+
+            # Check step-level env vars
+            steps = job.get("steps", [])
+            for step_idx, step in enumerate(steps):
+                if isinstance(step, dict) and "env" in step:
+                    step_env = set(step.get("env", {}).keys())
+
+                    # Check for duplication with workflow level
+                    duplicated_with_workflow = workflow_env & step_env
+                    assert not duplicated_with_workflow, (
+                        f"Step {step_idx} in job '{job_name}' of {workflow_file.name} "
+                        f"duplicates workflow-level env vars: {duplicated_with_workflow}"
+                    )
+
+                    # Check for duplication with job level
+                    duplicated_with_job = job_env & step_env
+                    assert not duplicated_with_job, (
+                        f"Step {step_idx} in job '{job_name}' of {workflow_file.name} "
+                        f"duplicates job-level env vars: {duplicated_with_job}"
+                    )
 
 
 class TestWorkflowScheduledExecutionBestPractices:
