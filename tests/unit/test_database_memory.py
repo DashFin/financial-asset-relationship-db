@@ -18,7 +18,6 @@ def restore_database_module(monkeypatch) -> Iterator[None]:
 
     Yields control to the test. After the test completes, closes and clears any in-memory SQLite connection on api.database (if present), restores DATABASE_URL to its original value or removes it if it was not set, and reloads the api.database module to reset its state.
     """
-
     original_url = os.environ.get("DATABASE_URL")
 
     yield
@@ -44,7 +43,6 @@ def test_in_memory_database_persists_schema_and_data(
 
     Sets DATABASE_URL to use an in-memory SQLite database, reloads the database module and initialises the schema, inserts a user row using one connection, then reads it using a second connection. Asserts the inserted row is present and that both context-managed connections are the same object.
     """
-
     monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
 
     reloaded_database = importlib.reload(database)
@@ -81,7 +79,6 @@ def test_uri_style_memory_database_persists_schema_and_data(
 
     Sets DATABASE_URL to use a URI-style in-memory SQLite database (file::memory:?cache=shared), reloads the database module and initialises the schema, inserts a user row using one connection, then reads it using a second connection. Asserts the inserted row is present and that both context-managed connections are the same object.
     """
-
     monkeypatch.setenv("DATABASE_URL", "sqlite:///file::memory:?cache=shared")
 
     reloaded_database = importlib.reload(database)
