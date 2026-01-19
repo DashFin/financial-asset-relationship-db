@@ -79,7 +79,7 @@ class AssetRelationshipORM(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     source_asset_id: Mapped[str] = mapped_column(
-        ForeignKey(ASSETS_ID_FK, ondelete="CASCADE"), nullable=False
+        ForeignKey("assets.id", ondelete="CASCADE"), nullable=False
     )
     target_asset_id: Mapped[str] = mapped_column(
         ForeignKey("assets.id", ondelete="CASCADE"), nullable=False

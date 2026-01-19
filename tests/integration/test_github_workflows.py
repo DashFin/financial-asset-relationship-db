@@ -694,7 +694,7 @@ class TestWorkflowPerformance:
 
         # This is informational, not a hard requirement
         if not has_cache:
-
+            pass
 
 class TestWorkflowTriggers:
     """Comprehensive tests for workflow trigger configurations."""
