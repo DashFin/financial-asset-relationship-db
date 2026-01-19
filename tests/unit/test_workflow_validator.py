@@ -1076,7 +1076,7 @@ class TestWorkflowValidatorStringFormatting:
 
     def test_validation_error_messages_are_readable(self):
         """Verify validation error messages are properly formatted and readable."""
-        from src.workflow_validator import WorkflowValidator
+        from workflow_validator import WorkflowValidator
 
         validator = WorkflowValidator()
 
