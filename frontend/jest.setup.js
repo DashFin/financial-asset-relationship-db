@@ -2,9 +2,13 @@
 // Removed @testing-library/jest-dom import as package was removed
 
 // Provide default environment values used throughout the app
-process.env.NEXT_PUBLIC_API_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+const defaultApiBaseUrl =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  'http://localhost:8000'
 
+process.env.NEXT_PUBLIC_API_URL = defaultApiBaseUrl
+process.env.NEXT_PUBLIC_API_BASE_URL = defaultApiBaseUrl
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
