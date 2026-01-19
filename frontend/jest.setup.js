@@ -22,20 +22,20 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Mock IntersectionObserver
 class MockIntersectionObserver {
-  constructor (callback = () => {}, options = {}) {
+  constructor (callback = () => { /* default no-op callback */ }, options = {}) {
     this.callback = callback
     this.options = options
   }
 
-  observe (target) {
+  static observe (_target) {
     // no-op
   }
 
-  unobserve (target) {
+  static unobserve (_target) {
     // no-op
   }
 
-  disconnect () {
+  static disconnect () {
     // no-op
   }
 
