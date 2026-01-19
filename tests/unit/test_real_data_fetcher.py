@@ -594,12 +594,11 @@ class TestDataIntegrity:
 
         for event in events:
             assert isinstance(event, RegulatoryEvent)
-            assert isinstance(event.activity_type, RegulatoryActivity)
+            assert isinstance(event.event_type, RegulatoryActivity)
             assert hasattr(event, "description")
-            assert hasattr(event, "affected_sector")
+            assert hasattr(event, "asset_id")
             assert hasattr(event, "date")
-            assert 0 <= event.severity <= 1.0
-
+            assert -1.0 <= event.impact_score <= 1.0
 
 class TestCachePersistence:
     """Test cache file persistence and atomic operations."""
