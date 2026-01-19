@@ -6,7 +6,7 @@ This document summarizes the repository's architecture, conventions, and recurri
 
 - **Financial Asset Relationship Database** provides interactive 3D views and analytics over interconnected assets spanning equities, fixed income, commodities, currencies, and regulatory events. The same core logic powers two UIs: the legacy **Gradio** app (`app.py`) and the **Next.js + FastAPI** stack (`frontend` + `api`).
 - Quick development startup: run the backend and frontend explicitly (examples below). The Gradio legacy UI can be launched directly with `python app.py`.
-  
+
   - FastAPI (backend): `uvicorn api.main:app --reload --port 8000`
   - Next.js (frontend): `npm run dev` (from the `frontend/` directory)
   - Legacy Gradio UI: `python app.py` (defaults to port 7860)
@@ -33,7 +33,7 @@ This document summarizes the repository's architecture, conventions, and recurri
 ## Domain Model & Relationship Patterns
 
 - **Domain Model** (authoritative definitions live in `src/models/financial_models.py`):
-  
+
   - Assets are categorized by the `AssetClass` enum (e.g., equity, fixed income, commodity, currency, derivative).
   - The base `Asset` dataclass defines the required identity fields (see the dataclass for the exact names) and is validated according to the rules implemented in the model layer.
   - Specialized classes (e.g., Equity, Bond, Commodity, Currency) extend the base asset with type-specific fields.
@@ -67,11 +67,11 @@ This document summarizes the repository's architecture, conventions, and recurri
 ## Testing & Quality Checks
 
 - **Backend**:
-  
+
   - Run unit/integration tests with `pytest`.
   - Generate a coverage report with `pytest --cov=api --cov=src --cov-report=html`.
   - Key API tests live under `tests/` (commonly `tests/unit/`) and validate (examples):
-    
+
     - CORS
     - Graph singleton behavior
     - Pydantic models
