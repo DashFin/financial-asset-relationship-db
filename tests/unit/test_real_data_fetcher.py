@@ -474,13 +474,13 @@ class TestRealDatabaseCreation:
 
             fetcher = RealDataFetcher(cache_path=cache_path)
             fetcher.create_real_database()
-                mock_events.return_value = []
+            mock_events.return_value = []
 
-                fetcher = RealDataFetcher(cache_path=cache_path)
-                fetcher.create_real_database()
+            fetcher = RealDataFetcher(cache_path=cache_path)
+            fetcher.create_real_database()
 
-                # Cache file should exist
-                assert os.path.exists(cache_path)
+            # Cache file should exist
+            assert os.path.exists(cache_path)
         finally:
             if os.path.exists(cache_path):
                 os.unlink(cache_path)
