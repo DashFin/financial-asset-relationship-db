@@ -22,8 +22,10 @@ global.IntersectionObserver = class IntersectionObserver {
     // Placeholder for cleanup; intentionally left empty
   }
 
+
   observe () {
     // No-op mock for ResizeObserver.observe()
+
   }
 
   takeRecords () {
