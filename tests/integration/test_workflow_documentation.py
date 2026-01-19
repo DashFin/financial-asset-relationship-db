@@ -60,16 +60,16 @@ def doc_content() -> str:
 @pytest.fixture(scope='session')
 def doc_lines(doc_content: str) -> List[str]:
     """
-    Return the documentation content as a list of lines preserving original line endings.
+    Split the documentation text into a list of lines while preserving original line endings.
     
     Parameters:
-        doc_content (str): The full documentation text to split.
+        doc_content (str): Full documentation text to split; must be non-empty.
     
     Returns:
-        List[str]: The documentation split into lines with line ending characters preserved.
+        List[str]: Lines from `doc_content` in order, each retaining its trailing newline or line-ending characters.
     
     Raises:
-        pytest.fail: Fails the test session if `doc_content` is empty.
+        pytest.fail: If `doc_content` is empty, fails the test session with an explanatory message.
     """
     if not doc_content:
         pytest.fail("Loaded documentation content is empty.")
@@ -126,4 +126,3 @@ from typing import List, Set
         """Test that document has sufficient number of sections."""
         assert len(section_headers) >= 5, \
             f"Document should have at least 5 major sections, found {len(section_headers)}"
-

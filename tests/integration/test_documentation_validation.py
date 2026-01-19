@@ -76,7 +76,11 @@ class TestMarkdownFormatting:
     """Test suite for markdown formatting validation."""
     
     def test_headings_properly_formatted(self, summary_lines: List[str]):
-        """Test that headings follow proper markdown format."""
+        """
+        Ensure all Markdown headings start with 1–6 hash characters followed by a space.
+        
+        Fails the test if any line beginning with '#' does not have a space after the leading hashes or does not contain heading text.
+        """
         heading_lines = [line for line in summary_lines if line.startswith('#')]
         for line in heading_lines:
             # Heading should have space after hash marks
@@ -97,7 +101,7 @@ class TestMarkdownFormatting:
     
     def test_code_blocks_properly_closed(self, summary_lines: List[str]):
         """
-        Verify that every fenced code block delimited by triple backticks in the summary is properly closed.
+        Check that all fenced code blocks delimited by triple backticks are properly closed.
         
         Parameters:
             summary_lines (List[str]): Lines of the Markdown summary file to inspect.
@@ -111,9 +115,9 @@ class TestMarkdownFormatting:
         assert open_block is False, "Code blocks not properly closed or mismatched triple backticks detected"
     def test_lists_properly_formatted(self, summary_lines: List[str]):
         """
-        Validate that Markdown bullet list items use even indentation (multiples of two spaces).
+        Ensure Markdown bullet list items are indented by multiples of two spaces.
         
-        Scans the provided file lines for list items starting with '-', '*' or '+' and asserts each item's leading space count is divisible by two; raises an AssertionError for any list item with odd indentation.
+        Scans lines for list items starting with '-', '*', or '+' and fails the test if any item's leading space count is not divisible by two.
         
         Parameters:
             summary_lines (List[str]): Lines of the Markdown summary file to inspect.
@@ -175,7 +179,15 @@ class TestCodeExamples:
     """Test suite for code example validation."""
     
     def test_pytest_commands_valid(self, summary_content: str):
-        """Test that pytest commands are valid."""
+        """
+        Verify the document contains fenced code blocks with pytest command examples.
+        
+        Parameters:
+            summary_content (str): Full markdown content to scan for fenced code blocks.
+        
+        Raises:
+            AssertionError: If no fenced code block contains 'pytest', or if any identified pytest block does not include 'pytest'.
+        """
         # Extract code blocks
         code_blocks = re.findall(r'```(?:bash|shell)?\n(.*?)```', summary_content, re.DOTALL)
         pytest_commands = [
@@ -190,15 +202,15 @@ class TestCodeExamples:
     
     def test_file_paths_in_examples_exist(self, summary_content: str):
         """
-        Verify that test file paths referenced in documentation examples exist in the repository.
+        Assert that all test file paths referenced in the documentation exist in the repository.
         
-        Searches the provided documentation content for occurrences of paths matching the pattern
-        `tests/integration/test_<name>.py`, resolves each match against the repository root (three
-        levels up from this test file) and fails with a single consolidated message listing any
-        missing files.
+        Searches the provided documentation text for occurrences of paths matching
+        `tests/integration/test_[name].py`, resolves each match against the repository root
+        (three levels up from this test file), and fails with a consolidated message listing
+        any missing files.
         
         Parameters:
-            summary_content (str): The raw content of the documentation file to scan for referenced paths.
+            summary_content (str): Documentation content to scan for referenced test file paths.
         """
         # Look for test file references
         test_file_pattern = r'tests/integration/test_[\w.-]+\.py'
@@ -253,7 +265,11 @@ class TestDocumentMaintainability:
     """Test suite for document maintainability."""
     
     def test_line_length_reasonable(self, summary_lines: List[str]):
-        """Test that lines aren't excessively long."""
+        """
+        Ensure most lines are at most 120 characters long.
+        
+        Lines that start with 'http' are exempt from the length check. The test fails if more than 10% of lines exceed 120 characters.
+        """
         long_lines = [
             (i + 1, line) for i, line in enumerate(summary_lines)
             if len(line) > 120 and not line.strip().startswith('http')
@@ -264,9 +280,12 @@ class TestDocumentMaintainability:
     
     def test_has_clear_structure(self, summary_content: str):
         """
-        Verify the document contains a clear hierarchical heading structure.
+        Check that the document has a clear heading hierarchy.
         
-        Requires at least one level-1 heading (H1) and at least three level-2 headings (H2); the test fails if these counts are not met.
+        Requires at least one level-1 heading (H1) and at least three level-2 headings (H2). The test fails with an assertion error if these minima are not met.
+        
+        Parameters:
+            summary_content (str): Full Markdown content of the summary file to inspect.
         """
         h1_count = len(re.findall(r'^# ', summary_content, re.MULTILINE))
         h2_count = len(re.findall(r'^## ', summary_content, re.MULTILINE))

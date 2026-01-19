@@ -15,17 +15,19 @@ class TestPyYAMLDependencyAddition:
     @pytest.fixture
     def requirements_file(self) -> Path:
         """
-        Path to the project's requirements-dev.txt file.
+        Return the Path to the repository's requirements-dev.txt file.
         
         Returns:
-            path (Path): Path to requirements-dev.txt located at the repository root.
+            Path: Path object pointing to requirements-dev.txt at the repository root.
         """
         return Path('requirements-dev.txt')
     
     @pytest.fixture
     def requirements_content(self, requirements_file: Path) -> str:
         """
-        Read and return the contents of the requirements-dev.txt file.
+        Return the contents of requirements-dev.txt decoded as UTF-8.
+        
+        If the file does not exist, the test is skipped via pytest.skip.
         
         Parameters:
             requirements_file (Path): Path to the requirements-dev.txt file to read.
@@ -42,13 +44,13 @@ class TestPyYAMLDependencyAddition:
     @pytest.fixture
     def requirements_lines(self, requirements_content: str) -> List[str]:
         """
-        Extracts the non-empty, non-comment lines from the contents of a requirements file.
-
+        Extract non-empty, non-comment lines from the contents of a requirements file.
+        
         Parameters:
             requirements_content (str): Full text of a requirements file.
-
+        
         Returns:
-            List[str]: Lines from the file with surrounding whitespace removed, excluding blank lines and lines beginning with `#` (including those with leading whitespace).
+            List[str]: Cleaned lines with surrounding whitespace removed, excluding blank lines and lines that begin with `#` (leading whitespace before `#` is ignored).
         """
         lines = []
         for line in requirements_content.split('\n'):
@@ -159,10 +161,10 @@ class TestRequirementsDevCompleteness:
     @pytest.fixture
     def requirements_content(self) -> str:
         """
-        Read and return the contents of requirements-dev.txt.
+        Return the contents of requirements-dev.txt decoded as UTF-8.
         
         Returns:
-            str: The full contents of requirements-dev.txt.
+            str: Full text of requirements-dev.txt.
         """
         with open('requirements-dev.txt', 'r', encoding='utf-8') as f:
             return f.read()
@@ -256,12 +258,12 @@ class TestRequirementsDevVersionPinning:
     @pytest.fixture
     def requirements_lines(self) -> List[str]:
         """
-        Return the non-comment, non-empty lines from requirements-dev.txt.
+        Extracts non-comment, non-empty lines from requirements-dev.txt in file order.
         
-        Reads requirements-dev.txt and returns each requirement line with surrounding whitespace removed, excluding empty lines and lines starting with `#`.
+        Comments (lines starting with '#') are ignored even if preceded by whitespace; each returned line is stripped of surrounding whitespace.
         
         Returns:
-            lines (List[str]): The cleaned requirement lines in file order.
+            List[str]: Cleaned requirement lines in original file order.
         """
         with open('requirements-dev.txt', 'r', encoding='utf-8') as f:
             content = f.read()

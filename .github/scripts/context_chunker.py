@@ -33,10 +33,12 @@ class ContextChunker:
 
     def __init__(self, config_path: str = ".github/pr-agent-config.yml"):
         """
-        Initialize the ContextChunker with configuration.
-
+        Load configuration and initialize context-chunking parameters and the tokenizer.
+        
+        Reads settings from the provided YAML config (if available) and initializes instance attributes used for chunking: `config`, `max_tokens`, `chunk_size`, `overlap_tokens`, `summarization_threshold`, `priority_order`, `priority_map`, and `_encoder`.
+        
         Parameters:
-            config_path: Path to the YAML configuration file.
+            config_path (str): Path to the YAML configuration file (default: ".github/pr-agent-config.yml").
         """
         self.config: Dict = self._load_config(config_path)
 
@@ -62,7 +64,15 @@ class ContextChunker:
         self._encoder = self._init_encoder()
 
     def _load_config(self, config_path: str) -> Dict[str, Any]:
-        """Load YAML configuration from disk with safe defaults."""
+        """
+        Load YAML configuration from disk and return it as a dictionary.
+        
+        If the file does not exist, the YAML library is unavailable, or an error occurs while reading/parsing,
+        an empty dict is returned and a warning is emitted to stderr.
+        
+        Returns:
+            Dict[str, Any]: Parsed configuration mapping, or an empty dict on missing/invalid config.
+        """
         cfg_file = Path(config_path)
         if not (cfg_file.exists() and yaml is not None):
             return {}
@@ -75,7 +85,17 @@ class ContextChunker:
             return {}
 
     def _init_encoder(self):
-        """Initialize and return the tiktoken encoder when available."""
+        """
+        Initialize the optional tiktoken encoder and load agent context settings.
+        
+        Loads configuration from the repository (if available), populates self.config and context-related attributes
+        (self.max_tokens, self.chunk_size, self.overlap_tokens, self.summarization_threshold), and builds chunk
+        priority structures (self.priority_order, self.priority_map). Attempts to initialize and store the tiktoken
+        encoder on self._encoder.
+        
+        Returns:
+            The tiktoken encoder instance if available and successfully initialized, `None` otherwise.
+        """
         if not TIKTOKEN_AVAILABLE:
             return None
         try:
@@ -127,16 +147,12 @@ class ContextChunker:
 
     def estimate_tokens(self, text: str) -> int:
         """
-        Estimate the number of tokens in the given text.
-
-        Uses tiktoken for accurate counting when available,
-        otherwise falls back to heuristic estimation.
-
-        Parameters:
-            text: The text to estimate tokens for.
-
+        Estimate the number of tokens contained in the provided text.
+        
+        Uses an available encoder for exact counts; otherwise returns a heuristic estimate. Returns `0` for empty input.
+        
         Returns:
-            int: Estimated number of tokens.
+            int: Estimated token count (`0` for empty input).
         """
         if not text:
             return 0
@@ -172,13 +188,13 @@ class ContextChunker:
 
     def process_context(self, pr_data: Dict[str, Any]) -> Tuple[str, bool]:
         """
-        Process PR context data and return chunked/summarized content.
-
+        Produce a combined or chunked PR content string based on token limits.
+        
         Parameters:
-            pr_data: Dictionary containing PR data (reviews, files, etc.).
-
+            pr_data (Dict[str, Any]): PR data dictionary containing keys such as `reviews`, `files`, `test_failures`, `ci_logs`, and `full_diff`.
+        
         Returns:
-            Tuple[str, bool]: Processed content and whether chunking was applied.
+            Tuple[str, bool]: A tuple where the first element is the assembled content (combined or chunked) and the second element is `True` if chunking was applied, `False` otherwise.
         """
         chunks = self._extract_chunks(pr_data)
         total_tokens = sum(self.estimate_tokens(chunk.get("content", "")) for chunk in chunks)
@@ -192,13 +208,22 @@ class ContextChunker:
 
     def _extract_chunks(self, pr_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
-        Extract chunks from PR data organized by type.
-
+        Builds an ordered list of content chunks extracted from PR data for prioritized processing.
+        
         Parameters:
-            pr_data: Dictionary containing PR data.
-
+            pr_data (Dict[str, Any]): PR data source. Recognized keys include:
+                - "reviews": list of review dicts
+                - "files": list of changed-file dicts
+                - "test_failures": list of test-failure dicts
+                - "ci_logs": CI log string
+                - "diff": full diff string
+        
         Returns:
-            List of chunk dictionaries with type and content.
+            List[Dict[str, Any]]: A list of chunk dictionaries sorted by priority (lower value = higher priority).
+                Each chunk dict contains:
+                    - "type" (str): chunk category (e.g., "review_comments", "changed_files").
+                    - "content" (str): formatted text for the chunk.
+                    - "priority" (int): numeric priority used for ordering.
         """
         chunks: List[Dict[str, Any]] = []
 
@@ -256,13 +281,15 @@ class ContextChunker:
 
     def _format_reviews(self, reviews: List[Dict[str, Any]]) -> str:
         """
-        Format review comments into readable content.
-
+        Format a list of review dictionaries into a markdown string with headings for each reviewer and their state.
+        
+        Each review dict is expected to include the keys 'user' (a dict with 'login'), 'state', and 'body'; missing values are replaced with sensible defaults.
+        
         Parameters:
-            reviews: List of review dictionaries.
-
+            reviews (List[Dict[str, Any]]): Review objects to format.
+        
         Returns:
-            str: Formatted review content.
+            str: A markdown-formatted string starting with "## Review Comments" and containing one subsection per review in the form "### @<login> (<state>)" followed by the review body.
         """
         lines = ["## Review Comments\n"]
         for review in reviews:
@@ -274,13 +301,19 @@ class ContextChunker:
 
     def _format_files(self, files: List[Dict[str, Any]]) -> str:
         """
-        Format changed files into readable content.
-
+        Format a list of file-change records into a markdown-style summary with diffs.
+        
+        Each record in `files` may include the keys:
+        - `filename` (str): path or name of the changed file.
+        - `additions` (int): number of added lines.
+        - `deletions` (int): number of removed lines.
+        - `patch` (str): unified diff or patch fragment for the file.
+        
         Parameters:
-            files: List of file change dictionaries.
-
+            files: List of file-change dictionaries as described above.
+        
         Returns:
-            str: Formatted files content.
+            A single string containing a markdown-style "Changed Files" section where each file is listed with its addition/deletion counts and an optional fenced diff block for the `patch`.
         """
         lines = ["## Changed Files\n"]
         for f in files:
@@ -295,13 +328,15 @@ class ContextChunker:
 
     def _format_test_failures(self, failures: List[Dict[str, Any]]) -> str:
         """
-        Format test failures into readable content.
-
+        Format a list of test failure records into a markdown-style string.
+        
+        Each failure record may include the keys "name" (test name) and "message" (failure details). Missing names default to "unknown test".
+        
         Parameters:
-            failures: List of test failure dictionaries.
-
+            failures (List[Dict[str, Any]]): Test failure records to format.
+        
         Returns:
-            str: Formatted test failures content.
+            str: Markdown-formatted content starting with "## Test Failures" and a "### {test name}" section for each failure containing its message.
         """
         lines = ["## Test Failures\n"]
         for failure in failures:
@@ -312,13 +347,13 @@ class ContextChunker:
 
     def _combine_chunks(self, chunks: List[Dict[str, Any]]) -> str:
         """
-        Combine all chunks into a single content string.
-
+        Concatenate the `content` fields of multiple chunks into a single string separated by two newlines.
+        
         Parameters:
-            chunks: List of chunk dictionaries.
-
+            chunks (List[Dict[str, Any]]): List of chunk dictionaries; each chunk's `"content"` value will be used (missing or falsy `"content"` is treated as an empty string).
+        
         Returns:
-            str: Combined content.
+            str: The combined content string.
         """
         return "\n\n".join(chunk.get("content", "") for chunk in chunks)
 
@@ -372,16 +407,18 @@ class ContextChunker:
         self, content: str, chunk_type: str, chunk_tokens: int, remaining_tokens: int
     ) -> Tuple[str, int, bool]:
         """
-        Process a single chunk based on available token space.
-
+        Decide how to include a single content chunk given the remaining token budget.
+        
         Parameters:
-            content: The chunk content to process.
-            chunk_type: Type identifier for the chunk.
-            chunk_tokens: Estimated token count for the chunk.
-            remaining_tokens: Available token budget.
-
+            content (str): The chunk content.
+            chunk_type (str): Identifier for the chunk type (used in truncation/omission notes).
+            chunk_tokens (int): Estimated token count for the full chunk.
+            remaining_tokens (int): Available token budget.
+        
         Returns:
-            Tuple[str, int, bool]: Processed content, tokens used, and whether to stop processing.
+            processed_content (str): The content to include (possibly truncated or an omission note).
+            tokens_used (int): Number of tokens that will be consumed by the returned content.
+            stop_processing (bool): `True` if no further chunks should be processed after this one, `False` otherwise.
         """
         if chunk_tokens <= remaining_tokens:
             return content, chunk_tokens, False
@@ -395,15 +432,15 @@ class ContextChunker:
         self, content: str, chunk_type: str, remaining_tokens: int
     ) -> Tuple[str, int, bool]:
         """
-        Handle chunk truncation when partial content can fit.
-
+        Truncate a chunk to fit the remaining token budget and append a truncation notice.
+        
         Parameters:
             content: The chunk content to truncate.
-            chunk_type: Type identifier for the chunk.
+            chunk_type: Identifier used in the appended truncation notice.
             remaining_tokens: Available token budget.
-
+        
         Returns:
-            Tuple[str, int, bool]: Truncated content with note, tokens used, and False to continue.
+            (str, int, bool): Truncated content with a trailing note, the estimated token count of that content, and `False` to indicate processing should continue.
         """
         truncated = self._truncate_to_tokens(content, remaining_tokens - 100)
         if truncated:
@@ -414,14 +451,16 @@ class ContextChunker:
 
     def _handle_omission(self, chunk_type: str, chunk_tokens: int) -> Tuple[str, int, bool]:
         """
-        Handle chunk omission when no space is available.
-
+        Produce an omission notice for a chunk when there is no remaining token budget.
+        
         Parameters:
-            chunk_type: Type identifier for the chunk.
-            chunk_tokens: Estimated token count for the chunk.
-
+            chunk_type (str): Identifier for the chunk type being omitted (e.g., "ci_logs").
+            chunk_tokens (int): Estimated number of tokens that the omitted chunk would have consumed.
+        
         Returns:
-            Tuple[str, int, bool]: Omission note, 0 tokens used, and True to stop processing.
+            omission_note (str): Human-readable notice explaining the omission and token count.
+            tokens_used (int): Always 0 for omitted chunks.
+            stop_processing (bool): Always True to indicate no further chunks should be included.
         """
         omission_note = (
             f"\n[{chunk_type} omitted due to token limit - "
@@ -431,13 +470,13 @@ class ContextChunker:
 
     def _find_natural_boundary(self, text: str) -> str:
         """
-        Find and truncate text at a natural boundary (newline).
-
+        Truncate text at a natural boundary (the last newline) when that boundary occurs after the midpoint.
+        
         Parameters:
-            text: The text to process.
-
+            text (str): The input text to potentially truncate.
+        
         Returns:
-            str: Text truncated at natural boundary if found, otherwise original text.
+            str: The input truncated at the last newline if that newline is located after half the text length, otherwise the original input.
         """
         last_newline = text.rfind('\n')
         if last_newline > len(text) // 2:
@@ -446,17 +485,16 @@ class ContextChunker:
 
     def _truncate_to_tokens(self, text: str, max_tokens: int) -> str:
         """
-        Truncate text to approximately max_tokens.
-
-        Attempts to truncate at natural boundaries (newlines, sentences).
-        Re-checks token count after truncation to ensure it doesn't exceed the limit.
-
+        Truncates text so its estimated token count does not exceed max_tokens.
+        
+        Attempts to prefer natural boundaries (newlines/sentences) and iteratively trims until the estimated token count fits within the limit.
+        
         Parameters:
-            text: The text to truncate.
-            max_tokens: Maximum number of tokens to allow.
-
+            text (str): The text to truncate.
+            max_tokens (int): Maximum number of tokens allowed; non-positive values produce an empty string.
+        
         Returns:
-            str: Truncated text.
+            str: Truncated text whose estimated token count is <= max_tokens, or an empty string if nothing fits.
         """
         if not text or max_tokens <= 0:
             return ""
