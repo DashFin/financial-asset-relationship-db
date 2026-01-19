@@ -402,32 +402,23 @@ class TestRegressionPrevention:
                 pytest.fail(f"{workflow_file.name} has YAML syntax error: {e}")
     
     def test_no_duplicate_keys_in_workflows(self):
-        """Test that workflows don't have duplicate keys."""
+        """Test that workflows don't have duplicate keys (robust, nested-safe)."""
         if not WORKFLOWS_DIR.exists():
-import re
-        
+            pytest.skip("Workflows directory not found")
+        try:
+            from ruamel.yaml import YAML
+            from ruamel.yaml.constructor import DuplicateKeyError
+        except Exception:
+            pytest.skip("ruamel.yaml not available; skipping robust duplicate key check")
+    
+        yaml_parser = YAML(typ='safe')
+        # ruamel.yaml raises DuplicateKeyError on duplicates by default for typ='safe'
         for workflow_file in WORKFLOWS_DIR.glob("*.yml"):
-            # This would fail in yaml.safe_load if there were duplicates
-            # but we'll be explicit
             with open(workflow_file, 'r', encoding='utf-8') as f:
-                content = f.read()
-            
-            # Check for obvious duplicate keys at top level
-            lines = content.split('\n')
-            top_level_keys = []
-            
-            for line in lines:
-                if line and not line.startswith(' ') and not line.startswith('#'):
-                    if ':' in line:
-                        key = line.split(':')[0].strip().strip('"').strip("'")
-                        if key:
-                            top_level_keys.append(key)
-            
-            duplicates = [k for k in top_level_keys if top_level_keys.count(k) > 1]
-            unique_dups = list(set(duplicates))
-            
-            assert len(unique_dups) == 0, \
-                f"{workflow_file.name} has duplicate keys: {unique_dups}"
+                try:
+                    yaml_parser.load(f)
+                except DuplicateKeyError as e:
+                    pytest.fail(f"{workflow_file.name} has duplicate YAML keys: {e}")
     
 
                 if python_versions:
