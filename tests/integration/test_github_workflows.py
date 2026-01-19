@@ -98,7 +98,6 @@ def check_duplicate_keys(file_path: Path) -> List[str]:
         Safe YAML loader that detects duplicate mapping keys during loading.
         Extends GitHubActionsYamlLoader to record any duplicate keys found in mappings.
         """
-        pass
 
     def constructor_with_dup_check(loader, node):
         """
@@ -694,6 +693,7 @@ class TestWorkflowPerformance:
 
         # This is informational, not a hard requirement
         if not has_cache:
+            print(f"No caching detected in workflow {workflow_file}")
 
 
 class TestWorkflowTriggers:
@@ -709,8 +709,6 @@ class TestWorkflowTriggers:
 
         Parameters:
             workflow_file (Path): Path to the workflow YAML file under test.
-        """
-        # test implementation goes here
 
         Raises:
             AssertionError: If an unrecognised event type is found in the workflow's `on` configuration.
@@ -1407,18 +1405,17 @@ class TestWorkflowCachingStrategies:
             if "os" in matrix or "runs-on" in job:
                 steps = job.get("steps", [])
                 for step in steps:
-                    if "uses" in step and "actions/cache" in step["uses"] and "with" in step and "key" in step["with"]:
+                    if (
+                        "uses" in step
+                        and "actions/cache" in step["uses"]
+                        and "with" in step
+                        and "key" in step["with"]
+                    ):
                         # Should include runner.os in cache key
                         if "os" in matrix:
                             # Advisory: consider including OS in cache key
                             assert True
 
-
-"""Integration tests for GitHub workflows permissions and best practices.
-
-
-This module contains tests to verify correct permissions configurations and complex scenarios for GitHub workflows.
-"""
 
 class TestWorkflowPermissionsBestPractices:
     """Tests for proper permissions configuration."""
@@ -1447,7 +1444,33 @@ class TestWorkflowPermissionsBestPractices:
 
         def check_perms(perms):
             """Check given permissions dict for 'write' values and verify appropriate justification."""
-            pass
+            # This test is advisory: workflows may legitimately require write permissions.
+            # We avoid failing here and instead emit an informational message when write
+            # access is requested so it can be reviewed.
+            if perms is None:
+                return
+
+            # GitHub also allows shorthand permissions like "read-all"/"write-all"
+            if isinstance(perms, str):
+                if perms.lower() in {"write-all"}:
+                    print(
+                        "Info: workflow requests write-all permissions; ensure this is intended."
+                    )
+                return
+
+            if not isinstance(perms, dict):
+                return
+
+            write_keys = [
+                k
+                for k, v in perms.items()
+                if isinstance(v, str) and v.lower() == "write"
+            ]
+            if write_keys:
+                print(
+                    "Info: workflow requests write permissions for: "
+                    f"{', '.join(sorted(write_keys))}. Ensure this is least-privilege and justified."
+                )
 
         if "permissions" in data:
             check_perms(data["permissions"])
@@ -1600,24 +1623,27 @@ class TestWorkflowOutputsAndArtifactsAdvanced:
                             assert ref in step_ids, (
                                 f"Output '{output_name}' references undefined step '{ref}' in {workflow_file.name}"
                             )
-"""Integration tests for GitHub workflow files.
-This module verifies that each workflow file has reasonable artifact retention settings
-and consistent, non - duplicated environment variable usage."""
 
-    @pytest.mark.parametrize("workflow_file", get_workflow_files())
-    def test_artifacts_have_reasonable_retention(self, workflow_file: Path):
-        """Test that artifact retention is reasonable."""
-        data = load_yaml_safe(workflow_file)
-        jobs = data.get("jobs", {})
 
-        for _, job in jobs.items():
-            steps = job.get("steps", [])
-            for step in steps:
-                if "uses" in step and "actions/upload-artifact" in step["uses"] and "with" in step and "retention-days" in step["with"]:
-                    retention = step["with"]["retention-days"]
-                    assert 1 <= retention <= 90, (
-                        f"Artifact retention should be 1-90 days in {workflow_file.name}"
-                    )
+@pytest.mark.parametrize("workflow_file", get_workflow_files())
+def test_artifacts_have_reasonable_retention(workflow_file: Path):
+    """Test that artifact retention is reasonable."""
+    data = load_yaml_safe(workflow_file)
+    jobs = data.get("jobs", {})
+
+    for _, job in jobs.items():
+        steps = job.get("steps", [])
+        for step in steps:
+            if (
+                "uses" in step
+                and "actions/upload-artifact" in step["uses"]
+                and "with" in step
+                and "retention-days" in step["with"]
+            ):
+                retention = step["with"]["retention-days"]
+                assert 1 <= retention <= 90, (
+                    f"Artifact retention should be 1-90 days in {workflow_file.name}"
+                )
 
 
 class TestWorkflowEnvironmentVariables:
