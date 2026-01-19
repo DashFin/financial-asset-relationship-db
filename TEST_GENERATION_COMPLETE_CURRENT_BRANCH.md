@@ -81,7 +81,7 @@ Comprehensive unit and integration tests have been successfully generated for th
 - Explanatory comments present
 - Major sections documented
 
-### 2. tests/integration/test_workflow_simplifications.py (NEW - 641 lines)
+### 2. tests/integration/test_workflow_simplifications.py (NEW)
 
 **Purpose**: Validate simplified workflows don't break functionality.
 
