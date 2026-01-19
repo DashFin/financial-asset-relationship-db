@@ -193,7 +193,7 @@ class TestWorkflowActions:
 
         for job_name, job_config in jobs.items():
             steps = job_config.get("steps", [])
-            
+
             for idx, step in enumerate(steps):
                 if "uses" in step:
                     action = step["uses"]
