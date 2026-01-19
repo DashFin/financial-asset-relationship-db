@@ -98,6 +98,7 @@ def check_duplicate_keys(file_path: Path) -> List[str]:
         Safe YAML loader that detects duplicate mapping keys during loading.
         Extends GitHubActionsYamlLoader to record any duplicate keys found in mappings.
         """
+
         pass
 
     def constructor_with_dup_check(loader, node):
@@ -695,6 +696,7 @@ class TestWorkflowPerformance:
         # This is informational, not a hard requirement
         if not has_cache:
             pass
+
 
 class TestWorkflowTriggers:
     """Comprehensive tests for workflow trigger configurations."""
@@ -1405,7 +1407,12 @@ class TestWorkflowCachingStrategies:
             if "os" in matrix or "runs-on" in job:
                 steps = job.get("steps", [])
                 for step in steps:
-                    if "uses" in step and "actions/cache" in step["uses"] and "with" in step and "key" in step["with"]:
+                    if (
+                        "uses" in step
+                        and "actions/cache" in step["uses"]
+                        and "with" in step
+                        and "key" in step["with"]
+                    ):
                         # Should include runner.os in cache key
                         if "os" in matrix:
                             # Advisory: consider including OS in cache key
@@ -1615,7 +1622,12 @@ def test_artifacts_have_reasonable_retention(self, workflow_file: Path):
     for _, job in jobs.items():
         steps = job.get("steps", [])
         for step in steps:
-            if "uses" in step and "actions/upload-artifact" in step["uses"] and "with" in step and "retention-days" in step["with"]:
+            if (
+                "uses" in step
+                and "actions/upload-artifact" in step["uses"]
+                and "with" in step
+                and "retention-days" in step["with"]
+            ):
                 retention = step["with"]["retention-days"]
                 assert 1 <= retention <= 90, (
                     f"Artifact retention should be 1-90 days in {workflow_file.name}"
