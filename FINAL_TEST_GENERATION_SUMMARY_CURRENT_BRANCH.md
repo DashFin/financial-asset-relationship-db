@@ -49,5 +49,3 @@ Based on analysis, only the **configuration and workflow files** required new va
 **Lines**: 487  
 **Tests**: 40+  
 **Classes**: 11
-
-**Coverage**:
