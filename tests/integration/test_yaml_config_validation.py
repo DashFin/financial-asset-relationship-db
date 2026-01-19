@@ -76,19 +76,19 @@ class TestYAMLSyntaxAndStructure:
                 if ':' in line and not line.strip().startswith('#'):
                     indent = len(line) - len(line.lstrip(' '))
                     key = line.split(':')[0].strip()
-                    
+    
                     if indent not in keys_at_same_indent:
-                        keys_at_same_indent[indent] = []
-                    
+                          keys_at_same_indent[indent] = []
+
                     if key in keys_at_same_indent[indent]:
                         pytest.fail(f"Duplicate key '{key}' found in {yaml_file}")
-                    
+
                     keys_at_same_indent[indent].append(key)
 
 
 class TestWorkflowSchemaCompliance:
     """Tests for GitHub Actions workflow schema compliance."""
-    
+
     @pytest.fixture
     def all_workflows(self) -> List[Dict[str, Any]]:
         """Load all workflow files."""
@@ -101,7 +101,7 @@ class TestWorkflowSchemaCompliance:
                     'content': yaml.safe_load(f)
                 })
         return workflows
-    
+
     def test_workflows_have_required_top_level_keys(self, all_workflows):
         """Verify workflows have all required top-level keys."""
         required_keys = ['name', 'jobs']
@@ -110,16 +110,16 @@ class TestWorkflowSchemaCompliance:
             for key in required_keys:
                 assert key in workflow['content'], \
                     f"Workflow {workflow['path']} missing required key: {key}"
-    
+
     def test_workflow_triggers_valid_format(self, all_workflows):
         """Verify workflow triggers use valid format."""
         for workflow in all_workflows:
             # Check for 'on' or '"on"' key
             has_trigger = 'on' in workflow['content']
             assert has_trigger, f"Workflow {workflow['path']} missing trigger ('on' key)"
-            
+
             triggers = workflow['content'].get('on') or workflow['content'].get('"on"')
-            
+
             # Triggers can be: string, list, or dict
             assert isinstance(triggers, (str, list, dict)), \
                 f"Workflow {workflow['path']} has invalid trigger format"
@@ -128,17 +128,17 @@ class TestWorkflowSchemaCompliance:
         """Verify job definitions follow valid schema."""
         for workflow in all_workflows:
             jobs = workflow['content'].get('jobs', {})
-            
+
             assert len(jobs) > 0, f"Workflow {workflow['path']} has no jobs defined"
-            
+
             for job_id, job_config in jobs.items():
                 # Each job must have runs-on or uses
                 has_runs_on = 'runs-on' in job_config
                 has_uses = 'uses' in job_config  # For reusable workflows
-                
+
                 assert has_runs_on or has_uses, \
                     f"Job '{job_id}' in {workflow['path']} missing 'runs-on' or 'uses'"
-                
+
                 # If has steps, must be a list
                 if 'steps' in job_config:
                     assert isinstance(job_config['steps'], list), \
@@ -148,19 +148,19 @@ class TestWorkflowSchemaCompliance:
         """Verify step definitions follow valid schema."""
         for workflow in all_workflows:
             jobs = workflow['content'].get('jobs', {})
-            
+
             for job_id, job_config in jobs.items():
                 steps = job_config.get('steps', [])
-                
+
                 for step_idx, step in enumerate(steps):
                     # Each step must have 'uses' or 'run'
                     has_uses = 'uses' in step
                     has_run = 'run' in step
-                    
+
                     assert has_uses or has_run, \
                         f"Step {step_idx} in job '{job_id}' of {workflow['path']} " \
                         f"must have 'uses' or 'run'"
-                    
+
                     # Steps should not have both uses and run
                     assert not (has_uses and has_run), \
                         f"Step {step_idx} in job '{job_id}' of {workflow['path']} " \
@@ -233,12 +233,12 @@ class TestConfigurationEdgeCases:
                         if key in critical_keys:
                             assert value is not None, \
                                 f"Critical key '{current_path}' is null in {yaml_file}"
-                        
+
                         check_nulls(value, current_path)
                 elif isinstance(obj, list):
                     for idx, item in enumerate(obj):
                         check_nulls(item, f"{path}[{idx}]")
-            
+
             check_nulls(content)
 
 
@@ -249,11 +249,11 @@ class TestConfigurationConsistency:
         """Verify Python version is consistent across all workflows."""
         workflow_dir = Path(".github/workflows")
         python_versions = {}
-        
+
         for workflow_file in workflow_dir.glob("*.yml"):
             with open(workflow_file, 'r') as f:
                 workflow = yaml.safe_load(f)
-            
+
             jobs = workflow.get('jobs', {})
             for job_id, job_config in jobs.items():
                 steps = job_config.get('steps', [])
@@ -262,7 +262,7 @@ class TestConfigurationConsistency:
                         version = step.get('with', {}).get('python-version')
                         if version:
                             python_versions[workflow_file.name] = version
-        
+
         # All should use same Python version
         if python_versions:
             unique_versions = set(python_versions.values())
@@ -273,11 +273,11 @@ class TestConfigurationConsistency:
         """Verify Node.js version is consistent across all workflows."""
         workflow_dir = Path(".github/workflows")
         node_versions = {}
-        
+
         for workflow_file in workflow_dir.glob("*.yml"):
             with open(workflow_file, 'r') as f:
                 workflow = yaml.safe_load(f)
-            
+
             jobs = workflow.get('jobs', {})
             for job_id, job_config in jobs.items():
                 steps = job_config.get('steps', [])
