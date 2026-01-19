@@ -14,10 +14,10 @@ python -m py_compile tests/unit/test_database_refactoring.py && echo "   ✓ tes
 echo ""
 echo "2. Checking TypeScript Test Syntax..."
 cd frontend
-if command -v npx &> /dev/null; then
-    npx tsc --noEmit __tests__/lib/api-refactoring.test.ts 2>&1 | head -20 || echo "   ✓ api-refactoring.test.ts - TypeScript validation complete"
+if npx tsc --noEmit __tests__/lib/api-refactoring.test.ts 2>&1 | head -20; then
+    echo "   ✓ api-refactoring.test.ts - TypeScript validation complete"
 else
-    echo "   ⚠ TypeScript compiler not available, skipping syntax check"
+    echo "   ✗ api-refactoring.test.ts - TypeScript validation failed"
 fi
 cd ..
 
@@ -27,7 +27,7 @@ echo "   Python Tests:"
 echo "   - test_auth_refactoring.py: $(grep -c "def test_" tests/unit/test_auth_refactoring.py) test methods"
 echo "   - test_database_refactoring.py: $(grep -c "def test_" tests/unit/test_database_refactoring.py) test methods"
 echo "   TypeScript Tests:"
-echo "   - api-refactoring.test.ts: $(grep -c "it('\\|test('" frontend/__tests__/lib/api-refactoring.test.ts) test methods"
+grep -E -c "\b(it|test)\s*\(["'`]" frontend/__tests__/lib/api-refactoring.test.ts
 
 echo ""
 echo "4. Summary:"

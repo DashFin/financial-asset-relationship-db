@@ -14,13 +14,13 @@ from __future__ import annotations
 
 import json
 from typing import Dict, List, Optional, Tuple
-from unittest.mock import MagicMock, Mock, patch, call
+from unittest.mock import Mock, patch
 
 import pytest
 
 from app import AppConstants, FinancialAssetApp
 from src.logic.asset_graph import AssetRelationshipGraph
-from src.models.financial_models import AssetClass, Bond, Equity
+from src.models.financial_models import Bond, Equity
 
 
 class TestAppConstants:
@@ -98,7 +98,7 @@ class TestFinancialAssetAppInitialization:
         """Test that initialization raises exception if graph creation fails."""
         mock_create_db.side_effect = Exception("Database connection failed")
 
-        with pytest.raises(Exception) as exc_info:
+        with pytest.raises(DatabaseConnectionError):
             FinancialAssetApp()
 
         assert "Database connection failed" in str(exc_info.value)
