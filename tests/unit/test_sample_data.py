@@ -397,3 +397,95 @@ class TestEdgeCases:
             assert hasattr(asset, "symbol")
             assert hasattr(asset, "name")
             assert hasattr(asset, "price")
+
+
+class TestSampleDataEdgeCases:
+    """Test edge cases in sample data creation."""
+
+    @staticmethod
+    def test_sample_database_has_all_asset_classes():
+        """Test that sample database includes all major asset classes."""
+        graph = create_sample_database()
+        
+        asset_classes = set(asset.asset_class for asset in graph.assets.values())
+        
+        assert AssetClass.EQUITY in asset_classes
+        assert AssetClass.FIXED_INCOME in asset_classes
+        assert AssetClass.COMMODITY in asset_classes
+        assert AssetClass.CURRENCY in asset_classes
+
+    @staticmethod
+    def test_sample_database_has_regulatory_events():
+        """Test that sample database includes regulatory events."""
+        graph = create_sample_database()
+        
+        assert len(graph.regulatory_events) > 0
+        
+        # Check events have required fields
+        for event in graph.regulatory_events:
+            assert event.id
+            assert event.asset_id
+            assert event.event_type
+            assert event.date
+            assert -1.0 <= event.impact_score <= 1.0
+
+    @staticmethod
+    def test_sample_database_relationships_built():
+        """Test that relationships are properly built."""
+        graph = create_sample_database()
+        
+        # Should have relationships
+        assert len(graph.relationships) > 0
+        
+        # All relationship strengths should be valid
+        for source_id, rels in graph.relationships.items():
+            for target_id, rel_type, strength in rels:
+                assert 0.0 <= strength <= 1.0
+
+    @staticmethod
+    def test_sample_database_sector_diversity():
+        """Test that sample data includes diverse sectors."""
+        graph = create_sample_database()
+        
+        sectors = set(asset.sector for asset in graph.assets.values())
+        
+        # Should have multiple sectors
+        assert len(sectors) >= 5
+        assert "Technology" in sectors
+        assert "Energy" in sectors
+
+    @staticmethod
+    def test_sample_database_price_validity():
+        """Test that all asset prices are positive."""
+        graph = create_sample_database()
+        
+        for asset in graph.assets.values():
+            assert asset.price > 0
+
+    @staticmethod
+    def test_sample_database_bond_issuers():
+        """Test that corporate bonds have valid issuer_ids."""
+        graph = create_sample_database()
+        
+        bonds_with_issuers = [
+            asset for asset in graph.assets.values()
+            if isinstance(asset, Bond) and hasattr(asset, 'issuer_id') and asset.issuer_id
+        ]
+        
+        for bond in bonds_with_issuers:
+            # Issuer should exist in graph
+            assert bond.issuer_id in graph.assets
+
+    @staticmethod
+    def test_sample_database_event_relationships():
+        """Test that regulatory events reference valid assets."""
+        graph = create_sample_database()
+        
+        for event in graph.regulatory_events:
+            # Primary asset should exist
+            assert event.asset_id in graph.assets
+            
+            # Related assets should exist
+            if hasattr(event, 'related_assets') and event.related_assets:
+                for related_id in event.related_assets:
+                    assert related_id in graph.assets
