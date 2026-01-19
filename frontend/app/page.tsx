@@ -25,13 +25,13 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  async function loadData() {
+    // existing implementation of loadData
+  }
+
   useEffect(() => {
     loadData();
   }, []);
-
-  const loadData = async () => {
-    setLoading(true);
-    setError(null);
     try {
       const [metricsData, visualizationData] = await Promise.all([
         api.getMetrics(),
