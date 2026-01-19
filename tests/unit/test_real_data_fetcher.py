@@ -600,6 +600,7 @@ class TestDataIntegrity:
             assert hasattr(event, "date")
             assert -1.0 <= event.impact_score <= 1.0
 
+
 class TestCachePersistence:
     """Test cache file persistence and atomic operations."""
 
