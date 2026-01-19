@@ -1610,7 +1610,7 @@ class TestWorkflowOutputsAndArtifactsAdvanced:
 
 """Integration tests for GitHub workflow files.
 This module verifies that each workflow file has reasonable artifact retention settings
-and consistent, non - duplicated environment variable usage."""
+and consistent, non-duplicated environment variable usage."""
 
 
 @pytest.mark.parametrize("workflow_file", get_workflow_files())
