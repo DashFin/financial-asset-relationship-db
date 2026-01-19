@@ -13,9 +13,8 @@ This module tests the RealDataFetcher class including:
 import json
 import os
 import tempfile
-from dataclasses import asdict
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, call, patch
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
@@ -62,6 +61,7 @@ class TestRealDataFetcherInitialization:
         """Test initialization with custom fallback factory."""
 
         def custom_fallback():
+            """Provide a fallback that returns a new AssetRelationshipGraph instance."""
             return AssetRelationshipGraph()
 
         fetcher = RealDataFetcher(fallback_factory=custom_fallback)
@@ -80,6 +80,7 @@ class TestRealDataFetcherInitialization:
         cache_path = "/tmp/cache.json"
 
         def fallback():
+            """Fallback factory that returns a new AssetRelationshipGraph instance."""
             return AssetRelationshipGraph()
 
         fetcher = RealDataFetcher(
@@ -95,7 +96,8 @@ class TestCacheOperations:
     """Test cache loading and saving operations."""
 
     @pytest.fixture
-    def temp_cache_file(self):
+    @staticmethod
+    def temp_cache_file():
         """Create a temporary cache file."""
         with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
             temp_path = f.name
@@ -105,7 +107,8 @@ class TestCacheOperations:
             os.unlink(temp_path)
 
     @pytest.fixture
-    def sample_graph(self):
+    @staticmethod
+    def sample_graph():
         """Create a sample AssetRelationshipGraph."""
         graph = AssetRelationshipGraph()
         equity = Equity(
@@ -328,7 +331,8 @@ class TestNetworkFetching:
         assert all(isinstance(curr, Currency) for curr in currencies)
         assert all(curr.asset_class == AssetClass.CURRENCY for curr in currencies)
 
-    def test_create_regulatory_events(self):
+    @staticmethod
+    def test_create_regulatory_events():
         """Test creation of regulatory events."""
         fetcher = RealDataFetcher()
         events = fetcher._create_regulatory_events()
@@ -462,7 +466,7 @@ class TestRealDatabaseCreation:
                 mock_events.return_value = []
 
                 fetcher = RealDataFetcher(cache_path=cache_path)
-                graph = fetcher.create_real_database()
+                fetcher.create_real_database()
 
                 # Cache file should exist
                 assert os.path.exists(cache_path)
@@ -493,7 +497,8 @@ class TestErrorHandling:
     """Test error handling and edge cases."""
 
     @patch("src.data.real_data_fetcher.yf.Ticker")
-    def test_fetch_equity_handles_ticker_exception(self, mock_ticker_class):
+    @staticmethod
+    def test_fetch_equity_handles_ticker_exception(mock_ticker_class):
         """Test that equity fetch handles exceptions for individual tickers."""
         mock_ticker_class.side_effect = Exception("API Error")
 
@@ -502,7 +507,8 @@ class TestErrorHandling:
         equities = fetcher._fetch_equity_data()
         assert isinstance(equities, list)
 
-    def test_save_to_cache_handles_write_errors_gracefully(self):
+    @staticmethod
+    def test_save_to_cache_handles_write_errors_gracefully():
         """Test that cache save handles write errors gracefully."""
         graph = AssetRelationshipGraph()
         invalid_path = "/invalid/nonexistent/directory/cache.json"
@@ -514,7 +520,8 @@ class TestErrorHandling:
             # Exception is expected and should be logged, not crash
             pass
 
-    def test_create_real_database_with_all_fetch_failures(self):
+    @staticmethod
+    def test_create_real_database_with_all_fetch_failures():
         """Test that complete fetch failure falls back properly."""
         with (
             patch.object(RealDataFetcher, "_fetch_equity_data") as mock_eq,
@@ -568,7 +575,8 @@ class TestDataIntegrity:
             assert hasattr(equity, "price")
             assert equity.asset_class == AssetClass.EQUITY
 
-    def test_regulatory_events_have_valid_structure(self):
+    @staticmethod
+    def test_regulatory_events_have_valid_structure():
         """Test that regulatory events have valid structure."""
         fetcher = RealDataFetcher()
         events = fetcher._create_regulatory_events()
@@ -585,7 +593,8 @@ class TestDataIntegrity:
 class TestCachePersistence:
     """Test cache file persistence and atomic operations."""
 
-    def test_cache_save_uses_tempfile_for_atomicity(self):
+    @staticmethod
+    def test_cache_save_uses_tempfile_for_atomicity():
         """Test that cache save uses temporary file for atomic write."""
         with tempfile.TemporaryDirectory() as tmpdir:
             cache_path = os.path.join(tmpdir, "cache.json")
@@ -599,7 +608,6 @@ class TestCachePersistence:
                 mock_temp_file.__enter__.return_value = mock_temp_file
                 mock_temp.return_value = mock_temp_file
 
-                graph = AssetRelationshipGraph()
                 fetcher = RealDataFetcher(cache_path=cache_path)
 
                 with (
@@ -622,7 +630,8 @@ class TestCachePersistence:
                     # Verify tempfile was used
                     assert mock_temp.called
 
-    def test_cache_file_format_is_valid_json(self):
+    @staticmethod
+    def test_cache_file_format_is_valid_json():
         """Test that cache file is valid JSON."""
         with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
             cache_path = f.name

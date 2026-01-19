@@ -11,7 +11,7 @@ This module tests the authentication system including:
 
 import os
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 from jose import jwt
@@ -30,7 +30,6 @@ from api.auth import (
     authenticate_user,
     create_access_token,
     get_current_active_user,
-    get_current_user,
     get_password_hash,
     get_user,
     verify_password,
@@ -40,7 +39,8 @@ from api.auth import (
 class TestIsTruthyHelper:
     """Test the _is_truthy helper function for boolean string evaluation."""
 
-    def test_is_truthy_with_true_strings(self):
+    @staticmethod
+    def test_is_truthy_with_true_strings():
         """Test that recognized truthy strings return True."""
         assert _is_truthy("true") is True
         assert _is_truthy("True") is True
@@ -51,7 +51,8 @@ class TestIsTruthyHelper:
         assert _is_truthy("on") is True
         assert _is_truthy("ON") is True
 
-    def test_is_truthy_with_false_strings(self):
+    @staticmethod
+    def test_is_truthy_with_false_strings():
         """Test that unrecognized strings return False."""
         assert _is_truthy("false") is False
         assert _is_truthy("0") is False
@@ -60,11 +61,13 @@ class TestIsTruthyHelper:
         assert _is_truthy("random") is False
         assert _is_truthy("") is False
 
-    def test_is_truthy_with_none(self):
+    @staticmethod
+    def test_is_truthy_with_none():
         """Test that None returns False."""
         assert _is_truthy(None) is False
 
-    def test_is_truthy_case_insensitive(self):
+    @staticmethod
+    def test_is_truthy_case_insensitive():
         """Test that evaluation is case-insensitive."""
         assert _is_truthy("TrUe") is True
         assert _is_truthy("YeS") is True
@@ -74,7 +77,8 @@ class TestIsTruthyHelper:
 class TestPasswordHashing:
     """Test password hashing and verification functions."""
 
-    def test_get_password_hash_returns_different_hash(self):
+    @staticmethod
+    def test_get_password_hash_returns_different_hash():
         """Test that same password produces different hashes (salt)."""
         password = "test_password_123"
         hash1 = get_password_hash(password)
@@ -86,14 +90,16 @@ class TestPasswordHashing:
         assert len(hash1) > 20
         assert len(hash2) > 20
 
-    def test_verify_password_with_correct_password(self):
+    @staticmethod
+    def test_verify_password_with_correct_password():
         """Test that correct password verifies successfully."""
         password = "correct_password"
         hashed = get_password_hash(password)
 
         assert verify_password(password, hashed) is True
 
-    def test_verify_password_with_incorrect_password(self):
+    @staticmethod
+    def test_verify_password_with_incorrect_password():
         """Test that incorrect password fails verification."""
         password = "correct_password"
         wrong_password = "wrong_password"
@@ -101,12 +107,14 @@ class TestPasswordHashing:
 
         assert verify_password(wrong_password, hashed) is False
 
-    def test_verify_password_with_empty_password(self):
+    @staticmethod
+    def test_verify_password_with_empty_password():
         """Test verification with empty password."""
         hashed = get_password_hash("something")
         assert verify_password("", hashed) is False
 
-    def test_hash_empty_password(self):
+    @staticmethod
+    def test_hash_empty_password():
         """Test that empty password can be hashed."""
         hashed = get_password_hash("")
         assert hashed is not None
@@ -601,16 +609,19 @@ class TestSeedCredentialsFromEnv:
 class TestSecurityConfiguration:
     """Test security configuration and constants."""
 
-    def test_secret_key_is_set(self):
+    @staticmethod
+    def test_secret_key_is_set():
         """Test that SECRET_KEY is configured."""
         assert SECRET_KEY is not None
         assert len(SECRET_KEY) > 0
 
-    def test_algorithm_is_hs256(self):
+    @staticmethod
+    def test_algorithm_is_hs256():
         """Test that JWT algorithm is HS256."""
         assert ALGORITHM == "HS256"
 
-    def test_access_token_expire_minutes_is_positive(self):
+    @staticmethod
+    def test_access_token_expire_minutes_is_positive():
         """Test that token expiration is a positive number."""
         assert ACCESS_TOKEN_EXPIRE_MINUTES > 0
         assert isinstance(ACCESS_TOKEN_EXPIRE_MINUTES, int)
@@ -619,7 +630,8 @@ class TestSecurityConfiguration:
 class TestEdgeCases:
     """Test edge cases and error conditions."""
 
-    def test_user_repository_methods_are_instance_methods(self):
+    @staticmethod
+    def test_user_repository_methods_are_instance_methods():
         """Test that UserRepository methods are instance methods, not static."""
         repo = UserRepository()
 
@@ -635,7 +647,8 @@ class TestEdgeCases:
         assert "self" in inspect.signature(repo.has_users).parameters
         assert "self" in inspect.signature(repo.create_or_update_user).parameters
 
-    def test_authenticate_with_empty_credentials(self):
+    @staticmethod
+    def test_authenticate_with_empty_credentials():
         """Test authentication with empty username or password."""
         with patch("api.auth.user_repository.get_user") as mock_get:
             mock_get.return_value = None
@@ -646,7 +659,8 @@ class TestEdgeCases:
             result = authenticate_user("username", "")
             assert result is False
 
-    def test_special_characters_in_username(self):
+    @staticmethod
+    def test_special_characters_in_username():
         """Test handling of special characters in usernames."""
         mock_repo = Mock(spec=UserRepository)
         mock_repo.get_user.return_value = None
