@@ -1418,6 +1418,7 @@ class TestWorkflowCachingStrategies:
 This module contains tests to verify correct permissions configurations and complex scenarios for GitHub workflows.
 """
 
+
 class TestWorkflowPermissionsBestPractices:
     """Tests for proper permissions configuration."""
 
@@ -1598,24 +1599,27 @@ class TestWorkflowOutputsAndArtifactsAdvanced:
                             assert ref in step_ids, (
                                 f"Output '{output_name}' references undefined step '{ref}' in {workflow_file.name}"
                             )
+
+
 """Integration tests for GitHub workflow files.
 This module verifies that each workflow file has reasonable artifact retention settings
 and consistent, non - duplicated environment variable usage."""
 
-    @pytest.mark.parametrize("workflow_file", get_workflow_files())
-    def test_artifacts_have_reasonable_retention(self, workflow_file: Path):
-        """Test that artifact retention is reasonable."""
-        data = load_yaml_safe(workflow_file)
-        jobs = data.get("jobs", {})
 
-        for _, job in jobs.items():
-            steps = job.get("steps", [])
-            for step in steps:
-                if "uses" in step and "actions/upload-artifact" in step["uses"] and "with" in step and "retention-days" in step["with"]:
-                    retention = step["with"]["retention-days"]
-                    assert 1 <= retention <= 90, (
-                        f"Artifact retention should be 1-90 days in {workflow_file.name}"
-                    )
+@pytest.mark.parametrize("workflow_file", get_workflow_files())
+def test_artifacts_have_reasonable_retention(self, workflow_file: Path):
+    """Test that artifact retention is reasonable."""
+    data = load_yaml_safe(workflow_file)
+    jobs = data.get("jobs", {})
+
+    for _, job in jobs.items():
+        steps = job.get("steps", [])
+        for step in steps:
+            if "uses" in step and "actions/upload-artifact" in step["uses"] and "with" in step and "retention-days" in step["with"]:
+                retention = step["with"]["retention-days"]
+                assert 1 <= retention <= 90, (
+                    f"Artifact retention should be 1-90 days in {workflow_file.name}"
+                )
 
 
 class TestWorkflowEnvironmentVariables:
