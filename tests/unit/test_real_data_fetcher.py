@@ -406,11 +406,11 @@ class TestRealDatabaseCreation:
         mock_events.return_value = [
             RegulatoryEvent(
                 id="REG001",
-                activity_type=RegulatoryActivity.RATE_DECISION,
+                asset_id="AAPL",
+                event_type=RegulatoryActivity.EARNINGS_REPORT,
                 description="Test Event",
-                affected_sector="Technology",
                 date="2024-01-01",
-                severity=0.5,
+                impact_score=0.5,
             )
         ]
 
