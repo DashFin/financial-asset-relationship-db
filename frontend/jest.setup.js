@@ -21,9 +21,11 @@ global.IntersectionObserver = class IntersectionObserver {
   disconnect () {
     // no-op: required placeholder for teardown
   }
+
   observe () {
     // intentionally empty placeholder for tests
   }
+
   takeRecords () {
     return []
   }
