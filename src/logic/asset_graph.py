@@ -36,12 +36,12 @@ class AssetRelationshipGraph:
     def build_relationships(self) -> None:
         """
         Rebuilds the graph of relationships between assets according to configured business rules.
-        
+
         Clears any existing relationships and then:
         - Adds a bidirectional "same_sector" relationship with strength 0.7 between two assets that share the same sector other than "Unknown".
         - Adds a directional "corporate_link" relationship with strength 0.9 from a Bond asset to its issuer when the issuer's asset id is present.
         - Adds a directional "event_impact" relationship from a regulatory event's referenced asset to each related asset present in the graph, using the absolute value of the event's impact_score as the relationship strength.
-        
+
         Only assets whose ids are present in self.assets are considered when creating relationships.
         """
         self.relationships = {}
@@ -54,13 +54,19 @@ class AssetRelationshipGraph:
 
                 # Rule 2: Sector Affinity
                 if asset1.sector == asset2.sector and asset1.sector != "Unknown":
-                    self.add_relationship(id1, id2, "same_sector", 0.7, bidirectional=True)
+                    self.add_relationship(
+                        id1, id2, "same_sector", 0.7, bidirectional=True
+                    )
 
                 # Rule 1: Corporate Bond Linkage
                 if isinstance(asset1, Bond) and asset1.issuer_id == id2:
-                    self.add_relationship(id1, id2, "corporate_link", 0.9, bidirectional=False)
+                    self.add_relationship(
+                        id1, id2, "corporate_link", 0.9, bidirectional=False
+                    )
                 elif isinstance(asset2, Bond) and asset2.issuer_id == id1:
-                    self.add_relationship(id2, id1, "corporate_link", 0.9, bidirectional=False)
+                    self.add_relationship(
+                        id2, id1, "corporate_link", 0.9, bidirectional=False
+                    )
 
         # Rule: Event Impact
         for event in self.regulatory_events:
@@ -86,9 +92,9 @@ class AssetRelationshipGraph:
     ) -> None:
         """
         Add a relationship between two assets in the graph.
-        
+
         Duplicates (same source, target, and relationship type) are not added. If `bidirectional` is True, a matching reverse relationship is also added.
-        
+
         Parameters:
             source_id (str): ID of the source asset.
             target_id (str): ID of the target asset.
@@ -100,19 +106,25 @@ class AssetRelationshipGraph:
             self.relationships[source_id] = []
 
         # Avoid duplicates
-        if not any(r[0] == target_id and r[1] == rel_type for r in self.relationships[source_id]):
+        if not any(
+            r[0] == target_id and r[1] == rel_type
+            for r in self.relationships[source_id]
+        ):
             self.relationships[source_id].append((target_id, rel_type, strength))
 
         if bidirectional:
             if target_id not in self.relationships:
                 self.relationships[target_id] = []
-            if not any(r[0] == source_id and r[1] == rel_type for r in self.relationships[target_id]):
+            if not any(
+                r[0] == source_id and r[1] == rel_type
+                for r in self.relationships[target_id]
+            ):
                 self.relationships[target_id].append((source_id, rel_type, strength))
 
     def calculate_metrics(self) -> Dict[str, Any]:
         """
         Compute network-level statistics and distributions for the asset relationship graph.
-        
+
         Returns:
             metrics (Dict[str, Any]): A dictionary with the following keys:
                 - total_assets: Effective count of distinct asset IDs present (max of explicitly added assets and IDs found in relationships).
@@ -139,7 +151,11 @@ class AssetRelationshipGraph:
         avg_strength = sum(strengths) / len(strengths) if strengths else 0.0
 
         density = (
-            (total_relationships / (effective_assets_count * (effective_assets_count - 1)) * 100)
+            (
+                total_relationships
+                / (effective_assets_count * (effective_assets_count - 1))
+                * 100
+            )
             if effective_assets_count > 1
             else 0.0
         )
@@ -175,14 +191,14 @@ class AssetRelationshipGraph:
     ) -> Tuple[np.ndarray, List[str], List[str], List[str]]:
         """
         Produce layout and associated metadata for 3D visualization of assets.
-        
+
         Returns:
             Tuple containing:
             - positions (np.ndarray): Array of shape (N, 3) with x, y, z coordinates for each asset; z coordinates are 0. Positions are arranged evenly around a unit circle.
             - asset_ids (List[str]): Sorted list of asset identifiers included in the layout (includes assets present only as relationship targets).
             - colors (List[str]): Hex color string for each asset in the same order as `asset_ids`. Defaults to "#4ECDC4" for assets; when no assets exist returns a single entry "#888888".
-            - hover_texts (List[str]): Hover text for each asset in the same order as `asset_ids`, formatted as "Asset: {id}". 
-        
+            - hover_texts (List[str]): Hover text for each asset in the same order as `asset_ids`, formatted as "Asset: {id}".
+
         Special case:
             If no assets or relationship targets exist, returns a single dummy point with asset_id "A", color "#888888", and hover text "Asset A".
         """
@@ -198,7 +214,9 @@ class AssetRelationshipGraph:
         asset_ids = sorted(all_ids)
         n = len(asset_ids)
         theta = np.linspace(0, 2 * np.pi, n, endpoint=False)
-        positions = np.stack([np.cos(theta), np.sin(theta), np.zeros_like(theta)], axis=1)
+        positions = np.stack(
+            [np.cos(theta), np.sin(theta), np.zeros_like(theta)], axis=1
+        )
         colors = ["#4ECDC4"] * n
         hover = [f"Asset: {aid}" for aid in asset_ids]
         return positions, asset_ids, colors, hover

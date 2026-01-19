@@ -33,7 +33,11 @@ class TestDocumentationSections:
 
     def test_has_generated_files_section(self, section_headers: List[str]):
         """Test that there's a section about generated files."""
-        generated = [h for h in section_headers if "generated" in h.lower() or "file" in h.lower()]
+        generated = [
+            h
+            for h in section_headers
+            if "generated" in h.lower() or "file" in h.lower()
+        ]
         assert len(generated) > 0, "Should have a section about generated files"
 
     def test_has_running_section(self, section_headers: List[str]):
@@ -44,10 +48,10 @@ class TestDocumentationSections:
     def test_has_sufficient_sections(self, section_headers: List[str]):
         """
         Assert the document contains at least five H2 section headers.
-        
+
         Parameters:
             section_headers (List[str]): List of H2 header strings extracted from the document.
         """
-        assert (
-            len(section_headers) >= 5
-        ), f"Document should have at least 5 major sections, found {len(section_headers)}"
+        assert len(section_headers) >= 5, (
+            f"Document should have at least 5 major sections, found {len(section_headers)}"
+        )

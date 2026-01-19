@@ -40,12 +40,12 @@ class ValidationResult:
 def validate_workflow(workflow_path: str) -> ValidationResult:
     """
     Validate a workflow YAML file at the given filesystem path.
-    
+
     Parses the file as YAML and ensures the top-level value is a mapping that contains a 'jobs' key.
-    
+
     Parameters:
         workflow_path (str): Filesystem path to the workflow YAML file.
-    
+
     Returns:
         ValidationResult: Outcome of validation. `is_valid` is True when parsing succeeded and the top-level mapping contains a 'jobs' key; `errors` contains human-readable error messages when validation fails; `workflow_data` is the parsed mapping on success or an empty dict on failure.
     """
@@ -60,7 +60,9 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
             data = yaml.safe_load(f)
 
         if data is None:
-            return ValidationResult(False, ["Workflow file is empty or contains only nulls."], {})
+            return ValidationResult(
+                False, ["Workflow file is empty or contains only nulls."], {}
+            )
 
         if not isinstance(data, dict):
             return ValidationResult(False, ["Workflow must be a dict"], {})
@@ -77,6 +79,8 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
     except PermissionError as e:
         return ValidationResult(False, [f"Permission denied: {e}"], {})
     except IsADirectoryError as e:
-        return ValidationResult(False, [f"Expected a file but found a directory: {e}"], {})
+        return ValidationResult(
+            False, [f"Expected a file but found a directory: {e}"], {}
+        )
     except OSError as e:
         return ValidationResult(False, [f"OS Error reading file: {e}"], {})

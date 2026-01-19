@@ -15,16 +15,18 @@ from urllib.parse import unquote, urlparse
 def _get_database_url() -> str:
     """
     Get the configured SQLite database URL from the DATABASE_URL environment variable.
-    
+
     Returns:
         The value of the `DATABASE_URL` environment variable.
-    
+
     Raises:
         ValueError: If `DATABASE_URL` is not set.
     """
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
-        raise ValueError("DATABASE_URL environment variable must be set before using the database")
+        raise ValueError(
+            "DATABASE_URL environment variable must be set before using the database"
+        )
     return database_url
 
 
@@ -93,10 +95,10 @@ _MEMORY_CONNECTION_LOCK = threading.Lock()
 def _is_memory_db(path: str | None = None) -> bool:
     """
     Determine if the given or configured SQLite database refers to an in-memory database.
-    
+
     Parameters:
         path (str | None): Database path or URI to evaluate. If omitted, the configured DATABASE_PATH is used.
-    
+
     Returns:
         `true` if the path refers to an in-memory SQLite database (e.g., ":memory:" or "file::memory:?cache=shared"), `false` otherwise.
     """
@@ -106,7 +108,9 @@ def _is_memory_db(path: str | None = None) -> bool:
 
     # SQLite supports URI-style memory databases such as ``file::memory:?cache=shared``.
     parsed = urlparse(target)
-    if parsed.scheme == "file" and (parsed.path == ":memory:" or ":memory:" in parsed.query):
+    if parsed.scheme == "file" and (
+        parsed.path == ":memory:" or ":memory:" in parsed.query
+    ):
         return True
 
     return False

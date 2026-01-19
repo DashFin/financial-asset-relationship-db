@@ -59,12 +59,14 @@ class TestPRAgentConfigChanges:
         """Verify context chunking configuration has been removed."""
         # Should not have context configuration
         if "agent" in config_data:
-            assert "context" not in config_data["agent"], "Context chunking config should be removed in v1.0.0"
+            assert "context" not in config_data["agent"], (
+                "Context chunking config should be removed in v1.0.0"
+            )
 
     def test_no_fallback_strategies(self, config_data: Dict[str, Any]):
         """
         Assert the PR Agent config does not define a 'fallback' key under the top-level 'limits' mapping.
-        
+
         Parameters:
             config_data (Dict[str, Any]): Parsed contents of `.github/pr-agent-config.yml`. If a top-level `limits` mapping is present, this test asserts it does not contain a `fallback` key.
         """
@@ -75,14 +77,16 @@ class TestPRAgentConfigChanges:
     def test_basic_sections_present(self, config_data: Dict[str, Any]):
         """
         Verify the PR Agent YAML contains the essential top-level sections: "agent", "monitoring", "actions", and "quality".
-        
+
         Parameters:
             config_data (dict): Parsed YAML mapping from .github/pr-agent-config.yml.
         """
         required_sections = ["agent", "monitoring", "actions", "quality"]
 
         for section in required_sections:
-            assert section in config_data, f"Required section '{section}' missing from config"
+            assert section in config_data, (
+                f"Required section '{section}' missing from config"
+            )
 
     def test_no_complex_token_management(self, config_data: Dict[str, Any]):
         """
@@ -97,17 +101,17 @@ class TestPRAgentConfigChanges:
 
         # Should not contain references to chunking or token limits
         assert "chunk_size" not in config_str.lower()
-        assert "max_tokens" not in config_str.lower() or config_data.get("limits", {}).get(
-            "max_execution_time"
-        ), "Token management should be simplified"
+        assert "max_tokens" not in config_str.lower() or config_data.get(
+            "limits", {}
+        ).get("max_execution_time"), "Token management should be simplified"
 
     def test_quality_standards_preserved(self, config_data: Dict[str, Any]):
         """
         Ensure the configuration's quality section contains required language subsections and that Python specifies the expected tooling.
-        
+
         Parameters:
             config_data (dict): Parsed PR Agent YAML configuration.
-        
+
         Details:
             Verifies the top-level `quality` section includes `python` and `typescript`, and that the Python quality mapping contains a `linter` key and a `test_runner` set to `"pytest"`.
         """
@@ -134,11 +138,11 @@ class TestWorkflowSimplifications:
     def test_pr_agent_workflow_simplified(self, workflows_dir: Path):
         """
         Validate that the PR Agent GitHub Actions workflow is simplified.
-        
+
         Asserts that .github/workflows/pr-agent.yml exists, does not reference
         `context_chunker` or an inline `tiktoken` installation immediately adjacent to a
         `pip install`, and installs Python dependencies via a `requirements.txt` file.
-        
+
         Parameters:
             workflows_dir (Path): Path to the .github/workflows directory.
         """
@@ -150,7 +154,10 @@ class TestWorkflowSimplifications:
 
         # Should not contain context chunking references
         assert "context_chunker" not in content
-        assert "tiktoken" not in content or "pip install" not in content.split("tiktoken")[0][-200:]
+        assert (
+            "tiktoken" not in content
+            or "pip install" not in content.split("tiktoken")[0][-200:]
+        )
 
         # Should have simplified Python dependency installation
         assert "pip install" in content
@@ -198,7 +205,9 @@ class TestWorkflowSimplifications:
 
         # Check for simple messages (not elaborate multi-line messages)
         steps = workflow_data["jobs"]["greeting"]["steps"]
-        first_interaction_step = next((s for s in steps if "first-interaction" in str(s)), None)
+        first_interaction_step = next(
+            (s for s in steps if "first-interaction" in str(s)), None
+        )
 
         assert first_interaction_step is not None
         issue_msg = first_interaction_step["with"].get("issue-message", "")
@@ -264,7 +273,9 @@ class TestDeletedFilesImpact:
                 content = f.read()
 
             for deleted_ref in deleted_refs:
-                assert deleted_ref not in content, f"{workflow_file.name} still references deleted file: {deleted_ref}"
+                assert deleted_ref not in content, (
+                    f"{workflow_file.name} still references deleted file: {deleted_ref}"
+                )
 
 
 class TestRequirementsDevChanges:
@@ -285,14 +296,16 @@ class TestRequirementsDevChanges:
         with open(req_dev_path, "r") as f:
             content = f.read().lower()
 
-        assert "pyyaml" in content or "yaml" in content, "PyYAML should be in requirements-dev.txt"
+        assert "pyyaml" in content or "yaml" in content, (
+            "PyYAML should be in requirements-dev.txt"
+        )
 
     def test_no_tiktoken_requirement(self, req_dev_path: Path):
         """
         Check that the development requirements file does not contain the "tiktoken" package.
-        
+
         The test fails if the file at req_dev_path includes the substring "tiktoken" (case-insensitive).
-        
+
         Parameters:
             req_dev_path (Path): Path to the repository's requirements-dev.txt file.
         """
@@ -300,7 +313,9 @@ class TestRequirementsDevChanges:
             content = f.read().lower()
 
         # tiktoken should not be required anymore
-        assert "tiktoken" not in content, "tiktoken should be removed (no longer needed without context chunking)"
+        assert "tiktoken" not in content, (
+            "tiktoken should be removed (no longer needed without context chunking)"
+        )
 
     def test_essential_dev_dependencies_present(self, req_dev_path: Path):
         """Verify essential development dependencies are present."""
@@ -310,7 +325,9 @@ class TestRequirementsDevChanges:
         essential_deps = ["pytest", "pyyaml"]
 
         for dep in essential_deps:
-            assert dep in content, f"Essential dev dependency '{dep}' missing from requirements-dev.txt"
+            assert dep in content, (
+                f"Essential dev dependency '{dep}' missing from requirements-dev.txt"
+            )
 
 
 class TestGitignoreChanges:
@@ -330,13 +347,15 @@ class TestGitignoreChanges:
     def test_codacy_instructions_ignored(gitignore_path: Path):
         """
         Ensure the repository .gitignore contains the filename "codacy.instructions.md".
-        
+
         Checks the file at gitignore_path and fails the test if that filename is not present.
         """
         with open(gitignore_path, "r") as f:
             content = f.read()
 
-        assert "codacy.instructions.md" in content, "codacy.instructions.md should be in .gitignore"
+        assert "codacy.instructions.md" in content, (
+            "codacy.instructions.md should be in .gitignore"
+        )
 
     @staticmethod
     def test_test_artifacts_not_ignored(gitignore_path: Path):
@@ -350,15 +369,17 @@ class TestGitignoreChanges:
 
         # junit.xml should not be specifically ignored (removed from gitignore)
         # This allows test results to be tracked if needed
-        assert "test_*.db" not in content, "Test database patterns should not be in gitignore"
+        assert "test_*.db" not in content, (
+            "Test database patterns should not be in gitignore"
+        )
 
     @staticmethod
     def test_standard_ignores_present(gitignore_path: Path):
         """
         Assert that the repository .gitignore contains common standard ignore patterns.
-        
+
         Checks for the following patterns: "__pycache__", ".pytest_cache", "node_modules", and ".coverage".
-        
+
         Parameters:
             gitignore_path (Path): Path to the repository's .gitignore file.
         """
@@ -373,7 +394,9 @@ class TestGitignoreChanges:
         ]
 
         for pattern in standard_patterns:
-            assert pattern in content, f"Standard ignore pattern '{pattern}' should be in .gitignore"
+            assert pattern in content, (
+                f"Standard ignore pattern '{pattern}' should be in .gitignore"
+            )
 
 
 class TestCodacyInstructionsChanges:
@@ -388,15 +411,20 @@ class TestCodacyInstructionsChanges:
         Returns:
             Path: Path to `.github/instructions/codacy.instructions.md` within the repository.
         """
-        return Path(__file__).parent.parent.parent / ".github" / "instructions" / "codacy.instructions.md"
+        return (
+            Path(__file__).parent.parent.parent
+            / ".github"
+            / "instructions"
+            / "codacy.instructions.md"
+        )
 
     @staticmethod
     def test_codacy_instructions_simplified(codacy_instructions_path: Path):
         """
         Verify the Codacy instructions have been simplified and do not contain certain repository-specific or prescriptive phrases.
-        
+
         If the Codacy instructions file is missing the test is skipped. The test fails if the file contains both the literal strings "git remote -v" and "unless really necessary", indicating the presence of repository-specific git instructions and prescriptive language.
-        
+
         Parameters:
             codacy_instructions_path (Path): Path to .github/instructions/codacy.instructions.md
         """
@@ -415,7 +443,7 @@ class TestCodacyInstructionsChanges:
     def test_codacy_critical_rules_present(codacy_instructions_path: Path):
         """
         Verify that the Codacy instructions file contains required critical rules.
-        
+
         If the file exists, assert it includes the literal "codacy_cli_analyze" and the marker "CRITICAL". The test is skipped when the file is absent.
         """
         if not codacy_instructions_path.exists():
@@ -425,5 +453,7 @@ class TestCodacyInstructionsChanges:
             content = f.read()
 
         # Critical rules should be preserved
-        assert "codacy_cli_analyze" in content, "Critical Codacy CLI analyze rule should be present"
+        assert "codacy_cli_analyze" in content, (
+            "Critical Codacy CLI analyze rule should be present"
+        )
         assert "CRITICAL" in content, "Critical sections should be marked"
