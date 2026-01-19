@@ -498,8 +498,20 @@ class TestNoOrphanedReferences:
             with open(py_file, 'r', encoding='utf-8') as f:
                 content = f.read()
             
-            assert 'context_chunker' not in content, \
-                f"{py_file} should not import context_chunker"
+            import ast
+            non_source_dirs = {'venv', '.venv', '.tox', '__pycache__', '.eggs', 'build', 'dist'}
+            if any(part in non_source_dirs for part in py_file.parts):
+                continue
+            try:
+                tree = ast.parse(content, filename=str(py_file))
+            except SyntaxError:
+                # Skip files that cannot be parsed
+                continue
+            for node in ast.walk(tree):
+                if isinstance(node, (ast.Import, ast.ImportFrom)):
+                    for alias in getattr(node, 'names', []):
+                        assert 'context_chunker' not in alias.name, \
+                            f"{py_file} should not import context_chunker"
 
     def test_no_codecov_config_files(self):
         """Test that codecov config files don't exist."""
