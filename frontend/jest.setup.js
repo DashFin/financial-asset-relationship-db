@@ -45,10 +45,6 @@ global.IntersectionObserver = class IntersectionObserver {
    * Returns any queued IntersectionObserverEntry records.
    * @returns {Array} Always returns an empty array in this mock.
    */
-  /**
-   * Retrieves any buffered mutation records.
-   * @returns {Array} An array of mutation records, empty by default.
-   */
   static takeRecords () {
     return []
   }
