@@ -124,6 +124,18 @@ class TestGitignoreEssentialPatterns:
 
         assert len(unique_duplicates) == 0, \
             f"Found duplicate patterns: {unique_duplicates}"
+                    is_negated = line.startswith('!')
+                    core = line[1:] if is_negated else line
+                    # Normalize directory patterns by removing trailing slashes
+                    normalized_core = core.rstrip('/') if core.endswith('/') else core
+                    normalized = f'!{normalized_core}' if is_negated else normalized_core
+                    patterns.append(normalized)
+
+        duplicates = [p for p in patterns if patterns.count(p) > 1]
+        unique_duplicates = list(set(duplicates))
+
+        assert len(unique_duplicates) == 0, \
+            f"Found duplicate patterns: {unique_duplicates}"
                     patterns.append(line)
         
         duplicates = [p for p in patterns if patterns.count(p) > 1]
