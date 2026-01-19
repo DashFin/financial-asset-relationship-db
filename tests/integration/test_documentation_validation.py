@@ -273,7 +273,7 @@ class TestDocumentMaintainability:
         
         assert h1_count >= 1, "Should have at least one H1 heading"
         assert h2_count >= 3, "Should have at least 3 H2 headings for organization"
-    
+
     def test_sections_have_content(self, summary_content: str):
         """Test that major sections have substantial content."""
         sections = re.split(r'\n## ', summary_content)
@@ -290,27 +290,25 @@ class TestLinkValidation:
     """Test suite for link validation."""
 
     def test_internal_links_valid(self, summary_lines: List[str], summary_content: str):
-        """
-        Validates that every GitHub-style internal link in the Markdown points to an existing header.
+    ""
+    Validates that every GitHub-style internal link in the Markdown points to an existing header.
         
-        Checks internal links of the form [text](#anchor) in the full document content against the set of GitHub Flavored Markdown anchors derived from the document headers; the test fails if any anchor does not match an existing header.
+    Checks internal links of the form [text](#anchor) in the full document content against the set of GitHub Flavored Markdown anchors derived from the document headers; the test fails if any anchor does not match an existing header.
         
-        Parameters:
-            summary_lines (List[str]): The file split into lines; used to extract headers.
-            summary_content (str): The full file content; used to extract internal link targets.
-        """
-        import unicodedata
-
-        def _to_gfm_anchor(text: str) -> str:
+    Parameters:
+    summary_lines (List[str]): The file split into lines; used to extract headers.
+    summary_content (str): The full file content; used to extract internal link targets.
+    """
+    import unicodedata
+    
+    def _to_gfm_anchor(text: str) -> str:
+  
+    """
+    Convert a header string into a GitHub Flavored Markdown (GFM) anchor.
             
-            
-            # Lowercase
-            """
-            Convert a header string into a GitHub Flavored Markdown (GFM) anchor.
-            
-            The returned string is a lowercase, URL-friendly anchor suitable for internal Markdown links:
-            diacritics are removed, punctuation and special characters are stripped (except hyphens),
-            whitespace is collapsed to single hyphens, and leading/trailing hyphens are removed.
+    The returned string is a lowercase, URL-friendly anchor suitable for internal Markdown links:
+    diacritics are removed, punctuation and special characters are stripped (except hyphens),
+        whitespace is collapsed to single hyphens, and leading/trailing hyphens are removed.
             
             Parameters:
                 text (str): Header text to convert into an anchor.
