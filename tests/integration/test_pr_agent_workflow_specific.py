@@ -16,23 +16,29 @@ class TestPRAgentWorkflowDuplicateKeyRegression:
     @pytest.fixture
     def workflow_file(self) -> Path:
         """
-        Get the path to the GitHub Actions workflow file for the PR agent.
+        Return the Path to the PR agent GitHub Actions workflow file.
         
         Returns:
-            Path: Path to .github/workflows/pr-agent.yml
+            Path: Path pointing to '.github/workflows/pr-agent.yml'.
         """
         return Path('.github/workflows/pr-agent.yml')
     
     @pytest.fixture
     def workflow_content(self, workflow_file: Path) -> Dict[str, Any]:
         """
-        Parse the GitHub Actions workflow YAML file into a Python mapping.
+        Load and parse a GitHub Actions workflow YAML file into a Python mapping.
+        
+        Parses the given workflow file using yaml.safe_load and returns the resulting dictionary-like mapping.
         
         Parameters:
-            workflow_file (Path): Path to the workflow YAML file.
+            workflow_file (Path): Path to the workflow YAML file to read and parse.
         
         Returns:
-            Dict[str, Any]: Parsed YAML content as a dictionary.
+            Dict[str, Any]: The parsed YAML content as a Python mapping.
+        
+        Behavior:
+            - If the file does not exist, the test will be skipped via pytest.skip.
+            - If the YAML is invalid, the test will fail via pytest.fail with the YAML error message.
         """
         try:
             with open(workflow_file, 'r', encoding='utf-8') as f:
@@ -45,7 +51,12 @@ class TestPRAgentWorkflowDuplicateKeyRegression:
     @pytest.fixture
     def workflow_raw(self, workflow_file: Path) -> str:
         """
-        Return the raw text content of the workflow file for text-based validation.
+        Return the raw UTF-8 text of the given workflow file for text-based validation.
+        
+        Skips the test if the file does not exist.
+        
+        Parameters:
+            workflow_file (Path): Path to the workflow YAML file.
         
         Returns:
             content (str): Full file contents decoded as UTF-8.
@@ -57,7 +68,11 @@ class TestPRAgentWorkflowDuplicateKeyRegression:
             pytest.skip('Workflow file not found')
     
     def test_no_duplicate_step_name_setup_python(self, workflow_content: Dict[str, Any]):
-        """Test that there's no duplicate 'Setup Python' step name."""
+        """
+        Verify each job contains at most one step named "Setup Python".
+        
+        Asserts that for every job in the provided workflow content the number of steps with the name "Setup Python" is less than or equal to one; the assertion message includes the job name and the offending count.
+        """
         for job_name, job_config in workflow_content.get('jobs', {}).items():
             steps = job_config.get('steps', [])
             setup_python_count = sum(
@@ -115,10 +130,12 @@ class TestPRAgentWorkflowStructureValidation:
         @pytest.fixture(scope='module')
         def workflow_content() -> Dict[str, Any]:
             """
-            Load and parse the GitHub Actions workflow YAML at .github/workflows/pr-agent.yml.
-    
+            Load and parse the PR agent GitHub Actions workflow YAML into a dictionary.
+            
+            Skips the test if the workflow file is missing and fails the test if the YAML is invalid.
+            
             Returns:
-                workflow (Dict[str, Any]): Parsed YAML content of the workflow file as a dictionary.
+                Parsed workflow content as a dictionary (mapping YAML keys to Python values).
             """
             try:
                 with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
@@ -131,10 +148,13 @@ class TestPRAgentWorkflowStructureValidation:
         @pytest.fixture(scope='module')
         def pr_agent_job(workflow_content: Dict[str, Any]) -> Dict[str, Any]:
             """
-            Retrieve the 'pr-agent-trigger' job configuration from the workflow file.
-    
+            Get the configuration mapping for the 'pr-agent-trigger' job from a parsed workflow mapping.
+            
+            Parameters:
+                workflow_content (Dict[str, Any]): Parsed GitHub Actions workflow content as a mapping (typically from yaml.safe_load).
+            
             Returns:
-                Dict[str, Any]: Mapping representing the `pr-agent-trigger` job as defined in .github/workflows/pr-agent.yml
+                Dict[str, Any]: The mapping representing the `pr-agent-trigger` job configuration.
             """
             return workflow_content['jobs']['pr-agent-trigger']
 
@@ -142,10 +162,10 @@ class TestPRAgentWorkflowStructureValidation:
     
     def test_has_pr_agent_trigger_job(self, workflow_content: Dict[str, Any]):
         """
-        Check the workflow defines a top-level job named "pr-agent-trigger".
+        Assert the workflow defines a top-level job named "pr-agent-trigger".
         
         Parameters:
-            workflow_content (Dict[str, Any]): Parsed YAML content of the workflow file.
+            workflow_content (Dict[str, Any]): Parsed workflow YAML as a mapping of the workflow file.
         """
         assert 'jobs' in workflow_content
         assert 'pr-agent-trigger' in workflow_content['jobs'], \
@@ -194,10 +214,16 @@ class TestPRAgentWorkflowSetupSteps:
     @pytest.fixture
     def pr_agent_job(self) -> Dict[str, Any]:
         """
-        Retrieve the 'pr-agent-trigger' job configuration from the workflow file.
+        Return the 'pr-agent-trigger' job configuration from .github/workflows/pr-agent.yml.
+        
+        Reads and parses the workflow file and returns the mapping under `jobs -> pr-agent-trigger`.
         
         Returns:
-            Dict[str, Any]: Mapping representing the `pr-agent-trigger` job as defined in .github/workflows/pr-agent.yml
+            Dict[str, Any]: Mapping for the `pr-agent-trigger` job.
+        
+        Raises:
+            Skips the test via pytest.skip if the workflow file is not found.
+            Fails the test via pytest.fail if the workflow YAML cannot be parsed.
         """
         try:
             with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
@@ -210,10 +236,10 @@ class TestPRAgentWorkflowSetupSteps:
     
     def test_checkout_step_exists(self, pr_agent_job: Dict[str, Any]):
         """
-        Assert the job contains at least one checkout step (uses `actions/checkout`).
+        Check that the job contains at least one checkout step that uses `actions/checkout`.
         
         Parameters:
-            pr_agent_job (Dict[str, Any]): The job dictionary from the parsed workflow YAML; the function inspects its `steps` list.
+            pr_agent_job (Dict[str, Any]): Parsed job dictionary from the workflow YAML; inspected for a `steps` list where at least one step's `uses` starts with `actions/checkout`.
         """
         steps = pr_agent_job.get('steps', [])
         checkout_steps = [
@@ -224,9 +250,10 @@ class TestPRAgentWorkflowSetupSteps:
     
     def test_setup_python_exists(self, pr_agent_job: Dict[str, Any]):
         """
-        Verify the job contains exactly one step named "Setup Python".
+        Assert the job contains exactly one step named "Setup Python".
         
-        Asserts that the job's 'steps' list includes a single step with name "Setup Python".
+        Raises:
+            AssertionError: If no step or more than one step with the name "Setup Python" is present in the job's steps.
         """
         steps = pr_agent_job.get('steps', [])
         python_steps = [
@@ -237,7 +264,7 @@ class TestPRAgentWorkflowSetupSteps:
     
     def test_setup_nodejs_exists(self, pr_agent_job: Dict[str, Any]):
         """
-        Assert the job contains at least one step named "Setup Node.js".
+        Verify the job contains at least one step named "Setup Node.js".
         
         Raises:
             AssertionError: If no step named "Setup Node.js" is present.
@@ -259,7 +286,14 @@ class TestPRAgentWorkflowSetupSteps:
                     f"Expected Python version '3.11', got '{version}'"
     
     def test_nodejs_version_is_18(self, pr_agent_job: Dict[str, Any]):
-        """Test that Node.js 18 is specified."""
+        """
+        Asserts the pr-agent-trigger job specifies Node.js version 18 for its "Setup Node.js" step.
+        
+        Checks the job's steps for one named "Setup Node.js" and verifies its `with.node-version` is exactly "18".
+        
+        Parameters:
+            pr_agent_job (dict): Mapping representing the `pr-agent-trigger` job configuration from the workflow YAML.
+        """
         steps = pr_agent_job.get('steps', [])
         for step in steps:
             if step.get('name') == 'Setup Node.js':
@@ -300,10 +334,16 @@ class TestPRAgentWorkflowDependencyInstallation:
     @pytest.fixture
     def pr_agent_job(self) -> Dict[str, Any]:
         """
-        Retrieve the 'pr-agent-trigger' job configuration from the workflow file.
+        Return the 'pr-agent-trigger' job configuration from .github/workflows/pr-agent.yml.
+        
+        Reads and parses the workflow file and returns the mapping under `jobs -> pr-agent-trigger`.
         
         Returns:
-            Dict[str, Any]: Mapping representing the `pr-agent-trigger` job as defined in .github/workflows/pr-agent.yml
+            Dict[str, Any]: Mapping for the `pr-agent-trigger` job.
+        
+        Raises:
+            Skips the test via pytest.skip if the workflow file is not found.
+            Fails the test via pytest.fail if the workflow YAML cannot be parsed.
         """
         try:
             with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
@@ -362,6 +402,12 @@ class TestPRAgentWorkflowTestingSteps:
     @pytest.fixture
     def pr_agent_job(self) -> Dict[str, Any]:
 
+        """
+        Retrieve the 'pr-agent-trigger' job configuration from the parsed workflow content.
+        
+        Returns:
+            job (Dict[str, Any]): Mapping representing the 'pr-agent-trigger' job from the workflow YAML. Tests may be skipped if the workflow file is missing or invalid.
+        """
         steps = pr_agent_job.get('steps', [])
         test_steps = [
             step for step in steps
@@ -405,10 +451,12 @@ class TestPRAgentWorkflowPermissions:
     @pytest.fixture
     def workflow_content(self) -> Dict[str, Any]:
         """
-        Load and parse the GitHub Actions workflow YAML at .github/workflows/pr-agent.yml.
+        Load and parse the PR Agent GitHub Actions workflow YAML into a dictionary.
+        
+        Skips the test if the workflow file is missing and fails the test if the YAML is invalid.
         
         Returns:
-            workflow (Dict[str, Any]): Parsed YAML content of the workflow file as a dictionary.
+            workflow (Dict[str, Any]): Parsed YAML content of '.github/workflows/pr-agent.yml' as a Python dictionary.
         """
         try:
             with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
@@ -440,9 +488,10 @@ class TestPRAgentWorkflowPermissions:
     
     def test_auto_merge_job_has_pr_write(self, workflow_content: Dict[str, Any]):
         """
-        Verify the auto-merge-check job defines a `pull-requests` permission entry.
+        Ensure the `auto-merge-check` job defines a `pull-requests` permission.
         
-        Asserts that the job's permissions mapping includes the `pull-requests` key.
+        Raises:
+            AssertionError: if the `pull-requests` permission is not present on the job.
         """
         job = workflow_content['jobs']['auto-merge-check']
         permissions = job.get('permissions', {})
@@ -456,10 +505,12 @@ class TestPRAgentWorkflowConditionals:
     @pytest.fixture
     def workflow_content(self) -> Dict[str, Any]:
         """
-        Load and parse the GitHub Actions workflow YAML at .github/workflows/pr-agent.yml.
+        Load and parse the PR Agent GitHub Actions workflow YAML into a dictionary.
+        
+        Skips the test if the workflow file is missing and fails the test if the YAML is invalid.
         
         Returns:
-            workflow (Dict[str, Any]): Parsed YAML content of the workflow file as a dictionary.
+            workflow (Dict[str, Any]): Parsed YAML content of '.github/workflows/pr-agent.yml' as a Python dictionary.
         """
         try:
             with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
@@ -516,10 +567,12 @@ class TestPRAgentWorkflowSecurityBestPractices:
     @pytest.fixture
     def workflow_raw(self) -> str:
         """
-        Load the raw text content of the '.github/workflows/pr-agent.yml' workflow file.
+        Return the raw YAML text of the '.github/workflows/pr-agent.yml' workflow file.
+        
+        If the workflow file is missing, the test is skipped.
         
         Returns:
-            workflow_raw (str): Raw YAML text of the pr-agent workflow file.
+            str: Raw YAML text of the pr-agent workflow file.
         """
         try:
             with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
@@ -536,10 +589,12 @@ class TestPRAgentWorkflowSecurityBestPractices:
     
     def test_no_hardcoded_tokens(self, workflow_raw: str):
         """
-        Ensure the workflow text contains no hardcoded token patterns.
+        Fail the test if the workflow text contains common hardcoded secret token patterns.
+        
+        Searches the raw workflow YAML for known token formats (GitHub, OpenAI, Slack, npm, etc.) and asserts that none are present; if a match is found the assertion message includes the matching pattern.
         
         Parameters:
-            workflow_raw (str): Raw YAML text of the workflow file to scan for token patterns.
+            workflow_raw (str): Raw workflow YAML text to scan for token patterns.
         """
         # Check for common token patterns
         token_patterns = [
@@ -619,10 +674,12 @@ class TestPRAgentWorkflowGitHubScriptUsage:
     @pytest.fixture
     def workflow_content(self) -> Dict[str, Any]:
         """
-        Load and parse the GitHub Actions workflow YAML at .github/workflows/pr-agent.yml.
+        Load and parse the PR Agent GitHub Actions workflow YAML into a dictionary.
+        
+        Skips the test if the workflow file is missing and fails the test if the YAML is invalid.
         
         Returns:
-            workflow (Dict[str, Any]): Parsed YAML content of the workflow file as a dictionary.
+            workflow (Dict[str, Any]): Parsed YAML content of '.github/workflows/pr-agent.yml' as a Python dictionary.
         """
         try:
             with open('.github/workflows/pr-agent.yml', 'r', encoding='utf-8') as f:
@@ -633,7 +690,12 @@ class TestPRAgentWorkflowGitHubScriptUsage:
             pytest.fail(f'Invalid YAML: {e}')
     
     def test_uses_github_script_action(self, workflow_content: Dict[str, Any]):
-        """Test that workflow uses github-script action."""
+        """
+        Verify the workflow includes the actions/github-script action.
+        
+        Parameters:
+            workflow_content (Dict[str, Any]): Parsed GitHub Actions workflow YAML as a dictionary.
+        """
         workflow_str = str(workflow_content)
         assert 'github-script' in workflow_str, \
             "Workflow should use actions/github-script"
@@ -647,4 +709,3 @@ class TestPRAgentWorkflowGitHubScriptUsage:
                     with_config = step.get('with', {})
                     assert 'script' in with_config, \
                         f"github-script step in job '{job_name}' should have script content"
-

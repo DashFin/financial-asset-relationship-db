@@ -939,7 +939,11 @@ class TestExtractValuationRelationshipsUpdates:
     """Test updates to _extract_valuation_relationships method."""
     
     def test_price_to_book_formula_description(self):
-        """Test that price-to-book formula has concise description."""
+        """
+        Verify the Price-to-Book valuation formula has a single-line description that mentions comparing market price to book value.
+        
+        The test asserts the formula description contains no newline characters and includes the phrase indicating a comparison of market price to book value (case-insensitive).
+        """
         from src.analysis.formulaic_analysis import FormulaicdAnalyzer
         from src.logic.asset_graph import AssetRelationshipGraph
         from src.models.financial_models import Equity, AssetClass
@@ -1065,4 +1069,3 @@ class TestFormulaFormattingConsistency:
         for formula in all_formulas:
             # Descriptions should be concise (no multiple line breaks)
             assert formula.description.count('\n') <= 1
-

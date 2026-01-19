@@ -76,7 +76,12 @@ class TestMarkdownFormatting:
     """Test suite for markdown formatting validation."""
     
     def test_headings_properly_formatted(self, summary_lines: List[str]):
-        """Test that headings follow proper markdown format."""
+        """
+        Validate that Markdown headings include a space after the leading '#' characters for levels 1–6.
+        
+        Parameters:
+            summary_lines (List[str]): Lines of the summary file to inspect for heading formatting.
+        """
         heading_lines = [line for line in summary_lines if line.startswith('#')]
         for line in heading_lines:
             # Heading should have space after hash marks
@@ -111,12 +116,15 @@ class TestMarkdownFormatting:
         assert open_block is False, "Code blocks not properly closed or mismatched triple backticks detected"
     def test_lists_properly_formatted(self, summary_lines: List[str]):
         """
-        Validate that Markdown bullet list items use even indentation (multiples of two spaces).
+        Ensure Markdown bullet list items use even indentation (multiples of two spaces).
         
-        Scans the provided file lines for list items starting with '-', '*' or '+' and asserts each item's leading space count is divisible by two; raises an AssertionError for any list item with odd indentation.
+        Scans lines that start a list item with '-', '*' or '+' and asserts each item's leading space count is divisible by two.
         
         Parameters:
             summary_lines (List[str]): Lines of the Markdown summary file to inspect.
+        
+        Raises:
+            AssertionError: If any list item has an odd number of leading spaces.
         """
         list_lines = [line for line in summary_lines if re.match(r'^\s*[-*+] ', line)]
         if list_lines:
@@ -175,7 +183,12 @@ class TestCodeExamples:
     """Test suite for code example validation."""
     
     def test_pytest_commands_valid(self, summary_content: str):
-        """Test that pytest commands are valid."""
+        """
+        Verify the document includes at least one code block with a pytest command and that each such code block contains the literal "pytest".
+        
+        Parameters:
+        	summary_content (str): Full text of the summary document to scan for fenced code blocks and pytest commands.
+        """
         # Extract code blocks
         code_blocks = re.findall(r'```(?:bash|shell)?\n(.*?)```', summary_content, re.DOTALL)
         pytest_commands = [
@@ -190,15 +203,15 @@ class TestCodeExamples:
     
     def test_file_paths_in_examples_exist(self, summary_content: str):
         """
-        Verify that test file paths referenced in documentation examples exist in the repository.
+        Check that test file paths shown in documentation examples exist in the repository.
         
-        Searches the provided documentation content for occurrences of paths matching the pattern
-        `tests/integration/test_<name>.py`, resolves each match against the repository root (three
-        levels up from this test file) and fails with a single consolidated message listing any
-        missing files.
+        Searches the provided documentation content for occurrences of paths matching
+        tests/integration/test_<name>.py and asserts that each referenced file exists on disk.
+        If any referenced files are missing, the test fails with a single consolidated message
+        listing each missing path and its resolved filesystem location.
         
         Parameters:
-            summary_content (str): The raw content of the documentation file to scan for referenced paths.
+            summary_content (str): Raw documentation content to scan for referenced test file paths.
         """
         # Look for test file references
         test_file_pattern = r'tests/integration/test_[\w.-]+\.py'
@@ -253,7 +266,14 @@ class TestDocumentMaintainability:
     """Test suite for document maintainability."""
     
     def test_line_length_reasonable(self, summary_lines: List[str]):
-        """Test that lines aren't excessively long."""
+        """
+        Check that fewer than 10% of non-URL lines exceed 120 characters.
+        
+        Scans the provided lines, ignoring lines that start with "http" after stripping, and asserts that the count of lines longer than 120 characters is less than 10% of the total lines. This helps keep the document's line lengths reasonable for readability and maintenance.
+        
+        Parameters:
+            summary_lines (List[str]): Lines of the summary file to evaluate.
+        """
         long_lines = [
             (i + 1, line) for i, line in enumerate(summary_lines)
             if len(line) > 120 and not line.strip().startswith('http')
@@ -264,9 +284,9 @@ class TestDocumentMaintainability:
     
     def test_has_clear_structure(self, summary_content: str):
         """
-        Verify the document contains a clear hierarchical heading structure.
+        Ensure the document has a clear hierarchical heading structure: at least one level-1 heading and at least three level-2 headings.
         
-        Requires at least one level-1 heading (H1) and at least three level-2 headings (H2); the test fails if these counts are not met.
+        The test fails if the document contains fewer than one H1 or fewer than three H2 headings.
         """
         h1_count = len(re.findall(r'^# ', summary_content, re.MULTILINE))
         h2_count = len(re.findall(r'^## ', summary_content, re.MULTILINE))
@@ -291,13 +311,13 @@ class TestLinkValidation:
 
     def test_internal_links_valid(self, summary_lines: List[str], summary_content: str):
         """
-        Validates that every GitHub-style internal link in the Markdown points to an existing header.
+        Ensure every GitHub-style internal link ([text](#anchor)) points to an existing header.
         
-        Checks internal links of the form [text](#anchor) in the full document content against the set of GitHub Flavored Markdown anchors derived from the document headers; the test fails if any anchor does not match an existing header.
+        Extracts headers from summary_lines, derives GitHub Flavored Markdown (GFM) anchors, and asserts that every internal link target found in summary_content matches one of those anchors.
         
         Parameters:
-            summary_lines (List[str]): The file split into lines; used to extract headers.
-            summary_content (str): The full file content; used to extract internal link targets.
+            summary_lines (List[str]): File content split into lines; used to extract headers.
+            summary_content (str): Full file content as a single string; used to find internal link targets.
         """
         import unicodedata
 
@@ -306,15 +326,13 @@ class TestLinkValidation:
             """
             Convert a header string into a GitHub Flavored Markdown (GFM) anchor.
             
-            The returned string is a lowercase, URL-friendly anchor suitable for internal Markdown links:
-            diacritics are removed, punctuation and special characters are stripped (except hyphens),
-            whitespace is collapsed to single hyphens, and leading/trailing hyphens are removed.
+            The result is a lowercase, URL-friendly anchor: diacritics are removed, punctuation and special characters are stripped except hyphens, whitespace is collapsed to single hyphens, multiple hyphens are collapsed, and leading/trailing hyphens are removed.
             
             Parameters:
                 text (str): Header text to convert into an anchor.
             
             Returns:
-                anchor (str): A GFM-compatible anchor string for use in internal links (e.g. "my-section-title").
+                anchor (str): GFM-compatible anchor string suitable for internal Markdown links (e.g., "my-section-title").
             """
             s = text.strip().lower()
             # Normalize unicode to NFKD and remove diacritics

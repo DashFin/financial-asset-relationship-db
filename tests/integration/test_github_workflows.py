@@ -155,12 +155,12 @@ class TestWorkflowStructure:
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_has_triggers(self, workflow_file: Path):
         """
-        Verify that the workflow file defines at least one trigger via the top-level 'on' key.
+        Ensure the workflow YAML defines at least one trigger via the top-level 'on' key.
         
-        Asserts that the parsed YAML is a mapping and contains a top-level 'on' entry. Raises an AssertionError if the file does not parse to a mapping or if the 'on' key is missing.
+        Asserts that the file parses to a mapping and contains the top-level 'on' entry.
         
         Parameters:
-            workflow_file (Path): Path to the workflow YAML file being tested.
+            workflow_file (Path): Path to the workflow YAML file under test.
         """
         config = load_yaml_safe(workflow_file)
         assert isinstance(config, dict), (
@@ -356,10 +356,13 @@ class TestPrAgentWorkflow:
     
     def test_pr_agent_review_runs_on_ubuntu(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Validate the pr-agent workflow defines a pr-agent-trigger job and that it runs on a supported Ubuntu runner.
+        Ensure the pr-agent workflow contains a 'pr-agent-trigger' job configured to run on a supported Ubuntu runner.
         
         Parameters:
-            pr_agent_workflow (Dict[str, Any]): Parsed YAML mapping for the pr-agent workflow file.
+            pr_agent_workflow (Dict[str, Any]): Parsed mapping of the pr-agent workflow YAML.
+        
+        Raises:
+            AssertionError: If the 'pr-agent-trigger' job is missing or its 'runs-on' value is not 'ubuntu-latest', 'ubuntu-22.04', or 'ubuntu-20.04'.
         """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         runs_on = review_job.get("runs-on", "")
@@ -393,10 +396,9 @@ class TestPrAgentWorkflow:
     
     def test_pr_agent_checkout_has_token(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Validate that each actions/checkout step in the pr-agent-trigger job specifies a non-empty token in its `with` mapping.
+        Ensure every actions/checkout step in the `pr-agent-trigger` job specifies a non-empty `with.token`.
         
-        Parameters:
-            pr_agent_workflow (Dict[str, Any]): Parsed workflow mapping for `pr-agent.yml`.
+        This assertion verifies that each checkout step's `with` mapping contains a non-empty string for `token` (for example, `${{ secrets.GITHUB_TOKEN }}`), improving workflow security.
         """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
@@ -440,10 +442,10 @@ class TestPrAgentWorkflow:
     
     def test_pr_agent_python_version(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Verify that every actions/setup-python step in the "pr-agent-trigger" job specifies the Python version "3.11".
+        Ensure every actions/setup-python step in the 'pr-agent-trigger' job specifies Python version 3.11.
         
         Parameters:
-            pr_agent_workflow (dict): Parsed workflow mapping for pr-agent.yml.
+            pr_agent_workflow (dict): Parsed workflow mapping for pr-agent.yml (top-level workflow mapping).
         """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
@@ -464,10 +466,10 @@ class TestPrAgentWorkflow:
     
     def test_pr_agent_node_version(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Require that each `actions/setup-node` step in the `pr-agent-trigger` job sets `node-version` to `18`.
+        Ensure each actions/setup-node step in the pr-agent-trigger job sets node-version to "18".
         
         Parameters:
-            pr_agent_workflow (Dict[str, Any]): Parsed YAML mapping of the pr-agent workflow (contents of pr-agent.yml).
+            pr_agent_workflow (Dict[str, Any]): Parsed YAML mapping of the pr-agent workflow (contents of pr-agent.yml); expected to include a `jobs.pr-agent-trigger.steps` sequence.
         """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
@@ -501,9 +503,12 @@ class TestPrAgentWorkflow:
     
     def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
         """
-        Validate fetch-depth values for actions/checkout steps in the pr-agent-trigger job.
+        Ensure checkout steps in the pr-agent-trigger job have valid fetch-depth values when specified.
         
-        If a checkout step includes a `fetch-depth` key in its `with` mapping, assert the value is an integer or `0`.
+        If an actions/checkout step within the pr-agent-trigger job includes a `with.fetch-depth` key, this test asserts the value is an integer or the integer `0`. Fails with "fetch-depth should be an integer" when the value is invalid.
+        
+        Parameters:
+            pr_agent_workflow (Dict[str, Any]): Parsed YAML mapping for the pr-agent workflow (pr-agent.yml).
         """
         review_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = review_job.get("steps", [])
@@ -1175,12 +1180,12 @@ class TestWorkflowEnvAndSecrets:
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_env_vars_naming_convention(self, workflow_file: Path):
         """
-        Validate that environment variable names in a workflow follow the UPPER_CASE naming convention.
+        Validate that environment variable keys in a workflow use UPPER_CASE and contain only letters, digits, and underscores.
         
-        Checks environment mappings at the workflow top level and within each job, and prints a MAINTAINABILITY message listing any environment variable keys that contain characters other than uppercase letters, digits or underscores, or that are not entirely upper-case.
+        Checks environment mappings at the workflow top level and within each job; when invalid keys are found, emits a MAINTAINABILITY message that lists the offending keys and the workflow file name.
         
         Parameters:
-            workflow_file (Path): Path to the workflow YAML file being tested; used only for reporting in messages.
+            workflow_file (Path): Path to the workflow YAML file used for reporting in messages.
         """
         config = load_yaml_safe(workflow_file)
 
@@ -1921,7 +1926,11 @@ class TestTestSuiteCompleteness:
     """Meta-test to ensure test suite is comprehensive."""
     
     def test_all_workflow_files_tested(self):
-        """Verify that all workflow files are included in tests."""
+        """
+        Ensure every workflow file in the repository's workflows directory is discoverable and has a YAML extension.
+        
+        Asserts that at least one workflow file is found, each listed path exists, and each file uses the `.yml` or `.yaml` extension.
+        """
         workflow_files = get_workflow_files()
         assert len(workflow_files) > 0, "Should find at least one workflow file"
         
@@ -2031,7 +2040,11 @@ class TestPRAgentWorkflowSpecific:
                     )
 
     def test_pr_agent_uses_actions_checkout(self):
-        """Test that pr-agent workflow uses actions/checkout correctly."""
+        """
+        Ensure every job in .github/workflows/pr-agent.yml contains at least one actions/checkout step and validate any checkout `fetch-depth`.
+        
+        Verifies that the pr-agent workflow file exists, that each job has at least one step using `actions/checkout`, and that when a checkout step includes a `with.fetch-depth` value it is either `0` or a positive integer.
+        """
         pr_agent_file = Path(".github/workflows/pr-agent.yml")
         assert pr_agent_file.exists(), "pr-agent.yml workflow file not found"
         
@@ -2253,9 +2266,9 @@ class TestWorkflowSecurityEnhancements:
 
     def test_workflows_setup_actions_pinned_to_major(self):
         """
-        Ensure workflow steps using GitHub Actions from the `actions/` namespace are pinned to a major version or a full commit SHA.
+        Checks that workflow steps referencing actions in the `actions/` namespace are pinned to a major version or a full 40-character commit SHA.
         
-        This test scans YAML files in .github/workflows and fails if any step references an `actions/...` action without a version tag such as `@v1` (major) or a full 40-character commit SHA.
+        Scans YAML files under .github/workflows and asserts failure when any step's `uses` reference to an `actions/...` action does not include a major version tag (e.g., `@v1`) or a full commit SHA (40 hex characters), causing the test to fail with an AssertionError that identifies the workflow file, job, and offending action.
         """
         workflow_dir = Path(".github/workflows")
         assert workflow_dir.exists(), "Workflows directory not found"
@@ -2321,16 +2334,14 @@ class TestRequirementsDevValidation:
 
     def test_requirements_dev_valid_format(self):
         """
-        Validate that requirements-dev.txt follows expected simple pip requirement formatting.
+        Validate that requirements-dev.txt uses a simple, well-formed pip requirement format.
         
-        Checks performed:
-        - The file exists and is readable.
-        - Blank lines and lines starting with '#' are ignored.
+        Verifies that the file exists and is readable, ignores blank lines and comment lines, and enforces these line-level rules:
         - Non-empty requirement lines must contain a package specification.
-        - A requirement may use '=='; no more than one '==' is allowed on a single line.
-        - Lines containing spaces will emit a warning unless the space appears inside quotes or the line contains extras (e.g. package[extra]).
+        - At most one occurrence of the exact equality operator `==` is allowed per line.
+        - Lines should not contain unquoted spaces unless they include extras (e.g., `package[extra]`).
         
-        Assertion failures indicate concrete line-level problems (for example, a missing file or malformed requirement).
+        Assertion failures indicate concrete line-level problems (missing file or malformed requirement); unexpected spaces emit a warning.
         """
         req_file = Path("requirements-dev.txt")
         assert req_file.exists(), "requirements-dev.txt not found"
@@ -2379,7 +2390,11 @@ class TestRequirementsDevValidation:
         )
 
     def test_requirements_dev_no_conflicts_with_main(self):
-        """Test that dev requirements don't conflict with main requirements."""
+        """
+        Ensure dev requirements do not conflict with main requirements.
+        
+        Skips the test if either requirements-dev.txt or requirements.txt is missing. Parses each requirements file by ignoring blank lines and comments, normalizing package names to lowercase and removing extras (e.g., [extras]) when identifying packages, and retaining the original requirement line as the package spec. Fails if a package appears in both files but has different requirement lines (reported as package: dev='...' vs main='...').
+        """
         req_file = Path("requirements-dev.txt")
         main_req_file = Path("requirements.txt")
         
@@ -2388,13 +2403,13 @@ class TestRequirementsDevValidation:
         
         def parse_requirements(file_path):
             """
-            Extract package entries from a pip requirements file.
+            Parse a pip-style requirements file and collect package entries.
             
             Parameters:
                 file_path (str): Path to a requirements-style file (one requirement per line).
             
             Returns:
-                dict: Mapping from package name (lowercase, extras removed) to the original requirement line for each non-empty, non-comment entry. Blank lines and lines starting with `#` are ignored; version specifiers such as `==`, `>=`, `<=` are stripped when deriving the package name.
+                dict: Mapping of package name to the original requirement line. Package names are lowercased, extras (bracketed parts) are removed, and any version specifiers are stripped when deriving the name. Blank lines and lines starting with `#` are ignored.
             """
             packages = {}
             with open(file_path, 'r') as f:
@@ -2802,9 +2817,9 @@ class TestRequirementsDevPyYAML:
 
     def test_pyyaml_importable(self):
         """
-        Verify PyYAML can be imported and can round-trip a simple Python mapping.
+        Assert that the PyYAML package is importable and can round-trip a simple mapping.
         
-        Skips the test if PyYAML is not installed.
+        Skips the test if PyYAML is not installed; otherwise serializes a small mapping to YAML and verifies that loading it returns the original mapping.
         """
         try:
             import yaml

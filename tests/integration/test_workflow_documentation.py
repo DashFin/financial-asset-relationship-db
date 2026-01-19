@@ -43,10 +43,12 @@ class TestDocumentationExists:
 @pytest.fixture(scope='session')
 def doc_content() -> str:
     """
-    Load the documentation file into a single string for use by tests.
+    Load the entire documentation file content as a single string for use by tests.
+    
+    If the file cannot be found or read, fails the test session via pytest.fail with a descriptive message.
     
     Returns:
-        content (str): The entire contents of the documentation file at DOC_FILE.
+        The full text contents of DOC_FILE.
     """
     try:
         with open(DOC_FILE, 'r', encoding='utf-8') as f:
@@ -60,16 +62,16 @@ def doc_content() -> str:
 @pytest.fixture(scope='session')
 def doc_lines(doc_content: str) -> List[str]:
     """
-    Return the documentation content as a list of lines preserving original line endings.
+    Split documentation content into lines while preserving original line endings.
     
     Parameters:
-        doc_content (str): The full documentation text to split.
+        doc_content (str): Full documentation text to split.
     
     Returns:
-        List[str]: The documentation split into lines with line ending characters preserved.
+        List[str]: Lines of the documentation with original line ending characters preserved.
     
     Raises:
-        pytest.fail: Fails the test session if `doc_content` is empty.
+        pytest.fail: If `doc_content` is empty, fails the test session.
     """
     if not doc_content:
         pytest.fail("Loaded documentation content is empty.")
@@ -126,4 +128,3 @@ from typing import List, Set
         """Test that document has sufficient number of sections."""
         assert len(section_headers) >= 5, \
             f"Document should have at least 5 major sections, found {len(section_headers)}"
-

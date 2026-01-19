@@ -833,7 +833,11 @@ class TestUserRepositoryInstanceMethodConversions:
     
     @pytest.fixture
     def mock_db_setup(self):
-        """Set up mock database for testing."""
+        """
+        Prepare an ephemeral in-memory SQLite database and initialize its schema for tests.
+        
+        Sets the DATABASE_URL environment variable to use an in-memory SQLite database, runs the test schema initialization, and yields control so tests can run against the prepared database. No explicit teardown is required because the database exists only in memory.
+        """
         import os
         os.environ["DATABASE_URL"] = "sqlite:///:memory:"
         from api.database import initialize_schema
@@ -1067,5 +1071,4 @@ class TestAuthModuleDocstringUpdates:
         
         assert UserRepository.has_users.__doc__ is not None
         assert "Check whether any user credential records exist" in UserRepository.has_users.__doc__
-
 
