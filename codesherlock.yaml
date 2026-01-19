@@ -8,7 +8,16 @@ target_branches: ["main", "develop"]
 # You can remove any of these to customize the review.
 # Adding items outside this list won't affect the review.
 # If this section is removed, all 7 default characteristics will be used.
-preferred_characteristics: ["Modularity", "Resource Utilization", "Exception Handling", "Monitoring and Logging", "Dependency Injection", "Code Injection", "Input Validation"]
+preferred_characteristics:
+  [
+    "Modularity",
+    "Resource Utilization",
+    "Exception Handling",
+    "Monitoring and Logging",
+    "Dependency Injection",
+    "Code Injection",
+    "Input Validation",
+  ]
 
 # Optional: Add your own custom rules or things to check for in the code.
 # Use the format shown below. These lines are examples and currently commented out.
