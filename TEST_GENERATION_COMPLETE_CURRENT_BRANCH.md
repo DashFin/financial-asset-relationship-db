@@ -134,7 +134,7 @@ Comprehensive unit and integration tests have been successfully generated for th
 | Metric | Value |
 |--------|-------|
 | **New Test Files Created** | 2 |
-| **Total Lines of Test Code** | 1,128 lines |
+| **Total Lines of Test Code** | 688 lines |
 | **Total Test Classes** | 16 |
 | **Total Test Methods** | 75+ |
 | **Coverage Areas** | Configuration, Workflows, Simplifications |
