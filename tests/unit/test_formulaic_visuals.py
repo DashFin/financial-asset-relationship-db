@@ -537,7 +537,7 @@ class TestFormulaicVisualsStringFormatting:
         """Verify that formula hover text is properly formatted without line breaks."""
         from src.visualizations.formulaic_visuals import FormulaicVisualizer
 
-        visualizer = FormulaicVisualizer()
+        FormulaicVisualizer()
 
         for formula in sample_formulas:
             # Generate hover text (simulating internal logic)
