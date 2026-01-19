@@ -14,12 +14,14 @@ from typing import Any, Dict, List, Tuple
 
 try:
     import yaml
+
     YAML_AVAILABLE = True
 except ImportError:
     YAML_AVAILABLE = False
 
 try:
     import tiktoken
+
     TIKTOKEN_AVAILABLE = True
 except ImportError:
     TIKTOKEN_AVAILABLE = False
@@ -27,7 +29,6 @@ except ImportError:
 
 class ContextChunker:
     """Handles chunking of PR context to fit within token limits."""
-
 
     def __init__(self, config_path: str = ".github/pr-agent-config.yml") -> None:
         """Initialize the context chunker with configuration."""
@@ -40,25 +41,35 @@ class ContextChunker:
                 with cfg_file.open("r", encoding="utf-8") as f:
                     self.config = yaml.safe_load(f) or {}
             except Exception as e:
-                print(f"Warning: failed to load config from {config_path}: {e}", file=sys.stderr)
+                print(
+                    f"Warning: failed to load config from {config_path}: {e}",
+                    file=sys.stderr,
+                )
                 self.config = {}
 
         # Read agent context settings with safe defaults
         agent_cfg = (self.config.get("agent") or {}).get("context") or {}
         self.max_tokens: int = int(agent_cfg.get("max_tokens", 32000))
-        self.chunk_size: int = int(agent_cfg.get("chunk_size", max(1, self.max_tokens - 4000)))
+        self.chunk_size: int = int(
+            agent_cfg.get("chunk_size", max(1, self.max_tokens - 4000))
+        )
 
         # Prepare priority order
         limits_cfg = (self.config.get("limits") or {}).get("fallback") or {}
-        self.priority_order: List[str] = limits_cfg.get("priority_order", [
-            "review_comments",
-            "test_failures",
-            "changed_files",
-            "ci_logs",
-            "full_diff",
-        ])
+        self.priority_order: List[str] = limits_cfg.get(
+            "priority_order",
+            [
+                "review_comments",
+                "test_failures",
+                "changed_files",
+                "ci_logs",
+                "full_diff",
+            ],
+        )
         # Map chunk type to priority index (lower is higher priority)
-        self.priority_map: Dict[str, int] = {name: i for i, name in enumerate(self.priority_order)}
+        self.priority_map: Dict[str, int] = {
+            name: i for i, name in enumerate(self.priority_order)
+        }
 
         # Setup tokenizer/encoder if tiktoken available
         self._encoder = None
@@ -66,7 +77,10 @@ class ContextChunker:
             try:
                 self._encoder = tiktoken.get_encoding("cl100k_base")
             except Exception as e:
-                print(f"Warning: failed to initialize tiktoken encoder: {e}", file=sys.stderr)
+                print(
+                    f"Warning: failed to initialize tiktoken encoder: {e}",
+                    file=sys.stderr,
+                )
                 self._encoder = None
 
     def count_tokens(self, text: str) -> int:
@@ -102,19 +116,25 @@ class ContextChunker:
         reviews = pr_data.get("reviews", [])
         if reviews:
             review_text = self._format_reviews(reviews)
-            sections.append((self.priority_map.get("review_comments", 0), "reviews", review_text))
+            sections.append(
+                (self.priority_map.get("review_comments", 0), "reviews", review_text)
+            )
 
         # Extract check runs (test failures)
         check_runs = pr_data.get("check_runs", [])
         if check_runs:
             checks_text = self._format_check_runs(check_runs)
-            sections.append((self.priority_map.get("test_failures", 1), "check_runs", checks_text))
+            sections.append(
+                (self.priority_map.get("test_failures", 1), "check_runs", checks_text)
+            )
 
         # Extract files
         files = pr_data.get("files", [])
         if files:
             files_text = self._format_files(files)
-            sections.append((self.priority_map.get("changed_files", 2), "files", files_text))
+            sections.append(
+                (self.priority_map.get("changed_files", 2), "files", files_text)
+            )
 
         # Sort by priority and build content
         sections.sort(key=lambda x: x[0])
@@ -136,14 +156,18 @@ class ContextChunker:
                     if "\n" in truncated:
                         truncated = truncated.rsplit("\n", 1)[0]
                     truncated += "\n\n[... truncated due to context size limits ...]"
-                    truncated_section = f"## {name.replace('_', ' ').title()} (truncated)\n{truncated}"
+                    truncated_section = (
+                        f"## {name.replace('_', ' ').title()} (truncated)\n{truncated}"
+                    )
                     result_parts.append(truncated_section)
                     total_tokens += self.count_tokens(truncated_section)
                     was_truncated = True
                 was_truncated = True
                 break
 
-        content = "\n\n".join(result_parts) if result_parts else json.dumps(pr_data, indent=2)
+        content = (
+            "\n\n".join(result_parts) if result_parts else json.dumps(pr_data, indent=2)
+        )
         return content, was_truncated
 
     def _format_reviews(self, reviews: List[Dict[str, Any]]) -> str:
