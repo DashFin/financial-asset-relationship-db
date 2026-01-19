@@ -1453,13 +1453,19 @@ class TestWorkflowPermissionsBestPractices:
             # GitHub also allows shorthand permissions like "read-all"/"write-all"
             if isinstance(perms, str):
                 if perms.lower() in {"write-all"}:
-                    print("Info: workflow requests write-all permissions; ensure this is intended.")
+                    print(
+                        "Info: workflow requests write-all permissions; ensure this is intended."
+                    )
                 return
 
             if not isinstance(perms, dict):
                 return
 
-            write_keys = [k for k, v in perms.items() if isinstance(v, str) and v.lower() == "write"]
+            write_keys = [
+                k
+                for k, v in perms.items()
+                if isinstance(v, str) and v.lower() == "write"
+            ]
             if write_keys:
                 print(
                     "Info: workflow requests write permissions for: "
