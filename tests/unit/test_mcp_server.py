@@ -235,7 +235,7 @@ class TestAddEquityNodeTool:
 
         result = add_equity_node("", "TEST", "Test", "Tech", 100.0)
 
-        assert "Validation Error" in result or "Successfully validated" in result
+        assert "Validation Error" in result
 
 
 class TestGet3DLayoutResource:
