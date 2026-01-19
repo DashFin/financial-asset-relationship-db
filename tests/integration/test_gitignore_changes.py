@@ -130,19 +130,21 @@ class TestGitignoreEssentialPatterns:
                     normalized_core = core.rstrip('/') if core.endswith('/') else core
                     normalized = f'!{normalized_core}' if is_negated else normalized_core
                     patterns.append(normalized)
+        from collections import Counter
 
-        duplicates = [p for p in patterns if patterns.count(p) > 1]
-        unique_duplicates = list(set(duplicates))
+        patterns = []
 
-        assert len(unique_duplicates) == 0, \
-            f"Found duplicate patterns: {unique_duplicates}"
+        with open(GITIGNORE_FILE, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#'):
                     patterns.append(line)
-        
-        duplicates = [p for p in patterns if patterns.count(p) > 1]
-        unique_duplicates = list(set(duplicates))
-        
-        assert len(unique_duplicates) == 0, \
-            f"Found duplicate patterns: {unique_duplicates}"
+
+        pattern_counts = Counter(patterns)
+        duplicates = [p for p, count in pattern_counts.items() if count > 1]
+
+        assert len(duplicates) == 0, \
+            f"Found duplicate patterns: {duplicates}"
     
     def test_patterns_not_overly_broad(self, content: str):
         """Test that patterns are not dangerously broad."""
