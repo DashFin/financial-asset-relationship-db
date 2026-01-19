@@ -14,13 +14,13 @@ from urllib.parse import unquote, urlparse
 
 def _get_database_url() -> str:
     """
-    Read the DATABASE_URL environment variable and return its value.
-
+    Retrieve the DATABASE_URL environment variable.
+    
     Returns:
-        The value of the `DATABASE_URL` environment variable.
-
+        database_url (str): The value of the DATABASE_URL environment variable.
+    
     Raises:
-        ValueError: If the `DATABASE_URL` environment variable is not set.
+        ValueError: If the DATABASE_URL environment variable is not set.
     """
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
@@ -92,15 +92,13 @@ _MEMORY_CONNECTION_LOCK = threading.Lock()
 
 def _is_memory_db(path: str | None = None) -> bool:
     """
-    Determine whether the given or configured database refers to an in-memory
-    SQLite database.
-
+    Check whether the configured or provided SQLite path denotes an in-memory database.
+    
     Parameters:
-        path (str | None): Optional database path or URI to evaluate.
-        If omitted, the configured DATABASE_PATH is used.
+        path (str | None): Optional database path or URI to evaluate. If omitted, the configured DATABASE_PATH is used.
+    
     Returns:
-        True if the path (or configured database) is an in-memory SQLite database.
-        For example, ":memory:" or "file::memory:?cache=shared", False otherwise.
+        `true` if the path denotes an in-memory SQLite database (for example, `:memory:` or a URI like `file::memory:?cache=shared`), `false` otherwise.
     """
     target = DATABASE_PATH if path is None else path
     if target == ":memory:":

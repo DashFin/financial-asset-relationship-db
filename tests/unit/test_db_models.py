@@ -436,7 +436,9 @@ class TestRegulatoryEventORM:
         assert RegulatoryEventORM.__tablename__ == "regulatory_events"
 
     def test_create_regulatory_event(self, db_session):
-        """Test creating a regulatory event."""
+        """
+        Create an asset and a regulatory event linked to it, persist both, and verify the event's type and impact_score are stored correctly.
+        """
         asset = AssetORM(
             id="EVENT_ASSET",
             symbol="EA",
@@ -500,7 +502,11 @@ class TestRegulatoryEventORM:
         assert remaining is None
 
     def test_regulatory_event_with_related_assets(self, db_session):
-        """Test regulatory event with related assets."""
+        """
+        Verify that a regulatory event can be associated with multiple related assets.
+        
+        Creates a main asset and two related assets, creates a regulatory event for the main asset, links the two related assets to that event via the join table, and asserts the event exposes both related assets.
+        """
         # Create main asset and related assets
         main_asset = AssetORM(
             id="MAIN_ASSET",

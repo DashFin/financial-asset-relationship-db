@@ -329,7 +329,11 @@ jobs:
 
     @staticmethod
     def test_workflow_with_many_jobs():
-        """Test workflow with many jobs"""
+        """
+        Validate that a workflow file containing many jobs is parsed as valid and that all job entries are preserved.
+        
+        Creates a temporary workflow YAML with 50 job definitions and asserts the validator marks it valid and that the resulting workflow_data contains 50 jobs.
+        """
         jobs = "\n".join(
             [f"  job{i}:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo {i}" for i in range(50)]
         )

@@ -57,13 +57,23 @@ class AssetGraphRepository:
         self.session.add(existing)
 
     def list_assets(self) -> List[Asset]:
-        """Return all assets as dataclass instances ordered by id."""
+        """
+        List all assets ordered by id.
+        
+        Returns:
+            List[Asset]: Asset dataclass instances for every record in the database ordered by their `id`.
+        """
 
         result = self.session.execute(select(AssetORM).order_by(AssetORM.id)).scalars().all()
         return [self._to_asset_model(record) for record in result]
 
     def get_assets_map(self) -> Dict[str, Asset]:
-        """Return mapping of asset id to asset dataclass."""
+        """
+        Map asset IDs to their corresponding Asset dataclass instances.
+        
+        Returns:
+            mapping (Dict[str, Asset]): Dictionary keyed by asset id with corresponding Asset objects.
+        """
 
         assets = self.list_assets()
         return {asset.id: asset for asset in assets}
@@ -109,7 +119,13 @@ class AssetGraphRepository:
         self.session.add(existing)
 
     def list_relationships(self) -> List[RelationshipRecord]:
-        """Return all relationships from the database."""
+        """
+        Retrieve all asset relationships.
+        
+        Returns:
+            list[RelationshipRecord]: A list of RelationshipRecord instances, each containing
+            source_id, target_id, relationship_type, strength, and bidirectional.
+        """
 
         result = self.session.execute(select(AssetRelationshipORM)).scalars().all()
         return [
@@ -124,7 +140,12 @@ class AssetGraphRepository:
         ]
 
     def get_relationship(self, source_id: str, target_id: str, rel_type: str) -> Optional[RelationshipRecord]:
-        """Fetch a single relationship if it exists."""
+        """
+        Retrieve the relationship between two assets with the specified relationship type.
+        
+        Returns:
+            RelationshipRecord: The matching relationship record, or `None` if no match is found.
+        """
 
         stmt = select(AssetRelationshipORM).where(
             AssetRelationshipORM.source_asset_id == source_id,
@@ -143,7 +164,14 @@ class AssetGraphRepository:
         )
 
     def delete_relationship(self, source_id: str, target_id: str, rel_type: str) -> None:
-        """Remove a relationship."""
+        """
+        Delete the relationship of the given type between two assets identified by their IDs.
+        
+        Parameters:
+            source_id (str): ID of the source asset.
+            target_id (str): ID of the target asset.
+            rel_type (str): Type of the relationship to delete.
+        """
 
         stmt = select(AssetRelationshipORM).where(
             AssetRelationshipORM.source_asset_id == source_id,
@@ -193,6 +221,15 @@ class AssetGraphRepository:
     # ------------------------------------------------------------------
     @staticmethod
     def _update_asset_orm(orm: AssetORM, asset: Asset) -> None:
+        """
+        Synchronizes an AssetORM instance with values from an Asset model.
+        
+        Updates core fields (symbol, name, asset_class, sector, price, market_cap, currency), converts numeric fields as needed, and resets all optional/asset-class-specific ORM attributes to reflect the current Asset's attributes to avoid stale values.
+        
+        Parameters:
+            orm (AssetORM): The ORM instance to update in-place.
+            asset (Asset): The source Asset model whose values are copied into the ORM.
+        """
         orm.symbol = asset.symbol
         orm.name = asset.name
         orm.asset_class = asset.asset_class.value

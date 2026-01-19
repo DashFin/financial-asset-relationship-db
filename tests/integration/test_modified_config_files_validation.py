@@ -63,10 +63,10 @@ class TestPRAgentConfigChanges:
 
     def test_no_fallback_strategies(self, config_data: Dict[str, Any]):
         """
-        Verify the PR Agent configuration does not define a 'fallback' key under the top-level 'limits' mapping.
-
+        Assert that the top-level 'limits' mapping in the PR Agent config does not include a 'fallback' key.
+        
         Parameters:
-            config_data (Dict[str, Any]): Parsed contents of `.github/pr-agent-config.yml`. If a 'limits' mapping exists, this test asserts it does not contain a 'fallback' key.
+            config_data (Dict[str, Any]): Parsed contents of `.github/pr-agent-config.yml`. If a top-level `limits` mapping exists, the test fails when that mapping contains the `fallback` key.
         """
         limits = config_data.get("limits")
         if isinstance(limits, dict):
@@ -86,12 +86,12 @@ class TestPRAgentConfigChanges:
 
     def test_no_complex_token_management(self, config_data: Dict[str, Any]):
         """
-        Check that the PR agent configuration does not contain complex token-chunking or explicit token-limit settings.
-
-        Asserts that the configuration text does not include 'chunk_size', and that 'max_tokens' is absent unless a `limits.max_execution_time` value is present in the config.
-
+        Ensure the PR Agent configuration does not include chunking or explicit token-limit settings.
+        
+        This test fails if the configuration text contains the substring "chunk_size", or if it contains "max_tokens" while the top-level `limits.max_execution_time` key is absent.
+        
         Parameters:
-            config_data (Dict[str, Any]): Parsed PR agent configuration data.
+            config_data (Dict[str, Any]): Parsed PR Agent configuration mapping.
         """
         config_str = str(config_data)
 
@@ -103,13 +103,13 @@ class TestPRAgentConfigChanges:
 
     def test_quality_standards_preserved(self, config_data: Dict[str, Any]):
         """
-        Validate that the configuration preserves required quality settings for supported languages and Python tooling.
-
+        Ensure the PR agent configuration preserves required quality settings for supported languages.
+        
         Parameters:
-            config_data (Dict[str, Any]): Parsed YAML configuration for the PR agent.
-
+            config_data: Parsed YAML configuration for the PR agent.
+        
         Details:
-            Asserts that the top-level `quality` section contains `python` and `typescript`, and that the Python quality configuration includes a `linter` and a `test_runner` set to `pytest`.
+            Asserts that the top-level `quality` section contains `python` and `typescript`, and that the Python quality configuration includes a `linter` and a `test_runner` equal to `pytest`.
         """
         assert "quality" in config_data
         assert "python" in config_data["quality"]
@@ -184,7 +184,15 @@ class TestWorkflowSimplifications:
         assert "labeler.yml not found" not in content
 
     def test_greetings_workflow_simple_messages(self, workflows_dir: Path):
-        """Verify greetings workflow has simple placeholder messages."""
+        """
+        Validate that the greetings workflow uses short placeholder messages for first interaction.
+        
+        Asserts the .github/workflows/greetings.yml file exists, locates the first-interaction step under jobs.greeting.steps,
+        and verifies that the `issue-message` and `pr-message` values are each shorter than 200 characters.
+        
+        Parameters:
+            workflows_dir (Path): Path to the .github/workflows directory used to locate greetings.yml.
+        """
         workflow_file = workflows_dir / "greetings.yml"
         assert workflow_file.exists()
 
@@ -245,7 +253,11 @@ class TestDeletedFilesImpact:
         assert not vscode_file.exists(), ".vscode/settings.json should be deleted"
 
     def test_no_references_to_deleted_files(self, repo_root: Path):
-        """Verify no references to deleted files in workflow files."""
+        """
+        Ensure every workflow YAML in .github/workflows does not contain references to deleted repository files.
+        
+        Checks for occurrences of "context_chunker.py", "labeler.yml", and ".github/scripts/README.md" and fails the test if any workflow file contains one of these strings.
+        """
         workflows_dir = repo_root / ".github" / "workflows"
 
         deleted_refs = [
@@ -321,9 +333,9 @@ class TestGitignoreChanges:
     @staticmethod
     def test_codacy_instructions_ignored(gitignore_path: Path):
         """
-        Verify .gitignore includes 'codacy.instructions.md'.
-
-        Checks the repository .gitignore content for the presence of the filename 'codacy.instructions.md' and fails the test if it is missing.
+        Verify that the repository .gitignore contains the filename 'codacy.instructions.md'.
+        
+        Fails the test if 'codacy.instructions.md' is not present in the .gitignore content.
         """
         with open(gitignore_path, "r") as f:
             content = f.read()
@@ -333,9 +345,10 @@ class TestGitignoreChanges:
     @staticmethod
     def test_test_artifacts_not_ignored(gitignore_path: Path):
         """
-        Ensure the repository .gitignore does not ignore test database files.
-
-        Asserts that the pattern 'test_*.db' is not present in the .gitignore file located at gitignore_path.
+        Verify that the repository .gitignore does not contain the test database ignore pattern 'test_*.db'.
+        
+        Parameters:
+            gitignore_path (Path): Path to the repository .gitignore file.
         """
         with open(gitignore_path, "r") as f:
             content = f.read()
@@ -368,10 +381,10 @@ class TestCodacyInstructionsChanges:
     @staticmethod
     def codacy_instructions_path() -> Path:
         """
-        Compute the path to the repository's Codacy instructions file.
-
+        Compute the path to the repository's Codacy instructions Markdown file.
+        
         Returns:
-            Path: Path to `.github/instructions/codacy.instructions.md` within the repository.
+            Path: Path to .github/instructions/codacy.instructions.md inside the repository.
         """
         return Path(__file__).parent.parent.parent / ".github" / "instructions" / "codacy.instructions.md"
 
@@ -399,9 +412,12 @@ class TestCodacyInstructionsChanges:
     @staticmethod
     def test_codacy_critical_rules_present(codacy_instructions_path: Path):
         """
-        Check that the Codacy instructions file contains required critical rules.
-
-        Asserts that the file includes the string 'codacy_cli_analyze' and the marker 'CRITICAL'.
+        Validate that the Codacy instructions include required critical rules.
+        
+        If the file does not exist, the test is skipped. Asserts that the file content contains 'codacy_cli_analyze' and 'CRITICAL'.
+        
+        Parameters:
+            codacy_instructions_path (Path): Path to the Codacy instructions file (e.g., .github/instructions/codacy.instructions.md).
         """
         if not codacy_instructions_path.exists():
             pytest.skip("Codacy instructions file not present")

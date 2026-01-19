@@ -14,9 +14,9 @@ import api.database as database
 @pytest.fixture()
 def restore_database_module(monkeypatch) -> Iterator[None]:
     """
-    Preserve and restore api.database state and the DATABASE_URL environment variable around a test.
-
-    Yields control to the test. After the test completes, closes and clears any in-memory SQLite connection on api.database (if present), restores DATABASE_URL to its original value or removes it if it was not set, and reloads the api.database module to reset its state.
+    Preserves api.database state and the DATABASE_URL environment variable for the duration of a test.
+    
+    Yields to the test; after the test completes, closes and clears api.database._MEMORY_CONNECTION if present, restores DATABASE_URL to its original value (or removes it if it was unset), and reloads the api.database module to reset its state.
     """
 
     original_url = os.environ.get("DATABASE_URL")
@@ -422,7 +422,11 @@ class TestEdgeCasesAndErrorHandling:
     """Tests for edge cases and error handling in database connection management."""
 
     def test_resolve_sqlite_path_with_memory(self, monkeypatch, restore_database_module):
-        """Test that _resolve_sqlite_path correctly handles :memory: URLs."""
+        """
+        Verify that _resolve_sqlite_path maps SQLite memory URLs to ':memory:'.
+        
+        Asserts that both "sqlite:///:memory:" and "sqlite://:memory:" resolve to ":memory:".
+        """
         from api.database import _resolve_sqlite_path
 
         # Test various memory URL formats
