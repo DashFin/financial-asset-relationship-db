@@ -589,7 +589,6 @@ class TestFormulaicVisualsStringFormatting:
         # Get strongest correlations
         strongest_correlations = sample_empirical_relationships.get("strongest_correlations", [])
         assert isinstance(strongest_correlations, list) and all(isinstance(corr, dict) for corr in strongest_correlations), "Invalid correlation data"
-        )
 
         if strongest_correlations:
             # Extract unique assets
