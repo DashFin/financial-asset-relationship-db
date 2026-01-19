@@ -183,10 +183,7 @@ describe('API Client Refactoring Tests', () => {
       });
 
       expect(mockAxiosInstance.get).toHaveBeenCalledWith('/api/assets', {
-        params: {
-          asset_class: undefined,
-          sector: 'Technology',
-        },
+        params: { sector: 'Technology' },
       });
     });
   });
