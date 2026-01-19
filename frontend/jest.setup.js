@@ -49,5 +49,3 @@ if (typeof globalThis !== 'undefined') {
 }
 
 // Basic scroll/resize mocks for components that rely on them
-window.scrollTo = jest.fn()
-window.resizeTo = jest.fn()
