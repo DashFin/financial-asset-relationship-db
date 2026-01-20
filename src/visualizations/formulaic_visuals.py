@@ -286,7 +286,8 @@ class FormulaicVisualizer:
                     f"{formula.example_calculation}"
                 )
             ),
-    @ staticmethod
+        )
+    @staticmethod
     def create_correlation_network(
         empirical_relationships: Dict[str, Any],
     ) -> go.Figure:
