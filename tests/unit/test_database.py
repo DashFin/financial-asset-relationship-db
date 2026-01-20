@@ -332,7 +332,11 @@ class TestEdgeCases:
         assert engine is not None
 
     def test_session_scope_with_database_error(self):
-        """Test session scope behavior with database-level errors."""
+        """
+        Verifies that a database-level integrity error raised inside a session_scope is propagated.
+        
+        Specifically, attempts duplicate primary-key inserts within a transactional session and asserts that SQLAlchemy's `IntegrityError` is raised rather than being swallowed by the session scope.
+        """
         from sqlalchemy.exc import IntegrityError
 
         engine = create_engine("sqlite:///:memory:")
@@ -345,6 +349,14 @@ class TestEdgeCases:
         factory = create_session_factory(engine)
 
         def _cause_integrity_error() -> None:
+            """
+            Force a database integrity error by inserting duplicate primary keys within a transactional session.
+            
+            This function opens a transactional session and attempts to add two records with the same primary key value, causing the database to raise an integrity constraint violation when flushing.
+            
+            Raises:
+                sqlalchemy.exc.IntegrityError: When the database rejects the duplicate primary key on flush.
+            """
             with session_scope(factory) as session:
                 session.add(TestModel(id=1))
                 session.flush()
@@ -484,6 +496,11 @@ class TestMemoryDatabaseConnection:
         connections = []
         
         def get_conn():
+            """
+            Append a connection object to the module-level `connections` list.
+            
+            This obtains a connection via `get_connection()` and adds it to `connections`.
+            """
             connections.append(get_connection())
         
         threads = [threading.Thread(target=get_conn) for _ in range(10)]
@@ -594,4 +611,3 @@ class TestDatabaseHelperFunctionFormatting:
         assert "Returns:" in _get_database_url.__doc__
         assert "Parameters:" in _resolve_sqlite_path.__doc__
         assert "Returns:" in _is_memory_db.__doc__
-

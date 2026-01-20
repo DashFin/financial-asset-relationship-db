@@ -830,12 +830,25 @@ class TestAssetGraphRepositoryInstanceMethods:
     
     @pytest.fixture
     def mock_session(self):
-        """Create a mock SQLAlchemy session."""
+        """
+        Provide a MagicMock configured to mimic a SQLAlchemy session for tests.
+        
+        Returns:
+            MagicMock: A mock SQLAlchemy session instance.
+        """
         return MagicMock()
     
     @pytest.fixture
     def repository(self, mock_session):
-        """Create AssetGraphRepository with mock session."""
+        """
+        Create an AssetGraphRepository backed by the provided SQLAlchemy session.
+        
+        Parameters:
+            mock_session: A SQLAlchemy session or session-like fixture configured for tests.
+        
+        Returns:
+            repository (AssetGraphRepository): Repository instance using the provided session.
+        """
         from src.data.repository import AssetGraphRepository
         return AssetGraphRepository(mock_session)
     
@@ -953,14 +966,27 @@ class TestAddOrUpdateRelationshipFormatting:
     
     @pytest.fixture
     def mock_session(self):
-        """Create a mock SQLAlchemy session."""
+        """
+        Create a mocked SQLAlchemy session with default return behavior.
+        
+        Returns:
+            MagicMock: A mock acting like a SQLAlchemy Session where execute().scalar_one_or_none() returns None.
+        """
         session = MagicMock()
         session.execute.return_value.scalar_one_or_none.return_value = None
         return session
     
     @pytest.fixture
     def repository(self, mock_session):
-        """Create AssetGraphRepository with mock session."""
+        """
+        Create an AssetGraphRepository backed by the provided SQLAlchemy session.
+        
+        Parameters:
+            mock_session: A SQLAlchemy session or session-like fixture configured for tests.
+        
+        Returns:
+            repository (AssetGraphRepository): Repository instance using the provided session.
+        """
         from src.data.repository import AssetGraphRepository
         return AssetGraphRepository(mock_session)
     
@@ -998,12 +1024,25 @@ class TestGetRelationshipFormatting:
     
     @pytest.fixture
     def mock_session(self):
-        """Create a mock SQLAlchemy session."""
+        """
+        Provide a MagicMock configured to mimic a SQLAlchemy session for tests.
+        
+        Returns:
+            MagicMock: A mock SQLAlchemy session instance.
+        """
         return MagicMock()
     
     @pytest.fixture
     def repository(self, mock_session):
-        """Create AssetGraphRepository with mock session."""
+        """
+        Create an AssetGraphRepository backed by the provided SQLAlchemy session.
+        
+        Parameters:
+            mock_session: A SQLAlchemy session or session-like fixture configured for tests.
+        
+        Returns:
+            repository (AssetGraphRepository): Repository instance using the provided session.
+        """
         from src.data.repository import AssetGraphRepository
         return AssetGraphRepository(mock_session)
     
@@ -1024,12 +1063,25 @@ class TestDeleteRelationshipFormatting:
     
     @pytest.fixture
     def mock_session(self):
-        """Create a mock SQLAlchemy session."""
+        """
+        Provide a MagicMock configured to mimic a SQLAlchemy session for tests.
+        
+        Returns:
+            MagicMock: A mock SQLAlchemy session instance.
+        """
         return MagicMock()
     
     @pytest.fixture
     def repository(self, mock_session):
-        """Create AssetGraphRepository with mock session."""
+        """
+        Create an AssetGraphRepository backed by the provided SQLAlchemy session.
+        
+        Parameters:
+            mock_session: A SQLAlchemy session or session-like fixture configured for tests.
+        
+        Returns:
+            repository (AssetGraphRepository): Repository instance using the provided session.
+        """
         from src.data.repository import AssetGraphRepository
         return AssetGraphRepository(mock_session)
     
@@ -1043,4 +1095,3 @@ class TestDeleteRelationshipFormatting:
         
         # Should have all parameters
         assert params == ['self', 'source_id', 'target_id', 'rel_type']
-
