@@ -12,7 +12,7 @@ coverage reporting where the dependency is available.
 from __future__ import annotations
 
 import importlib.util
-from typing import List
+from typing import Any, List
 
 
 def _cov_plugin_available() -> bool:
@@ -27,7 +27,7 @@ def _cov_plugin_available() -> bool:
 
 
 def pytest_load_initial_conftests(
-    args: List[str], early_config, parser
+    args: List[str], early_config: Any, parser: Any
 ) -> None:  # pragma: no cover - exercised via pytest
     """
     Remove pytest-cov related command-line options from the provided
