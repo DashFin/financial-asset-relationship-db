@@ -318,6 +318,19 @@ class TestBearerWorkflowComments:
     """Test that the workflow has appropriate documentation."""
 
     @staticmethod
+    def _has_bearer_text_reference(text: str) -> bool:
+        """
+        Detect non-URL textual references to Bearer documentation.
+
+        This intentionally works on plain text (comments, descriptions) rather
+        than attempting to sanitize or validate URLs by substring.
+        """
+        lowered = text.lower()
+        # Match bearer.com or docs.bearer in typical prose or markdown contexts.
+        pattern = re.compile(r"(?<![a-z0-9])(?:bearer\.com|docs\.bearer)(?![a-z0-9])")
+        return bool(pattern.search(lowered))
+
+    @staticmethod
     def test_has_header_comment(bearer_workflow_raw):
         """Verify the workflow has a header comment explaining its purpose."""
         assert bearer_workflow_raw.startswith("#"), "Workflow should start with a comment"
@@ -341,8 +354,8 @@ class TestBearerWorkflowComments:
                 has_bearer_doc_url = True
                 break
 
-        # Also accept non-URL textual mentions of bearer.com as documentation references
-        has_bearer_text = "bearer.com" in text.lower() or "docs.bearer" in text.lower()
+        # Also accept non-URL textual mentions of Bearer documentation as references
+        has_bearer_text = TestBearerWorkflowComments._has_bearer_text_reference(text)
 
         assert has_bearer_doc_url or has_bearer_text, "Workflow should reference Bearer documentation"
 
