@@ -110,7 +110,7 @@ class TestMarkdownFormatting:
         open_block = False
         for i, line in enumerate(summary_lines, start=1):
             stripped = line.strip()
-            if re.match(r'^```', stripped):
+            if stripped.startswith('```'):
                 # Toggle open/close state on a fence line
                 open_block = not open_block
         assert open_block is False, "Code blocks not properly closed or mismatched triple backticks detected"
@@ -293,7 +293,7 @@ class TestDocumentMaintainability:
         
         assert h1_count >= 1, "Should have at least one H1 heading"
         assert h2_count >= 3, "Should have at least 3 H2 headings for organization"
-    
+
     def test_sections_have_content(self, summary_content: str):
         """Test that major sections have substantial content."""
         sections = re.split(r'\n## ', summary_content)
