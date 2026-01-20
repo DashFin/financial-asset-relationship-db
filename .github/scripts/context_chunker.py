@@ -84,7 +84,20 @@ class ContextChunker:
             print(f"Warning: failed to load config from {config_path}: {e}", file=sys.stderr)
             return {}
 
-    def _init_encoder(self):
+def _init_encoder(self):
+    """
+    Initialize the optional tiktoken encoder.
+    
+    Returns:
+        The tiktoken encoder instance if available and successfully initialized, `None` otherwise.
+    """
+    if not TIKTOKEN_AVAILABLE:
+        return None
+    try:
+        return tiktoken.get_encoding("cl100k_base")
+    except Exception as e:
+        print(f"Warning: failed to initialize tiktoken encoder: {e}", file=sys.stderr)
+        return None
         """
         Initialize the optional tiktoken encoder and load agent context settings.
         
