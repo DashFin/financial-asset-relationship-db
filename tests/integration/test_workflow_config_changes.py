@@ -384,7 +384,7 @@ class TestWorkflowSecurityBestPractices:
                     if 'uses' in step:
                         action = step['uses']
                         # Should have @version or @sha
-                        assert action.startswith('./') or action.startswith('docker://') or '@' in action, \\
+                        assert action.startswith('./') or action.startswith('docker://') or '@' in action, \
                             f"Action {action} in {workflow_file} should be pinned"
     
     def test_workflows_use_read_only_permissions_by_default(self):
