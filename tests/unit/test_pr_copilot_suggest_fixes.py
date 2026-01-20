@@ -20,7 +20,9 @@ from suggest_fixes import (
 )
 
 # Add the scripts directory to the path before importing
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts"))
+sys.path.insert(
+    0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts")
+)
 
 from suggest_fixes import categorize_comment  # noqa: E402
 
@@ -324,7 +326,9 @@ def test_generate_fix_proposals_with_code_suggestions():
             "priority": 2,
             "file": "app.js",
             "line": 25,
-            "code_suggestions": [{"type": "inline_suggestion", "content": "const newValue = 42"}],
+            "code_suggestions": [
+                {"type": "inline_suggestion", "content": "const newValue = 42"}
+            ],
             "url": "url",
             "created_at": "2024-01-01T00:00:00Z",
         }

@@ -13,7 +13,9 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts"))
+sys.path.insert(
+    0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts")
+)
 
 
 @pytest.fixture
@@ -77,7 +79,9 @@ def mock_pr_complete():
 
 def test_config_file_exists():
     """Test that PR Copilot config file exists and is valid."""
-    config_path = Path(__file__).parent.parent.parent / ".github" / "pr-copilot-config.yml"
+    config_path = (
+        Path(__file__).parent.parent.parent / ".github" / "pr-copilot-config.yml"
+    )
     assert config_path.exists(), "PR Copilot config file should exist"
 
     import yaml
@@ -94,7 +98,9 @@ def test_config_file_exists():
 
 def test_workflow_file_exists():
     """Test that PR Copilot workflow file exists and is valid."""
-    workflow_path = Path(__file__).parent.parent.parent / ".github" / "workflows" / "pr-copilot.yml"
+    workflow_path = (
+        Path(__file__).parent.parent.parent / ".github" / "workflows" / "pr-copilot.yml"
+    )
     assert workflow_path.exists(), "PR Copilot workflow file should exist"
 
     import yaml
@@ -110,7 +116,9 @@ def test_workflow_file_exists():
 
 def test_scripts_exist():
     """Test that all required PR Copilot scripts exist."""
-    scripts_dir = Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts"
+    scripts_dir = (
+        Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts"
+    )
 
     assert (scripts_dir / "generate_status.py").exists()
     assert (scripts_dir / "analyze_pr.py").exists()
@@ -120,7 +128,13 @@ def test_scripts_exist():
 
 def test_requirements_file_valid():
     """Test that requirements.txt is valid and contains necessary packages."""
-    req_path = Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts" / "requirements.txt"
+    req_path = (
+        Path(__file__).parent.parent.parent
+        / ".github"
+        / "pr-copilot"
+        / "scripts"
+        / "requirements.txt"
+    )
 
     with open(req_path, "r", encoding="utf-8") as f:
         content = f.read()
@@ -182,7 +196,11 @@ def test_analyze_pr_integration(mock_env_vars, mock_pr_complete):
 
 def test_suggest_fixes_integration(mock_env_vars):
     """Test suggest_fixes.py script integration."""
-    from suggest_fixes import categorize_comment, extract_code_suggestions, is_actionable
+    from suggest_fixes import (
+        categorize_comment,
+        extract_code_suggestions,
+        is_actionable,
+    )
 
     comment1 = "Please fix this security vulnerability"
     category1, priority1 = categorize_comment(comment1)
@@ -217,7 +235,9 @@ def test_workflow_triggers_configuration():
     """Test that workflow has all required triggers configured."""
     import yaml
 
-    workflow_path = Path(__file__).parent.parent.parent / ".github" / "workflows" / "pr-copilot.yml"
+    workflow_path = (
+        Path(__file__).parent.parent.parent / ".github" / "workflows" / "pr-copilot.yml"
+    )
 
     with open(workflow_path, "r", encoding="utf-8") as f:
         workflow = yaml.safe_load(f)
@@ -235,7 +255,9 @@ def test_workflow_jobs_configuration():
     """Test that workflow has all required jobs."""
     import yaml
 
-    workflow_path = Path(__file__).parent.parent.parent / ".github" / "workflows" / "pr-copilot.yml"
+    workflow_path = (
+        Path(__file__).parent.parent.parent / ".github" / "workflows" / "pr-copilot.yml"
+    )
 
     with open(workflow_path, "r", encoding="utf-8") as f:
         workflow = yaml.safe_load(f)
@@ -255,7 +277,9 @@ def test_workflow_permissions():
     """Test that workflow has correct permissions configured."""
     import yaml
 
-    workflow_path = Path(__file__).parent.parent.parent / ".github" / "workflows" / "pr-copilot.yml"
+    workflow_path = (
+        Path(__file__).parent.parent.parent / ".github" / "workflows" / "pr-copilot.yml"
+    )
 
     with open(workflow_path, "r", encoding="utf-8") as f:
         workflow = yaml.safe_load(f)
@@ -273,7 +297,9 @@ def test_config_agent_settings():
     """Test agent configuration settings."""
     import yaml
 
-    config_path = Path(__file__).parent.parent.parent / ".github" / "pr-copilot-config.yml"
+    config_path = (
+        Path(__file__).parent.parent.parent / ".github" / "pr-copilot-config.yml"
+    )
 
     with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
@@ -289,7 +315,9 @@ def test_config_triggers_settings():
     """Test trigger configuration settings."""
     import yaml
 
-    config_path = Path(__file__).parent.parent.parent / ".github" / "pr-copilot-config.yml"
+    config_path = (
+        Path(__file__).parent.parent.parent / ".github" / "pr-copilot-config.yml"
+    )
 
     with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
@@ -306,7 +334,9 @@ def test_config_scope_settings():
     """Test scope validation configuration settings."""
     import yaml
 
-    config_path = Path(__file__).parent.parent.parent / ".github" / "pr-copilot-config.yml"
+    config_path = (
+        Path(__file__).parent.parent.parent / ".github" / "pr-copilot-config.yml"
+    )
 
     with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
@@ -322,7 +352,9 @@ def test_config_auto_merge_settings():
     """Test auto-merge configuration settings."""
     import yaml
 
-    config_path = Path(__file__).parent.parent.parent / ".github" / "pr-copilot-config.yml"
+    config_path = (
+        Path(__file__).parent.parent.parent / ".github" / "pr-copilot-config.yml"
+    )
 
     with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
@@ -344,7 +376,9 @@ def test_documentation_exists():
 
 def test_readme_content():
     """Test that README contains essential information."""
-    readme_path = Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "README.md"
+    readme_path = (
+        Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "README.md"
+    )
 
     with open(readme_path, "r", encoding="utf-8") as f:
         content = f.read()
@@ -357,7 +391,9 @@ def test_readme_content():
 
 def test_setup_guide_content():
     """Test that SETUP.md contains essential setup information."""
-    setup_path = Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "SETUP.md"
+    setup_path = (
+        Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "SETUP.md"
+    )
 
     with open(setup_path, "r", encoding="utf-8") as f:
         content = f.read()

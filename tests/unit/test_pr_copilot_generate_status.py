@@ -23,7 +23,9 @@ from generate_status import (
     write_output,
 )
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts"))
+sys.path.insert(
+    0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts")
+)
 
 
 @pytest.fixture
@@ -103,7 +105,12 @@ def test_pr_status_creation():
         labels=["bug"],
         mergeable=True,
         mergeable_state="clean",
-        review_stats={"approved": 1, "changes_requested": 0, "commented": 0, "total": 1},
+        review_stats={
+            "approved": 1,
+            "changes_requested": 0,
+            "commented": 0,
+            "total": 1,
+        },
         open_thread_count=2,
         check_runs=[],
     )
@@ -159,7 +166,12 @@ def test_format_checklist_all_complete():
         labels=[],
         mergeable=True,
         mergeable_state="clean",
-        review_stats={"approved": 1, "changes_requested": 0, "commented": 0, "total": 1},
+        review_stats={
+            "approved": 1,
+            "changes_requested": 0,
+            "commented": 0,
+            "total": 1,
+        },
         open_thread_count=0,
         check_runs=[CheckRunInfo("Test", "completed", "success")],
     )
@@ -190,7 +202,12 @@ def test_format_checklist_incomplete():
         labels=[],
         mergeable=False,
         mergeable_state="dirty",
-        review_stats={"approved": 0, "changes_requested": 1, "commented": 0, "total": 1},
+        review_stats={
+            "approved": 0,
+            "changes_requested": 1,
+            "commented": 0,
+            "total": 1,
+        },
         open_thread_count=3,
         check_runs=[
             CheckRunInfo("Test1", "completed", "success"),
@@ -249,7 +266,12 @@ def test_generate_markdown():
         labels=["bug", "priority"],
         mergeable=True,
         mergeable_state="clean",
-        review_stats={"approved": 2, "changes_requested": 0, "commented": 1, "total": 3},
+        review_stats={
+            "approved": 2,
+            "changes_requested": 0,
+            "commented": 1,
+            "total": 3,
+        },
         open_thread_count=4,
         check_runs=[CheckRunInfo("CI", "completed", "success")],
     )
@@ -288,7 +310,12 @@ def test_generate_markdown_draft_pr():
         labels=[],
         mergeable=None,
         mergeable_state="unknown",
-        review_stats={"approved": 0, "changes_requested": 0, "commented": 0, "total": 0},
+        review_stats={
+            "approved": 0,
+            "changes_requested": 0,
+            "commented": 0,
+            "total": 0,
+        },
         open_thread_count=0,
         check_runs=[],
     )
@@ -352,7 +379,12 @@ def test_format_checklist_unknown_mergeable():
         labels=[],
         mergeable=None,
         mergeable_state="unknown",
-        review_stats={"approved": 1, "changes_requested": 0, "commented": 0, "total": 1},
+        review_stats={
+            "approved": 1,
+            "changes_requested": 0,
+            "commented": 0,
+            "total": 1,
+        },
         open_thread_count=0,
         check_runs=[CheckRunInfo("Test", "completed", "success")],
     )
@@ -378,7 +410,12 @@ def test_format_checklist_mergeable_false_but_not_dirty():
         labels=[],
         mergeable=False,
         mergeable_state="blocked",
-        review_stats={"approved": 1, "changes_requested": 0, "commented": 0, "total": 1},
+        review_stats={
+            "approved": 1,
+            "changes_requested": 0,
+            "commented": 0,
+            "total": 1,
+        },
         open_thread_count=0,
         check_runs=[CheckRunInfo("Test", "completed", "success")],
     )
@@ -405,7 +442,12 @@ def test_generate_markdown_no_labels():
         labels=[],
         mergeable=True,
         mergeable_state="clean",
-        review_stats={"approved": 0, "changes_requested": 0, "commented": 0, "total": 0},
+        review_stats={
+            "approved": 0,
+            "changes_requested": 0,
+            "commented": 0,
+            "total": 0,
+        },
         open_thread_count=0,
         check_runs=[],
     )
@@ -446,7 +488,12 @@ def test_format_checklist_with_multiple_approvals():
         labels=[],
         mergeable=True,
         mergeable_state="clean",
-        review_stats={"approved": 3, "changes_requested": 0, "commented": 0, "total": 3},
+        review_stats={
+            "approved": 3,
+            "changes_requested": 0,
+            "commented": 0,
+            "total": 3,
+        },
         open_thread_count=0,
         check_runs=[CheckRunInfo("Test", "completed", "success")],
     )
@@ -494,7 +541,12 @@ def test_generate_markdown_with_unmergeable_pr():
         labels=[],
         mergeable=False,
         mergeable_state="dirty",
-        review_stats={"approved": 0, "changes_requested": 0, "commented": 0, "total": 0},
+        review_stats={
+            "approved": 0,
+            "changes_requested": 0,
+            "commented": 0,
+            "total": 0,
+        },
         open_thread_count=0,
         check_runs=[],
     )
@@ -536,7 +588,12 @@ def test_format_checklist_with_pending_checks():
         labels=[],
         mergeable=True,
         mergeable_state="clean",
-        review_stats={"approved": 1, "changes_requested": 0, "commented": 0, "total": 1},
+        review_stats={
+            "approved": 1,
+            "changes_requested": 0,
+            "commented": 0,
+            "total": 1,
+        },
         open_thread_count=0,
         check_runs=[
             CheckRunInfo("Test1", "completed", "success"),
@@ -622,7 +679,12 @@ def test_generate_markdown_with_null_mergeable_state():
         labels=[],
         mergeable=None,
         mergeable_state="unknown",
-        review_stats={"approved": 0, "changes_requested": 0, "commented": 0, "total": 0},
+        review_stats={
+            "approved": 0,
+            "changes_requested": 0,
+            "commented": 0,
+            "total": 0,
+        },
         open_thread_count=0,
         check_runs=[],
     )
@@ -648,7 +710,12 @@ def test_generate_markdown_with_multiple_labels():
         labels=["bug", "enhancement", "documentation"],
         mergeable=True,
         mergeable_state="clean",
-        review_stats={"approved": 0, "changes_requested": 0, "commented": 0, "total": 0},
+        review_stats={
+            "approved": 0,
+            "changes_requested": 0,
+            "commented": 0,
+            "total": 0,
+        },
         open_thread_count=0,
         check_runs=[],
     )

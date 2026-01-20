@@ -24,7 +24,9 @@ from analyze_pr import (
 )
 
 # Add the scripts directory to the path before importing
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts"))
+sys.path.insert(
+    0, str(Path(__file__).parent.parent.parent / ".github" / "pr-copilot" / "scripts")
+)
 
 
 @pytest.fixture
@@ -211,7 +213,11 @@ def test_assess_complexity_with_large_files():
 def test_find_scope_issues_long_title():
     """Test scope issue detection for long titles."""
     config = {"scope": {"warn_on_long_title": 72}}
-    file_data = {"file_count": 5, "total_changes": 100, "file_categories": {"python": 5}}
+    file_data = {
+        "file_count": 5,
+        "total_changes": 100,
+        "file_categories": {"python": 5},
+    }
 
     long_title = "A" * 100
     issues = find_scope_issues(long_title, file_data, config)
@@ -222,7 +228,11 @@ def test_find_scope_issues_long_title():
 def test_find_scope_issues_multiple_responsibilities():
     """Test scope issue detection for multi-purpose PRs."""
     config = {"scope": {"warn_on_long_title": 72}}
-    file_data = {"file_count": 5, "total_changes": 100, "file_categories": {"python": 5}}
+    file_data = {
+        "file_count": 5,
+        "total_changes": 100,
+        "file_categories": {"python": 5},
+    }
 
     title = "Add feature and fix bug"
     issues = find_scope_issues(title, file_data, config)
@@ -233,7 +243,11 @@ def test_find_scope_issues_multiple_responsibilities():
 def test_find_scope_issues_too_many_files():
     """Test scope issue detection for too many files changed."""
     config = {"scope": {"warn_on_long_title": 72, "max_files_changed": 20}}
-    file_data = {"file_count": 35, "total_changes": 500, "file_categories": {"python": 35}}
+    file_data = {
+        "file_count": 35,
+        "total_changes": 500,
+        "file_categories": {"python": 35},
+    }
 
     issues = find_scope_issues("Normal title", file_data, config)
 
@@ -243,7 +257,11 @@ def test_find_scope_issues_too_many_files():
 def test_find_scope_issues_large_changeset():
     """Test scope issue detection for large changesets."""
     config = {"scope": {"warn_on_long_title": 72, "max_total_changes": 1000}}
-    file_data = {"file_count": 10, "total_changes": 2000, "file_categories": {"python": 10}}
+    file_data = {
+        "file_count": 10,
+        "total_changes": 2000,
+        "file_categories": {"python": 10},
+    }
 
     issues = find_scope_issues("Normal title", file_data, config)
 
@@ -256,22 +274,42 @@ def test_find_scope_issues_context_switching():
     file_data = {
         "file_count": 10,
         "total_changes": 500,
-        "file_categories": {"python": 3, "javascript": 2, "css": 2, "html": 2, "config": 1},
+        "file_categories": {
+            "python": 3,
+            "javascript": 2,
+            "css": 2,
+            "html": 2,
+            "config": 1,
+        },
     }
 
     issues = find_scope_issues("Normal title", file_data, config)
 
     # Assert exactly one context switching issue is found
-    context_switching_issues = [issue for issue in issues if "context switching" in issue]
+    context_switching_issues = [
+        issue for issue in issues if "context switching" in issue
+    ]
     assert len(context_switching_issues) == 1
     # Verify the exact content: should report 5 file types changed (exceeds max of 3)
-    assert context_switching_issues[0] == "High context switching (5 file types changed)"
+    assert (
+        context_switching_issues[0] == "High context switching (5 file types changed)"
+    )
 
 
 def test_find_scope_issues_clean_pr():
     """Test scope issue detection for clean PR."""
-    config = {"scope": {"warn_on_long_title": 72, "max_files_changed": 30, "max_total_changes": 1500}}
-    file_data = {"file_count": 5, "total_changes": 100, "file_categories": {"python": 5}}
+    config = {
+        "scope": {
+            "warn_on_long_title": 72,
+            "max_files_changed": 30,
+            "max_total_changes": 1500,
+        }
+    }
+    file_data = {
+        "file_count": 5,
+        "total_changes": 100,
+        "file_categories": {"python": 5},
+    }
 
     issues = find_scope_issues("Fix bug in user module", file_data, config)
 
@@ -348,12 +386,21 @@ def test_generate_markdown_high_risk():
             "file_count": 50,
             "total_changes": 2000,
             "file_categories": {"python": 30, "javascript": 20},
-            "large_files": [{"filename": "big.py", "changes": 1000, "additions": 800, "deletions": 200}],
+            "large_files": [
+                {
+                    "filename": "big.py",
+                    "changes": 1000,
+                    "additions": 800,
+                    "deletions": 200,
+                }
+            ],
         },
         complexity_score=85,
         risk_level="High",
         scope_issues=["Title too long (100 > 72)", "Too many files changed (50 > 30)"],
-        related_issues=[{"number": "123", "url": "https://github.com/test/repo/issues/123"}],
+        related_issues=[
+            {"number": "123", "url": "https://github.com/test/repo/issues/123"}
+        ],
         commit_count=40,
     )
 
