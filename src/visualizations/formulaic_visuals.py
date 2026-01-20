@@ -354,28 +354,6 @@ class FormulaicVisualizer:
             strongest_correlations,
             correlation_matrix,
         )
-        assets = pair.split("-")
-        if len(assets) == 2:
-            G.add_edge(assets[0], assets[1], weight=corr_value)
-
-        # Generate layout
-        pos = nx.spring_layout(G, seed=42)
-
-        edge_x = []
-        edge_y = []
-        for edge in G.edges():
-            x0, y0 = pos[edge[0]]
-            x1, y1 = pos[edge[1]]
-            edge_x.extend([x0, x1, None])
-            edge_y.extend([y0, y1, None])
-
-        edge_trace = go.Scatter(
-            x=edge_x,
-            y=edge_y,
-            line=dict(width=0.5, color="#888"),
-            hoverinfo="none",
-            mode="lines",
-        )
 
         # Create positions in a circle
         # Create positions in a circle based on strongest correlations
