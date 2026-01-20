@@ -75,7 +75,53 @@ class FormulaicVisualizer:
         pass
 
     def _plot_key_formula_examples(self, fig: go.Figure, formulas: Any) -> None:
-        pass
+        # Populate the "Key Formula Examples" table in row 3, column 2.
+        # Select a subset of formulas (e.g., by highest R-squared) to keep the table readable.
+        if not formulas:
+            return
+
+        # Sort formulas by reliability (R-squared) in descending order and take top 10
+        try:
+            sorted_formulas = sorted(
+                formulas,
+                key=lambda f: getattr(f, "r_squared", float("-inf")),
+                reverse=True,
+            )
+        except TypeError:
+            # Fallback in case formulas is not directly sortable; use original order
+            sorted_formulas = list(formulas)
+
+        top_formulas = sorted_formulas[:10]
+
+        names = []
+        categories = []
+        r_squares = []
+
+        for f in top_formulas:
+            name = getattr(f, "name", "N/A")
+            if len(name) > 30:
+                name = name[:27] + "..."
+            names.append(name)
+            categories.append(getattr(f, "category", "N/A"))
+            r_value = getattr(f, "r_squared", None)
+            r_squares.append(f"{r_value:.4f}" if isinstance(r_value, (int, float)) else "N/A")
+
+        fig.add_trace(
+            go.Table(
+                header=dict(
+                    values=["Formula", "Category", "R-squared"],
+                    fill_color="#f2f2f2",
+                    align="left",
+                ),
+                cells=dict(
+                    values=[names, categories, r_squares],
+                    align="left",
+                ),
+            ),
+            row=3,
+            col=2,
+        )
+
 
         # 1. Formula Categories Pie Chart
         categories = analysis_results.get("categories", {})
