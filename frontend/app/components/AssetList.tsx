@@ -271,7 +271,7 @@ export default function AssetList() {
     assetClasses: string[];
     value: string;
     onChange: React.ChangeEventHandler<HTMLSelectElement>;
-  const AssetClassOptions: React.FC<{ isLoading: boolean; assetClasses: AssetClass[] }> = ({ isLoading, assetClasses }) => {
+const AssetClassOptions: React.FC<{ isLoading: boolean; assetClasses: string[] }> = ({ isLoading, assetClasses }) => {
     if (isLoading) {
       return <option disabled>Loading...</option>;
     }
