@@ -246,8 +246,7 @@ jobs:
     def test_workflow_with_unicode():
         """Test workflow with Unicode characters"""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False, encoding="utf-8") as f:
-            f.write(
-                """
+            f.write("""
 name: "Test with emojis"
 on: push
 jobs:
