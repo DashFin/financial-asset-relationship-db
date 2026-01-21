@@ -1,156 +1,120 @@
-/* eslint-env jest */
-/* eslint-disable class-methods-use-this, no-empty-function */
-
+// jest.setup.js
 // Learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
 
 /**
- * Creates a Jest mock for window.matchMedia.
- * Supports programmatic changes via `setMatches` and timer integration.
+ * Creates a mock matchMedia function for Jest.
+ * @param {Object} [options]
+ * @param {boolean} [options.defaultMatches=false]
+ * @returns {jest.Mock}
  */
 const createMatchMedia = ({ defaultMatches = false } = {}) => {
-  const listeners = new Set()
-  let matches = defaultMatches
-
-  const mqlFactory = (query) => {
-    const media = String(query ?? '')
+  return jest.fn().mockImplementation((query) => {
+    const listeners = new Set();
+    let matches = Boolean(defaultMatches);
+    const media = String(query ?? '');
     const mql = {
-      get matches () {
-        return matches
+      get matches() {
+        return matches;
       },
       media,
       onchange: null,
 
-      /**
-       * Programmatically set match status.
-       * Triggers listeners asynchronously (simulates browser event loop).
-       */
-      setMatches (newValue) {
-        matches = Boolean(newValue)
-        const event = { type: 'change', matches, media }
-
-        // Run listeners asynchronously
-        setTimeout(() => {
-          listeners.forEach((listener) => listener(event))
-          if (typeof mql.onchange === 'function') {
-            mql.onchange(event)
-          }
-        }, 0)
+      /** Set matches value and notify listeners */
+      setMatches(newValue) {
+        matches = Boolean(newValue);
+        const event = { type: 'change', matches, media };
+        listeners.forEach((listener) => listener(event));
+        if (typeof mql.onchange === 'function') mql.onchange(event);
       },
 
-      // Deprecated listeners
+      /** Deprecated listener methods */
       addListener: jest.fn((listener) => {
-        if (typeof listener === 'function') listeners.add(listener)
+        if (typeof listener === 'function') listeners.add(listener);
       }),
       removeListener: jest.fn((listener) => {
-        listeners.delete(listener)
+        listeners.delete(listener);
       }),
 
-      // Standard API
+      /** Standard event methods */
       addEventListener: jest.fn((eventName, listener) => {
-        if (eventName === 'change') listeners.add(listener)
+        if (eventName === 'change' && typeof listener === 'function') listeners.add(listener);
       }),
       removeEventListener: jest.fn((eventName, listener) => {
-        if (eventName === 'change') listeners.delete(listener)
+        if (eventName === 'change') listeners.delete(listener);
       }),
-
       dispatchEvent: jest.fn((event) => {
-        listeners.forEach((listener) => listener(event))
-        if (typeof mql.onchange === 'function') {
-          mql.onchange(event)
-        }
-        return true
-      })
-    }
+        listeners.forEach((listener) => listener(event));
+        if (typeof mql.onchange === 'function') mql.onchange(event);
+        return true;
+      }),
+    };
+    return mql;
+  });
+};
 
-    return mql
-  }
-
-  const mockFn = jest.fn(mqlFactory)
-
-  // Allow clearing listeners between tests
-  mockFn.clearListeners = () => listeners.clear()
-
-  return mockFn
-}
-
-// Apply globally
+// Define mock on window
 Object.defineProperty(window, 'matchMedia', {
   configurable: true,
   writable: true,
-  value: createMatchMedia()
-})
+  value: createMatchMedia(),
+});
 
-// -----------------------------------------------------------------------------
-// Mock IntersectionObserver
-// -----------------------------------------------------------------------------
-
+/**
+ * MockIntersectionObserver simulates IntersectionObserver for Jest.
+ */
 class MockIntersectionObserver {
-  constructor (callback = () => {}, options = {}) {
-    this._callback = callback
-    this._options = options
-    this._elements = new Set()
-  }
-
-  observe = jest.fn((element) => {
-    if (element) this._elements.add(element)
-  })
-
-  unobserve = jest.fn((element) => {
-    this._elements.delete(element)
-  })
-
-  disconnect = jest.fn(() => {
-    this._elements.clear()
-  })
-
-  takeRecords = jest.fn(() => [])
-
   /**
-   * Simulates intersection changes for observed elements.
-   * @param {Array<{ target: Element, isIntersecting: boolean, intersectionRatio?: number }>} entries
+   * @param {Function} callback
+   * @param {Object} options
    */
-  simulateIntersect (entries) {
-    const normalizedEntries = entries.map((entry) => ({
-      target: entry.target,
-      isIntersecting: Boolean(entry.isIntersecting),
-      intersectionRatio:
-        entry.intersectionRatio ?? (entry.isIntersecting ? 1 : 0),
-      boundingClientRect: entry.target.getBoundingClientRect
-        ? entry.target.getBoundingClientRect()
-        : {},
-      intersectionRect: entry.isIntersecting
-        ? (entry.target.getBoundingClientRect?.() ?? {})
-        : {},
-      rootBounds: {},
-      time: Date.now()
-    }))
-    this._callback(normalizedEntries, this)
+  constructor(callback = () => {}, options = {}) {
+    this._callback = callback;
+    this._options = options;
+    this._elements = new Set();
+
+    this.observe = jest.fn((element) => {
+      if (element) this._elements.add(element);
+    });
+
+    this.unobserve = jest.fn((element) => {
+      if (element) this._elements.delete(element);
+    });
+
+    this.disconnect = jest.fn(() => {
+      this._elements.clear();
+    });
+
+    this.takeRecords = jest.fn(() => []);
   }
 }
 
-// Apply globally
+// Assign to window and global
 Object.defineProperty(window, 'IntersectionObserver', {
   configurable: true,
   writable: true,
-  value: MockIntersectionObserver
-})
+  value: MockIntersectionObserver,
+});
 
 Object.defineProperty(global, 'IntersectionObserver', {
   configurable: true,
   writable: true,
-  value: MockIntersectionObserver
-})
+  value: MockIntersectionObserver,
+});
 
-// -----------------------------------------------------------------------------
-// Jest cleanup
-// -----------------------------------------------------------------------------
-
+// Cleanup mocks after each test
 afterEach(() => {
   if (typeof window.matchMedia?.mockClear === 'function') {
-    window.matchMedia.mockClear()
-    if (typeof window.matchMedia.clearListeners === 'function') {
-      window.matchMedia.clearListeners()
-    }
+    window.matchMedia.mockClear();
   }
-})
+  if (typeof MockIntersectionObserver.prototype.observe?.mockClear === 'function') {
+    MockIntersectionObserver.prototype.observe.mockClear();
+  }
+  if (typeof MockIntersectionObserver.prototype.unobserve?.mockClear === 'function') {
+    MockIntersectionObserver.prototype.unobserve.mockClear();
+  }
+  if (typeof MockIntersectionObserver.prototype.disconnect?.mockClear === 'function') {
+    MockIntersectionObserver.prototype.disconnect.mockClear();
+  }
+});
+
