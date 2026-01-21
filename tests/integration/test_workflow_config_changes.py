@@ -714,21 +714,70 @@ class TestGitignoreChanges:
         assert '.hypothesis' in gitignore_content
 
 
-def test_no_duplicate_patterns(self, gitignore_content):
-    """Verify no duplicate ignore patterns."""
-    lines = [line.strip() for line in gitignore_content.split('\n')
-             if line.strip() and not line.strip().startswith('#')]
+class TestGitignoreChanges:
+    """Tests for .gitignore file changes."""
 
-    # Use set for O(1) lookups
-    seen = set()
-    duplicates = []
-    for line in lines:
-        if line in seen:
-            duplicates.append(line)
-        else:
-            seen.add(line)
+    @pytest.fixture
+    def gitignore_content(self) -> str:
+        """Load .gitignore file content."""
+        gitignore_path = Path(".gitignore")
+        with open(gitignore_path, 'r') as f:
+            return f.read()
 
-    assert len(duplicates) == 0, f"Duplicate patterns found: {set(duplicates)}"
+    def test_gitignore_file_exists(self):
+        """Verify .gitignore exists."""
+        gitignore_path = Path(".gitignore")
+        assert gitignore_path.exists(), ".gitignore should exist"
+
+    def test_junit_xml_not_ignored(self, gitignore_content):
+        """Verify junit.xml is NOT in .gitignore (was removed)."""
+        # junit.xml should not be in gitignore anymore
+        assert 'junit.xml' not in gitignore_content, \
+            "junit.xml should not be in .gitignore"
+
+    def test_test_db_patterns_not_ignored(self, gitignore_content):
+        """Verify test database patterns are NOT in .gitignore (were removed)."""
+        # test_*.db and *_test.db should not be in gitignore
+        assert 'test_*.db' not in gitignore_content, \
+            "test_*.db pattern should not be in .gitignore"
+        assert '*_test.db' not in gitignore_content, \
+            "*_test.db pattern should not be in .gitignore"
+
+    def test_pytest_cache_still_ignored(self, gitignore_content):
+        """Verify .pytest_cache is still ignored."""
+        assert '.pytest_cache' in gitignore_content, \
+            ".pytest_cache should still be in .gitignore"
+
+    def test_coverage_files_still_ignored(self, gitignore_content):
+        """Verify coverage files are still ignored."""
+        assert '.coverage' in gitignore_content
+        assert 'coverage.xml' in gitignore_content
+        assert 'htmlcov/' in gitignore_content
+
+    def test_tox_still_ignored(self, gitignore_content):
+        """Verify .tox directory is still ignored."""
+        assert '.tox' in gitignore_content
+
+    def test_hypothesis_still_ignored(self, gitignore_content):
+        """Verify .hypothesis directory is still ignored."""
+        assert '.hypothesis' in gitignore_content
+
+    def test_no_duplicate_patterns(self, gitignore_content):
+        """Verify no duplicate ignore patterns."""
+        lines = [
+            line.strip()
+            for line in gitignore_content.split('\n')
+            if line.strip() and not line.strip().startswith('#')
+        ]
+
+        # Use set for O(1) lookups
+        seen = set()
+        duplicates = []
+        for line in lines:
+            if line in seen:
+                duplicates.append(line)
+            else:
+                seen.add(line)
         assert len(duplicates) == 0, f"Duplicate patterns found: {set(duplicates)}"
 
     def test_frontend_coverage_still_ignored(self, gitignore_content):
