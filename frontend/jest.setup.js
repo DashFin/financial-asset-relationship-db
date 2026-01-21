@@ -15,7 +15,7 @@ const createMatchMedia = ({ defaultMatches = false } = {}) => {
   const mqlFactory = (query) => {
     const media = String(query ?? '')
     const mql = {
-      get matches() {
+      get matches () {
         return matches
       },
       media,
@@ -25,7 +25,7 @@ const createMatchMedia = ({ defaultMatches = false } = {}) => {
        * Programmatically set match status.
        * Triggers listeners asynchronously (simulates browser event loop).
        */
-      setMatches(newValue) {
+      setMatches (newValue) {
         matches = Boolean(newValue)
         const event = { type: 'change', matches, media }
 
@@ -60,7 +60,7 @@ const createMatchMedia = ({ defaultMatches = false } = {}) => {
           mql.onchange(event)
         }
         return true
-      }),
+      })
     }
 
     return mql
@@ -78,7 +78,7 @@ const createMatchMedia = ({ defaultMatches = false } = {}) => {
 Object.defineProperty(window, 'matchMedia', {
   configurable: true,
   writable: true,
-  value: createMatchMedia(),
+  value: createMatchMedia()
 })
 
 // -----------------------------------------------------------------------------
@@ -86,7 +86,7 @@ Object.defineProperty(window, 'matchMedia', {
 // -----------------------------------------------------------------------------
 
 class MockIntersectionObserver {
-  constructor(callback = () => {}, options = {}) {
+  constructor (callback = () => {}, options = {}) {
     this._callback = callback
     this._options = options
     this._elements = new Set()
@@ -110,19 +110,20 @@ class MockIntersectionObserver {
    * Simulates intersection changes for observed elements.
    * @param {Array<{ target: Element, isIntersecting: boolean, intersectionRatio?: number }>} entries
    */
-  simulateIntersect(entries) {
+  simulateIntersect (entries) {
     const normalizedEntries = entries.map((entry) => ({
       target: entry.target,
       isIntersecting: Boolean(entry.isIntersecting),
-      intersectionRatio: entry.intersectionRatio ?? (entry.isIntersecting ? 1 : 0),
+      intersectionRatio:
+        entry.intersectionRatio ?? (entry.isIntersecting ? 1 : 0),
       boundingClientRect: entry.target.getBoundingClientRect
         ? entry.target.getBoundingClientRect()
         : {},
       intersectionRect: entry.isIntersecting
-        ? entry.target.getBoundingClientRect?.() ?? {}
+        ? (entry.target.getBoundingClientRect?.() ?? {})
         : {},
       rootBounds: {},
-      time: Date.now(),
+      time: Date.now()
     }))
     this._callback(normalizedEntries, this)
   }
@@ -132,13 +133,13 @@ class MockIntersectionObserver {
 Object.defineProperty(window, 'IntersectionObserver', {
   configurable: true,
   writable: true,
-  value: MockIntersectionObserver,
+  value: MockIntersectionObserver
 })
 
 Object.defineProperty(global, 'IntersectionObserver', {
   configurable: true,
   writable: true,
-  value: MockIntersectionObserver,
+  value: MockIntersectionObserver
 })
 
 // -----------------------------------------------------------------------------
