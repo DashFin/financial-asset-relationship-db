@@ -267,7 +267,11 @@ export default function AssetList() {
   };
 
   // Extracted to reduce JSX nesting depth
-  const AssetClassFilter: React.FC<{
+const AssetClassFilter: React.FC<{
+  assetClasses: string[];
+  value: string;
+  onChange: React.ChangeEventHandler<HTMLSelectElement>;
+}> = ({ assetClasses, value, onChange }) => {
     assetClasses: string[];
     value: string;
     onChange: React.ChangeEventHandler<HTMLSelectElement>;
