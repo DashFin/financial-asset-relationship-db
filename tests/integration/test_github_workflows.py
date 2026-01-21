@@ -478,8 +478,10 @@ class TestPrAgentWorkflow:
         duplicate_names = [name for name in step_names if step_names.count(name) > 1]
 
         if duplicate_names:
-            print(f"\nWarning: Found duplicate step names: {set(duplicate_names)}. "
-                  "Each step should have a unique name.")
+            assert False, (
+                f"Found duplicate step names: {set(duplicate_names)}. "
+                "Each step should have a unique name."
+            )
 
     def test_pr_agent_fetch_depth_configured(self, pr_agent_workflow: Dict[str, Any]):
         """
