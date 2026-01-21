@@ -27,6 +27,18 @@ type SelectFilterProps = {
   placeholder: string;
 };
 
+/**
+ * Renders a select input for filtering items.
+ *
+ * @param {SelectFilterProps} props - The props for the select filter component.
+ * @param {string} props.id - The id attribute for the select element.
+ * @param {string} props.label - The label text for the select element.
+ * @param {string[]} props.options - The options for the select dropdown.
+ * @param {string} props.value - The current selected value.
+ * @param {(e: React.ChangeEvent<HTMLSelectElement>) => void} props.onChange - Handler for change events.
+ * @param {string} props.placeholder - Placeholder text displayed when no option is selected.
+ * @returns {JSX.Element} The rendered select filter component.
+ */
 const SelectFilter = ({
   id,
   label,
@@ -58,6 +70,11 @@ const SelectFilter = ({
   </div>
 );
 
+/**
+ * Displays a list of assets with filtering, pagination, and summary information.
+ *
+ * @returns {JSX.Element} The asset list component.
+ */
 export default function AssetList() {
   const router = useRouter();
   const pathname = usePathname();
@@ -159,6 +176,12 @@ export default function AssetList() {
     fetchAssets();
   }, [fetchAssets]);
 
+  /**
+   * Returns an event handler to update the asset filter for a specific field.
+   *
+   * @param {keyof AssetFilter} field - The filter field to update.
+   * @returns {(e: React.ChangeEvent<HTMLSelectElement>) => void} Event handler for the change event.
+   */
   const handleFilterChange =
     (field: keyof AssetFilter) => (e: React.ChangeEvent<HTMLSelectElement>) => {
       const value = e.target.value;
@@ -168,6 +191,12 @@ export default function AssetList() {
       updateQueryParams({ [field]: value || null, page: "1" });
     };
 
+  /**
+   * Handles page size change from the page size select dropdown.
+   *
+   * @param {React.ChangeEvent<HTMLSelectElement>} e - The change event for the page size select.
+   * @returns {void}
+   */
   const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const nextSize = parsePositiveInteger(e.target.value, DEFAULT_PAGE_SIZE);
     setPageSize(nextSize);
@@ -175,6 +204,12 @@ export default function AssetList() {
     updateQueryParams({ per_page: String(nextSize), page: "1" });
   };
 
+  /**
+   * Navigates to a specific page number, bounded by available pages.
+   *
+   * @param {number} requestedPage - The page number to navigate to.
+   * @returns {void}
+   */
   const goToPage = (requestedPage: number) => {
     const boundedPage =
       totalPages !== null
@@ -190,47 +225,169 @@ export default function AssetList() {
   const canGoPrev = page > 1 && !loading;
   const canGoNext = totalPages !== null && page < totalPages && !loading;
 
+  /**
+   * Navigates to the previous page.
+   *
+   * @returns {void}
+   */
   const handlePrevPage = () => {
     goToPage(page - 1);
-  };
+    };
 
-  const handleNextPage = () => {
-    goToPage(page + 1);
-  };
+    /**
+     * Navigates to the next page.
+     *
+     * @returns {void}
+     */
+    const handleNextPage = () => {
+      goToPage(page + 1);
+    };
 
-  const renderPageSizeOption = (size: number) => (
-    <option key={size} value={size}>
-      {size}
-    </option>
-  );
+    /**
+     * Renders an option element for the page size selector.
+     *
+     * @param {number} size - The page size value.
+     * @returns {JSX.Element} The option element representing the page size.
+     */
+    const renderPageSizeOption = (size: number) => (
+      <option key={size} value={size}>
+        {size}
+      </option>
+    );
 
-  return (
-    <div className="space-y-6">
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow-md p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <SelectFilter
-          id="asset-class-filter"
-          label="Asset Class"
-          options={assetClasses}
-          value={filter.asset_class}
-          onChange={handleFilterChange("asset_class")}
-          placeholder="All Classes"
-        />
-        <SelectFilter
-          id="sector-filter"
-          label="Sector"
-          options={sectors}
-          value={filter.sector}
-          onChange={handleFilterChange("sector")}
-          placeholder="All Sectors"
-        />
+    return (
+      <div className="space-y-6">
+        {/* Filters */}
+        <div className="bg-white rounded-lg shadow-md p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SelectFilter
+            id="asset-class-filter"
+            label="Asset Class"
+            options={assetClasses}
+            value={filter.asset_class}
+            onChange={handleFilterChange("asset_class")}
+            placeholder="All Classes"
+          />
+          <SelectFilter
+            id="sector-filter"
+            label="Sector"
+            options={sectors}
+            value={filter.sector}
+            onChange={handleFilterChange("sector")}
+            placeholder="All Sectors"
+          />
+        </div>
+
+        {/* Asset List */}
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <AssetListContent
+            loading={loading}
+            error={error}
+            assets={data?.assets || []}
+            page={page}
+            pageSize={pageSize}
+            totalPages={totalPages}
+            onPrevPage={handlePrevPage}
+            onNextPage={handleNextPage}
+            onPageSizeChange={handlePageSizeChange}
+            onAssetClick={handleAssetClick}
+          />
+        </div>
       </div>
+    );
+  };
 
-      {/* Asset List */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {(loading || error) && (
-          <div
-            className={`px-6 py-3 text-sm ${
+  interface AssetListContentProps {
+    loading: boolean;
+    error: Error | null;
+    assets: Asset[];
+    page: number;
+    pageSize: number;
+    totalPages: number;
+    onPrevPage: () => void;
+    onNextPage: () => void;
+    onPageSizeChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+    onAssetClick: (id: string) => void;
+  }
+
+  const AssetListContent: React.FC<AssetListContentProps> = ({
+    loading,
+    error,
+    assets,
+    page,
+    pageSize,
+    totalPages,
+    onPrevPage,
+    onNextPage,
+    onPageSizeChange,
+    onAssetClick,
+  }) => {
+    if (loading) {
+      return (
+        <div className="px-6 py-3 text-sm text-gray-500">Loading assets...</div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="px-6 py-3 text-sm text-red-500">
+          Error: {error.message}
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead>
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Asset Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Value
+              </th>
+              <th className="px-6 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {assets.map((asset) => (
+              <tr key={asset.id}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {asset.name}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {asset.value}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <button onClick={() => onAssetClick(asset.id)}>
+                    View Details
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="p-4 flex justify-between items-center">
+          <button onClick={onPrevPage} disabled={page === 1}>
+            Previous
+          </button>
+          <span>
+            Page {page} of {totalPages}
+          </span>
+          <div>
+            <label>Show </label>
+            <select value={pageSize} onChange={onPageSizeChange}>
+              {[10, 20, 50].map(renderPageSizeOption)}
+            </select>
+            <label> entries</label>
+          </div>
+          <button onClick={onNextPage} disabled={page === totalPages}>
+            Next
+          </button>
+        </div>
+      </>
+    );
+  };
               error
                 ? "bg-red-50 text-red-700 border-b border-red-100"
                 : "bg-blue-50 text-blue-700 border-b border-blue-100"
