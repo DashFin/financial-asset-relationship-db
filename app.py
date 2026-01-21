@@ -370,8 +370,9 @@ class FinancialAssetApp:
                 gr.update(value=error_msg, visible=True),
             )
 
+    @staticmethod
     def show_formula_details(
-        self, formula_name: str, graph_state: AssetRelationshipGraph
+        formula_name: str, graph_state: AssetRelationshipGraph
     ):
         """Show detailed view of a specific formula."""
         try:
