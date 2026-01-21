@@ -371,9 +371,7 @@ class FinancialAssetApp:
             )
 
     @staticmethod
-    def show_formula_details(
-        formula_name: str, graph_state: AssetRelationshipGraph
-    ):
+    def show_formula_details(formula_name: str, graph_state: AssetRelationshipGraph):
         """Show detailed view of a specific formula."""
         try:
             # Placeholder implementation: return an empty figure and hide any error message.
