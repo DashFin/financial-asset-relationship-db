@@ -115,9 +115,7 @@ export default function AssetList() {
       setError((prev) => (prev?.includes("filter options") ? null : prev));
     } catch (err) {
       console.error("Error loading metadata:", err);
-      setError(
-        (prev) => prev ?? "Unable to load filter options. Please try again.",
-      );
+      setError("Unable to load filter options. Please try again.");
     }
   }, []);
 
