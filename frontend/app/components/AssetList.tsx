@@ -10,10 +10,12 @@ import type { Asset } from "../types/api";
  */
 function parsePositiveInteger(
   value: string | number | null | undefined,
-  defaultValue: number
+  defaultValue: number,
 ): number {
   if (typeof value === "number") {
-    return Number.isFinite(value) && value > 0 ? Math.floor(value) : defaultValue;
+    return Number.isFinite(value) && value > 0
+      ? Math.floor(value)
+      : defaultValue;
   }
   const text = (value ?? "").toString().trim();
   const parsed = Number.parseInt(text, 10);
@@ -72,10 +74,12 @@ async function loadMetadata(signal?: AbortSignal): Promise<any> {
  */
 async function loadAssets(
   params: URLSearchParams | string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<any> {
   const queryString =
-    params instanceof URLSearchParams ? params.toString() : String(params ?? "");
+    params instanceof URLSearchParams
+      ? params.toString()
+      : String(params ?? "");
   const url = queryString ? `/api/assets?${queryString}` : "/api/assets";
 
   const response = await fetch(url, { signal });
