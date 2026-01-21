@@ -118,7 +118,7 @@ class TestMarkdownFormatting:
             summary_lines (List[str]): Lines of the Markdown summary file to inspect.
         """
         open_block = False
-        for i, line in enumerate(summary_lines, start=1):
+        for _i, line in enumerate(summary_lines, start=1):
             stripped = line.strip()
             if stripped.startswith("```"):
                 # Toggle open/close state on a fence line
