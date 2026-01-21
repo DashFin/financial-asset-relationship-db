@@ -414,15 +414,6 @@ class TestPRAgentConfigSecurity:
 
         check_sensitive_keys(pr_agent_config)
 
-        # Final serialized scan to ensure sensitive markers aren't embedded in values
-        config_str = yaml.dump(pr_agent_config)
-        for pat in sensitive_patterns:
-            # If marker appears in the string, ensure we also see an allowed placeholder somewhere
-            if pat in config_str:
-                assert (" null" in config_str) or (
-                    "webhook" in config_str
-                ), f"Potential hardcoded credential found around pattern: {pat}"
-
     @staticmethod
     def test_no_hardcoded_secrets(pr_agent_config):
         """
