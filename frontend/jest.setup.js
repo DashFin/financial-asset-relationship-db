@@ -1,5 +1,5 @@
 // Learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom'
 
 /**
  * Mock implementation of window.matchMedia.
@@ -21,9 +21,9 @@ Object.defineProperty(window, 'matchMedia', {
     // Modern API
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-});
+    dispatchEvent: jest.fn()
+  }))
+})
 
 /**
  * Mock implementation of IntersectionObserver.
@@ -32,7 +32,7 @@ Object.defineProperty(window, 'matchMedia', {
  * (e.g. lazy loading, infinite scroll, animations).
  */
 class MockIntersectionObserver {
-  constructor() {
+  constructor () {
     // No state required for test environment
   }
 
@@ -40,7 +40,7 @@ class MockIntersectionObserver {
    * Start observing a target element.
    * No-op in test environment.
    */
-  observe() {
+  observe () {
     // Intentionally empty
   }
 
@@ -48,7 +48,7 @@ class MockIntersectionObserver {
    * Stop observing a target element.
    * No-op in test environment.
    */
-  unobserve() {
+  unobserve () {
     // Intentionally empty
   }
 
@@ -56,7 +56,7 @@ class MockIntersectionObserver {
    * Disconnect the observer.
    * No-op in test environment.
    */
-  disconnect() {
+  disconnect () {
     // Intentionally empty
   }
 
@@ -66,10 +66,10 @@ class MockIntersectionObserver {
    *
    * @returns {Array}
    */
-  takeRecords() {
-    return [];
+  takeRecords () {
+    return []
   }
 }
 
 // Attach mock to global scope
-global.IntersectionObserver = MockIntersectionObserver;
+global.IntersectionObserver = MockIntersectionObserver
