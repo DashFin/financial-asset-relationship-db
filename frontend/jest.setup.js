@@ -1,6 +1,6 @@
 // jest.setup.js
 // Learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom'
 
 /**
  * Creates a mock matchMedia function for Jest.
@@ -10,55 +10,57 @@ import '@testing-library/jest-dom';
  */
 const createMatchMedia = ({ defaultMatches = false } = {}) => {
   return jest.fn().mockImplementation((query) => {
-    const listeners = new Set();
-    let matches = Boolean(defaultMatches);
-    const media = String(query ?? '');
+    const listeners = new Set()
+    let matches = Boolean(defaultMatches)
+    const media = String(query ?? '')
     const mql = {
-      get matches() {
-        return matches;
+      get matches () {
+        return matches
       },
       media,
       onchange: null,
 
       /** Set matches value and notify listeners */
-      setMatches(newValue) {
-        matches = Boolean(newValue);
-        const event = { type: 'change', matches, media };
-        listeners.forEach((listener) => listener(event));
-        if (typeof mql.onchange === 'function') mql.onchange(event);
+      setMatches (newValue) {
+        matches = Boolean(newValue)
+        const event = { type: 'change', matches, media }
+        listeners.forEach((listener) => listener(event))
+        if (typeof mql.onchange === 'function') mql.onchange(event)
       },
 
       /** Deprecated listener methods */
       addListener: jest.fn((listener) => {
-        if (typeof listener === 'function') listeners.add(listener);
+        if (typeof listener === 'function') listeners.add(listener)
       }),
       removeListener: jest.fn((listener) => {
-        listeners.delete(listener);
+        listeners.delete(listener)
       }),
 
       /** Standard event methods */
       addEventListener: jest.fn((eventName, listener) => {
-        if (eventName === 'change' && typeof listener === 'function') listeners.add(listener);
+        if (eventName === 'change' && typeof listener === 'function') {
+          listeners.add(listener)
+        }
       }),
       removeEventListener: jest.fn((eventName, listener) => {
-        if (eventName === 'change') listeners.delete(listener);
+        if (eventName === 'change') listeners.delete(listener)
       }),
       dispatchEvent: jest.fn((event) => {
-        listeners.forEach((listener) => listener(event));
-        if (typeof mql.onchange === 'function') mql.onchange(event);
-        return true;
-      }),
-    };
-    return mql;
-  });
-};
+        listeners.forEach((listener) => listener(event))
+        if (typeof mql.onchange === 'function') mql.onchange(event)
+        return true
+      })
+    }
+    return mql
+  })
+}
 
 // Define mock on window
 Object.defineProperty(window, 'matchMedia', {
   configurable: true,
   writable: true,
-  value: createMatchMedia(),
-});
+  value: createMatchMedia()
+})
 
 /**
  * MockIntersectionObserver simulates IntersectionObserver for Jest.
@@ -68,24 +70,24 @@ class MockIntersectionObserver {
    * @param {Function} callback
    * @param {Object} options
    */
-  constructor(callback = () => {}, options = {}) {
-    this._callback = callback;
-    this._options = options;
-    this._elements = new Set();
+  constructor (callback = () => {}, options = {}) {
+    this._callback = callback
+    this._options = options
+    this._elements = new Set()
 
     this.observe = jest.fn((element) => {
-      if (element) this._elements.add(element);
-    });
+      if (element) this._elements.add(element)
+    })
 
     this.unobserve = jest.fn((element) => {
-      if (element) this._elements.delete(element);
-    });
+      if (element) this._elements.delete(element)
+    })
 
     this.disconnect = jest.fn(() => {
-      this._elements.clear();
-    });
+      this._elements.clear()
+    })
 
-    this.takeRecords = jest.fn(() => []);
+    this.takeRecords = jest.fn(() => [])
   }
 }
 
@@ -93,27 +95,35 @@ class MockIntersectionObserver {
 Object.defineProperty(window, 'IntersectionObserver', {
   configurable: true,
   writable: true,
-  value: MockIntersectionObserver,
-});
+  value: MockIntersectionObserver
+})
 
 Object.defineProperty(global, 'IntersectionObserver', {
   configurable: true,
   writable: true,
-  value: MockIntersectionObserver,
-});
+  value: MockIntersectionObserver
+})
 
 // Cleanup mocks after each test
 afterEach(() => {
   if (typeof window.matchMedia?.mockClear === 'function') {
-    window.matchMedia.mockClear();
+    window.matchMedia.mockClear()
   }
-  if (typeof MockIntersectionObserver.prototype.observe?.mockClear === 'function') {
-    MockIntersectionObserver.prototype.observe.mockClear();
+  if (
+    typeof MockIntersectionObserver.prototype.observe?.mockClear === 'function'
+  ) {
+    MockIntersectionObserver.prototype.observe.mockClear()
   }
-  if (typeof MockIntersectionObserver.prototype.unobserve?.mockClear === 'function') {
-    MockIntersectionObserver.prototype.unobserve.mockClear();
+  if (
+    typeof MockIntersectionObserver.prototype.unobserve?.mockClear ===
+    'function'
+  ) {
+    MockIntersectionObserver.prototype.unobserve.mockClear()
   }
-  if (typeof MockIntersectionObserver.prototype.disconnect?.mockClear === 'function') {
-    MockIntersectionObserver.prototype.disconnect.mockClear();
+  if (
+    typeof MockIntersectionObserver.prototype.disconnect?.mockClear ===
+    'function'
+  ) {
+    MockIntersectionObserver.prototype.disconnect.mockClear()
   }
-});
+})
