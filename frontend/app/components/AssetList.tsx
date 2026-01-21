@@ -2,22 +2,13 @@
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { api } from "../lib/api";
 import type { Asset } from "../types/api";
 import {
-  isPaginatedResponse,
   parsePositiveInteger,
   buildQuerySummary,
   loadMetadata,
   loadAssets,
 } from "../lib/assetHelpers";
-
-interface PaginatedAssetsResponse {
-  items: Asset[];
-  total: number;
-  page: number;
-  per_page: number;
-}
 
 const DEFAULT_PAGE_SIZE = 20;
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
@@ -61,6 +52,11 @@ const SelectFilter = ({
   </div>
 );
 
+/**
+ * AssetList component displays a list of financial assets with filtering and pagination controls.
+ *
+ * @returns {JSX.Element} The rendered AssetList component.
+ */
 export default function AssetList() {
   const router = useRouter();
   const pathname = usePathname();
@@ -119,6 +115,11 @@ export default function AssetList() {
 
   /** Load assets when filter/page/pageSize changes */
   useEffect(() => {
+    /**
+     * Fetches assets based on the current page, page size, and filter, then updates the assets list, total count, and error state.
+     *
+     * @returns {Promise<void>} Resolves when the assets are loaded and state is updated.
+     */
     const fetchAssets = async () => {
       setLoading(true);
       await loadAssets(page, pageSize, filter, setAssets, setTotal, setError);
@@ -209,12 +210,21 @@ export default function AssetList() {
       </div>
 
       {/* Asset Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {(loading || error) && (
-          <div
-            className={`px-6 py-3 text-sm ${
-              error
-                ? "bg-red-50 text-red-700 border-b border-red-100"
+      <AssetTableContent
+        assets={assets}
+        loading={loading}
+        error={error}
+        renderPageSizeOption={renderPageSizeOption}
+        page={page}
+        perPage={perPage}
+        totalPages={totalPages}
+        goToPage={goToPage}
+        changePageSize={changePageSize}
+        canGoPrev={canGoPrev}
+        canGoNext={canGoNext}
+      />
+    </div>
+  );
                 : "bg-blue-50 text-blue-700 border-b border-blue-100"
             }`}
             role={error ? "alert" : "status"}
@@ -307,7 +317,7 @@ export default function AssetList() {
           <div className="flex items-center space-x-2">
             <button
               type="button"
-              onClick={() => goToPage(page - 1)}
+              onClick={handlePrevPage}
               disabled={!canGoPrev}
               className={`px-3 py-1 rounded-md border ${
                 canGoPrev
@@ -323,7 +333,7 @@ export default function AssetList() {
             </span>
             <button
               type="button"
-              onClick={() => goToPage(page + 1)}
+              onClick={handleNextPage}
               disabled={!canGoNext}
               className={`px-3 py-1 rounded-md border ${
                 canGoNext
