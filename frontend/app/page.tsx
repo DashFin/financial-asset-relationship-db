@@ -40,6 +40,16 @@ async function loadData() {
       setError("Failed to load data. Please ensure the API server is running.");
     } finally {
       setLoading(false);
+    } catch (err) {
+      // Avoid leaking potentially sensitive details in production logs.
+      if (process.env.NODE_ENV !== "production") {
+        console.error("Error loading data:", err);
+      } else {
+        console.error("Error loading data");
+      }
+      setError("Failed to load data. Please ensure the API server is running.");
+    } finally {
+      setLoading(false);
     }
   }
 
