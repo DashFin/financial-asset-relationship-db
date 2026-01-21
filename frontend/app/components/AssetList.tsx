@@ -271,29 +271,40 @@ export default function AssetList() {
     assetClasses: string[];
     value: string;
     onChange: React.ChangeEventHandler<HTMLSelectElement>;
-  }> = ({ assetClasses, value, onChange }) => (
-    <div>
-      <label
-        htmlFor="asset-class-filter"
-        className="block text-sm font-medium text-gray-700 mb-2"
-      >
-        Asset Class
-      </label>
-      <select
-        id="asset-class-filter"
-        className="w-full border border-gray-300 rounded-md px-3 py-2"
-        value={value}
-        onChange={onChange}
-      >
-        <option value="">All Classes</option>
-        {assetClasses.map((ac) => (
-          <option key={ac} value={ac}>
-            {ac}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
+  }> = ({ assetClasses, value, onChange }) => {
+    const isLoading = assetClasses.length === 0;
+
+    return (
+      <div>
+        <label
+          htmlFor="asset-class-filter"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
+          Asset Class
+        </label>
+        <select
+          id="asset-class-filter"
+          className="w-full border border-gray-300 rounded-md px-3 py-2"
+          value={value}
+          onChange={onChange}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <option value="">Loading...</option>
+          ) : (
+            <>
+              <option value="">All Classes</option>
+              {assetClasses.map((ac) => (
+                <option key={ac} value={ac}>
+                  {ac}
+                </option>
+              ))}
+            </>
+          )}
+        </select>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -306,7 +317,6 @@ export default function AssetList() {
             value={filter.asset_class}
             onChange={handleFilterChange("asset_class")}
           />
-        </div>
           <div>
             <label
               htmlFor="sector-filter"
@@ -319,13 +329,20 @@ export default function AssetList() {
               id="sector-filter"
               value={filter.sector}
               onChange={handleFilterChange("sector")}
+              disabled={sectors.length === 0}
             >
-              <option value="">All Sectors</option>
-              {sectors.map((sector) => (
-                <option key={sector} value={sector}>
-                  {sector}
-                </option>
-              ))}
+              {sectors.length === 0 ? (
+                <option value="">Loading...</option>
+              ) : (
+                <>
+                  <option value="">All Sectors</option>
+                  {sectors.map((sector) => (
+                    <option key={sector} value={sector}>
+                      {sector}
+                    </option>
+                  ))}
+                </>
+              )}
             </select>
           </div>
         </div>
