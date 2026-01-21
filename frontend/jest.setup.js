@@ -1,11 +1,11 @@
+/* eslint-env jest */
+/* eslint-disable class-methods-use-this, no-empty-function */
+
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
 
 /**
  * Creates a mock matchMedia function for Jest.
- * @param {Object} [options] - Configuration options.
- * @param {boolean} [options.defaultMatches=false] - Initial match status.
- * @returns {jest.Mock} A Jest mock function simulating matchMedia.
  */
 const createMatchMedia = ({ defaultMatches = false } = {}) =>
   jest.fn().mockImplementation((query) => {
@@ -13,31 +13,22 @@ const createMatchMedia = ({ defaultMatches = false } = {}) =>
     const media = String(query ?? '')
     let matches = defaultMatches
 
-    /**
-     * Adds a listener to be called when the media query changes.
-     * @param {Function} listener - The change event listener.
-     */
     const addChangeListener = (listener) => {
       if (typeof listener === 'function') listeners.add(listener)
     }
 
-    /**
-     * Removes a previously added change listener.
-     * @param {Function} listener - The listener to remove.
-     */
     const removeChangeListener = (listener) => {
       listeners.delete(listener)
     }
 
     const mql = {
-      get matches () {
+      get matches() {
         return matches
       },
       media,
       onchange: null,
 
-      // Non-standard test helper
-      setMatches (newValue) {
+      setMatches(newValue) {
         matches = Boolean(newValue)
         const event = { type: 'change', matches, media }
         listeners.forEach((listener) => listener(event))
@@ -46,11 +37,9 @@ const createMatchMedia = ({ defaultMatches = false } = {}) =>
         }
       },
 
-      // Deprecated but still used in some libraries
       addListener: jest.fn(addChangeListener),
       removeListener: jest.fn(removeChangeListener),
 
-      // Standard API
       addEventListener: jest.fn((eventName, listener) => {
         if (eventName === 'change') addChangeListener(listener)
       }),
@@ -64,7 +53,7 @@ const createMatchMedia = ({ defaultMatches = false } = {}) =>
           mql.onchange(event)
         }
         return true
-      })
+      }),
     }
 
     return mql
@@ -73,57 +62,69 @@ const createMatchMedia = ({ defaultMatches = false } = {}) =>
 Object.defineProperty(window, 'matchMedia', {
   configurable: true,
   writable: true,
-  value: createMatchMedia()
+  value: createMatchMedia(),
 })
 
 /**
- * MockIntersectionObserver mimics the IntersectionObserver API for testing purposes.
+ * MockIntersectionObserver simulates the IntersectionObserver API.
+ * - Stores observed elements.
+ * - Calls the callback when `simulateIntersect` is invoked.
  */
 class MockIntersectionObserver {
-  /**
-   * Initializes the mock IntersectionObserver with a callback and options.
-   *
-   * @param {Function} callback - Function to be called when intersections occur.
-   * @param {Object} options - Options to configure the observer.
-   */
-  constructor (
-    callback = () => {
-      /* default no-op callback */
-    },
-    options = {}
-  ) {
+  constructor(callback = () => {}, options = {}) {
     this._callback = callback
     this._options = options
     this._elements = new Set()
+  }
 
-    this.observe = jest.fn((element) => {
-      if (element) this._elements.add(element)
-    })
+  observe = jest.fn((element) => {
+    if (element) this._elements.add(element)
+  })
 
-    this.unobserve = jest.fn((element) => {
-      this._elements.delete(element)
-    })
+  unobserve = jest.fn((element) => {
+    this._elements.delete(element)
+  })
 
-    this.disconnect = jest.fn(() => {
-      this._elements.clear()
-    })
+  disconnect = jest.fn(() => {
+    this._elements.clear()
+  })
 
-    this.takeRecords = jest.fn(() => [])
+  takeRecords = jest.fn(() => [])
+
+  /**
+   * Simulates intersection changes for observed elements.
+   * @param {Array<{ target: Element, isIntersecting: boolean, intersectionRatio?: number }>} entries
+   */
+  simulateIntersect(entries) {
+    const normalizedEntries = entries.map((entry) => ({
+      target: entry.target,
+      isIntersecting: Boolean(entry.isIntersecting),
+      intersectionRatio: entry.intersectionRatio ?? (entry.isIntersecting ? 1 : 0),
+      boundingClientRect: entry.target.getBoundingClientRect
+        ? entry.target.getBoundingClientRect()
+        : {},
+      intersectionRect: entry.isIntersecting ? entry.target.getBoundingClientRect?.() ?? {} : {},
+      rootBounds: {},
+      time: Date.now(),
+    }))
+    this._callback(normalizedEntries, this)
   }
 }
 
+// Apply globally for tests
 Object.defineProperty(window, 'IntersectionObserver', {
   configurable: true,
   writable: true,
-  value: MockIntersectionObserver
+  value: MockIntersectionObserver,
 })
 
 Object.defineProperty(global, 'IntersectionObserver', {
   configurable: true,
   writable: true,
-  value: MockIntersectionObserver
+  value: MockIntersectionObserver,
 })
 
+// Cleanup after each test
 afterEach(() => {
   if (typeof window.matchMedia?.mockClear === 'function') {
     window.matchMedia.mockClear()
