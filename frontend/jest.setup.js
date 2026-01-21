@@ -3,8 +3,19 @@ import '@testing-library/jest-dom'
 
 /**
  * Creates a mock implementation of window.matchMedia for testing.
+ * @param {Object} [options] - Configuration options.
+ * @param {boolean} [options.defaultMatches=false] - Default value for media query matches.
+ * @returns {Function} Jest mock function for matchMedia.
+ */
+/**
+  const intersectionObserverInstances = new Set()
+ * Creates a mock implementation of window.matchMedia for testing.
  * @param {object} [options] - Configuration options.
  * @param {boolean} [options.defaultMatches=false] - The default match state.
+    /**
+     * Adds a listener for media query change events.
+     * @param {Function} listener - The listener callback to invoke on change.
+     */
  * @returns {jest.Mock} A jest mock function for matchMedia.
  */
 const createMatchMedia = ({ defaultMatches = false } = {}) =>
@@ -14,6 +25,10 @@ const createMatchMedia = ({ defaultMatches = false } = {}) =>
 
     const addChangeListener = (listener) => {
       // In afterEach hook, consider also clearing listener sets by resetting the mock implementation.
+    /**
+     * Removes a listener for media query change events.
+     * @param {Function} listener - The listener callback to remove.
+     */
       afterEach(() => {
         // Reset window.matchMedia to a fresh mock to clear all internal state
         window.matchMedia = createMatchMedia()

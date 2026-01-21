@@ -289,20 +289,25 @@ export default function AssetList() {
           onChange={onChange}
           disabled={isLoading}
         >
-          {isLoading ? (
-            <option value="">Loading...</option>
-          ) : (
-            <>
-              <option value="">All Classes</option>
-              {assetClasses.map((ac) => (
-                <option key={ac} value={ac}>
-                  {ac}
-                </option>
-              ))}
-            </>
-          )}
+          <AssetClassOptions isLoading={isLoading} assetClasses={assetClasses} />
         </select>
       </div>
+    );
+  };
+
+  const AssetClassOptions = ({ isLoading, assetClasses }) => {
+    if (isLoading) {
+      return <option value="">Loading...</option>;
+    }
+    return (
+      <>
+        <option value="">All Classes</option>
+        {assetClasses.map((ac) => (
+          <option key={ac} value={ac}>
+            {ac}
+          </option>
+        ))}
+      </>
     );
   };
 
