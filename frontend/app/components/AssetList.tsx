@@ -286,7 +286,7 @@ export default function AssetList() {
     );
   };
 
-  export const AssetClassFilter: React.FC<{ assetClasses: AssetClass[]; value: string; onChange: React.ChangeEventHandler<HTMLSelectElement> }> = ({ assetClasses, value, onChange }) => {
+const AssetClassFilter: React.FC<{ assetClasses: string[]; value: string; onChange: React.ChangeEventHandler<HTMLSelectElement> }> = ({ assetClasses, value, onChange }) => {
     const isLoading = assetClasses.length === 0;
 
     return (
