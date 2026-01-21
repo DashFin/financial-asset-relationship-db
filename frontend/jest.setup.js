@@ -92,7 +92,17 @@ Object.defineProperty(window, 'IntersectionObserver', {
 })
 
 Object.defineProperty(global, 'IntersectionObserver', {
-  configurable: true,
+    this.takeRecords = jest.fn(() => [])
+
+    /**
+     * Manually trigger the stored IntersectionObserver callback.
+     * @param {IntersectionObserverEntry|IntersectionObserverEntry[]} [entries]
+     */
+    this.triggerCallback = (entries = []) => {
+      if (typeof this._callback !== 'function') return
+      const normalizedEntries = Array.isArray(entries) ? entries : [entries]
+      this._callback(normalizedEntries, this)
+    }
   writable: true,
   value: MockIntersectionObserver
 })
