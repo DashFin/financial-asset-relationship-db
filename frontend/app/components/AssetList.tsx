@@ -13,81 +13,80 @@ interface PaginatedAssetsResponse {
 }
 
 const DEFAULT_PAGE_SIZE = 20;
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 
-/**
- * Type guard to check if a value is a PaginatedAssetsResponse.
- *
- * @param value - The value to check.
- * @returns True if the value conforms to PaginatedAssetsResponse, false otherwise.
- */
+/** Type guard to check if response is paginated */
 const isPaginatedResponse = (
-  value: unknown,
-): value is PaginatedAssetsResponse => {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "items" in value &&
-    "total" in value &&
-    "page" in value &&
-    "per_page" in value &&
-    Array.isArray((value as PaginatedAssetsResponse).items) &&
-    typeof (value as PaginatedAssetsResponse).total === "number" &&
-    typeof (value as PaginatedAssetsResponse).page === "number" &&
-    typeof (value as PaginatedAssetsResponse).per_page === "number"
-  );
-};
+  value: unknown
+): value is PaginatedAssetsResponse =>
+  typeof value === "object" &&
+  value !== null &&
+  "items" in value &&
+  "total" in value &&
+  "page" in value &&
+  "per_page" in value &&
+  Array.isArray((value as PaginatedAssetsResponse).items);
 
-/**
- * Parses a string as a positive integer, returning a fallback if parsing fails or result is not positive.
- *
- * @param value - The string value to parse.
- * @param fallback - The fallback number to return if parsing fails or is not positive.
- * @returns The parsed positive integer or the fallback.
- */
+/** Parse positive integer or fallback */
 const parsePositiveInteger = (value: string | null, fallback: number) => {
   const parsed = Number.parseInt(value || "", 10);
   return Number.isNaN(parsed) || parsed <= 0 ? fallback : parsed;
 };
 
-/**
- * Builds a summary string for the current query parameters including page, page size, and filters.
- *
- * @param page - The current page number.
- * @param pageSize - The number of items per page.
- * @param filter - An object containing asset_class and sector filters.
- * @returns A summary string describing the query.
- */
+/** Build query summary string */
 const buildQuerySummary = (
   page: number,
   pageSize: number,
-  filter: { asset_class: string; sector: string },
+  filter: { asset_class: string; sector: string }
 ) => {
-  const summaryParts = [`page ${page}`, `${pageSize} per page`];
-
-  if (filter.asset_class) {
-    summaryParts.push(`asset class "${filter.asset_class}"`);
-  }
-
-  if (filter.sector) {
-    summaryParts.push(`sector "${filter.sector}"`);
-  }
-
-  return summaryParts.join(", ");
+  const parts = [`page ${page}`, `${pageSize} per page`];
+  if (filter.asset_class) parts.push(`asset class "${filter.asset_class}"`);
+  if (filter.sector) parts.push(`sector "${filter.sector}"`);
+  return parts.join(", ");
 };
 
-/**
- * Renders an asset list UI with filter controls and data fetching.
- *
- * Loads asset classes and sectors on mount and reloads the asset list whenever the selected
- * asset class or sector changes. Displays loading and empty states and, when available,
- * a table of assets showing symbol, name, class, sector, price, and market capitalization.
- *
- * @returns The rendered JSX element for the asset list component.
- */
+/** Filter select component */
+const FilterSelect = ({
+  label,
+  id,
+  options,
+  value,
+  onChange,
+  placeholder = "All",
+}: {
+  label: string;
+  id: string;
+  options: string[];
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  placeholder?: string;
+}) => (
+  <div>
+    <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-2">
+      {label}
+    </label>
+    <select
+      id={id}
+      value={value}
+      onChange={onChange}
+      className="w-full border border-gray-300 rounded-md px-3 py-2"
+    >
+      <option value="">{placeholder}</option>
+      {options.map((opt) => (
+        <option key={opt} value={opt}>
+          {opt}
+        </option>
+      ))}
+    </select>
+  </div>
+);
+
+/** Main asset list component */
 export default function AssetList() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -98,17 +97,14 @@ export default function AssetList() {
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [total, setTotal] = useState<number | null>(null);
 
-  const querySummary = useMemo(
-    () => buildQuerySummary(page, pageSize, filter),
-    [filter, page, pageSize],
-  );
+  const querySummary = useMemo(() => buildQuerySummary(page, pageSize, filter), [
+    filter,
+    page,
+    pageSize,
+  ]);
 
-  /**
-   * Loads asset classes and sectors metadata from the API and updates state.
-   *
-   * @returns A promise that resolves when metadata is loaded.
-   */
-  const loadMetadata = async () => {
+  /** Load metadata (asset classes + sectors) */
+  const loadMetadata = useCallback(async () => {
     try {
       const [classesData, sectorsData] = await Promise.all([
         api.getAssetClasses(),
@@ -116,11 +112,12 @@ export default function AssetList() {
       ]);
       setAssetClasses(classesData.asset_classes);
       setSectors(sectorsData.sectors);
-    } catch (error) {
-      console.error("Error loading metadata:", error);
+    } catch (err) {
+      console.error("Error loading metadata:", err);
     }
-  };
+  }, []);
 
+  /** Load assets based on filters + pagination */
   const loadAssets = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -130,216 +127,142 @@ export default function AssetList() {
         sector?: string;
         page: number;
         per_page: number;
-      } = {
-        page,
-        per_page: pageSize,
-      };
+      } = { page, per_page: pageSize };
       if (filter.asset_class) params.asset_class = filter.asset_class;
       if (filter.sector) params.sector = filter.sector;
 
       const data = await api.getAssets(params);
       if (isPaginatedResponse(data)) {
         setAssets(data.items);
-        setTotal(typeof data.total === "number" ? data.total : null);
+        setTotal(data.total);
       } else {
         setAssets(data);
         setTotal(Array.isArray(data) ? data.length : null);
       }
-    } catch (error) {
-      console.error("Error loading assets:", error);
+    } catch (err) {
+      console.error("Error loading assets:", err);
       setAssets([]);
       setTotal(null);
       setError(`Unable to load assets for ${querySummary}. Please try again.`);
     } finally {
       setLoading(false);
     }
-  }, [filter, page, pageSize]);
+  }, [filter, page, pageSize, querySummary]);
 
+  /** Sync state from URL params */
   const syncStateFromParams = useCallback(() => {
     const nextAssetClass = searchParams.get("asset_class") ?? "";
     const nextSector = searchParams.get("sector") ?? "";
     const nextPage = parsePositiveInteger(searchParams.get("page"), 1);
-    const nextPageSize = parsePositiveInteger(
-      searchParams.get("per_page"),
-      DEFAULT_PAGE_SIZE,
-    );
+    const nextPageSize = parsePositiveInteger(searchParams.get("per_page"), DEFAULT_PAGE_SIZE);
 
-    setFilter((prev) => {
-      if (prev.asset_class === nextAssetClass && prev.sector === nextSector) {
-        return prev;
-      }
-      return { asset_class: nextAssetClass, sector: nextSector };
-    });
+    setFilter((prev) =>
+      prev.asset_class === nextAssetClass && prev.sector === nextSector
+        ? prev
+        : { asset_class: nextAssetClass, sector: nextSector }
+    );
     setPage((prev) => (prev === nextPage ? prev : nextPage));
     setPageSize((prev) => (prev === nextPageSize ? prev : nextPageSize));
   }, [searchParams]);
 
-  useEffect(() => {
-    syncStateFromParams();
-  }, [syncStateFromParams]);
-
+  /** Update URL query params */
   const updateQueryParams = useCallback(
     (updates: Record<string, string | null>) => {
       if (!pathname) return;
       const params = new URLSearchParams(searchParams.toString());
-
-      Object.entries(updates).forEach(([key, value]) => {
-        if (value === null || value === "") {
-          params.delete(key);
-        } else {
-          params.set(key, value);
-        }
-      });
-
-      const queryString = params.toString();
-      const currentQueryString = searchParams.toString();
-      if (queryString !== currentQueryString) {
-        router.replace(`${pathname}${queryString ? `?${queryString}` : ""}`, {
-          scroll: false,
-        });
+      Object.entries(updates).forEach(([key, value]) =>
+        value === null || value === "" ? params.delete(key) : params.set(key, value)
+      );
+      const qs = params.toString();
+      if (qs !== searchParams.toString()) {
+        router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
       }
     },
-    [pathname, router, searchParams],
+    [pathname, router, searchParams]
   );
+
+  /** Handlers */
+  const handleFilterChange = (field: "asset_class" | "sector") => (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target;
+    setFilter((prev) => ({ ...prev, [field]: value }));
+    setPage(1);
+    updateQueryParams({ [field]: value || null, page: "1" });
+  };
+
+  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const size = parsePositiveInteger(e.target.value, DEFAULT_PAGE_SIZE);
+    setPageSize(size);
+    setPage(1);
+    updateQueryParams({ per_page: String(size), page: "1" });
+  };
+
+  const totalPages = useMemo(() => (total && total > 0 ? Math.ceil(total / pageSize) : null), [
+    total,
+    pageSize,
+  ]);
+
+  const canGoNext = !loading && totalPages !== null && page < totalPages;
+  const canGoPrev = !loading && page > 1;
+
+  const goToPage = (requestedPage: number) => {
+    const bounded = totalPages ? Math.min(Math.max(1, requestedPage), totalPages) : Math.max(1, requestedPage);
+    if (bounded !== page) {
+      setPage(bounded);
+      updateQueryParams({ page: String(bounded) });
+    }
+  };
+
+  const handleNextPage = () => goToPage(page + 1);
+  const handlePrevPage = () => goToPage(page - 1);
+
+  /** Effects */
+  useEffect(() => {
+    syncStateFromParams();
+  }, [syncStateFromParams]);
 
   useEffect(() => {
     loadMetadata();
-  }, []);
+  }, [loadMetadata]);
 
   useEffect(() => {
     loadAssets();
   }, [loadAssets]);
 
-  const totalPages = useMemo(() => {
-    if (!total || total <= 0) return null;
-    return Math.max(1, Math.ceil(total / pageSize));
-  }, [pageSize, total]);
-
-  const canGoNext = !loading && totalPages !== null && page < totalPages;
-
-  const canGoPrev = !loading && page > 1;
-
-  /**
-   * Creates a handler for filter field changes.
-   * @param field - The filter field to update ("asset_class" or "sector").
-   * @returns A change event handler for HTMLSelectElement that updates the filter and resets the page.
-   */
-  const handleFilterChange =
-    (field: "asset_class" | "sector") =>
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      const { value } = event.target;
-      setFilter((prev) => ({ ...prev, [field]: value }));
-      setPage(1);
-      updateQueryParams({ [field]: value || null, page: "1" });
-    };
-
-  /**
-   * Handles changes to the page size selection.
-   * @param event - The change event from the page size select element.
-   * @returns void
-   */
-  const handlePageSizeChange = (
-    event: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    const nextSize = parsePositiveInteger(
-      event.target.value,
-      DEFAULT_PAGE_SIZE,
-  /**
-   * Navigates to the specified page, ensuring it is within valid bounds.
-   * @param requestedPage - The page number to navigate to.
-   * @returns void
-   */
-  const _goToPage = (requestedPage: number) => {
-    const lowerBounded = Math.max(1, requestedPage);
-    const bounded =
-      totalPages !== null ? Math.min(lowerBounded, totalPages) : lowerBounded;
-
-    if (bounded === page) {
-      return;
-    }
-
-    setPage(bounded);
-    updateQueryParams({ page: String(bounded) });
-  };
-
-  // Extracted component to reduce JSX nesting depth
-  const AssetClassFilter = ({
-    assetClasses,
-    filter,
-    handleFilterChange,
-  }: {
-    assetClasses: string[];
-    filter: typeof filter;
-    handleFilterChange: (field: string) => (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  }) => (
-    <div>
-      <label
-        htmlFor="asset-class-filter"
-        className="block text-sm font-medium text-gray-700 mb-2"
-      >
-        Asset Class
-      </label>
-      <select
-        className="w-full border border-gray-300 rounded-md px-3 py-2"
-        id="asset-class-filter"
-        value={filter.asset_class}
-        onChange={handleFilterChange("asset_class")}
-      >
-        <option value="">All Classes</option>
-        {assetClasses.map((ac) => (
-          <option key={ac} value={ac}>
-            {ac}
-          </option>
-        ))}
-      </select>
-    </div>
+  /** Render helpers */
+  const renderPageSizeOption = (size: number) => (
+    <option key={size} value={size}>
+      {size}
+    </option>
   );
 
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold mb-4">Filters</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <AssetClassFilter
-            assetClasses={assetClasses}
-            filter={filter}
-            handleFilterChange={handleFilterChange}
-          />
-        </div>
-      </div>
-          <div>
-            <label
-              htmlFor="sector-filter"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Sector
-            </label>
-            <select
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              id="sector-filter"
-              value={filter.sector}
-              onChange={handleFilterChange("sector")}
-            >
-              <option value="">All Sectors</option>
-              {sectors.map((sector) => (
-                <option key={sector} value={sector}>
-                  {sector}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+      <div className="bg-white rounded-lg shadow-md p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FilterSelect
+          label="Asset Class"
+          id="asset-class-filter"
+          options={assetClasses}
+          value={filter.asset_class}
+          onChange={handleFilterChange("asset_class")}
+          placeholder="All Classes"
+        />
+        <FilterSelect
+          label="Sector"
+          id="sector-filter"
+          options={sectors}
+          value={filter.sector}
+          onChange={handleFilterChange("sector")}
+          placeholder="All Sectors"
+        />
       </div>
 
-      {/* Asset List */}
+      {/* Asset Table */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         {(loading || error) && (
           <div
             className={`px-6 py-3 text-sm ${
-              error
-                ? "bg-red-50 text-red-700 border-b border-red-100"
-                : "bg-blue-50 text-blue-700 border-b border-blue-100"
+              error ? "bg-red-50 text-red-700 border-b border-red-100" : "bg-blue-50 text-blue-700 border-b border-blue-100"
             }`}
             role={error ? "alert" : "status"}
           >
@@ -350,76 +273,47 @@ export default function AssetList() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Symbol
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Class
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Sector
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Price
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Market Cap
-                </th>
+                {["Symbol", "Name", "Class", "Sector", "Price", "Market Cap"].map((heading) => (
+                  <th
+                    key={heading}
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    {heading}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="px-6 py-4 text-center text-gray-500"
-                  >
+                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
                     Loading...
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="px-6 py-4 text-center text-red-600"
-                  >
+                  <td colSpan={6} className="px-6 py-4 text-center text-red-600">
                     {error}
                   </td>
                 </tr>
               ) : assets.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="px-6 py-4 text-center text-gray-500"
-                  >
+                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
                     No assets found
                   </td>
                 </tr>
               ) : (
                 assets.map((asset) => (
                   <tr key={asset.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {asset.symbol}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {asset.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {asset.asset_class}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {asset.sector}
-                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{asset.symbol}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{asset.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{asset.asset_class}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{asset.sector}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {asset.currency} {asset.price.toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {asset.market_cap
-                        ? `$${(asset.market_cap / 1e9).toFixed(2)}B`
-                        : "N/A"}
+                      {asset.market_cap ? `$${(asset.market_cap / 1e9).toFixed(2)}B` : "N/A"}
                     </td>
                   </tr>
                 ))
@@ -427,6 +321,8 @@ export default function AssetList() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-gray-50 px-6 py-4 border-t border-gray-100">
           <div className="flex items-center space-x-2">
             <button
@@ -468,11 +364,13 @@ export default function AssetList() {
               onChange={handlePageSizeChange}
               className="border border-gray-300 rounded-md px-2 py-1 text-sm"
             >
-              {pageSizes.map(renderPageSizeOption)}
+              {PAGE_SIZE_OPTIONS.map(renderPageSizeOption)}
             </select>
           </div>
         </div>
       </div>
     </div>
   );
+}
+
 }
