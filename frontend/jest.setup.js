@@ -30,7 +30,7 @@ global.IntersectionObserver = class IntersectionObserver {
     return []
   }
 
-  unobserve () {
-    // no-op placeholder for ResizeObserver.unobserve in Jest environment
+unobserve () {
+    // no-op: required placeholder for IntersectionObserver.unobserve in Jest environment
   }
 }
