@@ -107,16 +107,19 @@ python .github/scripts/context_chunker.py
 ## Benefits
 
 ### Prevents Errors
+
 - No more "context length exceeded" failures
 - Handles PRs of any size
 - Graceful degradation when limits approached
 
 ### Maintains Quality
+
 - Prioritizes important information
 - Preserves code structure and context
 - Includes all critical review feedback
 
 ### Improves Performance
+
 - Faster processing of large PRs
 - Reduced token usage via summarization
 - Efficient use of API rate limits
