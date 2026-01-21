@@ -271,7 +271,22 @@ export default function AssetList() {
     assetClasses: string[];
     value: string;
     onChange: React.ChangeEventHandler<HTMLSelectElement>;
-  }> = ({ assetClasses, value, onChange }) => {
+  const AssetClassOptions: React.FC<{ isLoading: boolean; assetClasses: AssetClass[] }> = ({ isLoading, assetClasses }) => {
+    if (isLoading) {
+      return <option disabled>Loading...</option>;
+    }
+    return (
+      <>
+        {assetClasses.map((cls) => (
+          <option key={cls.id} value={cls.id}>
+            {cls.name}
+          </option>
+        ))}
+      </>
+    );
+  };
+
+  export const AssetClassFilter: React.FC<{ assetClasses: AssetClass[]; value: string; onChange: React.ChangeEventHandler<HTMLSelectElement> }> = ({ assetClasses, value, onChange }) => {
     const isLoading = assetClasses.length === 0;
 
     return (
@@ -298,6 +313,14 @@ export default function AssetList() {
     );
   };
 
+  /**
+   * Renders options for the asset class select dropdown.
+   *
+   * @param {Object} props - The component props.
+   * @param {boolean} props.isLoading - Indicates if the options are loading.
+   * @param {string[]} props.assetClasses - List of asset class names.
+   * @returns {JSX.Element} The option elements for the select input.
+   */
   const AssetClassOptions = ({ isLoading, assetClasses }) => {
     if (isLoading) {
       return <option value="">Loading...</option>;
@@ -314,6 +337,48 @@ export default function AssetList() {
     );
   };
 
+  /**
+   * Renders the sector filter section.
+   *
+   * @param {Object} props - The component props.
+   * @param {string[]} props.sectors - List of sector names.
+   * @param {string} props.value - Current selected sector.
+   * @param {Function} props.onChange - Change handler for sector filter.
+   * @returns {JSX.Element} The sector filter component.
+   */
+  const SectorFilter = ({ sectors, value, onChange }) => {
+    return (
+      <div>
+        <label
+          htmlFor="sector-filter"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
+          Sector
+        </label>
+        <select
+          className="w-full border border-gray-300 rounded-md px-3 py-2"
+          id="sector-filter"
+          value={value}
+          onChange={onChange}
+          disabled={sectors.length === 0}
+        >
+          {sectors.length === 0 ? (
+            <option value="">Loading...</option>
+          ) : (
+            <>
+              <option value="">All Sectors</option>
+              {sectors.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </>
+          )}
+        </select>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Filters */}
@@ -325,22 +390,11 @@ export default function AssetList() {
             value={filter.asset_class}
             onChange={handleFilterChange("asset_class")}
           />
-          <div>
-            <label
-              htmlFor="sector-filter"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Sector
-            </label>
-            <select
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              id="sector-filter"
-              value={filter.sector}
-              onChange={handleFilterChange("sector")}
-              disabled={sectors.length === 0}
-            >
-              {sectors.length === 0 ? (
-                <option value="">Loading...</option>
+          <SectorFilter
+            sectors={sectors}
+            value={filter.sector}
+            onChange={handleFilterChange("sector")}
+          />
               ) : (
                 <>
                   <option value="">All Sectors</option>
