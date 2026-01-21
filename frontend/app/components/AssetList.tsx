@@ -83,7 +83,7 @@ export default function AssetList() {
     return Math.max(1, Math.ceil(total / pageSize));
   }, [pageSize, total]);
 
-  buildQuerySummary(filter)
+  const querySummary = useMemo(
     () => buildQuerySummary(page, pageSize, filter),
     [filter, page, pageSize],
   );
