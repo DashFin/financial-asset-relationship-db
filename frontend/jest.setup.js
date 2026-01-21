@@ -22,13 +22,14 @@ global.IntersectionObserver = class IntersectionObserver {
   disconnect () {}
   /**
    * Placeholder for observer method.
-   * 
+   *
    * This method is intentionally left empty and can be overridden to implement observer logic.
    * @returns {void}
    */
   static observe () {
     // Intentionally empty: placeholder for observer
   }
+
   /**
    * Retrieves all recorded entries.
    *
