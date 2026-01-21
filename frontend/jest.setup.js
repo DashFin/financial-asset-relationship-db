@@ -6,12 +6,12 @@ const createMatchMedia = ({ defaultMatches = false } = {}) =>
     const listeners = new Set()
 
     const addChangeListener = (listener) => {
-// In afterEach hook, consider also clearing listener sets by resetting the mock implementation.
-afterEach(() => {
-  // Reset window.matchMedia to a fresh mock to clear all internal state
-  window.matchMedia = createMatchMedia();
-  intersectionObserverInstances.clear();
-});
+      // In afterEach hook, consider also clearing listener sets by resetting the mock implementation.
+      afterEach(() => {
+        // Reset window.matchMedia to a fresh mock to clear all internal state
+        window.matchMedia = createMatchMedia()
+        intersectionObserverInstances.clear()
+      })
     }
 
     const removeChangeListener = (listener) => {
