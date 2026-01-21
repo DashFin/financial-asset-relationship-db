@@ -82,7 +82,10 @@ jobs:
           
           # Fetch PR data
           PR_DATA=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number || github.event.issue.number }} \
-            --jq '{number: .number, title: .title, body: .body, changed_files: .changed_files, additions: .additions, deletions: .deletions}')
+            --jq '{number: .number, title: .title, body: .body, changed_files: .changed_files, additions: .additions, deletions: .deletions}' 2>/dev/null) || {
+            echo "::warning::Failed to fetch PR data, using minimal context"
+            PR_DATA='{"number": 0, "title": "", "body": ""}'
+          }
           
           # Fetch reviews
           REVIEWS=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number || github.event.issue.number }}/reviews \
