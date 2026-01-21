@@ -109,7 +109,10 @@ jobs:
           CONTEXT_SIZE=$(wc -c < /tmp/pr_context.json)
           echo "context_size=${CONTEXT_SIZE}" >> $GITHUB_OUTPUT
           
-          if [ $CONTEXT_SIZE -gt 100000 ]; then
+          # Context size threshold (configurable via repository variable)
+          CONTEXT_THRESHOLD="${{ vars.PR_AGENT_CONTEXT_THRESHOLD || 100000 }}"
+          
+          if [ $CONTEXT_SIZE -gt $CONTEXT_THRESHOLD ]; then
             echo "⚠️ Large context detected (${CONTEXT_SIZE} bytes), applying chunking..."
             python .github/scripts/context_chunker.py < /tmp/pr_context.json > /tmp/pr_context_chunked.json
             echo "chunked=true" >> $GITHUB_OUTPUT
