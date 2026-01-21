@@ -45,8 +45,21 @@ Object.defineProperty(window, 'matchMedia', {
 
 const intersectionObserverInstances = new Set()
 
+
+/**
+ * MockIntersectionObserver simulates the browser's IntersectionObserver for testing.
+ *
+ * It provides jest.fn mocks for observe, unobserve, disconnect, and takeRecords,
+ * and allows manual triggering of intersection entries.
+ */
 class MockIntersectionObserver {
-  constructor (callback = () => {}, options = {}) {
+  /**
+   * Constructs a new MockIntersectionObserver.
+   *
+   * @param {Function} callback - Callback invoked with intersection entries.
+   * @param {Object} [options={}] - IntersectionObserver options.
+   */
+  constructor (callback = () => { /* default no-op callback */ }, options = {}) {
     this._callback = callback
     this._options = options
     this._elements = new Set()
