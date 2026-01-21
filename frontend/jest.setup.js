@@ -117,4 +117,3 @@ afterEach(() => {
     MockIntersectionObserver.prototype.disconnect.mockClear();
   }
 });
-
