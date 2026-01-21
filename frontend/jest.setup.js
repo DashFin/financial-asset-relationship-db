@@ -37,8 +37,8 @@ delete observe () {
 
   /**
    * Retrieves all recorded entries.
-   *
-   * @returns {Array} An array of recorded entries.
+   takeRecords () {
+     return []
    */
   static takeRecords () {
     return []
