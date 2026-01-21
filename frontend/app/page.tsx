@@ -25,8 +25,22 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadData() {
-    // existing implementation of loadData
+async function loadData() {
+    setLoading(true);
+    setError(null);
+    try {
+      const [metricsData, visualizationData] = await Promise.all([
+        api.getMetrics(),
+        api.getVisualizationData(),
+      ]);
+      setMetrics(metricsData);
+      setVizData(visualizationData);
+    } catch (err) {
+      console.error("Error loading data:", err);
+      setError("Failed to load data. Please ensure the API server is running.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
