@@ -282,7 +282,7 @@ export default function AssetList() {
           <AssetListContent
             loading={loading}
             error={error}
-            assets={data?.assets || []}
+            assets={assets}
             page={page}
             pageSize={pageSize}
             totalPages={totalPages}
