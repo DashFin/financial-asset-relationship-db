@@ -104,21 +104,7 @@ export default function AssetList() {
    * Loads asset classes and sectors metadata and updates the state.
    * @returns {Promise<void>} A promise that resolves when the metadata has been loaded.
    */
-const loadMetadata = useCallback(async () => {
-  try {
-    const [classesData, sectorsData] = await Promise.all([
-      api.getAssetClasses(),
-      api.getSectors(),
-    ]);
-    setAssetClasses(classesData.asset_classes);
-    setSectors(sectorsData.sectors);
-    // Clear metadata-specific error on success
-    setError((prev) => (prev?.includes("filter options") ? null : prev));
-  } catch (err) {
-    console.error("Error loading metadata:", err);
-    setError("Unable to load filter options. Please try again.");
-  }
-}, []);
+  const loadMetadata = useCallback(async () => {
     try {
       const [classesData, sectorsData] = await Promise.all([
         api.getAssetClasses(),
@@ -126,9 +112,10 @@ const loadMetadata = useCallback(async () => {
       ]);
       setAssetClasses(classesData.asset_classes);
       setSectors(sectorsData.sectors);
+      setError((prev) => (prev?.includes("filter options") ? null : prev));
     } catch (err) {
       console.error("Error loading metadata:", err);
-      setError("Unable to load filter options. Please try again.");
+      setError(
         (prev) => prev ?? "Unable to load filter options. Please try again.",
       );
     }
@@ -216,11 +203,11 @@ const loadMetadata = useCallback(async () => {
   );
 
   useEffect(() => {
-    loadMetadata();
+    void loadMetadata();
   }, [loadMetadata]);
 
   useEffect(() => {
-    loadAssets();
+    void loadAssets();
   }, [loadAssets]);
 
   const totalPages = useMemo(() => {
@@ -341,7 +328,6 @@ const loadMetadata = useCallback(async () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <AssetClassFilter />
           <SectorFilter />
-          </div>
         </div>
       </div>
 
