@@ -41,7 +41,13 @@ async function loadData() {
     } finally {
       setLoading(false);
     } finally {
+    } catch (err) {
+      console.error("Error loading data:", err);
+      setError("Failed to load data. Please ensure the API server is running.");
+    } finally {
       setLoading(false);
+    }
+  }
     }
   }
       // Avoid leaking potentially sensitive details in production logs.
