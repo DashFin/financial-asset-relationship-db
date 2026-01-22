@@ -201,11 +201,11 @@ export default function AssetList() {
   );
 
   useEffect(() => {
-    void loadMetadata();
+    loadMetadata();
   }, [loadMetadata]);
 
   useEffect(() => {
-    void loadAssets();
+    loadAssets();
   }, [loadAssets]);
 
   const totalPages = useMemo(() => {
@@ -270,6 +270,11 @@ export default function AssetList() {
    * Renders a dropdown filter component for selecting an asset class.
    * @returns JSX.Element The rendered select dropdown component.
    */
+  /**
+   * Renders a dropdown filter for selecting asset classes.
+   *
+   * @returns JSX.Element representing the asset class filter dropdown.
+   */
   const AssetClassFilter: React.FC = () => (
     <div>
       <label
@@ -294,6 +299,11 @@ export default function AssetList() {
     </div>
   );
 
+  /**
+   * Renders a dropdown filter for selecting sectors.
+   *
+   * @returns JSX.Element representing the sector filter dropdown.
+   */
   const SectorFilter: React.FC = () => (
     <div>
       <label
@@ -318,33 +328,22 @@ export default function AssetList() {
     </div>
   );
 
-  return (
-    <div className="space-y-6">
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold mb-4">Filters</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <AssetClassFilter />
-          <SectorFilter />
+  const AssetListTable: React.FC = () => (
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      {(loading || error) && (
+        <div
+          className={`px-6 py-3 text-sm ${
+            error
+              ? "bg-red-50 text-red-700 border-b border-red-100"
+              : "bg-blue-50 text-blue-700 border-b border-blue-100"
+          }`}
+          role={error ? "alert" : "status"}
+        >
+          {error || `Loading results for ${querySummary}...`}
         </div>
-      </div>
-
-      {/* Asset List */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {(loading || error) && (
-          <div
-            className={`px-6 py-3 text-sm ${
-              error
-                ? "bg-red-50 text-red-700 border-b border-red-100"
-                : "bg-blue-50 text-blue-700 border-b border-blue-100"
-            }`}
-            role={error ? "alert" : "status"}
-          >
-            {error || `Loading results for ${querySummary}...`}
-          </div>
-        )}
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+      )}
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
