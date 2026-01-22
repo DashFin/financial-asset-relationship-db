@@ -1,5 +1,6 @@
 """Shared fixtures for integration tests."""
 
+
 from pathlib import Path
 from typing import List, Tuple
 
