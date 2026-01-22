@@ -18,11 +18,11 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
-  disconnect () {
+  static disconnect() {
     // no-op: required placeholder for teardown
   }
 
-  observe () {
+  static observe () {
     // intentionally empty placeholder for tests
   }
 
