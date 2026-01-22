@@ -53,9 +53,7 @@ class TestPRAgentWorkflowDuplicateKeyRegression:
             return f.read()
 
     @staticmethod
-    def test_no_duplicate_step_name_setup_python(
-        workflow_content: Dict[str, Any]
-    ):
+    def test_no_duplicate_step_name_setup_python(workflow_content: Dict[str, Any]):
         """Test that there's no duplicate 'Setup Python' step name."""
         for job_name, job_config in workflow_content.get("jobs", {}).items():
             steps = job_config.get("steps", [])
