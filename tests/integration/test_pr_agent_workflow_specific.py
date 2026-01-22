@@ -283,5 +283,3 @@ class TestPRAgentWorkflowSetupSteps:
             assert python_idx < node_idx, (
                 "Setup Python should come before Setup Node.js"
             )
-                "Setup Python should come before Setup Node.js"
-            )
