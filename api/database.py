@@ -93,6 +93,13 @@ _MEMORY_CONNECTION_LOCK = threading.Lock()
 
 
 def _is_memory_db(path: str | None = None) -> bool:
+"""
+Database API module.
+
+This module provides helper functions and connectors for SQLite database operations,
+including detection of in-memory databases and creation of configured connections.
+"""
+
     """
     Check whether the configured or provided SQLite path denotes an in-memory database.
 
@@ -119,13 +126,22 @@ def _is_memory_db(path: str | None = None) -> bool:
 
 
 def _make_connector():
+    """
+    Create a connector function for database connections.
+
+    This factory function initializes a persistent shared connection and lock for
+    in-memory SQLite databases and returns a `_connect` function. When called,
+    `_connect` provides a sqlite3.Connection configured with type detection,
+    multi-threading support, and URI handling. For in-memory databases, the
+    connection is shared across calls; for file-backed databases, a new
+    connection is created per call.
+    """
     memory_connection = None
     memory_connection_lock = threading.Lock()
 
     def _connect() -> sqlite3.Connection:
         """
         Open a configured SQLite connection for the module's database path.
-
 
         Returns a persistent shared connection when the configured database is
         in-memory; for file-backed databases, returns a new connection instance.

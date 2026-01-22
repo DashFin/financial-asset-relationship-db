@@ -257,23 +257,23 @@ class FormulaicVisualizer:
         return fig
 
     def create_formula_detail_view(self, formula: Formula) -> go.Figure:
-            """
-            Render a text-based Plotly figure that summarizes a
-            Formula object.
+        """
+        Render a text-based Plotly figure that summarizes a
+        Formula object.
 
-            Parameters:
-                formula (Formula): Formula instance whose fields will
-                    be displayed. Expected attributes used:
-                - name, formula, latex, description, category, r_squared,
-                - variables (mapping of variable name to description),
-                - example_calculation.
+        Parameters:
+            formula (Formula): Formula instance whose fields will
+                be displayed. Expected attributes used:
+            - name, formula, latex, description, category, r_squared,
+            - variables (mapping of variable name to description),
+            - example_calculation.
 
-            Returns:
-                go.Figure: A Plotly Figure containing a single styled
-                    annotation with the formula's name, mathematical
-                    expression, LaTeX, description, category, R²,
-                    variable list, and an example calculation.
-            """
+        Returns:
+            go.Figure: A Plotly Figure containing a single styled
+                annotation with the formula's name, mathematical
+                expression, LaTeX, description, category, R²,
+                variable list, and an example calculation.
+        """
         fig = go.Figure()
 
         # Create a text-based visualization of the formula

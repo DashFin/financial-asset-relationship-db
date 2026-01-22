@@ -19,11 +19,6 @@ class DummyGraph(AssetRelationshipGraph):
         self.relationships = relationships
 
 
-"""
-Unit tests for graph visualization utilities including asset ID indexing, relationship indexing, directional arrows creation, and default colors.
-"""
-
-
 def get_3d_visualization_data_enhanced(self):
     # Return positions (n,3), asset_ids, colors, hover_texts
     """

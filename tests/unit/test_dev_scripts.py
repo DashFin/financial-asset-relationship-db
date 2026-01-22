@@ -403,7 +403,8 @@ class TestShellScripts:
             or "documentation" in content.lower()
         )
 
-    def test_shell_scripts_consistent_style(self):
+    @staticmethod
+    def test_shell_scripts_consistent_style():
         """
         Verify shell scripts use a consistent variable-naming style for global variables.
 

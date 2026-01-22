@@ -125,8 +125,8 @@ def main(argv: list[str] | None = None) -> int:
         int: Exit code (0 for successful run or when --version is printed).
 
     Raises:
-        SystemExit: If an optional MCP dependency is missing; message will indicate which
-            package to install.
+        SystemExit: If an optional MCP dependency is missing;
+            message will indicate which package to install.
     """
     parser = argparse.ArgumentParser(
         prog="mcp_server.py",

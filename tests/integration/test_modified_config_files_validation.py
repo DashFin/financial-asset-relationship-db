@@ -38,6 +38,12 @@ class TestPRAgentConfigChanges:
         Parameters:
             config_path (Path): Path to the `.github/pr-agent-config.yml` file to read.
 
+    @pytest.fixture
+    @staticmethod
+    def config_data(config_path: Path) -> Dict[str, Any]:
+        """
+        Parse the PR agent configuration.
+
         Returns:
             config (Dict[str, Any]): Mapping representing the parsed YAML configuration.
         """

@@ -509,15 +509,17 @@ class FormulaicdAnalyzer:
 
         Returns:
             dict: A mapping with empirical metrics, typically including:
-                - "correlation_matrix" (Dict[Tuple[str, str], float]): pairwise correlation
-                    values between asset identifiers.
-                - "r_squared_estimates" (Dict[str, float]): goodness-of-fit
-                    estimates keyed by formula or relationship name.
+                - "correlation_matrix" (Dict[Tuple[str, str], float]):
+                    pairwise correlation values between asset identifiers.
+                - "r_squared_estimates" (Dict[str, float]):
+                    goodness-of-fit estimates keyed by formula or
+                    relationship name.
                 - "relationship_strengths" (Dict[Tuple[str, str], float]):
                     computed strength or weight of relationships
                     between asset pairs.
-                - "metadata" (Dict[str, Any]): auxiliary information such as
-                    sample sizes, time windows, and computation notes.
+                - "metadata" (Dict[str, Any]):
+                    auxiliary information such as sample sizes, time windows,
+                    and computation notes.
         """
         raise NotImplementedError()
 

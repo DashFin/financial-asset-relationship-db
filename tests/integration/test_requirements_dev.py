@@ -358,7 +358,8 @@ class TestFileOrganization:
         with open(REQUIREMENTS_FILE, "r", encoding="utf-8") as f:
             return f.readlines()
 
-    def test_reasonable_file_size(self, file_lines: List[str]):
+    @staticmethod
+    def test_reasonable_file_size(file_lines: List[str]):
         """Test that file isn't excessively large."""
         assert len(file_lines) < 100
 

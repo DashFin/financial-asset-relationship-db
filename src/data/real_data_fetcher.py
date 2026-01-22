@@ -32,7 +32,6 @@ class RealDataFetcher:
         enable_network: bool = True,
     ):
         """
-        """
         Initialise the RealDataFetcher with optional cache, fallback, and network
         controls.
 
@@ -51,6 +50,7 @@ class RealDataFetcher:
                 for fetching live data.
                 When False, the fetcher will not attempt network calls
                 and will use the fallback dataset.
+        """
         """
         self.session = None
         self.cache_path = Path(cache_path) if cache_path else None

@@ -215,7 +215,6 @@ class AssetGraphRepository:
 
     def delete_regulatory_event(self, event_id: str) -> None:
         """Delete a regulatory event."""
-
         record = self.session.get(RegulatoryEventORM, event_id)
         if record is not None:
             self.session.delete(record)

@@ -28,7 +28,8 @@ logger = logging.getLogger(__name__)
 
 # ------------- Constants -------------
 class AppConstants:
-    """Application-wide constants including UI titles, labels, headers, and messages for the Financial Asset Relationship Database Visualization application."""
+    """Application-wide constants including UI titles, labels, headers, and messages
+    for the Financial Asset Relationship Database Visualization application."""
 
     TITLE = "Financial Asset Relationship Database Visualization"
     MARKDOWN_HEADER = """
@@ -183,7 +184,8 @@ class FinancialAssetApp:
         relationship graph.
 
         Parameters:
-            graph (AssetRelationshipGraph): Graph from which network metrics are calculated.
+            graph (AssetRelationshipGraph):
+                Graph from which network metrics are calculated.
 
         Returns:
             str: Multi-line text block containing total assets,
@@ -498,7 +500,6 @@ class FinancialAssetApp:
                     set to True.
         """
         try:
-            pass
             return None
         except Exception as e:
             logger.error("Error showing formula details: %s", e)

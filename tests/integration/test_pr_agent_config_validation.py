@@ -450,7 +450,8 @@ class TestPRAgentConfigSecurity:
                     if any(p in key_l for p in sensitive_patterns):
                         assert v in safe_placeholders, (
                             f"Potential hardcoded credential at '{new_path}'"
-    @ staticmethod
+                        )
+    @staticmethod
     def test_no_hardcoded_secrets(pr_agent_config):
         """
         Ensure keys or values that indicate credentials or secrets are replaced with safe placeholders.

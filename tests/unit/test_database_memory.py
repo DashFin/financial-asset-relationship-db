@@ -118,8 +118,9 @@ class TestIsMemoryDb:
         assert reloaded_database._is_memory_db() is True
         assert reloaded_database._is_memory_db(":memory:") is True
 
+    @staticmethod
     def test_is_memory_db_with_file_uri_memory(
-        self, monkeypatch, restore_database_module
+        monkeypatch, restore_database_module
     ):
         """Test that _is_memory_db returns True for file::memory: URI format."""
         # Test file::memory: pattern
@@ -493,8 +494,8 @@ class TestEdgeCasesAndErrorHandling:
         ):
             importlib.reload(database)
 
-    def test_execute_with_memory_db_commits_changes(
-        self, monkeypatch, restore_database_module
+    def test_execute_with_memory_db_commits_changes(self,
+        monkeypatch, restore_database_module
     ):
         """Test that execute function properly commits changes to memory database."""
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
@@ -538,9 +539,7 @@ class TestEdgeCasesAndErrorHandling:
         )
         assert result is None
 
-    def test_connection_row_factory_returns_dict_like_rows(
-        self, monkeypatch, restore_database_module
-    ):
+    def test_connection_row_factory_returns_dict_like_rows(self, monkeypatch, restore_database_module):
         """Test that connections return dict-like Row objects."""
         import sqlite3
 
