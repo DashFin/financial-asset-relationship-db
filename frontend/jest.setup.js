@@ -26,11 +26,15 @@ global.IntersectionObserver = class IntersectionObserver {
     // intentionally empty placeholder for tests
   }
 
-  takeRecords () {
+  /**
+   * Returns an empty array of records.
+   * @returns {any[]} An empty array of records.
+   */
+  static takeRecords () {
     return []
   }
 
-  unobserve () {
+  static unobserve () {
     // no-op placeholder for ResizeObserver.unobserve in Jest environment
   }
 }
