@@ -64,14 +64,14 @@ def assert_invalid(result: ValidationResult) -> None:
 
 
  def assert_valid(result: ValidationResult) -> None:
-    """
-    Assert that a ValidationResult represents a successful validation.
+     """
+     Assert that a ValidationResult represents a successful validation.
 
-    Parameters:
-        result (ValidationResult): The validation result to check; the function asserts that `result.is_valid` is True and that `result.errors` is empty.
-    """
-    assert result.is_valid is True
-    assert not result.errors
+     Parameters:
+         result (ValidationResult): The validation result to check; the function asserts that `result.is_valid` is True and that `result.errors` is empty.
+     """
+     assert result.is_valid is True
+     assert not result.errors
 
 
 # ---------------------------------------------------------------------------
