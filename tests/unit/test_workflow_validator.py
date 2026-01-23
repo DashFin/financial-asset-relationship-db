@@ -63,7 +63,7 @@ def assert_invalid(result: ValidationResult) -> None:
     assert result.errors
 
 
-def assert_valid(result: ValidationResult) -> None:
+ def assert_valid(result: ValidationResult) -> None:
     """
     Assert that a ValidationResult represents a successful validation.
 
@@ -79,12 +79,8 @@ def assert_valid(result: ValidationResult) -> None:
 # ---------------------------------------------------------------------------
 
 
-"""
-Unit tests for the ValidationResult class, verifying behavior of valid and invalid results and data preservation on failure.
-"""
-
-
 class TestValidationResult:
+    """Unit tests for the ValidationResult class, verifying behavior of valid and invalid results and data preservation on failure."""
     @staticmethod
     def test_valid_result():
         """Test that a valid ValidationResult correctly sets is_valid, errors, and workflow_data."""
