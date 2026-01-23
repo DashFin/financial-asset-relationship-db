@@ -82,7 +82,7 @@ class TestCodeSherlockConfigContent:
         """Verify that all target branches are strings."""
         for branch in codesherlock_config["target_branches"]:
             assert isinstance(branch, str), f"Branch '{branch}' should be a string"
-            assert len(branch) > 0, f"Branch name should not be empty"
+            assert len(branch) > 0, "Branch name should not be empty"
 
     def test_target_branches_no_duplicates(self, codesherlock_config: Dict[str, Any]):
         """Verify that target_branches contains no duplicates."""
