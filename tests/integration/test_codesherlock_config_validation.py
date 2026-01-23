@@ -39,6 +39,7 @@ def codesherlock_config(codesherlock_config_path: Path) -> Dict[str, Any]:
     with open(codesherlock_config_path, "r") as f:
         return yaml.safe_load(f)
 
+
 class TestCodeSherlockConfigStructure:
      """Test suite for codesherlock.yaml configuration structure."""
 
@@ -65,6 +66,7 @@ class TestCodeSherlockConfigStructure:
              assert isinstance(config, dict), "Config should be a dictionary"
          except yaml.YAMLError as e:
              pytest.fail(f"Invalid YAML syntax: {e}")
+
 
 class TestCodeSherlockConfigStructure:
     """Test suite for codesherlock.yaml configuration structure."""
