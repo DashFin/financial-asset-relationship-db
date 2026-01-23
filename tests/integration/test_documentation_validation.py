@@ -57,33 +57,21 @@ class TestDocumentStructure:
 
     @staticmethod
     def test_has_overview_section(summary_content: str):
-        """
-        Assert the Markdown document contains an "## Overview" section.
-
-        Parameters:
-            summary_content (str): The full text of the summary file to inspect.
-        """
+        """Test that document has an Overview section."""
         assert "## Overview" in summary_content, (
             "Document should have an Overview section"
         )
 
     @staticmethod
     def test_has_generated_files_section(summary_content: str):
-        """
-        Check that the document includes a "## Generated Files" section.
-        """
+        """Test that document describes generated files."""
         assert "## Generated Files" in summary_content, (
             "Document should list generated files"
         )
 
     @staticmethod
     def test_has_test_suite_structure_section(summary_content: str):
-        """
-        Verify the document contains a "## Test Suite Structure" section.
-
-        Parameters:
-            summary_content (str): Full text of the markdown document to inspect.
-        """
+        """Test that document describes test suite structure."""
         assert "## Test Suite Structure" in summary_content, (
             "Document should describe test structure"
         )

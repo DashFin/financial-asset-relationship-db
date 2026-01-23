@@ -401,13 +401,7 @@ class TestBearerWorkflowComments:
 
     @staticmethod
     def test_has_header_comment(bearer_workflow_raw):
-        """
-        Assert the workflow file starts with a header comment and includes the third-party action disclaimer.
-
-        Checks:
-        - The file begins with a comment character (`#`).
-        - The header contains the phrase "not certified by GitHub".
-        """
+        """Verify the workflow has a header comment explaining its purpose."""
         assert bearer_workflow_raw.startswith("#"), (
             "Workflow should start with a comment"
         )
@@ -418,10 +412,15 @@ class TestBearerWorkflowComments:
     @staticmethod
     def test_has_bearer_documentation_link(bearer_workflow_raw):
         """Verify the workflow references Bearer documentation."""
-        assert (
-            "bearer.com" in bearer_workflow_raw.lower()
-            or "docs.bearer" in bearer_workflow_raw.lower()
-        ), "Workflow should reference Bearer documentation"
+        content = bearer_workflow_raw.lower()
+        allowed_hosts = [
+            "docs.bearer.com",
+            "www.bearer.com",
+            "bearer.com",
+        ]
+        assert any(host in content for host in allowed_hosts), (
+            "Workflow should reference Bearer documentation"
+        )
 
     @staticmethod
     def test_has_inline_comments(bearer_workflow_raw):

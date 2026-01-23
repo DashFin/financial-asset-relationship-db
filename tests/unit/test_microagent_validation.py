@@ -160,12 +160,12 @@ class TestRepoEngineerLead(TestMicroagentValidation):
         version = repo_engineer_frontmatter["version"]
         assert isinstance(version, str)
         # Should match semantic versioning pattern
-        assert re.match(r"^\d+\.\d+\.\d+$$", version), (
+        +assert re.match(r"^\d+\.\d+\.\d+$", version), "Version should follow semver format (x.y.z)"
             "Version should follow semver format (x.y.z)"
         )
 
-    @staticmethod
-    def test_frontmatter_agent_field(repo_engineer_frontmatter: dict[str, Any]):
+    @ staticmethod
+    def test_frontmatter_agent_field(repo_engineer_frontmatter: Dict[str, Any]):
         """Test that agent field is valid."""
         assert "agent" in repo_engineer_frontmatter
         agent = repo_engineer_frontmatter["agent"]
@@ -175,8 +175,8 @@ class TestRepoEngineerLead(TestMicroagentValidation):
         valid_agents = ["CodeActAgent", "PlannerAgent", "BrowsingAgent"]
         assert agent in valid_agents, f"Agent should be one of {valid_agents}"
 
-    @staticmethod
-    def test_frontmatter_no_triggers(repo_engineer_frontmatter: dict[str, Any]):
+    @ staticmethod
+    def test_frontmatter_no_triggers(repo_engineer_frontmatter: Dict[str, Any]):
         """Test that triggers field is absent (as documented in the content)."""
         # The content states "the microagent doesn't have any triggers"
         # So triggers should either be absent or empty
@@ -186,7 +186,7 @@ class TestRepoEngineerLead(TestMicroagentValidation):
                 "repo_engineer_lead should not have triggers as per documentation"
             )
 
-    @staticmethod
+    @ staticmethod
     def test_body_content_not_empty(repo_engineer_body: str):
         """Test that body content is not empty."""
         assert len(repo_engineer_body.strip()) > 0
