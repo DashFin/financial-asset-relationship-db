@@ -81,8 +81,7 @@ def assert_invalid(result: ValidationResult) -> None:
 
 class TestValidationResult:
     """Unit tests for the ValidationResult class, verifying behavior of valid and invalid results and data preservation on failure."""
-    @staticmethod
-    def test_valid_result():
+def test_valid_result(self):
         """Test that a valid ValidationResult correctly sets is_valid, errors, and workflow_data."""
         data = {"jobs": {}}
         result = ValidationResult(True, [], data)
