@@ -39,7 +39,6 @@ def codesherlock_config_path() -> Path:
      with open(codesherlock_config_path, "r") as f:
          return yaml.safe_load(f)
 
-
  class TestCodeSherlockConfigStructure:
      """Test suite for codesherlock.yaml configuration structure."""
 
@@ -117,7 +116,6 @@ def codesherlock_config_path() -> Path:
              "preferred_characteristics should not be empty"
          )
 
-
  class TestCodeSherlockConfigContent:
      """Test suite for codesherlock.yaml configuration content validation."""
 
@@ -193,7 +191,6 @@ def codesherlock_config_path() -> Path:
              assert isinstance(codesherlock_config["additional_instructions"], list), (
                  "additional_instructions should be a list when present"
              )
-
 
  class TestCodeSherlockConfigBestPractices:
      """Test suite for codesherlock.yaml best practices and recommendations."""
@@ -279,7 +276,6 @@ def codesherlock_config_path() -> Path:
              "At least one common development branch (main, master, develop) should be included"
          )
 
-
  class TestCodeSherlockConfigEdgeCases:
      """Test suite for edge cases in codesherlock.yaml configuration."""
 
@@ -351,7 +347,6 @@ def codesherlock_config_path() -> Path:
                      f"Line {i} should use 2-space indentation"
                  )
 
-
  class TestCodeSherlockConfigIntegration:
      """Integration tests for codesherlock.yaml with the project."""
 
@@ -399,7 +394,6 @@ def codesherlock_config_path() -> Path:
          assert not missing_critical, (
              f"Critical characteristics for financial applications are missing: {missing_critical}"
          )
-
 
  class TestCodeSherlockConfigDocumentation:
      """Test suite for documentation and comments in codesherlock.yaml."""
