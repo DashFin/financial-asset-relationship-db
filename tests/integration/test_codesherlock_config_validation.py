@@ -370,7 +370,12 @@ class TestCodeSherlockConfigIntegration:
         """
         Assert that the configuration includes critical characteristics required for a financial application.
 
-        Checks that 'Input Validation', 'Exception Handling', and 'Monitoring and Logging' appear in `preferred_characteristics`; the test fails with a message listing any missing characteristics.
+        Checks that 'Input Validation', 'Exception Handling', and 'Monitoring and Logging'
+        appear in `preferred_characteristics`. The test fails with a message listing any
+        missing characteristics.
+
+        Parameters:
+            codesherlock_config (Dict[str, Any]): Parsed codesherlock.yaml configuration.
         """
         characteristics = set(codesherlock_config["preferred_characteristics"])
 
