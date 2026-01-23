@@ -38,7 +38,7 @@ class Asset:
     def __post_init__(self):
         """
         Validate asset fields after dataclass initialization.
-        
+
         Ensures `id`, `symbol`, and `name` are non-empty strings; `price` is a number greater than or equal to zero; `market_cap`, if provided, is a number greater than or equal to zero; and `currency` is a three-letter ISO code (letters only, case-insensitive). Raises `ValueError` when any validation fails with a descriptive message.
         """
         if not self.id or not isinstance(self.id, str):
@@ -111,13 +111,13 @@ class RegulatoryEvent:
     def __post_init__(self):
         """
         Validate RegulatoryEvent fields and raise ValueError on invalid values.
-        
+
         Checks:
         - `id` and `asset_id` are non-empty strings.
         - `impact_score` is a number between -1 and 1 inclusive.
         - `date` matches a basic ISO 8601 date pattern (`YYYY-MM-DD...`).
         - `description` is a non-empty string.
-        
+
         Raises:
             ValueError: If any field fails its validation.
         """

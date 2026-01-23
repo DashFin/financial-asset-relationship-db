@@ -230,7 +230,7 @@ class TestGreetingsWorkflowChanges:
     def test_no_complex_markdown_formatting(self, greetings_workflow):
         """
         Check that the greeting workflow's messages do not include complex markdown fragments.
-        
+
         This test locates the step using actions/first-interaction in the greeting job and asserts its `issue-message` and `pr-message` (if present) do not contain a "**Resources:**" section or the "✅" checkmark character.
         """
         jobs = greetings_workflow.get("jobs", {})
@@ -287,7 +287,7 @@ class TestLabelWorkflowChanges:
     def test_no_checkout_step(self, label_workflow):
         """
         Ensure the 'label' job contains no steps that use actions/checkout.
-        
+
         Fails if any step in the 'label' job references 'actions/checkout' in its `uses` field.
         """
         jobs = label_workflow.get("jobs", {})
@@ -356,9 +356,9 @@ class TestRequirementsDevChanges:
 
         # Should have version specifier
         pyyaml_line = pyyaml_lines[0]
-        assert any(op in pyyaml_line for op in ["==", ">=", "<=", "~="]), (
-            "PyYAML should have version constraint"
-        )
+        assert any(
+            op in pyyaml_line for op in ["==", ">=", "<=", "~="]
+        ), "PyYAML should have version constraint"
 
     @staticmethod
     def test_no_duplicate_dependencies():

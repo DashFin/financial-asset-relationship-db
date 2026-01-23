@@ -22,7 +22,7 @@ class DummyGraph(AssetRelationshipGraph):
         # Return positions (n,3), asset_ids, colors, hover_texts
         """
         Builds deterministic 3D visualization data for the graph's assets.
-        
+
         Returns:
             positions (numpy.ndarray): Float array of shape (n, 3) containing a 3D position for each asset.
             asset_ids (list[str]): Sorted list of unique asset identifiers found as relationship sources or targets.

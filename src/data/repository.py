@@ -59,7 +59,7 @@ class AssetGraphRepository:
     def list_assets(self) -> List[Asset]:
         """
         Retrieve all assets as dataclass instances ordered by id.
-        
+
         Returns:
             List[Asset]: A list of Asset instances ordered by asset id.
         """
@@ -72,7 +72,7 @@ class AssetGraphRepository:
     def get_assets_map(self) -> Dict[str, Asset]:
         """
         Map asset IDs to their corresponding Asset dataclass instances.
-        
+
         Returns:
             assets_map (Dict[str, Asset]): Dictionary mapping each asset's `id` to its Asset instance.
         """
@@ -123,7 +123,7 @@ class AssetGraphRepository:
     def list_relationships(self) -> List[RelationshipRecord]:
         """
         List all asset relationships stored in the database.
-        
+
         Returns:
             relationships (List[RelationshipRecord]): A list of RelationshipRecord objects, each containing
             source_id, target_id, relationship_type, strength, and bidirectional.
@@ -146,7 +146,7 @@ class AssetGraphRepository:
     ) -> Optional[RelationshipRecord]:
         """
         Retrieve the relationship between two assets that matches the specified relationship type.
-        
+
         Returns:
             RelationshipRecord: The matching relationship record, or `None` if no relationship is found.
         """
@@ -172,9 +172,9 @@ class AssetGraphRepository:
     ) -> None:
         """
         Remove the relationship of the given type between two assets.
-        
+
         If a matching relationship exists in the repository it is deleted; otherwise no action is taken.
-        
+
         Parameters:
             source_id (str): ID of the source asset.
             target_id (str): ID of the target asset.
@@ -231,7 +231,7 @@ class AssetGraphRepository:
     def _update_asset_orm(orm: AssetORM, asset: Asset) -> None:
         """
         Synchronizes an Asset dataclass into an AssetORM instance, updating persistent fields and clearing optional fields to avoid stale values.
-        
+
         Parameters:
             orm (AssetORM): ORM instance to be updated in-place.
             asset (Asset): Source dataclass whose fields will be applied to the ORM.

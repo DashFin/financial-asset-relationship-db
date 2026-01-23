@@ -62,14 +62,14 @@ def load_config() -> Dict[str, Any]:
 def extract_code_suggestions(comment_body: str) -> List[Dict[str, str]]:
     """
     Extracts suggested code snippets from a review comment body.
-    
+
     Scans the provided comment text for two suggestion forms:
     - fenced suggestion blocks starting with ```suggestion``` (captured as `code_suggestion`)
     - inline suggestions using phrases like "should be", "change to", "replace with", or "use" followed by backticked content (captured as `inline_suggestion`).
-    
+
     Parameters:
         comment_body (str): The raw comment text (Markdown) to analyze for suggestions.
-    
+
     Returns:
         List[Dict[str, str]]: A list of suggestion objects. Each object has:
             - `type`: either `"code_suggestion"` or `"inline_suggestion"`.
@@ -99,10 +99,10 @@ def extract_code_suggestions(comment_body: str) -> List[Dict[str, str]]:
 def categorize_comment(comment_body: str) -> Tuple[str, int]:
     """
     Assigns a category and priority to a review comment based on keyword matching.
-    
+
     Parameters:
         comment_body (str): The review comment text to classify.
-    
+
     Returns:
         tuple: (category, priority) where `category` is one of 'critical', 'bug', 'question', 'style', or 'improvement', and `priority` is 1 (high), 2 (medium), or 3 (low). Defaults to ('improvement', 2) when no keywords match.
     """
@@ -133,11 +133,11 @@ def categorize_comment(comment_body: str) -> Tuple[str, int]:
 def is_actionable(comment_body: str, actionable_keywords: List[str]) -> bool:
     """
     Determine whether a review comment contains any actionable keywords (case-insensitive).
-    
+
     Parameters:
         comment_body (str): The text of the comment to inspect.
         actionable_keywords (List[str]): Substrings that indicate actionable feedback.
-    
+
     Returns:
         `true` if any actionable keyword appears in the comment body, `false` otherwise.
     """
@@ -150,11 +150,11 @@ def parse_review_comments(
 ) -> List[Dict[str, Any]]:
     """
     Collect actionable review comments from a pull request and return them as structured items.
-    
+
     Parameters:
         pr (Any): The GitHub pull request object to scan for review comments and reviews.
         actionable_keywords (List[str]): Keywords used to determine whether a comment is actionable.
-    
+
     Returns:
         List[Dict[str, Any]]: A list of actionable item dictionaries with the following keys:
             - id (int): Comment or review identifier.
@@ -277,11 +277,11 @@ def _generate_summary(items: List[Dict[str, Any]]) -> str:
 def generate_fix_proposals(actionable_items: List[Dict[str, Any]]) -> str:
     """
     Generate a human-readable, categorized report of fix proposals based on actionable review items.
-    
+
     Parameters:
         actionable_items (List[Dict[str, Any]]): A list of actionable item dictionaries (as returned by parse_review_comments),
             where each item contains keys such as "category", "priority", "body", "file", "line", "code_suggestions", "url", and "created_at".
-    
+
     Returns:
         report (str): A formatted markdown string that groups items by category (critical, bug, improvement, style, question),
             includes per-item summaries and suggested code, and ends with a statistical summary. If the input list is empty,
@@ -327,9 +327,9 @@ def generate_fix_proposals(actionable_items: List[Dict[str, Any]]) -> str:
 def write_output(report: str) -> None:
     """
     Persist the generated report to the GitHub step summary file (if configured), write it to a secure temporary Markdown file, and print the report to standard output.
-    
+
     If the GITHUB_STEP_SUMMARY environment variable is set, the report is appended to that file. The report is also written to a temporary file with a .md suffix and the temporary file path is printed to stderr. IO errors when writing either file are reported to stderr but are not raised.
-    
+
     Parameters:
         report (str): The formatted report content to persist and print.
     """
@@ -364,7 +364,7 @@ def write_output(report: str) -> None:
 def main():
     """
     Orchestrates script execution: validates environment, loads configuration, parses PR review comments, generates fix proposals, and writes the report.
-    
+
     Validates that GITHUB_TOKEN, PR_NUMBER, REPO_OWNER, and REPO_NAME are present in the environment and that PR_NUMBER is an integer. Loads configuration (including actionable review keywords), fetches the pull request from GitHub, extracts actionable review items, generates a human-readable fix proposal report, and writes the report to the GitHub step summary, a secure temporary file, and standard output. Exits with status 1 if required environment variables are missing, PR_NUMBER is not an integer, a GitHub API error occurs, or any other unexpected error happens.
     """
     required = ["GITHUB_TOKEN", "PR_NUMBER", "REPO_OWNER", "REPO_NAME"]

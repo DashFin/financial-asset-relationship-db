@@ -456,7 +456,7 @@ class TestRegulatoryEventORM:
     def test_create_regulatory_event(self, db_session):
         """
         Verify that a RegulatoryEventORM can be created, persisted, and retrieved with its fields correctly stored.
-        
+
         Creates an AssetORM, persists a RegulatoryEventORM referencing that asset, and asserts the persisted event's `event_type` and `impact_score` match the inserted values.
         """
         asset = AssetORM(

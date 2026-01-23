@@ -64,12 +64,12 @@ class TestPRAgentWorkflowChanges:
         run_script = install_step["run"]
 
         # Verify no duplicate pyyaml installations
-        assert run_script.count("pyyaml") == 0, (
-            "Should not explicitly install pyyaml in workflow"
-        )
-        assert run_script.count("PyYAML") == 0, (
-            "Should not explicitly install PyYAML in workflow"
-        )
+        assert (
+            run_script.count("pyyaml") == 0
+        ), "Should not explicitly install pyyaml in workflow"
+        assert (
+            run_script.count("PyYAML") == 0
+        ), "Should not explicitly install PyYAML in workflow"
 
     def test_pr_agent_no_context_chunking_references(self, pr_agent_workflow):
         """Verify context chunking logic removed from workflow."""
@@ -173,7 +173,7 @@ class TestLabelWorkflowChanges:
     def test_label_workflow_uses_actions_labeler(label_workflow):
         """
         Verify the label workflow includes an actions/labeler step configured with a `repo-token`.
-        
+
         Parameters:
             label_workflow (dict): Parsed YAML content of `.github/workflows/label.yml` provided by the test fixture.
         """
@@ -208,7 +208,7 @@ class TestAPISecWorkflowChanges:
     def test_apisec_no_credential_checks(apisec_workflow):
         """
         Ensure the Trigger_APIsec_scan job in the APISec workflow contains no steps whose name includes both "check" and "credential" (case-insensitive).
-        
+
         Parameters:
             apisec_workflow (dict): Parsed YAML content of the APISec workflow (.github/workflows/apisec-scan.yml).
         """
@@ -262,9 +262,9 @@ class TestDeletedFilesImpact:
         for workflow_file in workflows_dir.glob("*.yml"):
             with open(workflow_file, "r") as f:
                 content = f.read()
-                assert "context_chunker" not in content.lower(), (
-                    f"{workflow_file.name} should not reference deleted context_chunker script"
-                )
+                assert (
+                    "context_chunker" not in content.lower()
+                ), f"{workflow_file.name} should not reference deleted context_chunker script"
 
 
 class TestWorkflowSecurityBestPractices:
@@ -274,9 +274,9 @@ class TestWorkflowSecurityBestPractices:
     def test_workflows_use_pinned_action_versions():
         """
         Validate that actions used in workflows are pinned to explicit versions and do not use 'latest' or 'master'.
-        
+
         Scans all `.yml` files under `.github/workflows` and asserts that every step containing a `uses` reference includes a version specifier (contains `'@'`) and that the version is not `'latest'` or `'master'` (case-insensitive).
-        
+
         Raises:
             AssertionError: If an action reference is missing a version specifier or specifies `latest` or `master`.
         """
@@ -292,9 +292,9 @@ class TestWorkflowSecurityBestPractices:
                     if "uses" in step:
                         action = step["uses"]
                         # Should have version specifier
-                        assert "@" in action, (
-                            f"Action {action} in {workflow_file.name} should specify version"
-                        )
+                        assert (
+                            "@" in action
+                        ), f"Action {action} in {workflow_file.name} should specify version"
                         # Should not use 'latest' or 'master'
                         assert "@latest" not in action.lower()
                         assert "@master" not in action.lower()
@@ -303,7 +303,7 @@ class TestWorkflowSecurityBestPractices:
     def test_workflows_limit_github_token_permissions():
         """
         Ensure each workflow under .github/workflows limits GitHub token permissions.
-        
+
         For workflows that define a top-level `permissions` mapping, assert that the `contents`
         permission is not set to `write` unless other permissions are also present. An
         AssertionError is raised with the workflow filename when this condition is violated.
@@ -318,9 +318,9 @@ class TestWorkflowSecurityBestPractices:
             if "permissions" in workflow:
                 perms = workflow["permissions"]
                 # Should not have blanket 'write-all' permission
-                assert perms.get("contents") != "write" or len(perms) > 1, (
-                    f"{workflow_file.name} should limit permissions"
-                )
+                assert (
+                    perms.get("contents") != "write" or len(perms) > 1
+                ), f"{workflow_file.name} should limit permissions"
 
 
 class TestWorkflowYAMLValidity:
@@ -363,7 +363,7 @@ class TestWorkflowYAMLValidity:
     def test_workflow_jobs_have_runs_on():
         """
         Verify every GitHub Actions workflow job defines a 'runs-on' runner.
-        
+
         Fails the test if a job is missing 'runs-on', identifying the job name and workflow filename.
         """
         workflows_dir = Path(".github/workflows")
@@ -373,9 +373,9 @@ class TestWorkflowYAMLValidity:
                 workflow = yaml.safe_load(f)
 
             for job_name, job in workflow.get("jobs", {}).items():
-                assert "runs-on" in job, (
-                    f"Job '{job_name}' in {workflow_file.name} missing 'runs-on'"
-                )
+                assert (
+                    "runs-on" in job
+                ), f"Job '{job_name}' in {workflow_file.name} missing 'runs-on'"
 
 
 class TestWorkflowIntegration:
@@ -385,7 +385,7 @@ class TestWorkflowIntegration:
     def test_workflows_reference_existing_paths():
         """
         Assert that file paths referenced in GitHub Actions workflow YAML files exist in the repository.
-        
+
         Searches .github/workflows/*.yml for path-like references such as `working-directory` and `path`, normalizes leading `./`, ignores references containing variables (`$`) or wildcards (`*`), and asserts that each remaining referenced path exists.
         """
         workflows_dir = Path(".github/workflows")
@@ -412,6 +412,6 @@ class TestWorkflowIntegration:
                     # Skip variables and wildcards
                     if "$" not in path and "*" not in path:
                         full_path = repo_root / path
-                        assert full_path.exists(), (
-                            f"Path {path} referenced in {workflow_file.name} doesn't exist"
-                        )
+                        assert (
+                            full_path.exists()
+                        ), f"Path {path} referenced in {workflow_file.name} doesn't exist"

@@ -59,41 +59,41 @@ class TestDocumentStructure:
     def test_has_overview_section(summary_content: str):
         """
         Assert the Markdown document contains an "## Overview" section.
-        
+
         Parameters:
             summary_content (str): The full text of the summary file to inspect.
         """
-        assert "## Overview" in summary_content, (
-            "Document should have an Overview section"
-        )
+        assert (
+            "## Overview" in summary_content
+        ), "Document should have an Overview section"
 
     @staticmethod
     def test_has_generated_files_section(summary_content: str):
         """
         Check that the document includes a "## Generated Files" section.
         """
-        assert "## Generated Files" in summary_content, (
-            "Document should list generated files"
-        )
+        assert (
+            "## Generated Files" in summary_content
+        ), "Document should list generated files"
 
     @staticmethod
     def test_has_test_suite_structure_section(summary_content: str):
         """
         Verify the document contains a "## Test Suite Structure" section.
-        
+
         Parameters:
             summary_content (str): Full text of the markdown document to inspect.
         """
-        assert "## Test Suite Structure" in summary_content, (
-            "Document should describe test structure"
-        )
+        assert (
+            "## Test Suite Structure" in summary_content
+        ), "Document should describe test structure"
 
     @staticmethod
     def test_has_running_tests_section(summary_content: str):
         """Test that document includes running instructions."""
-        assert "## Running the Tests" in summary_content, (
-            "Document should have running instructions"
-        )
+        assert (
+            "## Running the Tests" in summary_content
+        ), "Document should have running instructions"
 
     @staticmethod
     def test_has_benefits_section(summary_content: str):
@@ -110,24 +110,24 @@ class TestMarkdownFormatting:
     def test_headings_properly_formatted(summary_lines: List[str]):
         """
         Ensure every Markdown heading has a space after the leading '#' characters.
-        
+
         Checks each line that starts with '#' and asserts it is a level-1 to level-6 heading followed by a space (e.g., "# Title", "## Subtitle").
-        
+
         Parameters:
             summary_lines (List[str]): Lines of the Markdown document to validate.
         """
         heading_lines = [line for line in summary_lines if line.startswith("#")]
         for line in heading_lines:
             # Heading should have space after hash marks
-            assert re.match(r"^#{1,6} .+", line), (
-                f"Heading '{line}' should have space after #"
-            )
+            assert re.match(
+                r"^#{1,6} .+", line
+            ), f"Heading '{line}' should have space after #"
 
     @staticmethod
     def test_no_trailing_whitespace(summary_lines: List[str]):
         """
         Assert that no non-blank lines end with trailing whitespace.
-        
+
         Parameters:
             summary_lines (List[str]): Lines of the summary document; blank lines are ignored.
         """
@@ -136,33 +136,33 @@ class TestMarkdownFormatting:
             for i, line in enumerate(summary_lines)
             if line.rstrip() != line and line.strip() != ""
         ]
-        assert len(lines_with_trailing) == 0, (
-            f"Found {len(lines_with_trailing)} lines with trailing whitespace"
-        )
+        assert (
+            len(lines_with_trailing) == 0
+        ), f"Found {len(lines_with_trailing)} lines with trailing whitespace"
 
     @staticmethod
     def test_code_blocks_properly_closed(summary_content: str):
         """
         Verify that all fenced code blocks in the provided Markdown are properly opened and closed.
-        
+
         Checks that the number of triple-backtick sequences (```) in summary_content is even.
-        
+
         Parameters:
             summary_content (str): Full text of the Markdown document to inspect.
         """
         # Count triple backticks
         backtick_count = summary_content.count("```")
-        assert backtick_count % 2 == 0, (
-            f"Code blocks not properly closed (found {backtick_count} triple backticks, should be even)"
-        )
+        assert (
+            backtick_count % 2 == 0
+        ), f"Code blocks not properly closed (found {backtick_count} triple backticks, should be even)"
 
     @staticmethod
     def test_lists_properly_formatted(summary_lines: List[str]):
         """
         Ensure bullet list items use an even number of leading spaces (multiples of two).
-        
+
         Scans lines that begin with a bullet marker (`-`, `*`, or `+`) and asserts each list item has even indentation; the test fails if any list item has an odd number of leading spaces.
-        
+
         Parameters:
             summary_lines (List[str]): Lines of the markdown file to inspect.
         """
@@ -171,9 +171,9 @@ class TestMarkdownFormatting:
             # Check that indentation is consistent
             for line in list_lines:
                 indent = len(line) - len(line.lstrip())
-                assert indent % 2 == 0, (
-                    f"List item '{line.strip()}' has odd indentation"
-                )
+                assert (
+                    indent % 2 == 0
+                ), f"List item '{line.strip()}' has odd indentation"
 
 
 class TestContentAccuracy:
@@ -183,7 +183,7 @@ class TestContentAccuracy:
     def test_mentions_workflow_file(summary_content: str):
         """
         Check that the document mentions the pr-agent workflow file or its name.
-        
+
         Parameters:
             summary_content (str): The full text of the summary file to search.
         """
@@ -195,16 +195,16 @@ class TestContentAccuracy:
     @staticmethod
     def test_mentions_duplicate_keys_issue(summary_content: str):
         """Test that document mentions the duplicate keys issue that was fixed."""
-        assert "duplicate" in summary_content.lower(), (
-            "Document should mention duplicate keys issue"
-        )
+        assert (
+            "duplicate" in summary_content.lower()
+        ), "Document should mention duplicate keys issue"
 
     @staticmethod
     def test_mentions_pytest(summary_content: str):
         """Test that document mentions pytest."""
-        assert "pytest" in summary_content.lower(), (
-            "Document should mention pytest as the testing framework"
-        )
+        assert (
+            "pytest" in summary_content.lower()
+        ), "Document should mention pytest as the testing framework"
 
     @staticmethod
     def test_has_code_examples(summary_content: str):
@@ -214,18 +214,18 @@ class TestContentAccuracy:
     @staticmethod
     def test_mentions_yaml(summary_content: str):
         """Test that document mentions YAML."""
-        assert "yaml" in summary_content.lower() or "yml" in summary_content.lower(), (
-            "Document should mention YAML"
-        )
+        assert (
+            "yaml" in summary_content.lower() or "yml" in summary_content.lower()
+        ), "Document should mention YAML"
 
     @staticmethod
     def test_mentions_test_classes(summary_content: str):
         """
         Verify the document mentions at least one expected test class name.
-        
+
         Parameters:
             summary_content (str): The full text of the summary document to inspect.
-        
+
         Raises:
             AssertionError: If none of the expected test class names are found.
         """
@@ -241,9 +241,9 @@ class TestContentAccuracy:
     def test_includes_file_paths(summary_content: str):
         """
         Assert the summary references at least one expected test file path.
-        
+
         Checks that the document text contains either "tests/integration" or "test_github_workflows".
-        
+
         Parameters:
             summary_content (str): Full text of the summary document to search.
         """
@@ -273,18 +273,18 @@ class TestDocumentMaintainability:
             if len(line) > 120 and not line.strip().startswith("http")
         ]
         # Allow some long lines but flag excessive ones
-        assert len(long_lines) < len(summary_lines) * 0.1, (
-            f"Too many long lines ({len(long_lines)}), consider breaking them up"
-        )
+        assert (
+            len(long_lines) < len(summary_lines) * 0.1
+        ), f"Too many long lines ({len(long_lines)}), consider breaking them up"
 
     @staticmethod
     def test_has_clear_structure(summary_content: str):
         """
         Assert the document contains a clear hierarchy of H1 and H2 headings.
-        
+
         Parameters:
             summary_content (str): Full text of the Markdown summary to inspect.
-        
+
         Description:
             Verifies there is at least one level-1 heading (`# ` at line start) and at least three level-2 headings (`## ` at line start); raises an AssertionError if these conditions are not met.
         """
@@ -298,7 +298,7 @@ class TestDocumentMaintainability:
     def test_sections_have_content(summary_content: str):
         """
         Verify that each H2 section contains at least one non-empty content line.
-        
+
         Parameters:
             summary_content (str): Full Markdown text of the summary file to inspect.
         """
@@ -308,9 +308,9 @@ class TestDocumentMaintainability:
             lines = section.split("\n")
             section_name = lines[0]
             content_lines = [l for l in lines[1:] if l.strip()]
-            assert len(content_lines) > 0, (
-                f"Section '{section_name}' should have content"
-            )
+            assert (
+                len(content_lines) > 0
+            ), f"Section '{section_name}' should have content"
 
 
 class TestLinkValidation:
@@ -320,12 +320,12 @@ class TestLinkValidation:
     def test_no_broken_internal_links(summary_content: str):
         """
         Verify that internal markdown links point to existing headers.
-        
+
         This test extracts internal links of the form [text](#anchor) from summary_content,
         builds a set of valid anchors from the document headers by lowercasing, removing
         non-alphanumeric characters (except hyphens and underscores), and replacing
         whitespace with hyphens, and asserts each link's anchor exists among those anchors.
-        
+
         Parameters:
             summary_content (str): Full markdown text to validate.
         """
@@ -344,9 +344,9 @@ class TestLinkValidation:
 
         # Check each internal link
         for _, anchor in internal_links:
-            assert anchor in valid_anchors, (
-                f"Internal link to #{anchor} references non-existent header"
-            )
+            assert (
+                anchor in valid_anchors
+            ), f"Internal link to #{anchor} references non-existent header"
 
 
 class TestSecurityAndBestPractices:
@@ -356,11 +356,11 @@ class TestSecurityAndBestPractices:
     def test_no_hardcoded_secrets(summary_content: str):
         """
         Ensure the document contains no hardcoded secret tokens.
-        
+
         Searches the provided document text for common GitHub token formats (personal
         access tokens and OAuth/fine-grained PATs) and fails the test if any matches
         are found.
-        
+
         Parameters:
             summary_content (str): Full text of the summary file to scan for secret tokens.
         """
@@ -372,18 +372,18 @@ class TestSecurityAndBestPractices:
 
         for pattern in secret_patterns:
             matches = re.findall(pattern, summary_content)
-            assert len(matches) == 0, (
-                f"Document should not contain hardcoded secrets (found pattern: {pattern})"
-            )
+            assert (
+                len(matches) == 0
+            ), f"Document should not contain hardcoded secrets (found pattern: {pattern})"
 
     @staticmethod
     def test_uses_secure_examples(summary_content: str):
         """Test that examples follow security best practices."""
         # If the document mentions tokens, it should mention secrets context
         if "token" in summary_content.lower():
-            assert "secrets" in summary_content.lower() or "${{" in summary_content, (
-                "Document should reference GitHub secrets context when mentioning tokens"
-            )
+            assert (
+                "secrets" in summary_content.lower() or "${{" in summary_content
+            ), "Document should reference GitHub secrets context when mentioning tokens"
 
 
 class TestReferenceAccuracy:
@@ -402,9 +402,9 @@ class TestReferenceAccuracy:
     def test_file_references_are_consistent(summary_content: str):
         """
         Ensure mentions of test_github_workflows.py use a consistent casing.
-        
+
         If the summary contains references to "test_github_workflows.py", assert that those references use at most two distinct case variants.
-        
+
         Parameters:
             summary_content (str): Full text of the summary document to inspect.
         """
@@ -415,9 +415,9 @@ class TestReferenceAccuracy:
         if test_file_mentions:
             # All mentions should use the same case
             unique_mentions = set(test_file_mentions)
-            assert len(unique_mentions) <= 2, (
-                "File name should be referenced consistently"
-            )
+            assert (
+                len(unique_mentions) <= 2
+            ), "File name should be referenced consistently"
 
 
 class TestEdgeCases:
@@ -427,9 +427,9 @@ class TestEdgeCases:
     def test_handles_special_characters(summary_content: str):
         """Test that document handles special characters properly."""
         # Check for common encoding issues
-        assert "�" not in summary_content, (
-            "Document should not contain replacement characters (encoding issues)"
-        )
+        assert (
+            "�" not in summary_content
+        ), "Document should not contain replacement characters (encoding issues)"
 
     @staticmethod
     def test_utf8_encoding():

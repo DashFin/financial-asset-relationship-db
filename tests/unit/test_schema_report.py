@@ -236,7 +236,7 @@ class TestDataQualityScore:
     ):
         """
         Verify that adding a regulatory event preserves the Data Quality Score in the generated schema report.
-        
+
         After adding the provided regulatory event to the graph, generate the schema report and assert that the report contains the "Data Quality Score:" label.
         """
         populated_graph.add_regulatory_event(sample_regulatory_event)

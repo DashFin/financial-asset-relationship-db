@@ -15,7 +15,7 @@ import api.database as database
 def restore_database_module(monkeypatch) -> Iterator[None]:
     """
     Preserve and restore the api.database module state and the DATABASE_URL environment variable around a test.
-    
+
     Yields control to the test; after the test completes, closes and clears any in-memory SQLite connection on api.database (if present), restores DATABASE_URL to its original value or removes it if it was not set, and reloads the api.database module to reset its state.
     """
 
@@ -41,7 +41,7 @@ def test_in_memory_database_persists_schema_and_data(
 ):
     """
     Verify that schema and data persist across separate connections when using an in-memory SQLite database.
-    
+
     Sets DATABASE_URL to an in-memory SQLite URI, reloads the database module, initializes the schema, inserts a user row using one context-managed connection, then reads the inserted row using a separate context-managed connection and asserts the row exists and the username matches "alice".
     """
 
@@ -197,9 +197,9 @@ class TestIsMemoryDb:
         ]
 
         for uri in memory_uris_mode_parameter:
-            assert database._is_memory_db(uri) is False, (
-                f"Unexpectedly detected as memory DB: {uri}"
-            )
+            assert (
+                database._is_memory_db(uri) is False
+            ), f"Unexpectedly detected as memory DB: {uri}"
 
     def test_is_memory_db_case_sensitivity(self, monkeypatch, restore_database_module):
         """Test that _is_memory_db is case-sensitive."""
@@ -617,9 +617,9 @@ class TestUriMemoryDatabaseIntegration:
         ]
 
         for fmt in memory_formats:
-            assert database._is_memory_db(fmt) is True, (
-                f"Failed to detect {fmt} as memory DB"
-            )
+            assert (
+                database._is_memory_db(fmt) is True
+            ), f"Failed to detect {fmt} as memory DB"
 
         non_memory_formats = [
             "/path/to/file.db",
@@ -630,6 +630,6 @@ class TestUriMemoryDatabaseIntegration:
         ]
 
         for fmt in non_memory_formats:
-            assert database._is_memory_db(fmt) is False, (
-                f"Incorrectly detected {fmt} as memory DB"
-            )
+            assert (
+                database._is_memory_db(fmt) is False
+            ), f"Incorrectly detected {fmt} as memory DB"
