@@ -80,20 +80,23 @@ def assert_valid(result: ValidationResult) -> None:
 
 
 class TestValidationResult:
-    def test_valid_result(self):
+    @staticmethod
+    def test_valid_result():
         data = {"jobs": {}}
         result = ValidationResult(True, [], data)
         assert result.is_valid
         assert result.errors == []
         assert result.workflow_data == data
 
-    def test_invalid_result(self):
+    @staticmethod
+    def test_invalid_result():
         errors = ["error"]
         result = ValidationResult(False, errors, {})
         assert not result.is_valid
         assert result.errors == errors
 
-    def test_preserves_data_on_failure(self):
+    @staticmethod
+    def test_preserves_data_on_failure():
         data = {"name": "x"}
         result = ValidationResult(False, ["missing jobs"], data)
         assert result.workflow_data == data
