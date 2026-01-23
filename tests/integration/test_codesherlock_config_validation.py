@@ -121,9 +121,9 @@ class TestCodeSherlockConfigContent:
 
     def test_target_branches_are_strings(self, codesherlock_config: Dict[str, Any]):
         """
-        Confirm each configured target branch is non-empty.
+        Verify that all target branches are non-empty strings.
 
-        Also asserts that every entry in `target_branches` is a Python `str` and has length greater than zero.
+        Asserts that every entry in `target_branches` is a Python `str` and has length greater than zero.
         """
         for branch in codesherlock_config["target_branches"]:
             assert isinstance(branch, str), f"Branch '{branch}' should be a string"
