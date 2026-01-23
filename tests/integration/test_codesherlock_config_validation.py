@@ -332,6 +332,9 @@ class TestCodeSherlockConfigEdgeCases:
         Verify the YAML file uses 2-space indentation for all indented lines.
 
         Asserts that every line with leading spaces has a number of leading spaces divisible by two.
+
+        Parameters:
+            codesherlock_config_path (Path): Path to the repository's codesherlock.yaml file.
         """
         with open(codesherlock_config_path, "r") as f:
             content = f.read()
