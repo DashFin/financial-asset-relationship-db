@@ -447,8 +447,13 @@ def codesherlock_config_path() -> Path:
     ):
         """Ensure the preferred_characteristics section in the config file has explanatory comments."""
         lines = codesherlock_config_path.read_text().splitlines()
-        preferred_char_line_idx = next(
-            idx for idx, line in enumerate(lines) if "preferred_characteristics" in line
+        preferred_char_line_idx = None
+        for idx, line in enumerate(lines):
+            if "preferred_characteristics" in line:
+                preferred_char_line_idx = idx
+                break
+        assert preferred_char_line_idx is not None, (
+            "preferred_characteristics field should be present"
         )
         preceding_lines = lines[
             max(0, preferred_char_line_idx - 5) : preferred_char_line_idx
