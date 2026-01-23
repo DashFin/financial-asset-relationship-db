@@ -83,6 +83,7 @@ def assert_valid(result: ValidationResult) -> None:
 Unit tests for the ValidationResult class, verifying behavior of valid and invalid results and data preservation on failure.
 """
 
+
 class TestValidationResult:
     @staticmethod
     def test_valid_result():
