@@ -91,7 +91,13 @@ class TestValidationResult:
         assert result.workflow_data == data
 
     @staticmethod
-    def test_invalid_result():
+def test_invalid_result(self):
+    errors = ["error"]
+    workflow_data = {"key": "value"}
+    result = ValidationResult(False, errors, workflow_data)
+    assert not result.is_valid
+    assert result.errors == errors
+    assert result.workflow_data == workflow_data  # Add this verification
         """Test that an invalid ValidationResult correctly sets is_valid to False and retains error messages."""
         errors = ["error"]
         result = ValidationResult(False, errors, {})
