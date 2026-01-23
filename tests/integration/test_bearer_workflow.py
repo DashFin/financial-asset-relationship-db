@@ -59,7 +59,12 @@ class TestBearerWorkflowStructure:
 
     @staticmethod
     def test_workflow_has_name(bearer_workflow_content):
-        """Verify the workflow has a name."""
+        """
+        Verify the workflow defines a top-level name equal to "Bearer".
+        
+        Raises:
+            AssertionError: If the workflow lacks a 'name' key or its value is not "Bearer".
+        """
         assert "name" in bearer_workflow_content, "Workflow should have a name"
         assert bearer_workflow_content["name"] == "Bearer", (
             "Workflow name should be 'Bearer'"
@@ -154,7 +159,11 @@ class TestBearerJobConfiguration:
 
     @staticmethod
     def test_job_runs_on_ubuntu(bearer_workflow_content):
-        """Verify the job runs on Ubuntu."""
+        """
+        Check that the "bearer" job is configured to run on the "ubuntu-latest" runner.
+        
+        Raises an assertion error if the job does not specify `runs-on` or if its value is not "ubuntu-latest".
+        """
         bearer_job = bearer_workflow_content["jobs"]["bearer"]
         assert "runs-on" in bearer_job, "Job should specify runs-on"
         assert bearer_job["runs-on"] == "ubuntu-latest", (
@@ -163,7 +172,12 @@ class TestBearerJobConfiguration:
 
     @staticmethod
     def test_job_has_permissions(bearer_workflow_content):
-        """Verify the job has permissions configured."""
+        """
+        Ensure the "bearer" job defines a permissions mapping.
+        
+        Parameters:
+            bearer_workflow_content (dict): Parsed GitHub Actions workflow content as a dictionary; used to locate the "bearer" job and its permissions.
+        """
         bearer_job = bearer_workflow_content["jobs"]["bearer"]
         assert "permissions" in bearer_job, "Job should have permissions"
         assert isinstance(bearer_job["permissions"], dict), (
@@ -172,7 +186,12 @@ class TestBearerJobConfiguration:
 
     @staticmethod
     def test_job_has_steps(bearer_workflow_content):
-        """Verify the job has steps defined."""
+        """
+        Assert that the "bearer" job defines a "steps" sequence and that it contains at least three entries.
+        
+        Parameters:
+            bearer_workflow_content (dict): Parsed GitHub Actions workflow content as a dictionary (loaded from the workflow YAML).
+        """
         bearer_job = bearer_workflow_content["jobs"]["bearer"]
         assert "steps" in bearer_job, "Job should have steps"
         assert isinstance(bearer_job["steps"], list), "Steps should be a list"
@@ -244,7 +263,11 @@ class TestBearerSteps:
 
     @staticmethod
     def test_bearer_step_has_id(bearer_workflow_content):
-        """Verify Bearer report step has an ID."""
+        """
+        Ensure the Bearer report step in the "bearer" job has an `id` and that it equals "report".
+        
+        Verifies a step whose name contains "Report" exists, includes an `id` key, and that the `id` value is "report".
+        """
         steps = bearer_workflow_content["jobs"]["bearer"]["steps"]
         bearer_step = next(
             (s for s in steps if "name" in s and "Report" in s["name"]), None
@@ -307,7 +330,11 @@ class TestBearerActionConfiguration:
 
     @staticmethod
     def test_bearer_api_key_configured(bearer_workflow_content):
-        """Verify Bearer API key is configured from secrets."""
+        """
+        Ensure the Bearer action uses the BEARER_TOKEN GitHub secret for its api-key.
+        
+        Checks that the Bearer step includes a `with` mapping containing `api-key` and that its value references `${{ secrets.BEARER_TOKEN }}`.
+        """
         steps = bearer_workflow_content["jobs"]["bearer"]["steps"]
         bearer_step = next(
             (s for s in steps if "bearer/bearer-action" in s.get("uses", "")), None
@@ -320,7 +347,11 @@ class TestBearerActionConfiguration:
 
     @staticmethod
     def test_bearer_format_is_sarif(bearer_workflow_content):
-        """Verify Bearer output format is SARIF."""
+        """
+        Ensure the Bearer action configuration specifies SARIF as the output format.
+        
+        Asserts that a workflow step using 'bearer/bearer-action' provides a 'format' input equal to 'sarif'.
+        """
         steps = bearer_workflow_content["jobs"]["bearer"]["steps"]
         bearer_step = next(
             (s for s in steps if "bearer/bearer-action" in s.get("uses", "")), None
@@ -426,7 +457,17 @@ class TestBearerWorkflowSecurity:
 
     @staticmethod
     def test_no_hardcoded_secrets(bearer_workflow_raw):
-        """Verify no secrets are hardcoded in the workflow."""
+        """
+        Scan the raw workflow YAML for likely hardcoded secrets and fail the test if any are found.
+        
+        The function checks non-comment lines for common secret-related identifiers (for example: "password", "api_key", "token", "secret") that appear as keys or assignments and are not referenced via GitHub Secrets or template expressions. Lines that contain "secrets." or a GitHub actions expression ("${{") are treated as proper secret references and ignored.
+        
+        Parameters:
+            bearer_workflow_raw (str): Raw contents of the workflow file.
+        
+        Raises:
+            AssertionError: If a non-comment line contains a potential hardcoded secret that is not a proper secret reference.
+        """
         # Common patterns for secrets
         secret_patterns = ["password", "api_key", "token", "secret"]
         lines = bearer_workflow_raw.lower().split("\n")
@@ -510,7 +551,12 @@ class TestBearerWorkflowIntegration:
 
     @staticmethod
     def test_checkout_happens_first(bearer_workflow_content):
-        """Verify checkout happens before other steps."""
+        """
+        Assert that the workflow's first step is the checkout step.
+        
+        Parameters:
+            bearer_workflow_content (dict): Parsed GitHub Actions workflow YAML as a dictionary; used to locate the "bearer" job and its steps.
+        """
         steps = bearer_workflow_content["jobs"]["bearer"]["steps"]
 
         checkout_index = next(
@@ -605,7 +651,14 @@ class TestBearerWorkflowMaintainability:
 
     @staticmethod
     def test_bearer_action_version_is_documented(bearer_workflow_raw):
-        """Verify Bearer action version/SHA is clear for future updates."""
+        """
+        Check that the Bearer GitHub Action is pinned to a specific commit SHA in the workflow source.
+        
+        Asserts the expected 40-character commit SHA "828eeb928ce2f4a7ca5ed57fb8b59508cb8c79bc" appears in the raw workflow text so the action version is clearly documented.
+        
+        Parameters:
+            bearer_workflow_raw (str): Raw text content of the workflow file.
+        """
         steps_section = bearer_workflow_raw[bearer_workflow_raw.find("steps:") :]
         bearer_section = steps_section[steps_section.find("bearer/bearer-action") :]
 
@@ -667,7 +720,13 @@ class TestBearerWorkflowParameterized:
         "permission,value", [("contents", "read"), ("security-events", "write")]
     )
     def test_required_permissions(self, bearer_workflow_content, permission, value):
-        """Verify required permissions are set correctly."""
+        """
+        Asserts that the specified job permission in the Bearer workflow equals the expected value.
+        
+        Parameters:
+            permission (str): Permission key to check (e.g., "contents", "security-events").
+            value (str): Expected permission value (e.g., "read", "write").
+        """
         permissions = bearer_workflow_content["jobs"]["bearer"]["permissions"]
         assert permissions.get(permission) == value, (
             f"Permission '{permission}' should be '{value}'"
