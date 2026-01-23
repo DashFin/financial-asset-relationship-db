@@ -1074,7 +1074,9 @@ class TestDataFetcherStringFormatting:
         # Capture log messages
         with pytest.raises(Exception):
             # Create fetcher with invalid configuration to trigger logs
-            fetcher = RealDataFetcher(enable_network=False, cache_path="/nonexistent/path")
+            fetcher = RealDataFetcher(
+                enable_network=False, cache_path="/nonexistent/path"
+            )
             fetcher.fetch_and_build_graph()
 
     def test_cache_path_handling_with_special_characters(self):
@@ -1167,7 +1169,9 @@ class TestSchemaReportFormatting:
 
         # Should have numbered or bulleted list
         lines = report.split("\n")
-        list_lines = [line for line in lines if line.strip().startswith(("1.", "2.", "-", "*"))]
+        list_lines = [
+            line for line in lines if line.strip().startswith(("1.", "2.", "-", "*"))
+        ]
         assert len(list_lines) > 0
 
 
@@ -1187,7 +1191,11 @@ class TestMetricVisualsFormatting:
         # Check titles
         for fig in [fig1, fig2, fig3]:
             if hasattr(fig, "layout") and hasattr(fig.layout, "title"):
-                title = fig.layout.title.text if hasattr(fig.layout.title, "text") else str(fig.layout.title)
+                title = (
+                    fig.layout.title.text
+                    if hasattr(fig.layout.title, "text")
+                    else str(fig.layout.title)
+                )
 
                 if title:
                     # Title should not have line breaks

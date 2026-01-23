@@ -912,7 +912,9 @@ class TestRelationshipQueryFormatting:
         )
 
         # Query should work correctly
-        relationship = memory_repository.get_relationship("REL_SRC", "REL_TGT", "correlation")
+        relationship = memory_repository.get_relationship(
+            "REL_SRC", "REL_TGT", "correlation"
+        )
         assert relationship is not None
         assert relationship.strength == 0.8
 
