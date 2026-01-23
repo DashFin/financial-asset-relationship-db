@@ -88,7 +88,7 @@ This document summarizes the repository's architecture, conventions, and recurri
 
 ## Deployment Notes
 
-- Local dev: run FastAPI via `uvicorn api.main:app --reload --port 8000` and Next.js via `npm run dev` in `frontend`; Gradio remains available via `python app.py`.
+- Local dev: run FastAPI via `python -m uvicorn api.main:app --reload --port 8000` and Next.js via `npm run dev` in `frontend`; Gradio remains available via `python app.py`.
 - Docker: use `docker-compose up --build` (or `make docker-compose-up`) for containerized runs.
 - Vercel: Next.js deploys to edge; FastAPI backend can be hosted as serverless functions with HTTPS termination and environment-specific CORS settings.
 
