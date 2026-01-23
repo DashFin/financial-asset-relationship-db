@@ -44,7 +44,22 @@ class TestFormulaicVisualizer:
 
     @pytest.fixture
     def sample_analysis_results(self, sample_formula):
-        """Create sample analysis results."""
+        """
+        Builds a representative analysis-results dictionary used by tests, incorporating the provided sample formula.
+
+        Parameters:
+            sample_formula (Formula or dict): A sample formula object or mapping containing keys such as `name`, `formula`, `latex`, `description`, `variables`, `example_calculation`, `category`, and `r_squared`.
+
+        Returns:
+            dict: A dictionary with keys:
+                - "formulas": list containing `sample_formula` and an additional example formula mapping.
+                - "categories": mapping of category names to counts.
+                - "empirical_relationships": mapping with:
+                    - "correlation_matrix": flat mapping of asset-pair keys to correlation values.
+                    - "strongest_correlations": list of mappings describing top correlations (asset1, asset2, correlation, strength).
+                - "asset_class_relationships": mapping of asset class names to summary metrics (e.g., asset_count, avg_price, total_value).
+                - "sector_relationships": mapping of sector names to summary metrics (e.g., asset_count, avg_price, price_range).
+        """
         return {
             "formulas": [
                 sample_formula,
@@ -666,7 +681,11 @@ class TestFormulaicAnalysisStringConcatenation:
         assert "multi-line" in formula.description
 
     def test_formula_summary_key_insights_formatting(self):
-        """Verify formula summary key insights are properly formatted."""
+        """
+        Assert that analysis summary key insights are non-empty, trimmed strings.
+
+        Calls FormulaicdAnalyzer.analyze_graph with an empty AssetRelationshipGraph and verifies that each entry in the resulting summary's `key_insights` is a non-empty `str` and does not have leading or trailing whitespace.
+        """
         from src.analysis.formulaic_analysis import FormulaicdAnalyzer
         from src.logic.asset_graph import AssetRelationshipGraph
 
@@ -714,7 +733,7 @@ class TestGraphVisualsEdgeCases:
         fig = visualize_2d_graph(
             graph,
             show_same_sector=False,
-            show_market_cap_similarity_edges=False,
+            show_market_cap_similarity=False,
             show_correlation=False,
             show_corporate_bond=False,
             show_commodity_currency=False,
