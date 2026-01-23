@@ -101,18 +101,14 @@ class TestCodeSherlockConfigFile:
         )
 
     @staticmethod
-    def test_preferred_characteristics_is_list(
-        codesherlock_config: Dict[str, Any]
-    ):
+    def test_preferred_characteristics_is_list(codesherlock_config: Dict[str, Any]):
         """Verify that preferred_characteristics is a list."""
         assert isinstance(codesherlock_config["preferred_characteristics"], list), (
             "preferred_characteristics should be a list"
         )
 
     @staticmethod
-    def test_preferred_characteristics_not_empty(
-        codesherlock_config: Dict[str, Any]
-    ):
+    def test_preferred_characteristics_not_empty(codesherlock_config: Dict[str, Any]):
         """Verify that preferred_characteristics list is not empty."""
         assert len(codesherlock_config["preferred_characteristics"]) > 0, (
             "preferred_characteristics should not be empty"
