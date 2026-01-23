@@ -52,6 +52,6 @@ class TestDocumentationSections:
         Parameters:
             section_headers (List[str]): Extracted section header titles from the document.
         """
-        assert (
-            len(section_headers) >= 5
-        ), f"Document should have at least 5 major sections, found {len(section_headers)}"
+        assert len(section_headers) >= 5, (
+            f"Document should have at least 5 major sections, found {len(section_headers)}"
+        )
