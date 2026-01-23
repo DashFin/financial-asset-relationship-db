@@ -79,9 +79,14 @@ def assert_valid(result: ValidationResult) -> None:
 # ---------------------------------------------------------------------------
 
 
+"""
+Unit tests for the ValidationResult class, verifying behavior of valid and invalid results and data preservation on failure.
+"""
+
 class TestValidationResult:
     @staticmethod
     def test_valid_result():
+        """Test that a valid ValidationResult correctly sets is_valid, errors, and workflow_data."""
         data = {"jobs": {}}
         result = ValidationResult(True, [], data)
         assert result.is_valid
@@ -90,6 +95,7 @@ class TestValidationResult:
 
     @staticmethod
     def test_invalid_result():
+        """Test that an invalid ValidationResult correctly sets is_valid to False and retains error messages."""
         errors = ["error"]
         result = ValidationResult(False, errors, {})
         assert not result.is_valid
@@ -97,6 +103,7 @@ class TestValidationResult:
 
     @staticmethod
     def test_preserves_data_on_failure():
+        """Test that workflow_data is preserved even when ValidationResult indicates failure."""
         data = {"name": "x"}
         result = ValidationResult(False, ["missing jobs"], data)
         assert result.workflow_data == data
