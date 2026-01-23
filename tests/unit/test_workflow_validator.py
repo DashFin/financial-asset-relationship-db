@@ -17,12 +17,12 @@ from typing import Iterable
 
 import pytest
 
+from src.workflow_validator import WorkflowValidator
+from workflow_validator import ValidationResult, validate_workflow
+
 # Ensure src is on path BEFORE imports
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
-
-from workflow_validator import ValidationResult, validate_workflow
-from src.workflow_validator import WorkflowValidator
 
 
 # ---------------------------------------------------------------------------
@@ -31,6 +31,15 @@ from src.workflow_validator import WorkflowValidator
 
 
 def write_temp_yaml(content: str) -> Path:
+    """
+    Create a temporary file with a ".yml" suffix containing the given content and return its filesystem path.
+
+    Parameters:
+        content (str): YAML text to be written into the temporary file.
+
+    Returns:
+        Path: Path to the created temporary file. The file is not removed automatically.
+    """
     file = tempfile.NamedTemporaryFile(
         mode="w", suffix=".yml", delete=False, encoding="utf-8"
     )
@@ -41,13 +50,28 @@ def write_temp_yaml(content: str) -> Path:
 
 
 def assert_invalid(result: ValidationResult) -> None:
+    """
+    Assert that the given ValidationResult represents an invalid workflow and contains at least one error.
+
+    Parameters:
+        result (ValidationResult): The validation result to check.
+
+    Raises:
+        AssertionError: If `result.is_valid` is True or `result.errors` is empty.
+    """
     assert result.is_valid is False
     assert result.errors
 
 
-def assert_valid(result: ValidationResult) -> None:
-    assert result.is_valid is True
-    assert not result.errors
+ def assert_valid(result: ValidationResult) -> None:
+     """
+     Assert that a ValidationResult represents a successful validation.
+
+     Parameters:
+         result (ValidationResult): The validation result to check; the function asserts that `result.is_valid` is True and that `result.errors` is empty.
+     """
+     assert result.is_valid is True
+     assert not result.errors
 
 
 # ---------------------------------------------------------------------------
@@ -56,20 +80,32 @@ def assert_valid(result: ValidationResult) -> None:
 
 
 class TestValidationResult:
-    def test_valid_result(self):
+    """Unit tests for the ValidationResult class, verifying behavior of valid and invalid results and data preservation on failure."""
+def test_valid_result(self):
+        """Test that a valid ValidationResult correctly sets is_valid, errors, and workflow_data."""
         data = {"jobs": {}}
         result = ValidationResult(True, [], data)
         assert result.is_valid
         assert result.errors == []
         assert result.workflow_data == data
 
-    def test_invalid_result(self):
+    @staticmethod
+def test_invalid_result(self):
+    errors = ["error"]
+    workflow_data = {"key": "value"}
+    result = ValidationResult(False, errors, workflow_data)
+    assert not result.is_valid
+    assert result.errors == errors
+    assert result.workflow_data == workflow_data  # Add this verification
+        """Test that an invalid ValidationResult correctly sets is_valid to False and retains error messages."""
         errors = ["error"]
         result = ValidationResult(False, errors, {})
         assert not result.is_valid
         assert result.errors == errors
 
-    def test_preserves_data_on_failure(self):
+    @staticmethod
+    def test_preserves_data_on_failure():
+        """Test that workflow_data is preserved even when ValidationResult indicates failure."""
         data = {"name": "x"}
         result = ValidationResult(False, ["missing jobs"], data)
         assert result.workflow_data == data
@@ -159,6 +195,14 @@ class TestWorkflowEdgeCases:
         ],
     )
     def test_unusual_but_allowed_structures(self, content: str):
+        """
+        Ensure the validator accepts unusual but permitted workflow YAML structures.
+
+        Writes `content` to a temporary YAML file, validates it, and asserts that the resulting ValidationResult object's `is_valid` attribute is a boolean.
+
+        Parameters:
+            content (str): YAML text representing a workflow configuration to validate.
+        """
         path = write_temp_yaml(content)
         try:
             result = validate_workflow(str(path))
@@ -192,6 +236,12 @@ class TestWorkflowValidator:
         assert all(isinstance(e, str) for e in errors)
 
     def test_long_description(self):
+        """
+        Verify that WorkflowValidator.validate returns a list when given a very long description.
+
+        Ensures the validator accepts a workflow config whose `description` is extremely long (1000 characters)
+        and yields an errors object of type `list` rather than raising or returning another type.
+        """
         validator = WorkflowValidator()
         config = {
             "name": "Test",
@@ -212,6 +262,12 @@ class TestWorkflowValidator:
     ["pr-agent.yml", "apisec-scan.yml"],
 )
 def test_real_workflows_if_present(filename: str):
+    """
+    Parametrized test that validates a GitHub Actions workflow file found under .github/workflows in the project root.
+
+    Parameters:
+        filename (str): The workflow file name to locate under .github/workflows; the test is skipped if the file is not present.
+    """
     path = PROJECT_ROOT / ".github" / "workflows" / filename
     if not path.exists():
         pytest.skip(f"{filename} not found")
