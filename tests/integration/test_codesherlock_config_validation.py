@@ -14,18 +14,16 @@ import yaml
 
 @pytest.fixture
 def codesherlock_config_path() -> Path:
-    """
-    Return the path to the repository's codesherlock.yaml file.
-    """
+    """Return the path to the repository's codesherlock.yaml file."""
     repo_root = Path(__file__).parent.parent.parent
     return repo_root / "codesherlock.yaml"
 
 
 @pytest.fixture
-def codesherlock_config(codesherlock_config_path: Path) -> Dict[str, Any]:
-    """
-    Load and parse codesherlock.yaml into a dictionary.
-    """
+def codesherlock_config(
+    codesherlock_config_path: Path,
+) -> Dict[str, Any]:
+    """Load and parse the codesherlock.yaml file."""
     with codesherlock_config_path.open("r") as f:
         return yaml.safe_load(f)
 
@@ -34,20 +32,17 @@ class TestCodeSherlockConfigFile:
     """Tests for existence and YAML validity."""
 
     def test_config_file_exists(self, codesherlock_config_path: Path) -> None:
-        assert codesherlock_config_path.exists(), "codesherlock.yaml should exist"
-        assert codesherlock_config_path.is_file(), "codesherlock.yaml should be a file"
+        assert codesherlock_config_path.exists()
+        assert codesherlock_config_path.is_file()
 
     def test_config_is_valid_yaml(self, codesherlock_config_path: Path) -> None:
+        """Verify that codesherlock.yaml parses as valid YAML."""
         try:
             with codesherlock_config_path.open("r") as f:
                 config = yaml.safe_load(f)
-            assert isinstance(config, dict), "Config should be a dictionary"
+            assert isinstance(config, dict)
         except yaml.YAMLError as exc:
             pytest.fail(f"Invalid YAML syntax: {exc}")
-
-
-class TestCodeSherlockConfigStructure:
-    """Tests for required structure and types."""
 
     def test_config_has_required_fields(
         self, codesherlock_config: Dict[str, Any]
@@ -80,7 +75,7 @@ class TestCodeSherlockConfigStructure:
 
 
 class TestCodeSherlockConfigContent:
-    """Tests for value correctness and duplication."""
+    """Tests for configuration content validation."""
 
     def test_target_branches_are_strings(
         self, codesherlock_config: Dict[str, Any]
@@ -120,21 +115,43 @@ class TestCodeSherlockConfigContent:
             "Code Injection",
             "Input Validation",
         }
-
         for characteristic in codesherlock_config["preferred_characteristics"]:
             assert characteristic in valid
+
+    def test_additional_instructions_optional(
+        self, codesherlock_config: Dict[str, Any]
+    ) -> None:
+        if "additional_instructions" in codesherlock_config:
+            assert isinstance(codesherlock_config["additional_instructions"], list)
 
 
 class TestCodeSherlockConfigBestPractices:
     """Tests for best-practice coverage."""
 
-    def test_includes_security_characteristics(
+    def test_covers_key_security_characteristics(
         self, codesherlock_config: Dict[str, Any]
     ) -> None:
         required = {
             "Input Validation",
             "Code Injection",
             "Exception Handling",
+        }
+        configured = set(codesherlock_config["preferred_characteristics"])
+        assert required.issubset(configured)
+
+    def test_covers_code_quality_characteristics(
+        self, codesherlock_config: Dict[str, Any]
+    ) -> None:
+        required = {"Modularity", "Dependency Injection"}
+        configured = set(codesherlock_config["preferred_characteristics"])
+        assert required.issubset(configured)
+
+    def test_covers_operational_characteristics(
+        self, codesherlock_config: Dict[str, Any]
+    ) -> None:
+        required = {
+            "Monitoring and Logging",
+            "Resource Utilization",
         }
         configured = set(codesherlock_config["preferred_characteristics"])
         assert required.issubset(configured)
@@ -147,12 +164,11 @@ class TestCodeSherlockConfigBestPractices:
 
 
 class TestCodeSherlockConfigEdgeCases:
-    """Tests for formatting and edge-case handling."""
+    """Tests for formatting and edge cases."""
 
     def test_no_whitespace_in_values(self, codesherlock_config: Dict[str, Any]) -> None:
         for branch in codesherlock_config["target_branches"]:
             assert branch == branch.strip()
-
         for characteristic in codesherlock_config["preferred_characteristics"]:
             assert characteristic == characteristic.strip()
 
@@ -167,9 +183,38 @@ class TestCodeSherlockConfigEdgeCases:
     def test_config_file_size_reasonable(self, codesherlock_config_path: Path) -> None:
         assert codesherlock_config_path.stat().st_size < 10_240
 
+    def test_yaml_indentation_consistency(self, codesherlock_config_path: Path) -> None:
+        lines = codesherlock_config_path.read_text().splitlines()
+        for i, line in enumerate(lines, 1):
+            if line.startswith(" "):
+                spaces = len(line) - len(line.lstrip())
+                assert spaces % 2 == 0, f"Line {i} has invalid indentation"
+
+
+class TestCodeSherlockConfigIntegration:
+    """Integration-level validation tests."""
+
+    def test_branch_name_length_constraints(
+        self, codesherlock_config: Dict[str, Any]
+    ) -> None:
+        for branch in codesherlock_config["target_branches"]:
+            assert 1 <= len(branch) <= 255
+
+    def test_financial_critical_characteristics_present(
+        self, codesherlock_config: Dict[str, Any]
+    ) -> None:
+        required = {
+            "Input Validation",
+            "Exception Handling",
+            "Monitoring and Logging",
+        }
+        configured = set(codesherlock_config["preferred_characteristics"])
+        missing = required - configured
+        assert not missing, f"Missing critical characteristics: {missing}"
+
 
 class TestCodeSherlockConfigDocumentation:
-    """Tests for documentation quality."""
+    """Tests for inline documentation quality."""
 
     def test_config_has_comments(self, codesherlock_config_path: Path) -> None:
         lines = codesherlock_config_path.read_text().splitlines()
@@ -178,9 +223,14 @@ class TestCodeSherlockConfigDocumentation:
     def test_sections_are_documented(self, codesherlock_config_path: Path) -> None:
         lines = codesherlock_config_path.read_text().splitlines()
 
-        for key in ("target_branches:", "preferred_characteristics:"):
-            idx = next((i for i, l in enumerate(lines) if key in l), None)
+        for key in (
+            "target_branches:",
+            "preferred_characteristics:",
+        ):
+            idx = next(
+                (i for i, line in enumerate(lines) if key in line),
+                None,
+            )
             assert idx is not None
-
             preceding = lines[max(0, idx - 5) : idx]
             assert any(line.strip().startswith("#") for line in preceding)
