@@ -52,14 +52,14 @@ class TestCodeSherlockConfigFile:
 
         Parameters:
             codesherlock_config_path (Path): Path to the codesherlock.yaml file in the repository root.
-         """
-         try:
-             with open(codesherlock_config_path, "r") as f:
-                 config = yaml.safe_load(f)
-             assert config is not None, "Config should not be None"
-             assert isinstance(config, dict), "Config should be a dictionary"
-         except yaml.YAMLError as e:
-             pytest.fail(f"Invalid YAML syntax: {e}")
+        """
+        try:
+            with open(codesherlock_config_path, "r") as f:
+                config = yaml.safe_load(f)
+            assert config is not None, "Config should not be None"
+            assert isinstance(config, dict), "Config should be a dictionary"
+        except yaml.YAMLError as e:
+            pytest.fail(f"Invalid YAML syntax: {e}")
 
      def test_config_has_required_fields(self, codesherlock_config: Dict[str, Any]):
          """
