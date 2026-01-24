@@ -537,11 +537,11 @@ class TestPRAgentConfigSecurity:
             """
             Recursively scan a mapping for potential hardcoded credentials and validate that sensitive keys use allowed placeholders.
 
-            For each key/value pair in `node`, if the key matches known sensitive patterns the value is required to be one of the allowed placeholders; otherwise an AssertionError is raised identifying the dotted path to the offending entry. The function also delegates deeper scanning of each value via `scan_for_secrets`, using `path` as the dotted prefix for diagnostics.
+            For each key / value pair in `node`, if the key matches known sensitive patterns the value is required to be one of the allowed placeholders; otherwise an AssertionError is raised identifying the dotted path to the offending entry. The function also delegates deeper scanning of each value via `scan_for_secrets`, using `path` as the dotted prefix for diagnostics.
 
             Parameters:
-                node (dict): Mapping whose keys and values will be scanned.
-                path (str): Dotted path prefix used in assertion messages for locating the inspected value.
+                node(dict): Mapping whose keys and values will be scanned.
+                path(str): Dotted path prefix used in assertion messages for locating the inspected value.
 
             Raises:
                 AssertionError: If a value for a key matching sensitive patterns is not in `allowed_placeholders`.
@@ -560,18 +560,18 @@ class TestPRAgentConfigSecurity:
             Scan each element of `node` for potential secret values, updating `path` with each element's index to locate findings.
 
             Parameters:
-                node (list): Sequence of values to inspect.
-                path (str): Current dotted/indexed traversal path used to identify each element's location.
+                node(list): Sequence of values to inspect.
+                path(str): Current dotted / indexed traversal path used to identify each element's location.
             """
             for idx, item in enumerate(node):
                 scan_for_secrets(item, f"{path}[{idx}]")
 
         def scan_for_secrets(node, path="root"):
-            """Scan a node (dict or list) for hardcoded secrets by delegating to scan_dict and scan_list.
+            """Scan a node(dict or list) for hardcoded secrets by delegating to scan_dict and scan_list.
 
             Parameters:
                 node: Value to scan.
-                path (str): Dotted path prefix for error messages.
+                path(str): Dotted path prefix for error messages.
             """
             if isinstance(node, dict):
                 scan_dict(node, path)
@@ -585,11 +585,11 @@ class TestPRAgentConfigSecurity:
             """
             Recursively inspects a nested structure for keys that match predefined sensitive patterns and asserts their values are safe.
 
-            Traverses dictionaries and lists within `node`. For any dictionary key whose lowercase form contains one of the module-level sensitive_patterns, the corresponding value must be present in the module-level safe_placeholders set; otherwise an AssertionError is raised identifying the offending path.
+            Traverses dictionaries and lists within `node`. For any dictionary key whose lowercase form contains one of the module - level sensitive_patterns, the corresponding value must be present in the module - level safe_placeholders set; otherwise an AssertionError is raised identifying the offending path.
 
             Parameters:
                 node: The value to inspect; typically a dict, list, or primitive contained in the configuration.
-                path (str): Dot-and-bracket notation string representing the current traversal path (used only for error messages).
+                path(str): Dot - and -bracket notation string representing the current traversal path(used only for error messages).
 
             Raises:
                 AssertionError: If a value is found under a sensitive key that is not listed in `safe_placeholders`.

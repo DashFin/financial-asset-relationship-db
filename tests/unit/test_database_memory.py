@@ -285,20 +285,21 @@ class TestConnectWithMemoryDb:
         assert conn.row_factory == sqlite3.Row
 
     """Module for testing that in-memory database connections disable check_same_thread for thread safety."""
-        def test_connect_enables_check_same_thread_false(
-            self, monkeypatch, restore_database_module
-        ):
-            """Test that _connect disables check_same_thread for thread safety."""
-            monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
-            reloaded_database = importlib.reload(database)
 
-            conn = reloaded_database._connect()
+    def test_connect_enables_check_same_thread_false(
+        self, monkeypatch, restore_database_module
+    ):
+        """Test that _connect disables check_same_thread for thread safety."""
+        monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+        reloaded_database = importlib.reload(database)
 
-            # Verify we can use the connection from different threads
-            # by attempting to execute a query (would fail if check_same_thread=True)
-            import threading
+         conn = reloaded_database._connect()
 
-            def query_from_thread():
+          # Verify we can use the connection from different threads
+          # by attempting to execute a query (would fail if check_same_thread=True)
+          import threading
+
+           def query_from_thread():
                 """Execute a simple SELECT query using the shared connection from a different thread."""
                 cursor = conn.execute("SELECT 1")
                 cursor.fetchone()

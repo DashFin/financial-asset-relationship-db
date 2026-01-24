@@ -14,6 +14,7 @@ from src.visualizations.graph_visuals import (
 
 class DummyGraph(AssetRelationshipGraph):
     def __init__(self, relationships):
+
         # relationships: dict[str, List[Tuple[str, str, float]]]
 """
 Unit tests for graph visualization utilities including asset ID indexing, relationship indexing, trace creation, and directional arrow generation.

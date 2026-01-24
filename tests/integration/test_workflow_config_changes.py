@@ -330,6 +330,7 @@ class TestAPISecScanWorkflowChanges:
     Ensures the GitHub Actions workflow for API security scanning is correctly configured with
     required jobs, steps, and settings.
     """
+
     pass
 
 

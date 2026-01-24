@@ -506,14 +506,15 @@ class TestValidationResultDataStructure:
         @staticmethod
         def test_validation_result_attributes():
             """Test validation_result attributes for nested static method"""
+
     @staticmethod
     def test_validation_result_has_attributes():
-            data = {"name": "Test", "jobs": {"build": {}}}
-            result = ValidationResult(True, [], data)
+        data = {"name": "Test", "jobs": {"build": {}}}
+        result = ValidationResult(True, [], data)
 
-            assert hasattr(result, "is_valid")
-            assert hasattr(result, "errors")
-            assert hasattr(result, "workflow_data")
+        assert hasattr(result, "is_valid")
+        assert hasattr(result, "errors")
+        assert hasattr(result, "workflow_data")
 
     @staticmethod
     def test_validation_result_errors_is_list():

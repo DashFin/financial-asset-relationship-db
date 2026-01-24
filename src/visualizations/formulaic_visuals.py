@@ -221,8 +221,8 @@ class FormulaicVisualizer:
                     align="left",
                 ),
             ),
-            row=3,
-            col=2,
+            row = 3,
+            col = 2,
         )
 
         # 1. Formula Categories Pie Chart
@@ -242,8 +242,8 @@ class FormulaicVisualizer:
                     textinfo="label+percent",
                     textposition="auto",
                 ),
-                row=1,
-                col=1,
+                row = 1,
+                col = 1,
             )
 
         # 2. Formula Reliability Bar Chart

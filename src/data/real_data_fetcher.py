@@ -158,7 +158,7 @@ class RealDataFetcher:
     def _fetch_equity_data() -> List[Equity]:
         Fetch current market data for a predefined set of major equities.
 
-        Skips symbols with no recent price data and continues on per-symbol errors;
+        Skips symbols with no recent price data and continues on per - symbol errors;
         logs warnings for missing data and errors for failed fetches.
 
         Returns:
@@ -217,7 +217,7 @@ class RealDataFetcher:
         Fetches bond and treasury data using ETF proxies and returns
         corresponding Bond objects.
 
-        Creates Bond instances for a small set of bond/treasury ETFs (TLT, LQD,
+        Creates Bond instances for a small set of bond / treasury ETFs(TLT, LQD,
         HYG) when recent price data is available. If an ETF has no recent price
         data it is skipped. When ticker metadata is missing, defaults are used:
         `yield_to_maturity` defaults to 0.03, `coupon_rate` defaults to 0.025,
@@ -372,7 +372,7 @@ class RealDataFetcher:
         RegulatoryEvent instances associated with fetched assets.
 
         The returned events are hardcoded examples intended to accompany the
-        fetched asset set (e.g., an earnings report for Apple,
+        fetched asset set(e.g., an earnings report for Apple,
         a dividend announcement for Microsoft, and an SEC filing for Exxon)
         and include fields such as id, asset_id, event_type, date,
         description, impact_score, and related_assets.
@@ -439,7 +439,7 @@ def create_real_database() -> AssetRelationshipGraph:
     Returns:
         AssetRelationshipGraph: The constructed graph populated with assets,
         regulatory events and relationship mappings; the content may come from the
-        cache, a real-data fetch, or the sample fallback.
+        cache, a real - data fetch, or the sample fallback.
     """
     fetcher = RealDataFetcher()
     return fetcher.create_real_database()
@@ -451,7 +451,7 @@ def _enum_to_value(value: Any) -> Any:
     Return the input unchanged otherwise.
 
     Parameters:
-        value (Any): The value to normalise.
+        value(Any): The value to normalise.
             If `value` is an `Enum` member its `.value` is returned.
 
     Returns:
@@ -465,11 +465,11 @@ def _enum_to_value(value: Any) -> Any:
 
 def _serialize_dataclass(obj: Any) -> dict[str, Any]:
     """
-    Serialize a dataclass instance into a JSON-friendly dictionary
+    Serialize a dataclass instance into a JSON - friendly dictionary
     with enum values converted.
 
     Parameters:
-        obj (Any): A dataclass instance (e.g. Asset or subclass) to serialize.
+        obj(Any): A dataclass instance(e.g. Asset or subclass) to serialize.
 
     Returns:
         dict[str, Any]: A mapping of field names to values where
@@ -484,10 +484,10 @@ def _serialize_dataclass(obj: Any) -> dict[str, Any]:
 
 def _serialize_graph(graph: AssetRelationshipGraph) -> dict[str, Any]:
     """
-    Serialize an AssetRelationshipGraph into a JSON-serializable dictionary.
+    Serialize an AssetRelationshipGraph into a JSON - serializable dictionary.
 
     Parameters:
-        graph (AssetRelationshipGraph): Graph to serialize.
+        graph(AssetRelationshipGraph): Graph to serialize.
 
     Returns:
         dict[str, Any]: Dictionary with the following keys:
@@ -535,7 +535,7 @@ def _deserialize_asset(data: dict[str, Any]) -> Asset:
     Deserialize a dictionary representation of an asset back into an Asset instance.
 
     Parameters:
-        data (dict[str, Any]): Dictionary containing asset data
+        data(dict[str, Any]): Dictionary containing asset data
             with a "__type__" key indicating the asset subclass.
 
     Returns:
@@ -567,7 +567,7 @@ def _deserialize_event(data: dict[str, Any]) -> RegulatoryEvent:
     the RegulatoryActivity enum before creating the RegulatoryEvent instance.
 
     Parameters:
-        data (dict[str, Any]): Serialized event payload — must include an
+        data(dict[str, Any]): Serialized event payload — must include an
             "event_type" value compatible with RegulatoryActivity and the
             remaining fields accepted by RegulatoryEvent.
 
@@ -584,7 +584,7 @@ def _deserialize_graph(payload: dict[str, Any]) -> AssetRelationshipGraph:
     Reconstructs an AssetRelationshipGraph from a serialized payload.
 
     Parameters:
-        payload (dict[str, Any]): Serialized graph payload containing the keys
+        payload(dict[str, Any]): Serialized graph payload containing the keys
             "assets", "regulatory_events", "relationships", etc.
 
     Returns:
@@ -617,7 +617,7 @@ def _load_from_cache(path: Path) -> AssetRelationshipGraph:
     Load an AssetRelationshipGraph from a JSON cache file.
 
     Parameters:
-        path (Path): Filesystem path to the cache JSON file to read.
+        path(Path): Filesystem path to the cache JSON file to read.
 
     Returns:
         AssetRelationshipGraph: The graph reconstructed from the JSON payload.
@@ -632,13 +632,13 @@ def _save_to_cache(graph: AssetRelationshipGraph, path: Path) -> None:
     Persist an AssetRelationshipGraph to a JSON file at the given filesystem path.
 
     The function serialises the provided graph to JSON
-    (UTF-8, pretty-printed with two-space indentation),
+    (UTF - 8, pretty - printed with two - space indentation),
     creates parent directories if necessary,
     and overwrites any existing file at the path.
 
     Parameters:
-        graph (AssetRelationshipGraph): The graph to persist.
-        path (Path): Filesystem path where the JSON representation will be written.
+        graph(AssetRelationshipGraph): The graph to persist.
+        path(Path): Filesystem path where the JSON representation will be written.
     """
     payload = _serialize_graph(graph)
     path.parent.mkdir(parents=True, exist_ok=True)

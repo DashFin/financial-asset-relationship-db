@@ -51,14 +51,15 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
 ## Calculated Metrics
 ```"""
 
-### Network Statistics
+
+# Network Statistics
 - **Total Assets**: {metrics["total_assets"]}
 - **Total Relationships**: {metrics["total_relationships"]}
 - **Average Relationship Strength**: {metrics["average_relationship_strength"]:.3f}
 - **Relationship Density**: {metrics["relationship_density"]:.2f}%
 - **Regulatory Events**: {metrics["regulatory_event_count"]}
 
-### Asset Class Distribution
+# Asset Class Distribution
 """
 
     for asset_class, count in sorted(metrics["asset_class_distribution"].items()):
@@ -66,7 +67,7 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
 
     report += """
 
-## Top Relationships
+# Top Relationships
 """
 
     for idx, (source, target, rel_type, strength) in enumerate(
@@ -76,9 +77,9 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
 
     report += """
 
-## Business Rules & Constraints
+# Business Rules & Constraints
 
-### Cross-Asset Rules
+# Cross-Asset Rules
 """
     report += (
         "1. **Corporate Bond Linkage**: Corporate bonds link to issuing company "
@@ -94,7 +95,7 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
     )
     report += """
 
-### Regulatory Rules
+# Regulatory Rules
 """
     report += (
         "1. **Event Propagation**: Earnings events impact related bond and currency "
@@ -105,7 +106,7 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
     )
     report += """
 
-### Valuation Rules
+# Valuation Rules
 """
     report += (
         "1. **Bond-Stock Spread**: Corporate bond yield - equity dividend yield "
@@ -117,19 +118,19 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
     )
     report += """
 
-## Schema Optimization Metrics
+# Schema Optimization Metrics
 
-### Data Quality Score: """
+# Data Quality Score: """
 
-    quality_score = min(
-        1.0,
-        metrics["average_relationship_strength"]
-        + (metrics["regulatory_event_count"] / 10),
-    )
-    report += f"{quality_score:.1%}\n"
+quality_score = min(
+     1.0,
+     metrics["average_relationship_strength"]
+     + (metrics["regulatory_event_count"] / 10),
+     )
+ report += f"{quality_score:.1%}\n"
 
-    report += "\n### Recommendation: "
-    if metrics["relationship_density"] > 30:
+  report += "\n### Recommendation: "
+   if metrics["relationship_density"] > 30:
         report += "High connectivity - consider normalization"
     elif metrics["relationship_density"] > 10:
         report += "Well-balanced relationship graph - optimal for most use cases"
