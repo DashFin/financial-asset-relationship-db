@@ -69,9 +69,9 @@ class AssetGraphRepository:
             List[Asset]: Asset instances converted from ORM rows, ordered by asset id.
         """
 
-        result = self.session.execute(
-            select(AssetORM).order_by(AssetORM.id)
-        ).scalars().all()
+        result = (
+            self.session.execute(select(AssetORM).order_by(AssetORM.id)).scalars().all()
+        )
         return [self._to_asset_model(record) for record in result]
 
     def get_assets_map(self) -> dict[str, Asset]:
@@ -293,9 +293,7 @@ class AssetGraphRepository:
         orm.sector = asset.sector
         orm.price = float(asset.price)
         orm.market_cap = (
-            float(asset.market_cap)
-            if asset.market_cap is not None
-            else None
+            float(asset.market_cap) if asset.market_cap is not None else None
         )
         orm.currency = asset.currency
 
@@ -305,9 +303,7 @@ class AssetGraphRepository:
         orm.earnings_per_share = getattr(asset, "earnings_per_share", None)
         orm.book_value = getattr(asset, "book_value", None)
 
-        orm.yield_to_maturity = getattr(
-            asset, "yield_to_maturity", None
-        )
+        orm.yield_to_maturity = getattr(asset, "yield_to_maturity", None)
         orm.coupon_rate = getattr(asset, "coupon_rate", None)
         orm.maturity_date = getattr(asset, "maturity_date", None)
         orm.credit_rating = getattr(asset, "credit_rating", None)
