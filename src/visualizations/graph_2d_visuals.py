@@ -121,7 +121,6 @@ def _create_spring_layout_2d(
     return positions_2d
 
 
-
 def _create_2d_relationship_traces(
     graph: AssetRelationshipGraph,
     positions: dict[str, Tuple[float, float]],

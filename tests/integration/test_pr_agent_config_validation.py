@@ -411,7 +411,7 @@ class TestPRAgentConfigSecurity:
             return -sum(p * math.log2(p) for p in probabilities)
 
         def is_allowed_value(val):
-            """Return True if val is an allowed placeholder or a variable substitution (${...}); False otherwise."""
+            """Return True if val is an allowed placeholder or a variable substitution(${...}); False otherwise."""
             if val in allowed_placeholders:
                 return True
             if isinstance(val, str) and val.startswith("${") and val.endswith("}"):
@@ -513,11 +513,11 @@ class TestPRAgentConfigSecurity:
             """
             Recursively validate that values stored under sensitive keys are not hardcoded secrets.
 
-            Inspects dictionaries and lists within `node`. If a dictionary key (lowercased) contains any substring from the module-level `sensitive_patterns`, its value must be one of the module-level `safe_placeholders`; otherwise an AssertionError is raised identifying the dotted/bracketed path to the offending value.
+            Inspects dictionaries and lists within `node`. If a dictionary key(lowercased) contains any substring from the module - level `sensitive_patterns`, its value must be one of the module - level `safe_placeholders`; otherwise an AssertionError is raised identifying the dotted / bracketed path to the offending value.
 
             Parameters:
                 node: The value to inspect; typically a dict, list, or primitive from the configuration.
-                path (str): Current traversal path in dotted/bracket notation used in error messages (defaults to the empty string).
+                path(str): Current traversal path in dotted / bracket notation used in error messages(defaults to the empty string).
 
             Raises:
                 AssertionError: If a value is found under a sensitive key that is not listed in `safe_placeholders`.
