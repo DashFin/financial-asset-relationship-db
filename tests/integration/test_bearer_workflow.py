@@ -20,7 +20,7 @@ import yaml
 @pytest.fixture
 def bearer_workflow_path() -> Path:
     """Path to the Bearer workflow file."""
-    return Path(__file__).parents[3] / ".github" / "workflows" / "bearer.yml"
+    return Path(__file__).parents[2] / ".github" / "workflows" / "bearer.yml"
 
 
 @pytest.fixture
