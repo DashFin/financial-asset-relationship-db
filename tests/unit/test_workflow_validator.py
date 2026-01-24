@@ -1057,7 +1057,6 @@ jobs:
     steps:
       - uses: actions / checkout @ v4
         with: {ref: main, fetch - depth: 1,}
-"""
             )
             f.flush()
 

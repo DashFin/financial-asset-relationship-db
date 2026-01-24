@@ -558,27 +558,22 @@ class TestPRAgentConfigRemovedComplexity:
     """Test that complex features were properly removed."""
 
     @pytest.fixture
-    @staticmethod
-    @pytest.fixture
     def pr_agent_config_content() -> str:
-        """Raw YAML content of .github / pr - agent - config.yml."""
+        """Raw YAML content of .github/pr-agent-config.yml."""
         config_path = Path(".github/pr-agent-config.yml")
         with open(config_path, "r") as f:
             return f.read()
 
-    @staticmethod
     def test_no_summarization_settings(pr_agent_config_content):
         """Verify summarization settings removed."""
         assert "summarization" not in pr_agent_config_content.lower()
         assert "max_summary_tokens" not in pr_agent_config_content
 
-    @staticmethod
     def test_no_token_management(pr_agent_config_content):
         """Verify token management settings removed."""
         assert "max_tokens" not in pr_agent_config_content
         assert "context_length" not in pr_agent_config_content
 
-    @staticmethod
     def test_no_llm_model_references(pr_agent_config_content):
         """Ensure no explicit LLM model identifiers appear in the raw PR agent configuration."""
         assert "gpt-3.5-turbo" not in pr_agent_config_content
