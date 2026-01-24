@@ -24,9 +24,7 @@ def _get_database_url() -> str:
     """
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
-        raise ValueError(
-            "DATABASE_URL environment variable must be set before using the database"
-        )
+        raise ValueError("DATABASE_URL environment variable must be set before using the database")
     return database_url
 
 
@@ -95,12 +93,12 @@ _MEMORY_CONNECTION_LOCK = threading.Lock()
 def _is_memory_db(path: str | None = None) -> bool:
     """
     Check if a database path refers to an in-memory SQLite database.
-    
+
     If `path` is omitted, the module-level `DATABASE_PATH` is evaluated.
-    
+
     Parameters:
         path: Optional filesystem path or SQLite URI to evaluate; when omitted, `DATABASE_PATH` is used.
-    
+
     Returns:
         `True` if the evaluated path represents an in-memory SQLite database (for example, `":memory:"` or a URI like `file::memory:?cache=shared`), `False` otherwise.
     """
@@ -110,9 +108,7 @@ def _is_memory_db(path: str | None = None) -> bool:
 
     # SQLite supports URI-style memory databases such as ``file::memory:?cache=shared``.
     parsed = urlparse(target)
-    if parsed.scheme == "file" and (
-        parsed.path == ":memory:" or ":memory:" in parsed.query
-    ):
+    if parsed.scheme == "file" and (parsed.path == ":memory:" or ":memory:" in parsed.query):
         return True
 
     return False
@@ -182,7 +178,7 @@ def get_connection() -> Iterator[sqlite3.Connection]:
 def _cleanup_memory_connection(memory_connection):
     """
     Close the provided SQLite in-memory connection if one is given; intended for use at program exit.
-    
+
     Parameters:
         memory_connection (sqlite3.Connection | None): The connection to close. If `None`, no action is taken.
     """
@@ -256,8 +252,7 @@ def initialize_schema() -> None:
     - `hashed_password`: TEXT, not null
     - `disabled`: INTEGER, not null, defaults to 0
     """
-    execute(
-        """
+    execute("""
         CREATE TABLE IF NOT EXISTS user_credentials (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
@@ -266,5 +261,4 @@ def initialize_schema() -> None:
             hashed_password TEXT NOT NULL,
             disabled INTEGER NOT NULL DEFAULT 0
         )
-        """
-    )
+        """)

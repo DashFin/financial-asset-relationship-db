@@ -32,12 +32,12 @@ REL_TYPE_COLORS = defaultdict(
 def _is_valid_color_format(color: str) -> bool:
     """
     Determine whether a string represents an acceptable color value for visualization.
-    
+
     Accepts hexadecimal color codes (#RGB, #RRGGBB, #RRGGBBAA), rgb()/rgba() function strings (e.g., 'rgb(255,0,0)', 'rgba(255,0,0,0.5)'), or any non-empty string (treated as a named color and deferred to Plotly for final validation).
-    
+
     Parameters:
         color (str): Color string to validate.
-    
+
     Returns:
         True if `color` matches a hex or rgb/rgba pattern or is a non-empty string (treated as a named color), `False` otherwise.
     """
@@ -61,10 +61,10 @@ def _is_valid_color_format(color: str) -> bool:
 def _build_asset_id_index(asset_ids: List[str]) -> dict[str, int]:
     """
     Create a lookup mapping each asset ID to its index in the provided sequence.
-    
+
     Parameters:
         asset_ids (List[str]): Sequence of asset identifier strings.
-    
+
     Returns:
         dict[str, int]: A dictionary mapping each asset ID to its zero-based position.
     """
@@ -76,16 +76,16 @@ def _build_relationship_index(
 ) -> dict[Tuple[str, str, str], float]:
     """
     Build an index mapping each relevant (source_id, target_id, rel_type) tuple to its numeric strength.
-    
+
     Only relationships whose source is present in asset_ids and whose target is also present in asset_ids are included; strengths are converted to floats.
-    
+
     Parameters:
         graph: AssetRelationshipGraph instance containing a .relationships mapping.
         asset_ids: Iterable of asset IDs to include (will be converted to a set for membership tests).
-    
+
     Returns:
         dict mapping (source_id, target_id, rel_type) to strength (float) for all included relationships.
-    
+
     Raises:
         TypeError: If graph is not an AssetRelationshipGraph, if graph.relationships is not a dict,
             or if relationship entries have incorrect types (e.g., non-string ids or types).
@@ -352,13 +352,13 @@ def _prepare_layout_config(
 ) -> Tuple[str, dict[str, object]]:
     """
     Prepare layout options and a dynamic title reflecting the number of assets and visible relationships.
-    
+
     Parameters:
         num_assets (int): Total number of assets displayed.
         relationship_traces (List[go.Scatter3d]): Relationship traces used to count visible relationships.
         base_title (str): Base title text to prefix the counts.
         layout_options (Optional[dict[str, object]]): Layout configuration overrides; if None an empty dict is returned.
-    
+
     Returns:
         Tuple[str, dict[str, object]]: A tuple where the first element is the formatted dynamic title and the second is the layout options dict to apply.
     """
@@ -389,16 +389,16 @@ def _configure_3d_layout(
 ) -> None:
     """
     Apply a standard 3D scene and overall layout configuration to a Plotly figure.
-    
+
     Configures title, scene axes (labels, grid color, background, camera), figure size, legend placement and styling, and hover behavior. The optional `options` mapping may override defaults:
-    
+
     - width (int): figure width in pixels (default 1200)
     - height (int): figure height in pixels (default 800)
     - gridcolor (str): grid line color for x/y/z axes (default "rgba(200, 200, 200, 0.3)")
     - bgcolor (str): 3D scene background color (default "rgba(248, 248, 248, 0.95)")
     - legend_bgcolor (str): legend background color (default "rgba(255, 255, 255, 0.8)")
     - legend_bordercolor (str): legend border color (default "rgba(0, 0, 0, 0.3)")
-    
+
     Parameters:
         fig: The Plotly Figure to configure.
         title: Text to display as the figure title.
@@ -651,20 +651,20 @@ def _collect_and_group_relationships(
 ) -> dict[Tuple[str, bool], List[dict]]:
     """
     Group graph relationships by relationship type and bidirectionality, applying optional filters.
-    
+
     Builds an index of relationships for the provided asset_ids and returns a mapping from
     (rel_type, is_bidirectional) to a list of relationship dictionaries. Each relationship
     dictionary contains the keys "source_id", "target_id", and "strength" (float). Bidirectional
     pairs are emitted only once (as a bidirectional group); unidirectional edges are emitted
     in their own groups.
-    
+
     Parameters:
         graph (AssetRelationshipGraph): Graph providing relationship data.
         asset_ids (Iterable[str]): Asset identifiers to include when collecting relationships.
         relationship_filters (Optional[dict[str, bool]]): When provided, keys are relationship
             types and boolean values indicate whether to include that type (`True`) or exclude it
             (`False`). If None, all relationship types are considered.
-    
+
     Returns:
         dict[tuple[str, bool], List[dict]]: Mapping from (rel_type, is_bidirectional) to lists of
         relationship dicts with keys "source_id", "target_id", and "strength".
@@ -715,13 +715,13 @@ def _build_edge_coordinates_optimized(
 ) -> Tuple[List[Optional[float]], List[Optional[float]], List[Optional[float]]]:
     """
     Create parallel x, y, and z coordinate lists for line segments that represent relationships.
-    
+
     Parameters:
         relationships (List[dict]): Sequence of relationship dicts each containing at least the keys
             'source_id' and 'target_id'.
         positions (np.ndarray): Array of node coordinates with shape (n, 3); each row is (x, y, z).
         asset_id_index (dict[str, int]): Mapping from asset_id to the row index in `positions`.
-    
+
     Returns:
         Tuple[List[Optional[float]], List[Optional[float]], List[Optional[float]]]:
             Three lists (edges_x, edges_y, edges_z), each of length 3 * len(relationships).
@@ -809,7 +809,7 @@ def _create_trace_for_group(
 ) -> go.Scatter3d:
     """
     Create a Plotly 3D line trace representing a group of relationships.
-    
+
     Returns:
         go.Scatter3d: A 3D line trace where each relationship is rendered as a three-point segment (source, separator, target), with line style, hover text, visibility, and legend grouping configured for the given relationship type and directionality.
     """
@@ -840,16 +840,16 @@ def _create_relationship_traces(
 ) -> List[go.Scatter3d]:
     """
     Create Plotly 3D line traces grouped by relationship type and direction for the given graph and assets.
-    
+
     Parameters:
         graph (AssetRelationshipGraph): Graph containing a `relationships` mapping to group into traces.
         positions (np.ndarray): Nx3 array of node coordinates; length N must match `asset_ids`.
         asset_ids (List[str]): Ordered list of asset identifiers corresponding to `positions`.
         relationship_filters (Optional[dict[str, bool]]): Optional map of relationship type to a boolean indicating whether that type should be included; if None all relationship types are considered.
-    
+
     Returns:
         List[go.Scatter3d]: A list of Plotly 3D line traces, one per (relationship type, bidirectionality) group, ready for batch addition to a figure.
-    
+
     Raises:
         ValueError: If `graph` is not an AssetRelationshipGraph, `graph.relationships` is missing or not a dict, `positions` is not a numpy array, or `positions` length does not match `asset_ids`.
     """
@@ -892,15 +892,15 @@ def _create_directional_arrows(
 ) -> List[go.Scatter3d]:
     """
     Create marker traces representing the direction of unidirectional relationships.
-    
+
     Parameters:
         graph (AssetRelationshipGraph): Graph containing a `relationships` mapping.
         positions (np.ndarray): Array of shape (n, 3) with 3D coordinates for each asset.
         asset_ids (List[str]): Sequence of asset IDs aligned with `positions`.
-    
+
     Returns:
         List[go.Scatter3d]: A list containing a single Scatter3d trace of arrow markers positioned at 70% along each unidirectional edge, or an empty list if no unidirectional relationships exist.
-    
+
     Raises:
         TypeError: If `graph` is not an AssetRelationshipGraph.
         ValueError: If `graph.relationships` is missing or malformed, if `positions` and `asset_ids` are inconsistent or invalid (wrong shape, non-numeric, non-finite), or if `asset_ids` contains empty/non-string entries.
@@ -999,10 +999,10 @@ def _create_directional_arrows(
 def _validate_filter_parameters(filter_params: dict[str, bool]) -> None:
     """
     Ensure every value in `filter_params` is a boolean.
-    
+
     Parameters:
         filter_params (dict[str, bool]): Mapping of filter names to their values.
-    
+
     Raises:
         TypeError: If `filter_params` is not a dict or any value is not a `bool`.
     """
@@ -1028,10 +1028,10 @@ def _validate_relationship_filters(
 ) -> None:
     """
     Verify that `relationship_filters`, if provided, maps relationship type names to visibility flags.
-    
+
     Parameters:
         relationship_filters: Optional mapping where keys are relationship type names and values indicate whether that relationship should be shown; if `None`, no filtering is applied.
-    
+
     Raises:
         TypeError: If `relationship_filters` is not a dictionary when provided.
         ValueError: If any key is not a string or any value is not a boolean.

@@ -38,9 +38,9 @@ class Asset:
     def __post_init__(self):
         """
         Validate asset fields after dataclass initialization.
-        
+
         Ensures id, symbol, and name are non-empty strings; price is greater than or equal to zero; market_cap, if provided, is greater than or equal to zero; and currency is a three-letter ISO code (letters only, case-insensitive).
-        
+
         Raises:
             ValueError: If any validation fails with a descriptive error message.
         """
@@ -52,9 +52,7 @@ class Asset:
             raise ValueError("Asset name must be a non-empty string")
         if not isinstance(self.price, (int, float)) or self.price < 0:
             raise ValueError("Asset price must be a non-negative number")
-        if self.market_cap is not None and (
-            not isinstance(self.market_cap, (int, float)) or self.market_cap < 0
-        ):
+        if self.market_cap is not None and (not isinstance(self.market_cap, (int, float)) or self.market_cap < 0):
             raise ValueError("Market cap must be a non-negative number or None")
         if not re.match(r"^[A-Z]{3}$", self.currency.upper()):
             raise ValueError("Currency must be a valid 3-letter ISO code")
@@ -114,13 +112,13 @@ class RegulatoryEvent:
     def __post_init__(self):
         """
         Validate RegulatoryEvent fields performed at dataclass initialization.
-        
+
         Ensures:
         - `id` and `asset_id` are non-empty strings.
         - `impact_score` is a number between -1 and 1 inclusive.
         - `date` matches a basic ISO 8601 pattern (`YYYY-MM-DD...`).
         - `description` is a non-empty string.
-        
+
         Raises:
             ValueError: If any field fails its validation.
         """
@@ -128,10 +126,7 @@ class RegulatoryEvent:
             raise ValueError("Event id must be a non-empty string")
         if not self.asset_id or not isinstance(self.asset_id, str):
             raise ValueError("Asset id must be a non-empty string")
-        if (
-            not isinstance(self.impact_score, (int, float))
-            or not -1 <= self.impact_score <= 1
-        ):
+        if not isinstance(self.impact_score, (int, float)) or not -1 <= self.impact_score <= 1:
             raise ValueError("Impact score must be a float between -1 and 1")
         # Basic ISO 8601 date validation
         if not re.match(r"^\d{4}-\d{2}-\d{2}", self.date):

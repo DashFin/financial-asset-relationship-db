@@ -60,26 +60,18 @@ class TestPyYAMLDependencyAddition:
     @staticmethod
     def test_pyyaml_present(requirements_lines: List[str]):
         """Test that PyYAML is in requirements-dev.txt."""
-        pyyaml_lines = [
-            line for line in requirements_lines if line.startswith("PyYAML")
-        ]
-        assert len(pyyaml_lines) >= 1, (
-            "PyYAML should be present in requirements-dev.txt"
-        )
+        pyyaml_lines = [line for line in requirements_lines if line.startswith("PyYAML")]
+        assert len(pyyaml_lines) >= 1, "PyYAML should be present in requirements-dev.txt"
 
     @staticmethod
     def test_types_pyyaml_present(requirements_lines: List[str]):
         """
         Ensure types-PyYAML is listed in requirements-dev.txt.
-        
+
         Asserts that at least one non-empty, non-comment requirement line begins with "types-PyYAML".
         """
-        types_lines = [
-            line for line in requirements_lines if line.startswith("types-PyYAML")
-        ]
-        assert len(types_lines) >= 1, (
-            "types-PyYAML should be present in requirements-dev.txt"
-        )
+        types_lines = [line for line in requirements_lines if line.startswith("types-PyYAML")]
+        assert len(types_lines) >= 1, "types-PyYAML should be present in requirements-dev.txt"
 
     @staticmethod
     def test_pyyaml_version_specified(requirements_lines: List[str]):
@@ -88,14 +80,10 @@ class TestPyYAMLDependencyAddition:
 
         Asserts that every non-comment requirements line starting with "PyYAML" contains either '>=' or '=='.
         """
-        pyyaml_lines = [
-            line for line in requirements_lines if line.startswith("PyYAML")
-        ]
+        pyyaml_lines = [line for line in requirements_lines if line.startswith("PyYAML")]
 
         for line in pyyaml_lines:
-            assert ">=" in line or "==" in line, (
-                f"PyYAML should have version specifier: {line}"
-            )
+            assert ">=" in line or "==" in line, f"PyYAML should have version specifier: {line}"
 
     @staticmethod
     def test_pyyaml_version_at_least_6(requirements_lines: List[str]):
@@ -105,9 +93,7 @@ class TestPyYAMLDependencyAddition:
         Parameters:
             requirements_lines (List[str]): Non-empty, non-comment lines from requirements-dev.txt to inspect.
         """
-        pyyaml_lines = [
-            line for line in requirements_lines if line.startswith("PyYAML")
-        ]
+        pyyaml_lines = [line for line in requirements_lines if line.startswith("PyYAML")]
 
         for line in pyyaml_lines:
             version_match = re.search(r">=(\d+\.\d+)", line)
@@ -119,7 +105,7 @@ class TestPyYAMLDependencyAddition:
     def test_types_pyyaml_matches_pyyaml_version(requirements_lines: List[str]):
         """
         Ensure the major version number of `types-PyYAML` equals the major version number of `PyYAML` when both are specified with '>=' in the given requirements lines.
-        
+
         Parameters:
             requirements_lines (List[str]): Non-comment, non-empty lines from requirements-dev.txt to inspect for 'PyYAML>=' and 'types-PyYAML>=' entries.
         """
@@ -138,9 +124,9 @@ class TestPyYAMLDependencyAddition:
                     types_version = int(types_match.group(1))
 
         if pyyaml_version and types_version:
-            assert pyyaml_version == types_version, (
-                f"types-PyYAML version {types_version} should match PyYAML version {pyyaml_version}"
-            )
+            assert (
+                pyyaml_version == types_version
+            ), f"types-PyYAML version {types_version} should match PyYAML version {pyyaml_version}"
 
 
 class TestRequirementsDevYAMLUsage:
@@ -169,21 +155,17 @@ class TestRequirementsDevYAMLUsage:
     def test_yaml_files_exist_in_repo():
         """
         Verify that at least one YAML workflow file exists in .github/workflows.
-        
+
         Checks for files with `.yml` or `.yaml` extensions and fails the test if none are found.
         """
         yaml_files_exist = False
         workflows_dir = Path(".github/workflows")
 
         if workflows_dir.exists():
-            yaml_files = list(workflows_dir.glob("*.yml")) + list(
-                workflows_dir.glob("*.yaml")
-            )
+            yaml_files = list(workflows_dir.glob("*.yml")) + list(workflows_dir.glob("*.yaml"))
             yaml_files_exist = len(yaml_files) > 0
 
-        assert yaml_files_exist, (
-            "Repository should have YAML files that need PyYAML for validation"
-        )
+        assert yaml_files_exist, "Repository should have YAML files that need PyYAML for validation"
 
 
 class TestRequirementsDevCompleteness:
@@ -204,21 +186,19 @@ class TestRequirementsDevCompleteness:
     def test_file_ends_with_newline(requirements_content: str):
         """
         Assert that the requirements-dev.txt content ends with a newline.
-        
+
         Parameters:
             requirements_content (str): UTF-8 decoded contents of requirements-dev.txt.
         """
-        assert requirements_content.endswith("\n"), (
-            "requirements-dev.txt should end with a newline"
-        )
+        assert requirements_content.endswith("\n"), "requirements-dev.txt should end with a newline"
 
     @staticmethod
     def test_no_duplicate_packages(requirements_content: str):
         """
         Ensure the requirements text contains no duplicate package names.
-        
+
         Ignores blank lines and comment lines (starting with '#'). For each remaining line, the package name is taken as the substring before any of '>', '<', or '='; the test fails if any package appears more than once.
-        
+
         Parameters:
             requirements_content (str): Full text of the requirements file to inspect.
         """
@@ -236,9 +216,9 @@ class TestRequirementsDevCompleteness:
     def test_all_lines_valid_format(requirements_content: str):
         """
         Ensure each non-empty, non-comment line in requirements_content matches the package/version pattern.
-        
+
         Empty lines and lines starting with '#' are ignored. Raises an AssertionError identifying the offending line number and text if any remaining line does not match the expected package name, optional extras, and optional version specifier (e.g., `==1.2.3`, `>=1.0`, `~=1.4`).
-        
+
         Parameters:
             requirements_content (str): Full text of requirements-dev.txt to validate.
         """
@@ -247,42 +227,34 @@ class TestRequirementsDevCompleteness:
             if not line or line.startswith("#"):
                 continue
 
-            valid_pattern = (
-                r"^[a-zA-Z0-9._-]+\[?[a-zA-Z0-9._,-]*\]?((>=|==|<=|>|<|~=)[0-9.]+.*)?$"
-            )
-            assert re.match(valid_pattern, line), (
-                f"Line {line_num} has invalid format: {line}"
-            )
+            valid_pattern = r"^[a-zA-Z0-9._-]+\[?[a-zA-Z0-9._,-]*\]?((>=|==|<=|>|<|~=)[0-9.]+.*)?$"
+            assert re.match(valid_pattern, line), f"Line {line_num} has invalid format: {line}"
 
     @staticmethod
     def test_has_testing_dependencies(requirements_content: str):
         """
         Verify that requirements-dev.txt contains essential testing packages.
-        
+
         Parameters:
             requirements_content (str): Full text contents of requirements-dev.txt to check.
         """
         essential_packages = ["pytest", "pytest-cov"]
 
         for package in essential_packages:
-            assert package in requirements_content, (
-                f"requirements-dev.txt should include {package}"
-            )
+            assert package in requirements_content, f"requirements-dev.txt should include {package}"
 
     @staticmethod
     def test_has_linting_dependencies(requirements_content: str):
         """
         Ensure the requirements-dev.txt content includes the linting packages flake8, pylint, and black.
-        
+
         Parameters:
             requirements_content (str): Full text of requirements-dev.txt to inspect for the presence of the listed packages.
         """
         linting_packages = ["flake8", "pylint", "black"]
 
         for package in linting_packages:
-            assert package in requirements_content, (
-                f"requirements-dev.txt should include {package}"
-            )
+            assert package in requirements_content, f"requirements-dev.txt should include {package}"
 
 
 class TestPyYAMLCompatibility:
@@ -298,9 +270,7 @@ class TestPyYAMLCompatibility:
         try:
             import yaml
 
-            assert hasattr(yaml, "safe_load"), (
-                "PyYAML should provide safe_load function"
-            )
+            assert hasattr(yaml, "safe_load"), "PyYAML should provide safe_load function"
         except ImportError:
             pytest.skip("PyYAML not installed in test environment")
 
@@ -316,12 +286,8 @@ class TestPyYAMLCompatibility:
                 with open(workflow_file, "r", encoding="utf-8") as f:
                     content = yaml.safe_load(f)
 
-                assert content is not None, (
-                    "PyYAML should successfully parse workflow files"
-                )
-                assert isinstance(content, dict), (
-                    "Workflow files should parse to dictionaries"
-                )
+                assert content is not None, "PyYAML should successfully parse workflow files"
+                assert isinstance(content, dict), "Workflow files should parse to dictionaries"
         except ImportError:
             pytest.skip("PyYAML not installed in test environment")
 
@@ -358,9 +324,7 @@ class TestRequirementsDevVersionPinning:
         """
         for line in requirements_lines:
             if not line.startswith("types-"):
-                assert ">=" in line or "==" in line, (
-                    f"Package should have version specifier: {line}"
-                )
+                assert ">=" in line or "==" in line, f"Package should have version specifier: {line}"
 
     @staticmethod
     def test_pyyaml_and_types_both_pinned(requirements_lines: List[str]):

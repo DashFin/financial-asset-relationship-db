@@ -44,7 +44,7 @@ class TestWorkflowYAMLSyntax:
 def get_graph() -> AssetRelationshipGraph:
     """
     Return the globally shared AssetRelationshipGraph, initializing it on first access.
-    
+
     Returns:
         The globally shared AssetRelationshipGraph instance.
     """
@@ -75,12 +75,12 @@ def set_graph(graph_instance: AssetRelationshipGraph) -> None:
 def set_graph_factory(factory: Optional[Callable[[], AssetRelationshipGraph]]) -> None:
     """
     Set the callable used to construct the global AssetRelationshipGraph on demand.
-    
+
     If `factory` is provided, it will be called to build the graph the next time
     get_graph() is invoked. Passing `None` clears any configured factory. In all
     cases the current global graph instance is cleared so a new graph will be
     created on next access; this operation is performed in a thread-safe manner.
-    
+
     Parameters:
         factory (Optional[Callable[[], AssetRelationshipGraph]]): A zero-argument
             callable that returns an `AssetRelationshipGraph`, or `None` to remove
@@ -95,7 +95,7 @@ def set_graph_factory(factory: Optional[Callable[[], AssetRelationshipGraph]]) -
 def reset_graph() -> None:
     """
     Reset the global asset relationship graph and clear any configured graph factory so a new graph will be initialized on next access.
-    
+
     Clears the current global graph instance and removes the configured factory.
     """
     set_graph_factory(None)
@@ -104,12 +104,12 @@ def reset_graph() -> None:
 def _initialize_graph() -> AssetRelationshipGraph:
     """
     Initialize and return the global AssetRelationshipGraph using the configured factory or environment-backed data sources.
-    
+
     If a `graph_factory` is set, it is invoked to build the graph. Otherwise the function prefers a real-data graph when environment variables indicate cached or real data availability:
     - If `GRAPH_CACHE_PATH` is set, a RealDataFetcher is created with that path and network enabled or disabled based on `USE_REAL_DATA_FETCHER`.
     - If `GRAPH_CACHE_PATH` is not set but `USE_REAL_DATA_FETCHER` is truthy, `REAL_DATA_CACHE_PATH` is used to construct a RealDataFetcher with network enabled.
     - When no real-data path or real-data mode is available, a sample in-memory database graph is returned.
-    
+
     Returns:
         AssetRelationshipGraph: The initialized graph instance.
     """
@@ -150,7 +150,7 @@ def _should_use_real_data_fetcher() -> bool:
 async def lifespan(_fastapi_app: FastAPI):
     """
     Manage application lifespan: initialize the global asset relationship graph on startup and log shutdown.
-    
+
     On startup, initializes the global graph; any exception raised during initialization is propagated to abort application startup. Yields control for the application's running lifetime and logs a message when the application is shutting down.
     """
     # Startup
@@ -342,7 +342,7 @@ app.add_middleware(
 def raise_asset_not_found(asset_id: str, resource_type: str = "Asset") -> None:
     """
     Raise an HTTP 404 error indicating a specific resource was not found.
-    
+
     Parameters:
         asset_id (str): Identifier of the missing resource.
         resource_type (str): Human-readable resource type used in the error message (default "Asset").
@@ -353,13 +353,13 @@ def raise_asset_not_found(asset_id: str, resource_type: str = "Asset") -> None:
 def serialize_asset(asset: Any, include_issuer: bool = False) -> dict[str, Any]:
     """
     Serialize an Asset-like object into a dictionary suitable for API responses.
-    
+
     Parameters:
         asset (Any): Object exposing attributes `id`, `symbol`, `name`, `asset_class` (enum with `.value`),
             `sector`, `price`, `market_cap`, and `currency`, plus optional asset-specific attributes
             such as `pe_ratio`, `dividend_yield`, `issuer_id`, etc.
         include_issuer (bool): If True, include `issuer_id` in `additional_fields` when present.
-    
+
     Returns:
         dict[str, Any]: A dictionary with keys `id`, `symbol`, `name`, `asset_class`, `sector`,
         `price`, `market_cap`, `currency`, and `additional_fields` (a mapping of present optional fields).

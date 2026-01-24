@@ -43,13 +43,13 @@ graph = _ThreadSafeGraph(AssetRelationshipGraph(), _graph_lock)
 def _build_mcp_app():
     """
     Create a configured FastMCP application for asset relationship management.
-    
+
     Performs a lazy import of the MCP server package so the module can be imported
     without requiring the optional `mcp` dependency. The returned FastMCP instance
     is configured with a tool that validates an Equity (and adds it to the global
     graph if the graph exposes an `add_asset` method) and a resource that returns
     the current 3D visualization layout as JSON.
-    
+
     Returns:
         FastMCP: A FastMCP application instance with the equity tool and 3D layout resource.
     """
@@ -58,9 +58,7 @@ def _build_mcp_app():
     mcp = FastMCP("DashFin-Relationship-Manager")
 
     @mcp.tool()
-    def add_equity_node(
-        asset_id: str, symbol: str, name: str, sector: str, price: float
-    ) -> str:
+    def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: float) -> str:
         """
         Validate an Equity and add it to the global graph or perform
         validation only.
@@ -93,10 +91,7 @@ def _build_mcp_app():
 
             # Fallback: validation-only behavior if the graph does not expose an add API.
             # Explicitly indicate that no mutation occurred.
-            return (
-                f"Successfully validated (Graph mutation not supported): "
-                f"{new_equity.name} ({new_equity.symbol})"
-            )
+            return f"Successfully validated (Graph mutation not supported): " f"{new_equity.name} ({new_equity.symbol})"
         except ValueError as e:
             return f"Validation Error: {str(e)}"
 
@@ -158,10 +153,7 @@ def main(argv: list[str] | None = None) -> int:
         # Provide a clear message for missing optional dependency
         # when invoked via the CLI.
         missing = getattr(e, "name", None) or str(e)
-        raise SystemExit(
-            f"Missing dependency '{missing}'. "
-            + "Install the MCP package to run the server."
-        ) from e
+        raise SystemExit(f"Missing dependency '{missing}'. " + "Install the MCP package to run the server.") from e
 
     mcp.run()
     return 0

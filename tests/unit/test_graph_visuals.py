@@ -26,9 +26,9 @@ Unit tests for graph visualization utilities including asset ID indexing, relati
         # Return positions (n,3), asset_ids, colors, hover_texts
         """
         Constructs deterministic 3D positions, color placeholders, and hover labels for each asset in the graph.
-        
+
         Asset IDs are the sorted unique identifiers found among relationship sources and targets.
-        
+
         Returns:
             positions (numpy.ndarray): Float array of shape (n, 3) with a 3D position for each asset.
             asset_ids (list[str]): Sorted list of unique asset identifiers.

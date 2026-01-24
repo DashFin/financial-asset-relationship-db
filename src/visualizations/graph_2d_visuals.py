@@ -34,10 +34,10 @@ REL_TYPE_COLORS = {
 def _create_circular_layout(asset_ids: List[str]) -> dict[str, Tuple[float, float]]:
     """
     Compute 2D positions for asset IDs evenly spaced on the unit circle.
-    
+
     Parameters:
         asset_ids (List[str]): Ordered list of asset IDs to place around the circle.
-    
+
     Returns:
         dict[str, Tuple[float, float]]: Mapping from each asset ID to its (x, y) coordinates on the unit circle.
             Returns an empty dict if `asset_ids` is empty.
@@ -60,13 +60,13 @@ def _create_circular_layout(asset_ids: List[str]) -> dict[str, Tuple[float, floa
 def _create_grid_layout(asset_ids: List[str]) -> dict[str, Tuple[float, float]]:
     """
     Arrange asset IDs on a rectangular grid and return their 2D coordinates.
-    
+
     Positions are assigned left-to-right, top-to-bottom: columns increase along x and rows along y,
     starting at (0.0, 0.0). If `asset_ids` is empty, an empty dictionary is returned.
-    
+
     Parameters:
         asset_ids (List[str]): Ordered list of asset IDs to place on the grid.
-    
+
     Returns:
         dict[str, Tuple[float, float]]: Mapping from each asset ID to its (x, y) grid coordinates as floats.
     """
@@ -90,11 +90,11 @@ def _create_spring_layout_2d(
 ) -> dict[str, Tuple[float, float]]:
     """
     Convert 3D layout coordinates to 2D coordinates by dropping the z component.
-    
+
     Parameters:
         positions_3d (dict[str, Tuple[float, float, float]]): Mapping of asset ID to 3D position.
         asset_ids (List[str]): Asset IDs to include in the output.
-    
+
     Returns:
         dict[str, Tuple[float, float]]: Mapping of each asset ID (from asset_ids and present in positions_3d)
         to a 2-tuple (x, y) with coordinates cast to float. Returns an empty dict if inputs are empty
@@ -129,7 +129,7 @@ def _create_2d_relationship_traces(
 ) -> List[go.Scatter]:
     """
     Create Plotly line traces representing relationships between assets, applying per-type filters.
-    
+
     Parameters:
         graph: AssetRelationshipGraph containing relationships indexed by source asset ID.
         positions: Mapping of asset IDs to 2D (x, y) coordinates used to draw edges.
@@ -142,7 +142,7 @@ def _create_2d_relationship_traces(
         show_income_comparison: Include "income_comparison" relationships.
         show_regulatory: Include "regulatory_impact" relationships.
         show_all_relationships: If true, ignore individual show_* flags and include all relationship types.
-    
+
     Returns:
         List of Plotly Scatter traces, one per relationship type that passed filtering (empty list if no relationships).
     """
@@ -176,20 +176,14 @@ def _create_2d_relationship_traces(
                 continue
 
             # Apply filters if not showing all relationships
-            if (
-                not show_all_relationships
-                and rel_type in relationship_filters
-                and not relationship_filters[rel_type]
-            ):
+            if not show_all_relationships and rel_type in relationship_filters and not relationship_filters[rel_type]:
                 continue
 
             # Group by relationship type
             if rel_type not in relationship_groups:
                 relationship_groups[rel_type] = []
 
-            relationship_groups[rel_type].append(
-                {"source_id": source_id, "target_id": target_id, "strength": strength}
-            )
+            relationship_groups[rel_type].append({"source_id": source_id, "target_id": target_id, "strength": strength})
 
     # Create traces for each relationship type
     for rel_type, relationships in relationship_groups.items():
@@ -292,10 +286,7 @@ def visualize_2d_graph(
                 _,
             ) = graph.get_3d_visualization_data_enhanced()
             # Convert array to dictionary
-            positions_3d = {
-                asset_ids_ordered[i]: tuple(positions_3d_array[i])
-                for i in range(len(asset_ids_ordered))
-            }
+            positions_3d = {asset_ids_ordered[i]: tuple(positions_3d_array[i]) for i in range(len(asset_ids_ordered))}
             positions = _create_spring_layout_2d(positions_3d, asset_ids)
         else:
             # Fallback to circular if 3D data not available
@@ -330,11 +321,7 @@ def visualize_2d_graph(
     colors = []
     for asset_id in asset_ids:
         asset = graph.assets[asset_id]
-        asset_class = (
-            asset.asset_class.value
-            if hasattr(asset.asset_class, "value")
-            else str(asset.asset_class)
-        )
+        asset_class = asset.asset_class.value if hasattr(asset.asset_class, "value") else str(asset.asset_class)
 
         # Color mapping by asset class
         color_map = {
@@ -358,9 +345,7 @@ def visualize_2d_graph(
     for asset_id in asset_ids:
         asset = graph.assets[asset_id]
         hover_text = f"{asset_id}<br>Class: " + (
-            asset.asset_class.value
-            if hasattr(asset.asset_class, "value")
-            else str(asset.asset_class)
+            asset.asset_class.value if hasattr(asset.asset_class, "value") else str(asset.asset_class)
         )
         hover_texts.append(hover_text)
 

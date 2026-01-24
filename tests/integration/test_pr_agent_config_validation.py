@@ -203,7 +203,7 @@ class TestPRAgentConfigSecurity:
     def test_config_values_have_no_hardcoded_credentials(pr_agent_config):
         """
         Scan the PR agent configuration for string values that resemble hardcoded credentials.
-        
+
         This test inspects all string values in the provided configuration and fails if any value matches credential heuristics: strings of 40 or more characters, strings starting with common secret prefixes (e.g., "sk-", "AKIA", "SECRET_", "TOKEN_"), or inline credentials embedded in URLs (user:pass@host). On failure, the test reports each finding with its heuristic type and value.
         """
 
@@ -262,10 +262,10 @@ class TestPRAgentConfigSecurity:
     def test_no_hardcoded_credentials(pr_agent_config):
         """
         Scan the PR agent configuration for potential hardcoded credentials and fail the test if any are found.
-        
+
         Uses heuristic checks (long strings, known secret-like prefixes, inline credentials in URLs, entropy/encoding patterns,
         and sensitive key names) to identify suspicious values and reports their locations via pytest.fail.
-        
+
         Parameters:
             pr_agent_config (dict): Parsed PR agent configuration mapping to inspect for hardcoded secrets.
         """
@@ -276,10 +276,10 @@ class TestPRAgentConfigSecurity:
         def detect_secret_kinds(value):
             """
             Classifies which secret-like patterns are present in a string.
-            
+
             Parameters:
                 value (str): The string to analyze for secret-like patterns.
-            
+
             Returns:
                 list[str]: A list of detected secret kinds. Possible values:
                     - "long_string": the string length is 40 characters or greater.
@@ -330,10 +330,10 @@ class TestPRAgentConfigSecurity:
         def detect_prefix(s):
             """
             Identify whether a string begins with a known secret-like prefix.
-            
+
             Parameters:
                 s (str): String to inspect; matching is case-insensitive against the global `secret_markers`.
-            
+
             Returns:
                 tuple: `('prefix', s)` if a known prefix is found, `None` otherwise.
             """
@@ -344,10 +344,10 @@ class TestPRAgentConfigSecurity:
         def detect_inline_creds(s):
             """
             Detects whether the input string contains inline credentials in a URL (e.g., user:pass@).
-            
+
             Parameters:
                 s (str): String to inspect for inline credentials.
-            
+
             Returns:
                 tuple: ("inline_creds", s) if an inline credential pattern is found, otherwise None.
             """
@@ -359,10 +359,10 @@ class TestPRAgentConfigSecurity:
         def scan_value(val):
             """
             Scan a value with configured detectors and return the first detector match.
-            
+
             Parameters:
                 val: The value to inspect; it will be converted to a string and trimmed of surrounding whitespace.
-            
+
             Returns:
                 A detector result (typically a tuple) if any detector matches the value, `None` otherwise.
             """
@@ -378,7 +378,7 @@ class TestPRAgentConfigSecurity:
         def scan(obj):
             """
             Recursively scan a nested mapping/sequence for potential secret-like values and record any findings.
-            
+
             Parameters:
                 obj: The value to scan; may be a dict, list, tuple, or a leaf value. Leaf values are evaluated and any detected findings are appended to the module-level list `suspected`.
             """
@@ -403,12 +403,12 @@ class TestPRAgentConfigSecurity:
         def shannon_entropy(s: str) -> float:
             """
             Compute the Shannon entropy of a string in bits per symbol.
-            
+
             Only the first 256 characters of the input are analyzed.
-            
+
             Parameters:
                 s (str): Input string; only its first 256 characters are considered.
-            
+
             Returns:
                 float: Shannon entropy (bits per symbol). `0.0` if the input is empty.
             """
@@ -428,10 +428,10 @@ class TestPRAgentConfigSecurity:
         def looks_like_secret(val: str) -> bool:
             """
             Determine whether a string likely contains a secret or credential by matching common secret markers and token-like formats.
-            
+
             Parameters:
                 val (str): The string to evaluate.
-            
+
             Returns:
                 bool: `True` if the string appears to be a secret or token-like value, `False` otherwise.
             """
@@ -466,11 +466,11 @@ class TestPRAgentConfigSecurity:
         def walk_values(obj, path="root"):
             """
             Recursively traverse a nested dict/list and fail the test if any string value appears to be a secret.
-            
+
             Parameters:
                 obj: Nested mapping/list/primitive to inspect.
                 path (str): Current dotted path used in failure messages (defaults to "root").
-            
+
             Notes:
                 Non-string scalar values are ignored.
             """
@@ -491,15 +491,15 @@ class TestPRAgentConfigSecurity:
     def test_no_hardcoded_secrets(pr_agent_config):
         """
         Validate that no sensitive configuration keys contain hardcoded secrets.
-        
+
         Recursively inspects the parsed PR agent configuration and asserts that values for keys whose names match sensitive patterns
         (e.g., "password", "secret", "token", "api_key", "access_key", "private_key", "apikey") are safe placeholders (None, "null",
         "webhook", or similar) or templated values (e.g., "${VAR}"). Traverses mappings and sequences and reports the dotted/bracketed
         path to any offending entry.
-        
+
         Parameters:
             pr_agent_config (dict): Parsed YAML configuration for the PR agent.
-        
+
         Raises:
             AssertionError: If a sensitive key contains a non-placeholder hardcoded value; the message includes the path to the offending item.
         """
@@ -518,10 +518,10 @@ class TestPRAgentConfigSecurity:
         def value_contains_secret(val: str) -> bool:
             """
             Determine whether a string contains sensitive patterns while excluding allowed placeholders and templated variables.
-            
+
             Parameters:
                 val (str): The string to inspect.
-            
+
             Returns:
                 bool: `True` if `val` contains any sensitive pattern and is not an allowed placeholder or templated variable, `False` otherwise.
             """
@@ -533,13 +533,13 @@ class TestPRAgentConfigSecurity:
         def scan_dict(node: dict, path: str):
             """
             Validate that sensitive keys in a mapping do not contain hardcoded secrets and report their location.
-            
+
             Recursively inspects each key/value pair in `node`. If a key matches configured sensitive name patterns, its value must be one of the allowed placeholders; otherwise an AssertionError is raised with the dotted path to the offending entry. The function also recursively scans nested values and annotates errors using `path` as a dotted prefix.
-            
+
             Parameters:
                 node (dict): Mapping to inspect for sensitive keys and values.
                 path (str): Dotted path prefix used in error messages to locate the inspected entry.
-            
+
             Raises:
                 AssertionError: If a value for a key matching sensitive patterns is not in `allowed_placeholders`.
             """
@@ -553,7 +553,7 @@ class TestPRAgentConfigSecurity:
         def scan_list(node: list, path: str):
             """
             Recursively scans each element of a list for secret-like values, annotating findings with indexed path segments.
-            
+
             Parameters:
                 node (list): List whose elements will be inspected.
                 path (str): Current traversal path; element indices are appended as `[index]` to locate findings.
@@ -564,7 +564,7 @@ class TestPRAgentConfigSecurity:
         def scan_for_secrets(node, path="root"):
             """
             Scan a mapping or sequence for hardcoded secret-like values, using `path` as the dotted prefix for reported locations.
-            
+
             Parameters:
                 node (dict|list): The mapping or sequence to inspect for secret-like values.
                 path (str): Dotted path prefix used when reporting the location of any findings (default: "root").
@@ -580,15 +580,15 @@ class TestPRAgentConfigSecurity:
         def check_node(node, path=""):
             """
             Recursively validate that values stored under sensitive keys are not hardcoded secrets.
-            
+
             Inspects dictionaries and lists within `node`. If a dictionary key (lowercased) contains any substring from the module-level `sensitive_patterns`, its value must be one of the module-level `safe_placeholders`; otherwise an AssertionError is raised identifying the dotted/bracketed path to the offending value.
-            
+
             Parameters:
                 node: The value to inspect; typically a dict, list, or primitive from the configuration.
                 path (str): Current traversal path in dotted/bracket notation used in error messages (defaults to the empty string).
-            
+
             Raises:
-                AssertionError: If a value is found under a sensitive key that is not listed in `safe_placeholders`.  
+                AssertionError: If a value is found under a sensitive key that is not listed in `safe_placeholders`.
             """
             if isinstance(node, dict):
                 for k, v in node.items():

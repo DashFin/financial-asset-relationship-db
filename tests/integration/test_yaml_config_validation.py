@@ -119,7 +119,7 @@ class TestWorkflowSchemaCompliance:
     def all_workflows() -> List[dict[str, Any]]:
         """
         Collect and parse all YAML workflow files in .github/workflows.
-        
+
         Returns:
             workflows (List[dict[str, Any]]): List of dictionaries with:
                 - 'path' (Path): Path to the workflow file.
@@ -136,9 +136,9 @@ class TestWorkflowSchemaCompliance:
     def test_workflows_have_required_top_level_keys(all_workflows):
         """
         Check each workflow contains the required top-level keys and that checkout versions are reasonably consistent.
-        
+
         Asserts that every workflow dict in `all_workflows` has the top-level keys "name" and "jobs". Also asserts that the set of recorded checkout versions contains at most two distinct values to enforce overall consistency.
-        
+
         Parameters:
             all_workflows (list[dict]): Iterable of workflow descriptors, each with at least the keys "path" and "content".
         """
@@ -181,7 +181,7 @@ class TestDefaultValueHandling:
     def test_workflow_timeout_defaults():
         """
         Verify that any job-level "timeout-minutes" in workflows falls within 1 to 360 minutes.
-        
+
         When a job defines "timeout-minutes", assert the value is an integer and is between 1 and 360 inclusive.
         """
         workflow_dir = Path(".github/workflows")

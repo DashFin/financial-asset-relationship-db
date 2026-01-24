@@ -23,13 +23,13 @@ class TestWorkflowConsistency:
     def all_workflows(self) -> dict[str, Dict]:
         """
         Load a fixed set of GitHub Actions workflow files and return their parsed YAML content.
-        
+
         Only the following workflow paths are considered: ".github/workflows/pr-agent.yml",
         ".github/workflows/apisec-scan.yml", ".github/workflows/label.yml", and
         ".github/workflows/greetings.yml". Files that do not exist are omitted. If a file
         parses to a non-mapping value an empty dict is stored for that file; malformed
         YAML causes the file to be skipped.
-        
+
         Returns:
             dict[str, dict]: Mapping from workflow file path to the parsed YAML mapping (or an empty dict for non-mapping parses) for each workflow file that exists.
         """

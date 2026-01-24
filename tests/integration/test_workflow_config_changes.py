@@ -25,7 +25,7 @@ class TestPRAgentWorkflowChanges:
     def pr_agent_workflow() -> dict[str, Any]:
         """
         Load and parse the .github/workflows/pr-agent.yml workflow file.
-        
+
         Returns:
             dict[str, Any]: Parsed YAML workflow as a dictionary.
         """
@@ -102,9 +102,7 @@ class TestPRAgentWorkflowChanges:
         pr_agent_job = jobs.get("pr-agent-action", {})
         steps = pr_agent_job.get("steps", [])
 
-        setup_python_step = next(
-            (s for s in steps if s.get("name") == "Setup Python"), None
-        )
+        setup_python_step = next((s for s in steps if s.get("name") == "Setup Python"), None)
         assert setup_python_step is not None
         assert "with" in setup_python_step
         assert "python-version" in setup_python_step["with"]
@@ -116,9 +114,7 @@ class TestPRAgentWorkflowChanges:
         pr_agent_job = jobs.get("pr-agent-action", {})
         steps = pr_agent_job.get("steps", [])
 
-        checkout_step = next(
-            (s for s in steps if "actions/checkout" in s.get("uses", "")), None
-        )
+        checkout_step = next((s for s in steps if "actions/checkout" in s.get("uses", "")), None)
         assert checkout_step is not None
         assert checkout_step.get("with", {}).get("fetch-depth") == 0
 
@@ -130,7 +126,7 @@ class TestPRAgentConfigChanges:
     def pr_agent_config(self) -> dict[str, Any]:
         """
         Load and parse the repository's .github/pr-agent-config.yml into a dictionary.
-        
+
         Returns:
             dict[str, Any]: Parsed YAML configuration mapping keys to Python objects.
         """
@@ -201,7 +197,7 @@ class TestGreetingsWorkflowChanges:
     def greetings_workflow(self) -> dict[str, Any]:
         """
         Load and parse the .github/workflows/greetings.yml GitHub Actions workflow file.
-        
+
         Returns:
             dict[str, Any]: Parsed YAML content of the greetings workflow as a dictionary.
         """
@@ -220,9 +216,7 @@ class TestGreetingsWorkflowChanges:
         greeting_job = jobs.get("greeting", {})
         steps = greeting_job.get("steps", [])
 
-        action_step = next(
-            (s for s in steps if "actions/first-interaction" in s.get("uses", "")), None
-        )
+        action_step = next((s for s in steps if "actions/first-interaction" in s.get("uses", "")), None)
 
         assert action_step is not None
         assert "with" in action_step
@@ -238,16 +232,14 @@ class TestGreetingsWorkflowChanges:
     def test_no_complex_markdown_formatting(self, greetings_workflow):
         """
         Ensure greeting workflow messages do not include complex markdown fragments.
-        
+
         Checks the actions/first-interaction step in the greeting job (if present) and asserts that its `issue-message` and `pr-message` do not contain the substring "**Resources:**" or the checkmark character "✅".
         """
         jobs = greetings_workflow.get("jobs", {})
         greeting_job = jobs.get("greeting", {})
         steps = greeting_job.get("steps", [])
 
-        action_step = next(
-            (s for s in steps if "actions/first-interaction" in s.get("uses", "")), None
-        )
+        action_step = next((s for s in steps if "actions/first-interaction" in s.get("uses", "")), None)
 
         if action_step and "with" in action_step:
             issue_message = action_step["with"].get("issue-message", "")
@@ -267,7 +259,7 @@ class TestLabelWorkflowChanges:
     def label_workflow(self) -> dict[str, Any]:
         """
         Load and parse the label GitHub Actions workflow file.
-        
+
         Returns:
             dict: Parsed contents of `.github/workflows/label.yml`.
         """
@@ -287,9 +279,7 @@ class TestLabelWorkflowChanges:
         steps = label_job.get("steps", [])
 
         # Should not have config check step
-        config_check_steps = [
-            s for s in steps if s.get("name") == "Check for labeler config"
-        ]
+        config_check_steps = [s for s in steps if s.get("name") == "Check for labeler config"]
         assert len(config_check_steps) == 0
 
     def test_no_checkout_step(self, label_workflow):
@@ -363,7 +353,7 @@ class TestRequirementsDevChanges:
     def test_pyyaml_version_pinned():
         """
         Verify that 'requirements-dev.txt' contains a PyYAML entry with an explicit version constraint.
-        
+
         Reads requirements-dev.txt, finds lines containing 'pyyaml' (case-insensitive), asserts at least one such line exists, and asserts that at least one of those lines includes one of the version operators: `==`, `>=`, `<=`, or `~=`.
         """
         req_path = Path("requirements-dev.txt")
@@ -375,29 +365,23 @@ class TestRequirementsDevChanges:
 
         # Should have version specifier
         pyyaml_line = pyyaml_lines[0]
-        assert any(op in pyyaml_line for op in ["==", ">=", "<=", "~="]), (
-            "PyYAML should have version constraint"
-        )
+        assert any(op in pyyaml_line for op in ["==", ">=", "<=", "~="]), "PyYAML should have version constraint"
 
     @staticmethod
     def test_no_duplicate_dependencies():
         """
         Ensure requirements-dev.txt contains no duplicate package names.
-        
+
         Ignores blank lines and comments, normalizes package names to lowercase, and strips common version specifiers before checking for duplicates. On failure, the assertion reports the duplicated package names.
         """
         req_path = Path("requirements-dev.txt")
         with open(req_path, "r") as f:
-            lines = [
-                line.strip() for line in f if line.strip() and not line.startswith("#")
-            ]
+            lines = [line.strip() for line in f if line.strip() and not line.startswith("#")]
 
         # Extract package names (before version specifiers)
         package_names = []
         for line in lines:
-            pkg_name = (
-                line.split("=")[0].split(">")[0].split("<")[0].split("~")[0].strip()
-            )
+            pkg_name = line.split("=")[0].split(">")[0].split("<")[0].split("~")[0].strip()
             package_names.append(pkg_name.lower())
 
         # Check for duplicates

@@ -83,9 +83,9 @@ class AnalysisData:
 def load_config() -> dict[str, Any]:
     """
     Load repository configuration from the YAML file at CONFIG_PATH.
-    
+
     Parses the YAML config and returns its contents as a dictionary. If the file is missing, cannot be read, or fails to parse, an informational or warning message is written to stderr and an empty dictionary is returned.
-    
+
     Returns:
         dict[str, Any]: Parsed configuration, or an empty dict if the config is absent or could not be loaded.
     """
@@ -107,7 +107,7 @@ def load_config() -> dict[str, Any]:
 def categorize_filename(filename: str) -> str:
     """
     Map a file path or name to a conceptual category (for example, language, test, or workflow).
-    
+
     Returns:
         category (str): The category for the given filename — "workflow" for files under
         ".github/workflows", "test" if the name contains "test" or "spec" (case-insensitive),
@@ -186,12 +186,12 @@ def analyze_pr_files(pr_files_iterable: Any) -> dict[str, Any]:
 def calculate_score(value: int, thresholds: List[Tuple[int, int]], default: int) -> int:
     """
     Select the point value for a given numeric value based on ordered thresholds.
-    
+
     Parameters:
         value (int): The numeric value to evaluate against thresholds.
         thresholds (List[Tuple[int, int]]): Ordered sequence of (limit, points) pairs; the function returns the `points` from the first pair where `value` is greater than `limit`.
         default (int): Value to return if `value` does not exceed any threshold.
-    
+
     Returns:
         int: The `points` corresponding to the matched threshold, or `default` if no thresholds are exceeded.
     """
@@ -219,14 +219,10 @@ def assess_complexity(file_data: dict[str, Any], commit_count: int) -> tuple[int
     score = 0
 
     # File count impact
-    score += calculate_score(
-        file_data["file_count"], [(50, 30), (20, 20), (10, 10)], default=5
-    )
+    score += calculate_score(file_data["file_count"], [(50, 30), (20, 20), (10, 10)], default=5)
 
     # Line change impact
-    score += calculate_score(
-        file_data["total_changes"], [(2000, 30), (1000, 20), (500, 15)], default=5
-    )
+    score += calculate_score(file_data["total_changes"], [(2000, 30), (1000, 20), (500, 15)], default=5)
 
     # Large file penalty (capped at 20)
     if file_data["has_large_files"]:
@@ -243,9 +239,7 @@ def assess_complexity(file_data: dict[str, Any], commit_count: int) -> tuple[int
     return score, "Low"
 
 
-def find_scope_issues(
-    pr_title: str, file_data: dict[str, Any], config: dict[str, Any]
-) -> List[str]:
+def find_scope_issues(pr_title: str, file_data: dict[str, Any], config: dict[str, Any]) -> List[str]:
     """
     Identify scope-related issues in a pull request based on its title and aggregated file-change data.
 
@@ -273,16 +267,12 @@ def find_scope_issues(
     # Size checks - File Count
     max_files = int(scope_conf.get("max_files_changed", 30))
     if file_data["file_count"] > max_files:
-        issues.append(
-            f"Too many files changed ({file_data['file_count']} > {max_files})"
-        )
+        issues.append(f"Too many files changed ({file_data['file_count']} > {max_files})")
 
     # FIX: Re-added missing logic for Total Changes
     max_total_changes = int(scope_conf.get("max_total_changes", 1500))
     if file_data["total_changes"] > max_total_changes:
-        issues.append(
-            f"Large changeset ({file_data['total_changes']} lines > {max_total_changes})"
-        )
+        issues.append(f"Large changeset ({file_data['total_changes']} lines > {max_total_changes})")
 
     # Context switching check
     distinct_types = len(file_data["file_categories"])
@@ -315,14 +305,10 @@ def find_related_issues(pr_body: Optional[str], repo_url: str) -> List[dict[str,
 
     for pattern in patterns:
         for match in re.finditer(pattern, pr_body, re.IGNORECASE):
-            issue_num = (
-                match.group(1) if match.lastindex == 1 else match.group(match.lastindex)
-            )
+            issue_num = match.group(1) if match.lastindex == 1 else match.group(match.lastindex)
             if issue_num not in found_ids:
                 found_ids.add(issue_num)
-                results.append(
-                    {"number": issue_num, "url": f"{repo_url}/issues/{issue_num}"}
-                )
+                results.append({"number": issue_num, "url": f"{repo_url}/issues/{issue_num}"})
     return results
 
 
@@ -332,13 +318,13 @@ def find_related_issues(pr_body: Optional[str], repo_url: str) -> List[dict[str,
 def generate_markdown(pr: Any, data: AnalysisData) -> str:
     """
     Compose a Markdown-formatted PR analysis report for CI summaries.
-    
+
     The report includes an overview (PR number, author, score, changes, and risk indicator), a file breakdown by category, highlights of large files, any detected scope issues, related issue references, and risk-based recommendations.
-    
+
     Parameters:
         pr (Any): Pull request object (used for metadata such as number and author).
         data (AnalysisData): Aggregated analysis results used to populate the report.
-    
+
     Returns:
         str: Markdown string containing the formatted PR analysis.
     """
@@ -360,26 +346,16 @@ def generate_markdown(pr: Any, data: AnalysisData) -> str:
             return ""
         return f"\n**{header}**\n" + "".join([f"- {i}\n" for i in items])
 
-    cat_str = "\n".join(
-        [
-            f"- {k.title()}: {v}"
-            for k, v in data.file_analysis["file_categories"].items()
-        ]
-    )
+    cat_str = "\n".join([f"- {k.title()}: {v}" for k, v in data.file_analysis["file_categories"].items()])
 
     large_files_str = ""
     if data.file_analysis["large_files"]:
-        lines = [
-            f"- `{f['filename']}`: {f['changes']} lines"
-            for f in data.file_analysis["large_files"]
-        ]
+        lines = [f"- `{f['filename']}`: {f['changes']} lines" for f in data.file_analysis["large_files"]]
         large_files_str = "\n**Large Files (>500 lines):**\n" + "\n".join(lines) + "\n"
 
     related_str = ""
     if data.related_issues:
-        related_str = "\n**Related Issues:**\n" + "".join(
-            [f"- #{i['number']}\n" for i in data.related_issues]
-        )
+        related_str = "\n**Related Issues:**\n" + "".join([f"- #{i['number']}\n" for i in data.related_issues])
 
     recs = []
     if data.risk_level == "High":
@@ -414,7 +390,7 @@ def generate_markdown(pr: Any, data: AnalysisData) -> str:
 def write_output(report: str) -> None:
     """
     Write the analysis report to configured outputs for persistence and visibility.
-    
+
     If the GITHUB_STEP_SUMMARY environment variable is set, the report is appended to that file. The report is also saved to a securely-named temporary file (its path is printed) and written to standard output. I/O errors encountered while writing to any destination are reported to stderr as warnings.
     """
     # 1. GitHub Actions Summary
@@ -424,9 +400,7 @@ def write_output(report: str) -> None:
             with open(gh_summary, "a", encoding="utf-8") as f:
                 f.write(report)
         except IOError as e:
-            print(
-                f"Warning: Failed to write to GITHUB_STEP_SUMMARY: {e}", file=sys.stderr
-            )
+            print(f"Warning: Failed to write to GITHUB_STEP_SUMMARY: {e}", file=sys.stderr)
 
     # 2. FIX: Secure Temp File (Address Bandit B303)
     try:
@@ -453,7 +427,7 @@ def write_output(report: str) -> None:
 def run() -> None:
     """
     Run the end-to-end PR analysis and produce a Markdown report.
-    
+
     Loads required environment variables (GITHUB_TOKEN, PR_NUMBER, REPO_OWNER, REPO_NAME), fetches the referenced pull request from GitHub, analyzes changed files and commits, computes a complexity score and risk level, detects scope and related-issue signals, generates a Markdown report, and writes the report to the GitHub Actions summary file (if available), a temporary file, and stdout. Emits a GitHub Actions warning annotation when the computed risk is "High". Exits with status 0 on success and with status 1 on configuration, parsing, or GitHub/API errors.
     """
     required_vars = ["GITHUB_TOKEN", "PR_NUMBER", "REPO_OWNER", "REPO_NAME"]

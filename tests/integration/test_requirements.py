@@ -248,7 +248,7 @@ class TestVersionSpecifications:
     def test_no_exact_pins_without_comment(self, requirements: List[Tuple[str, str]]):
         """
         Ensure exact-version pins (`==`) in the requirements file are accompanied by a comment explaining the rationale.
-        
+
         Parameters:
             requirements (List[Tuple[str, str]]): Parsed (package, version_spec) pairs from the production requirements file.
         """
@@ -341,10 +341,10 @@ class TestFileOrganization:
     def test_reasonable_file_size(file_lines: List[str]):
         """
         Check that the requirements file contains fewer than 200 lines.
-        
+
         Parameters:
             file_lines (List[str]): Lines of the requirements.txt file.
-        
+
         Raises:
             AssertionError: If the file has 200 or more lines.
         """
@@ -419,9 +419,9 @@ class TestSecurityAndCompliance:
     def test_no_known_vulnerable_versions(requirements: List[Tuple[str, str]]):
         """
         Check for obviously outdated exact version pins in parsed requirements.
-        
+
         Inspects each requirement's version specifier and fails the test when an exact `==` pin contains a major.minor numeric pair that appears to be an obviously very old release.
-        
+
         Parameters:
             requirements (List[Tuple[str, str]]): Parsed requirements as (package_name, version_spec) tuples where `version_spec` is the raw specifier string (for example, '==1.2.3', '>=2.0').
         """

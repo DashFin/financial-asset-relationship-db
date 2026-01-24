@@ -17,9 +17,9 @@ logger = logging.getLogger(__name__)
 def create_sample_database() -> AssetRelationshipGraph:
     """
     Builds and returns a populated AssetRelationshipGraph containing a diverse set of sample financial assets and regulatory events.
-    
+
     The graph includes equities, corporate and government bonds, commodities, and currencies, plus example regulatory events; relationships between assets and events are constructed before the graph is returned.
-    
+
     Returns:
         AssetRelationshipGraph: Graph populated with assets, regulatory events, and their relationships.
     """
@@ -356,8 +356,7 @@ def create_sample_database() -> AssetRelationshipGraph:
             relationship_count,
         )
         logger.info(
-            "Asset classes covered: Equity (%s), Fixed Income (%s), "
-            "Commodity (%s), Currency (%s)",
+            "Asset classes covered: Equity (%s), Fixed Income (%s), " "Commodity (%s), Currency (%s)",
             len([a for a in all_assets if a.asset_class == AssetClass.EQUITY]),
             len([a for a in all_assets if a.asset_class == AssetClass.FIXED_INCOME]),
             len([a for a in all_assets if a.asset_class == AssetClass.COMMODITY]),
