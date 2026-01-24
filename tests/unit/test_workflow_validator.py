@@ -548,8 +548,8 @@ class TestAdvancedValidationScenarios:
                 result = validate_workflow(f.name)
                 assert result.is_valid is False
                 assert len(result.errors) >= 1
-    runs-on: ubuntu-latest
-                Path(f.name).unlink()
+    runs - on: ubuntu - latest
+    Path(f.name).unlink()
 
     @staticmethod
     def test_workflow_with_only_whitespace():
