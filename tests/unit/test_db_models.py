@@ -210,6 +210,14 @@ class TestAssetORM:
         """Test deleting an asset."""
         asset = AssetORM(
             id="TEST_DELETE",
+            symbol="DEL",
+            name="Test Delete",
+            asset_class="equity",
+            sector="Test",
+            price=100.0,
+            currency="USD",
+        )
+            id="TEST_DELETE",
             currency="USD",
         )
         db_session.add(asset)
