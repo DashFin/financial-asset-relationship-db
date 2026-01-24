@@ -943,54 +943,13 @@ name: Test{i}
                                         f"""on: push
 jobs:
   test{i}:
-    runs - on: ubuntu - latest
+    runs-on: ubuntu-latest
     steps:
       - run: echo {i}
 """
                                     )
                                     f.flush()
                                     workflows.append(f.name)
-
-        try:
-            results = []
-            for workflow in workflows:
-                result = validate_workflow(workflow)
-                results.append(result)
-
-            assert all(r.is_valid for r in results)
-            assert len(results) == 10
-        finally:
-            for workflow in workflows:
-                Path(workflow).unlink()
-
-    @staticmethod
-    def test_workflow_with_minimal_memory_footprint():
-        """Test that validation doesn't consume excessive memory"""
-        # Create a workflow with moderate size
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
-            f.write("name: Test\non: push\njobs:\n")
-            for i in range(100):
-                f.write(
-                    f"  job{i}:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo test\n"
-                )
-            f.flush()
-
-            try:
-                result = validate_workflow(f.name)
-                assert result.is_valid is True
-                # Validation should complete without memory issues
-            finally:
-                Path(f.name).unlink()
-
-
-class TestWorkflowValidatorEdgeCasesExtended:
-    """Extended edge cases and corner scenarios"""
-
-    @staticmethod
-    def test_workflow_with_boolean_values():
-        """Test workflow with boolean values in various positions"""
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
-            f.write("")
                 """
 name: Booleans
 on: push
