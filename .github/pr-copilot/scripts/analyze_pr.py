@@ -225,7 +225,7 @@ def assess_complexity(file_data: dict[str, Any], commit_count: int) -> tuple[int
     return score, "Low"
 
 
-def find_scope_issues(pr_title: str, file_data: dict[str, Any], config: dict[str, Any]) -> List[str]:
+def find_scope_issues(pr_title: str, file_data: dict[str, Any], config: dict[str, Any]) -> list[str]:
     """
     Identify scope-related issues in a pull request based on its title and aggregated file-change data.
 
