@@ -561,6 +561,8 @@ class TestAdvancedValidationScenarios:
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write(
                 """
+
+
 # This is a comment
 # Another comment
 # More comments
@@ -623,7 +625,7 @@ name: 12345
 on: 67890
 jobs:
   test:
-    runs-on: 11111
+    runs - on: 11111
     steps:
       - run: 22222
 """
@@ -650,7 +652,7 @@ name: Test
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     steps:
       - run: echo test
 """
@@ -673,7 +675,7 @@ name: Test
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     env:
       LONG_VAR: "{long_string}"
     steps:
@@ -695,8 +697,8 @@ jobs:
                 """
 name: Test
 on: push
-defaults: &defaults
-  runs-on: ubuntu-latest
+defaults: & defaults
+  runs - on: ubuntu - latest
 jobs:
   test1:
     <<: *defaults
@@ -727,7 +729,7 @@ name: Test
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     steps:
       - name: Multiline literal
         run: |
@@ -803,11 +805,11 @@ class TestValidationResultBehavior:
 
 
 class TestWorkflowValidatorSecurityScenarios:
-    """Test security-related scenarios and potential exploits"""
+    """Test security - related scenarios and potential exploits"""
 
     @staticmethod
     def test_workflow_with_extremely_deep_nesting():
-        """Test workflow with extremely deep nesting (YAML bomb prevention)"""
+        """Test workflow with extremely deep nesting(YAML bomb prevention)"""
         # Create a deeply nested structure
         nested = "jobs:\n"
         for i in range(100):
@@ -869,7 +871,7 @@ name: Test
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     steps:
       - run: "echo 'safe'"
       - run: '; rm -rf /'
@@ -888,7 +890,7 @@ jobs:
 
 
 class TestWorkflowValidatorPerformance:
-    """Test performance-related aspects of workflow validation"""
+    """Test performance - related aspects of workflow validation"""
 
     @staticmethod
     def test_validate_workflow_returns_quickly_on_error():
@@ -914,7 +916,7 @@ name: Test{i}
 on: push
 jobs:
   test{i}:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     steps:
       - run: echo {i}
 """
@@ -967,14 +969,14 @@ name: Booleans
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     if: true
-    continue-on-error: false
+    continue -on - error: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions / checkout @ v4
         with:
-          fetch-depth: 0
-          persist-credentials: true
+          fetch - depth: 0
+          persist - credentials: true
 """
             )
             f.flush()
@@ -995,8 +997,8 @@ name: Scientific
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 1e2
+    runs - on: ubuntu - latest
+    timeout - minutes: 1e2
     steps:
       - run: echo test
 """
@@ -1019,7 +1021,7 @@ name: Floats
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     env:
       VERSION: 3.14159
       RATIO: 0.5
@@ -1061,10 +1063,10 @@ name: Trailing
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     steps:
-      - uses: actions/checkout@v4
-        with: {ref: main, fetch-depth: 1,}
+      - uses: actions / checkout @ v4
+        with: {ref: main, fetch - depth: 1,}
 """
             )
             f.flush()
@@ -1086,8 +1088,8 @@ name: !!str Types
 on: !!str push
 jobs:
   test:
-    runs-on: !!str ubuntu-latest
-    timeout-minutes: !!int 30
+    runs - on: !!str ubuntu - latest
+    timeout - minutes: !!int 30
     steps:
       - run: !!str "echo test"
 """

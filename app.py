@@ -123,6 +123,7 @@ Asset Class Distribution:
 Top Relationships:
 """
 
+
 class FinancialAssetApp:
     """
    Manages the financial asset application, including initialization of the
