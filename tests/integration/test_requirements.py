@@ -299,6 +299,7 @@ class TestVersionSpecifications:
         """Test that packages are organized in logical groups."""
         # We don't enforce strict alphabetical sorting, but check for some organization
         assert len(package_names) > 0
+
     def test_package_names_valid(package_names: List[str]):
         """Test that package names follow valid naming conventions."""
         valid_name_pattern = re.compile(r"^[a-zA-Z0-9_-]+$")
