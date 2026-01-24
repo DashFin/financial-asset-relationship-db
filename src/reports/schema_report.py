@@ -28,6 +28,8 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
         str: Complete Markdown-formatted report summarizing
             schema, metrics, rules, and recommendations.
     """
+
+
 # Network Statistics
 - **Total Assets**: {metrics["total_assets"]}
 - **Total Relationships**: {metrics["total_relationships"]}
@@ -74,7 +76,7 @@ def generate_schema_report(metrics):
 # Schema Optimization Metrics
 
 # Data Quality Score: """
-quality_score = min(
+quality_score=min(
      1.0,
      metrics["average_relationship_strength"] + (metrics["regulatory_event_count"] / 10),
      )
