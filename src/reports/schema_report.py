@@ -31,14 +31,16 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
 
 ## Schema Overview
 report += """
-### Entity Types
-1. **Equity** - Stock instruments with P/E ratio, dividend yield, EPS
-2. **Bond** - Fixed income with yield, coupon, maturity, credit rating
-3. **Commodity** - Physical assets with contracts and delivery dates
-4. **Currency** - FX pairs or single-currency proxies with exchange rates and policy links
-5. **Regulatory Events** - Corporate actions and SEC filings
 
-### Relationship Types
+
+# Entity Types
+1. ** Equity ** - Stock instruments with P / E ratio, dividend yield , EPS
+2. ** Bond ** - Fixed income with yield , coupon, maturity, credit rating
+3. ** Commodity ** - Physical assets with contracts and delivery dates
+4. ** Currency ** - FX pairs or single - currency proxies with exchange rates and policy links
+5. ** Regulatory Events ** - Corporate actions and SEC filings
+
+# Relationship Types
 """
 for rel_type, count in sorted(
     metrics["relationship_distribution"].items(), key=lambda x: x[1], reverse=True
@@ -46,7 +48,7 @@ for rel_type, count in sorted(
     report += f"- **{rel_type}**: {count} instances\n"
 
 report += f"""
-## Calculated Metrics
+# Calculated Metrics
 ```markdown
 # Network Statistics
 - **Total Assets**: {metrics["total_assets"]}

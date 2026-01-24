@@ -87,23 +87,23 @@ SCHEMA_RULES_GUIDE_MD = """
 View the automatically generated schema documentation including
 relationship types, business rules, and validation constraints.
 DETAILED_ASSET_INFO_MD = """
-## Asset Explorer
+# Asset Explorer
 
 Select any asset to view detailed information including financial
 metrics, relationships, and connected assets.
 """
 
 DOC_MARKDOWN = """
-## Documentation & Help
+# Documentation & Help
 
-### Quick Start
-1. **3D Visualization**: Explore the interactive network graph
-2. **Metrics**: View quantitative analysis of relationships
-3. **Schema**: Understand the data model and business rules
-4. **Explorer**: Drill down into individual asset details
+# Quick Start
+1. ** 3D Visualization**: Explore the interactive network graph
+2. ** Metrics**: View quantitative analysis of relationships
+3. ** Schema**: Understand the data model and business rules
+4. ** Explorer**: Drill down into individual asset details
 
-### Features
-- **Cross-Asset Analysis**: Automatic relationship discovery
+# Features
+- **Cross - Asset Analysis**: Automatic relationship discovery
 - **Regulatory Integration**: Corporate events impact modeling
 """
 
