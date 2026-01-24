@@ -38,6 +38,10 @@ class TestPRAgentConfigChanges:
         Parameters:
             config_path (Path): Path to the `.github/pr-agent-config.yml` file to read.
 
+    @pytest.fixture
+    @staticmethod
+    def config_data(config_path: Path) -> dict[str, Any]:
+        """
         Returns:
             config (dict[str, Any]): Mapping representing the parsed YAML configuration.
         """
@@ -349,9 +353,7 @@ class TestGitignoreChanges:
 
     @staticmethod
     def test_codacy_instructions_ignored(gitignore_path: Path):
-        """
-        Assert that the repository .gitignore contains "codacy.instructions.md".
-        """
+        """Assert that the repository .gitignore contains "codacy.instructions.md"."""
         with open(gitignore_path, "r") as f:
             content = f.read()
 

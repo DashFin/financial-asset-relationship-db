@@ -332,6 +332,7 @@ class TestPRAgentConfigSecurity:
             """
             if len(s) >= 40:
                 return ("long_string", s)
+            return None
 
         def detect_prefix(s):
             """
@@ -346,6 +347,7 @@ class TestPRAgentConfigSecurity:
             for marker in secret_markers:
                 if s.lower().startswith(marker):
                     return ("prefix", s)
+            return None
 
         def detect_inline_creds(s):
             """
@@ -359,6 +361,7 @@ class TestPRAgentConfigSecurity:
             """
             if inline_creds_re.search(s):
                 return ("inline_creds", s)
+            return None
 
         detectors = [detect_long_string, detect_prefix, detect_inline_creds]
 
@@ -389,7 +392,7 @@ class TestPRAgentConfigSecurity:
                 obj: The value to scan; may be a dict, list, tuple, or a leaf value. Leaf values are evaluated and any detected findings are appended to the module-level list `suspected`.
             """
             if isinstance(obj, dict):
-                for key, value in obj.items():
+                for _, value in obj.items():
                     scan(value)
             elif isinstance(obj, (list, tuple)):
                 for item in obj:

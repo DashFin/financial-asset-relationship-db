@@ -96,7 +96,8 @@ class TestPRAgentWorkflowChanges:
         setup_python_steps = [s for s in steps if s.get("name") == "Setup Python"]
         assert len(setup_python_steps) == 1, "Found duplicate 'Setup Python' steps"
 
-    def test_uses_specific_python_version(self, pr_agent_workflow):
+    @staticmethod
+    def test_uses_specific_python_version(pr_agent_workflow):
         """Verify workflow pins Python version."""
         jobs = pr_agent_workflow.get("jobs", {})
         pr_agent_job = jobs.get("pr-agent-action", {})
@@ -110,7 +111,8 @@ class TestPRAgentWorkflowChanges:
         assert "python-version" in setup_python_step["with"]
         assert setup_python_step["with"]["python-version"] == "3.11"
 
-    def test_checkout_uses_fetch_depth_zero(self, pr_agent_workflow):
+    @staticmethod
+    def test_checkout_uses_fetch_depth_zero(pr_agent_workflow):
         """Verify checkout fetches full git history."""
         jobs = pr_agent_workflow.get("jobs", {})
         pr_agent_job = jobs.get("pr-agent-action", {})

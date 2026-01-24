@@ -39,7 +39,10 @@ class Asset:
         """
         Validate asset fields after dataclass initialization.
 
-        Ensures id, symbol, and name are non-empty strings; price is greater than or equal to zero; market_cap, if provided, is greater than or equal to zero; and currency is a three-letter ISO code (letters only, case-insensitive).
+        Ensures id, symbol, and name are non-empty strings; price is greater
+        or equal to zero; market_cap, if provided, is greater than or
+        equal to zero; and currency is a three-letter ISO code (letters only,
+        case-insensitive).
 
         Raises:
             ValueError: If any validation fails with a descriptive error message.

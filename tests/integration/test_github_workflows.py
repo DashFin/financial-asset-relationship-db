@@ -2999,7 +2999,7 @@ class TestWorkflowScheduledExecutionBestPractices:
                 # Check each part is valid
                 for _, part in enumerate(parts):
                     # Should be number, *, */n, or range
-                    assert re.match(r"^[\\d*,/-]+$", part), (
+                    assert re.match(r"^[\d*,/-]+$", part), (
                         f"Invalid cron part '{part}' in {workflow_file.name}"
                     )
 
@@ -3010,6 +3010,7 @@ class TestWorkflowScheduledExecutionBestPractices:
         triggers = data.get("on", {})
 
         if "schedule" in triggers:
+            pass
 
 
 if "schedule" in triggers:

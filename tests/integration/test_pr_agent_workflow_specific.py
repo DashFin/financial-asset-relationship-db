@@ -126,8 +126,9 @@ class TestPRAgentWorkflowDuplicateKeyRegression:
 class TestPRAgentWorkflowStructureValidation:
     """Validate the overall structure of pr-agent.yml."""
 
+    @staticmethod
     @pytest.fixture
-    def workflow_content(self) -> dict[str, Any]:
+    def workflow_content() -> dict[str, Any]:
         """
         Load and parse the repository's pr-agent GitHub Actions workflow YAML from .github/workflows/pr-agent.yml.
 
@@ -200,8 +201,9 @@ class TestPRAgentWorkflowStructureValidation:
 class TestPRAgentWorkflowSetupSteps:
     """Test the setup steps in pr-agent workflow."""
 
+    @staticmethod
     @pytest.fixture
-    def pr_agent_job(self) -> dict[str, Any]:
+    def pr_agent_job() -> dict[str, Any]:
         """
         Retrieve the 'pr-agent-trigger' job configuration from .github/workflows/pr-agent.yml.
 

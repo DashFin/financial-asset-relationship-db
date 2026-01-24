@@ -99,10 +99,13 @@ def _is_memory_db(path: str | None = None) -> bool:
     If `path` is omitted, the module-level `DATABASE_PATH` is evaluated.
 
     Parameters:
-        path: Optional filesystem path or SQLite URI to evaluate; when omitted, `DATABASE_PATH` is used.
+        path: Optional filesystem path or SQLite URI to evaluate;
+            when omitted, `DATABASE_PATH` is used.
 
     Returns:
-        `True` if the evaluated path represents an in-memory SQLite database (for example, `":memory:"` or a URI like `file::memory:?cache=shared`), `False` otherwise.
+        `True` if the evaluated path represents an in-memory SQLite database.
+        (for example, `":memory:"` or a URI like `file::memory:?cache=shared`),
+        `False` otherwise.
     """
     target = DATABASE_PATH if path is None else path
     if target == ":memory":
@@ -181,10 +184,12 @@ def get_connection() -> Iterator[sqlite3.Connection]:
 
 def _cleanup_memory_connection(memory_connection):
     """
-    Close the provided SQLite in-memory connection if one is given; intended for use at program exit.
+    Close the provided SQLite in-memory connection if one is given;
+    intended for use at program exit.
 
     Parameters:
-        memory_connection (sqlite3.Connection | None): The connection to close. If `None`, no action is taken.
+        memory_connection (sqlite3.Connection | None): The connection to close.
+            If `None`, no action is taken.
     """
     if memory_connection is not None:
         memory_connection.close()

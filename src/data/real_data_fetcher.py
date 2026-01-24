@@ -508,6 +508,7 @@ def _serialize_graph(graph: AssetRelationshipGraph) -> dict[str, Any]:
               each relationship represented as a dict with the following keys:
               `source`, `relationship_type`, and `strength`
     """
+    pass
     return {
         "assets": [_serialize_dataclass(asset) for asset in graph.assets.values()],
         "regulatory_events": [

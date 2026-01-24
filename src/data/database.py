@@ -63,13 +63,18 @@ def session_scope(
     session_factory: Callable[[], Session],
 ) -> Generator[Session, None, None]:
     """
-    Provide a transactional scope that yields a database session and ensures commit on success or rollback on error.
+    Provide a transactional scope that yields a database session.
+    Ensure commit on success or rollback on error.
 
     Parameters:
-        session_factory (Callable[[], Session]): Callable that creates and returns a new SQLAlchemy Session.
+        session_factory (Callable[[], Session]): Callable that creates and returns a
+            new SQLAlchemy Session.
 
     Returns:
-        session (Session): A session instance yielded to the caller; the session is committed if the block exits normally and rolled back if an exception is raised. The session is closed when the scope ends.
+        session (Session): A session instance yielded to the caller;
+            the session is committed if the block exits normally and rolled back if an
+            exception is raised.
+            The session is closed when the scope ends.
     """
     session = session_factory()
     try:

@@ -39,7 +39,8 @@ def _create_circular_layout(asset_ids: List[str]) -> dict[str, Tuple[float, floa
         asset_ids (List[str]): Ordered list of asset IDs to place around the circle.
 
     Returns:
-        dict[str, Tuple[float, float]]: Mapping from each asset ID to its (x, y) coordinates on the unit circle.
+        dict[str, Tuple[float, float]]: Mapping from each asset ID to its (x, y)
+            coordinates on the unit circle.
             Returns an empty dict if `asset_ids` is empty.
     """
     if not asset_ids:
@@ -61,14 +62,18 @@ def _create_grid_layout(asset_ids: List[str]) -> dict[str, Tuple[float, float]]:
     """
     Arrange asset IDs on a rectangular grid and return their 2D coordinates.
 
-    Positions are assigned left-to-right, top-to-bottom: columns increase along x and rows along y,
-    starting at (0.0, 0.0). If `asset_ids` is empty, an empty dictionary is returned.
+    Positions are assigned left-to-right, top-to-bottom.
+
+    Columns increase along x and rows along y, starting at (0.0, 0.0).
+
+    If `asset_ids` is empty, an empty dictionary is returned.
 
     Parameters:
         asset_ids (List[str]): Ordered list of asset IDs to place on the grid.
 
     Returns:
-        dict[str, Tuple[float, float]]: Mapping from each asset ID to its (x, y) grid coordinates as floats.
+        dict[str, Tuple[float, float]]: Mapping from each asset ID to its (x, y) grid
+            coordinates as floats.
     """
     if not asset_ids:
         return {}
@@ -96,9 +101,10 @@ def _create_spring_layout_2d(
         asset_ids (List[str]): Asset IDs to include in the output.
 
     Returns:
-        dict[str, Tuple[float, float]]: Mapping of each asset ID (from asset_ids and present in positions_3d)
-        to a 2-tuple (x, y) with coordinates cast to float. Returns an empty dict if inputs are empty
-        or if no provided asset_ids exist in positions_3d.
+        dict[str, Tuple[float, float]]: Mapping of each asset ID (from asset_ids and
+            present in positions_3d) to a 2-tuple (x, y) with coordinates cast to float.
+            Returns an empty dict if inputs are empty or if no provided asset_ids exist in
+            positions_3d.
     """
     if not positions_3d or not asset_ids:
         return {}
@@ -128,7 +134,8 @@ def _create_2d_relationship_traces(
     show_all_relationships: bool = False,
 ) -> List[go.Scatter]:
     """
-    Create Plotly line traces representing relationships between assets, applying per-type filters.
+    Create Plotly line traces representing relationships between assets,
+    applying per-type filters.
 
     Parameters:
         graph: AssetRelationshipGraph containing relationships indexed by source asset ID.
@@ -141,10 +148,12 @@ def _create_2d_relationship_traces(
         show_commodity_currency: Include "commodity_currency" relationships.
         show_income_comparison: Include "income_comparison" relationships.
         show_regulatory: Include "regulatory_impact" relationships.
-        show_all_relationships: If true, ignore individual show_* flags and include all relationship types.
+        show_all_relationships: If true, ignore individual show_* flags and include all
+            relationship types.
 
     Returns:
-        List of Plotly Scatter traces, one per relationship type that passed filtering (empty list if no relationships).
+        List of Plotly Scatter traces, one per relationship type that passed filtering.
+        Empty list if no relationships.
     """
     if not asset_ids or not positions:
         return []

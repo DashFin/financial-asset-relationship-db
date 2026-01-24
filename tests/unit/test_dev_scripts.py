@@ -404,7 +404,8 @@ class TestShellScripts:
             or "documentation" in content.lower()
         )
 
-    def test_shell_scripts_consistent_style(self):
+    @staticmethod
+    def test_shell_scripts_consistent_style():
         """
         Ensure shell scripts use a consistent variable-naming style for PID variables.
 
