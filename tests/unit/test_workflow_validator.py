@@ -548,7 +548,8 @@ class TestAdvancedValidationScenarios:
                 result = validate_workflow(f.name)
                 assert result.is_valid is False
                 assert len(result.errors) >= 1
-    runs - on: ubuntu - latest
+            finally:
+                Path(f.name).unlink()
     Path(f.name).unlink()
 
     @staticmethod
