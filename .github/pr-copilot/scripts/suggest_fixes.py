@@ -59,7 +59,7 @@ def load_config() -> dict[str, Any]:
 # --- Parsing Logic ---
 
 
-def extract_code_suggestions(comment_body: str) -> List[dict[str, str]]:
+def extract_code_suggestions(comment_body: str) -> list[dict[str, str]]:
     """
     Extracts suggested code snippets from a review comment body.
 
