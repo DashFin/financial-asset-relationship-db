@@ -328,22 +328,21 @@ class FinancialAssetApp:
         toggle_arrows,
     ):
         """Refresh visualization with 2D / 3D mode support and relationship filtering."""
-        try:
-            graph = self.ensure_graph()
+        graph = self.ensure_graph()
 
-            if view_mode == "2D":
-                graph_viz = visualize_2d_graph(
-                    graph,
-                    show_same_sector=show_same_sector,
-                    show_market_cap=show_market_cap,
-                    show_correlation=show_correlation,
-                    show_corporate_bond=show_corporate_bond,
-                    show_commodity_currency=show_commodity_currency,
-                    show_income_comparison=show_income_comparison,
-                    show_regulatory=show_regulatory,
-                    show_all_relationships=show_all_relationships,
-                    layout_type=layout_type,
-                )
+        if view_mode == "2D":
+            graph_viz = visualize_2d_graph(
+                graph,
+                show_same_sector=show_same_sector,
+                show_market_cap=show_market_cap,
+                show_correlation=show_correlation,
+                show_corporate_bond=show_corporate_bond,
+                show_commodity_currency=show_commodity_currency,
+                show_income_comparison=show_income_comparison,
+                show_regulatory=show_regulatory,
+                show_all_relationships=show_all_relationships,
+                layout_type=layout_type,
+            )
         else:  # 3D mode
             graph_viz = visualize_3d_graph_with_filters(
                 graph,

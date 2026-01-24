@@ -387,57 +387,55 @@ class TestPRAgentConfigSecurity:
 
             Parameters:
                 s (str): Input string to check.
+        Returns:
+            tuple: ("inline_creds", s) if inline credentials found, otherwise None.
+        """
+        if inline_creds_re.search(s):
+            return ("inline_creds", s)
+        return None
 
-            Returns:
-                tuple: ("inline_creds", s) if inline credentials found, otherwise None.
-            """
-            if inline_creds_re.search(s):
-                return ("inline_creds", s)
-            return None
+    detectors = [detect_long_string, detect_prefix, detect_inline_creds]
 
-        detectors = [detect_long_string, detect_prefix, detect_inline_creds]
+    def scan(obj):
+        """Recursively scan nested structures for potential secrets.
 
-        def scan(obj):
-            """Recursively scan nested structures for potential secrets.
-
-            Walks through dicts, lists, and tuples, applying scan_value to leaf values
-            and collecting matches in the 'suspected' list.
-            """
-            if isinstance(obj, dict):
-                for key, value in obj.items():
-                    scan(value)
+        Walks through dicts, lists, and tuples, applying scan_value to leaf values
+        and collecting matches in the 'suspected' list.
+        """
+        if isinstance(obj, dict):
+            for key, value in obj.items():
+                scan(value)
 
     @staticmethod
     def test_no_hardcoded_secrets(pr_agent_config):
         """
-        Ensure no sensitive keys or values in the parsed PR agent config contain hardcoded credentials.
+        Integration test for PR agent configuration validation.
 
-        """Integration test for PR agent configuration validation.
+        Ensure no sensitive keys or values in the parsed PR agent config contain hardcoded credentials.
 
         This module provides tests to ensure that the PR agent configuration does not contain hardcoded
         secrets by scanning for sensitive keys and validating placeholder values.
+
+        Recursively scans the provided configuration (dict/list) and validates that any key whose name
+        contains sensitive indicators (e.g., "password", "secret", "token", "api_key", "access_key",
+        "private_key", "apikey") is assigned a safe placeholder value (None, "null", "webhook", or other
+        allowed placeholders) or is represented as a templated variable like "${VAR}". The check inspects
+        both mapping keys and list elements and reports the dotted path to the offending entry.
+
+        Parameters:
+            pr_agent_config (dict): Parsed YAML configuration for the PR agent.
+
+        Raises:
+            AssertionError: If a sensitive key or suspicious value appears to contain a hardcoded secret;
+                the assertion message includes the path to the offending item.
         """
-
-                Recursively scans the provided configuration (dict/list) and validates that any key whose name
-                contains sensitive indicators (e.g., "password", "secret", "token", "api_key", "access_key",
-                "private_key", "apikey") is assigned a safe placeholder value (None, "null", "webhook", or other
-                allowed placeholders) or is represented as a templated variable like "${VAR}". The check inspects
-                both mapping keys and list elements and reports the dotted path to the offending entry.
-
-                Parameters:
-                    pr_agent_config (dict): Parsed YAML configuration for the PR agent.
-
-                Raises:
-                    AssertionError: If a sensitive key or suspicious value appears to contain a hardcoded secret;
-                        the assertion message includes the path to the offending item.
-                """
-                sensitive_patterns = [
-                    "password",
-                    "secret",
-                    "token",
-                    "api_key",
-                    "apikey",
-                    "access_key",
+        sensitive_patterns = [
+            "password",
+            "secret",
+            "token",
+            "api_key",
+            "apikey",
+            "access_key",
                     "private_key",
                 ]
                 # Values considered safe placeholders

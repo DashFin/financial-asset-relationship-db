@@ -1,7 +1,7 @@
 from src.logic.asset_graph import AssetRelationshipGraph
 
 
-def generate_schema_report(graph: AssetRelationshipGraph) -> str:
+def generate_schema_report(_graph: AssetRelationshipGraph) -> str:
     """
         Generate a human-readable Markdown report describing the
         asset relationship schema, calculated network metrics,
@@ -21,7 +21,7 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
     - implementation notes.
 
     Parameters:
-        graph (AssetRelationshipGraph): Graph instance used to calculate
+        _graph (AssetRelationshipGraph): Graph instance used to calculate
           metrics required for the report.
 
     Returns:
@@ -29,6 +29,9 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
             schema, metrics, rules, and recommendations.
     """
 
+
+metrics = _graph.compute_metrics()
+report = ""
 
 report += "\n# Network Statistics\n"
 report += f"- **Total Assets**: {metrics['total_assets']}\n"
@@ -47,7 +50,14 @@ report += (
     "5. **Income Linkage**: Equity dividends compared to bond yields "
     "using similarity score\n"
     "6. **Commodity Exposure**: Energy equities link to crude oil; "
-    "miners link to metal commodities\n"
+"""Schema Report Generation Module.
+
+This module builds and assembles a detailed schema optimization report,
+including rules, metrics, recommendations, and implementation notes.
+"""
+
+    "miners link to metal commodities
+"
 )
 
 report += "\n# Regulatory Rules\n"
@@ -58,6 +68,7 @@ report += (
     "(positive)\n"
     "3. **Related Assets**: Each event automatically creates "
     "relationships to impacted securities\n"
+)
 )
 
 report += (
@@ -71,8 +82,14 @@ report += (
 )
 
 
-def generate_schema_report(metrics):
-    report += """
+def generate_schema_optimization_report(metrics):
+    """Generate a schema optimization report based on provided metrics.
+
+    Computes a data quality score based on relationship strength and regulatory event count,
+    provides recommendations based on relationship density, and appends implementation notes.
+    """
+    report_content = ""
+    report_content += """
 # Schema Optimization Metrics
 
 # Data Quality Score: """
@@ -81,16 +98,16 @@ def generate_schema_report(metrics):
         metrics["average_relationship_strength"]
         + (metrics["regulatory_event_count"] / 10),
     )
-    report += f"{quality_score:.1%}\n"
+    report_content += f"{quality_score:.1%}\n"
 
-    report += "\n### Recommendation: "
+    report_content += "\n### Recommendation: "
     if metrics["relationship_density"] > 30:
-        report += "High connectivity - consider normalization"
+        report_content += "High connectivity - consider normalization"
     elif metrics["relationship_density"] > 10:
-        report += "Well-balanced relationship graph - optimal for most use cases"
+        report_content += "Well-balanced relationship graph - optimal for most use cases"
     else:
-        report += "Sparse connections - consider adding more relationships"
+        report_content += "Sparse connections - consider adding more relationships"
 
-    report += "\n\n## Implementation Notes\n- All timestamps in ISO 8601 format\n"
-    report += "- Relationship strengths normalized to 0-1 range\n"
-    return report
+    report_content += "\n\n## Implementation Notes\n- All timestamps in ISO 8601 format\n"
+    report_content += "- Relationship strengths normalized to 0-1 range\n"
+    return report_content
