@@ -521,11 +521,6 @@ class TestPRAgentConfigSecurity:
                 val (str): Value to check.
 
             Returns:
-            """
-            val_lower = val.lower()
-            if val_lower in allowed_placeholders:
-                return False
-            return any(pat in val_lower for pat in sensitive_patterns)
                 bool: True if value contains a sensitive pattern, False otherwise.
             """
             low = val.lower()
