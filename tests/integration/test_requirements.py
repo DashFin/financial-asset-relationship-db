@@ -275,6 +275,7 @@ class TestVersionSpecifications:
 
     @pytest.fixture
     @staticmethod
+    @staticmethod
     def parsed_requirements() -> List[Tuple[str, str]]:
         """Parse requirements and return list of (package, version) tuples."""
         return parse_requirements(REQUIREMENTS_FILE)
@@ -300,7 +301,8 @@ class TestVersionSpecifications:
         # We don't enforce strict alphabetical sorting, but check for some organization
         assert len(package_names) > 0
 
-    def test_package_names_valid(self, package_names: List[str]):
+    @staticmethod
+    def test_package_names_valid(package_names: List[str]):
         """Test that package names follow valid naming conventions."""
         if package_names is None:
             package_names = []
