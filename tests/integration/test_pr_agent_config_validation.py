@@ -457,13 +457,13 @@ class TestPRAgentConfigSecurity:
                     return False
 
                 def shannon_entropy(data):
-                    from collections import Counter
                     import math
+                    from collections import Counter
                     if not data:
                         return 0.0
                     freq = Counter(data)
                     length = len(data)
-                    return -sum((count/length) * math.log2(count/length) for count in freq.values())
+                    return -sum((count / length) * math.log2(count / length) for count in freq.values())
 
                 def is_hardcoded_secret(val):
                     """Determine if a string value likely contains a hardcoded secret.

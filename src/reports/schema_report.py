@@ -3,31 +3,31 @@ from src.logic.asset_graph import AssetRelationshipGraph
 
 def generate_schema_report(graph: AssetRelationshipGraph) -> str:
     """
-    Generate a human-readable Markdown report describing the
-    asset relationship schema, calculated network metrics,
-    top relationships, business/regulatory/valuation rules,
-and optimization recommendations.
+        Generate a human-readable Markdown report describing the
+        asset relationship schema, calculated network metrics,
+        top relationships, business/regulatory/valuation rules,
+    and optimization recommendations.
 
-The report is assembled from metrics computed by the provided
-AssetRelationshipGraph and includes:
-- schema overview (entity and relationship types),
-- relationship distribution and asset class breakdown,
-- network statistics (total assets/relationships, average strength,
-  density, regulatory events),
-- ordered top relationships with strengths,
-- predefined business, regulatory, and valuation rules,
-- a data quality score and a textual recommendation
-  based on relationship density,
-- implementation notes.
+    The report is assembled from metrics computed by the provided
+    AssetRelationshipGraph and includes:
+    - schema overview (entity and relationship types),
+    - relationship distribution and asset class breakdown,
+    - network statistics (total assets/relationships, average strength,
+      density, regulatory events),
+    - ordered top relationships with strengths,
+    - predefined business, regulatory, and valuation rules,
+    - a data quality score and a textual recommendation
+      based on relationship density,
+    - implementation notes.
 
-Parameters:
-    graph (AssetRelationshipGraph): Graph instance used to calculate
-      metrics required for the report.
+    Parameters:
+        graph (AssetRelationshipGraph): Graph instance used to calculate
+          metrics required for the report.
 
-Returns:
-    str: Complete Markdown-formatted report summarizing
-        schema, metrics, rules, and recommendations.
-"""
+    Returns:
+        str: Complete Markdown-formatted report summarizing
+            schema, metrics, rules, and recommendations.
+    """
 
 
 report += "\n# Network Statistics\n"
@@ -70,6 +70,7 @@ report += (
     "for FX exposure\n"
 )
 
+
 def generate_schema_report(metrics):
     report += """
 # Schema Optimization Metrics
@@ -77,7 +78,8 @@ def generate_schema_report(metrics):
 # Data Quality Score: """
     quality_score = min(
         1.0,
-        metrics["average_relationship_strength"] + (metrics["regulatory_event_count"] / 10),
+        metrics["average_relationship_strength"]
+        + (metrics["regulatory_event_count"] / 10),
     )
     report += f"{quality_score:.1%}\n"
 
