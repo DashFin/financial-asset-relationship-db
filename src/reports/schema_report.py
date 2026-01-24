@@ -29,6 +29,7 @@ Returns:
         schema, metrics, rules, and recommendations.
 """
 
+
 report += "\n# Network Statistics\n"
 report += f"- **Total Assets**: {metrics['total_assets']}\n"
 report += f"- **Total Relationships**: {metrics['total_relationships']}\n"

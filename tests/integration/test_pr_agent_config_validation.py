@@ -446,7 +446,10 @@ class TestPRAgentConfigSecurity:
             if any(marker in low for marker in sensitive_patterns) and len(val) >= 12:
                 return True
             # Base64/URL-safe like long strings
-            if re.fullmatch(r"[A-Za-z0-9_\-]{20,}", val) and shannon_entropy(val) >= 3.5:
+            if (
+                re.fullmatch(r"[A-Za-z0-9_\-]{20,}", val)
+                and shannon_entropy(val) >= 3.5
+            ):
                 return True
             # Hex-encoded long strings (e.g., keys)
             if re.fullmatch(r"[A-Fa-f0-9]{32,}", val):
@@ -496,6 +499,7 @@ class TestPRAgentConfigSecurity:
         def check_entry(path, key, value):
             """Assert that a sensitive key at the given path does not contain a hardcoded value or suspicious secret."""
             from tests.utils import looks_like_secret
+
             if is_sensitive_key(key) and not is_safe_value(value):
                 pytest.fail(
                     f"Sensitive key '{path}.{key}' contains hardcoded value: {value}"
