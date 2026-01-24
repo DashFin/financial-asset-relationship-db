@@ -202,23 +202,13 @@ class FormulaicVisualizer:
 
     def _get_sorted_formulas(self, formulas: Any) -> Any:
         """
-        Prepare a sorted list of formulas by R-squared and populate a Plotly Figure with summary visualizations for a formulaic analysis dashboard.
-
-        This function sorts the provided formulas in descending order of their `r_squared` attribute (falls back to the original order if sorting fails), assembles top-formula summaries (truncated names, categories, formatted R-squared values), and constructs a multi-panel Plotly figure containing:
-        - A top-formulas table,
-        - A formula categories pie chart,
-        - A formula reliability bar chart,
-        - An empirical correlation heatmap,
-        - Asset class relationships bar chart,
-        - Sector analysis bar chart,
-        - A key formula examples table,
-        then updates layout and axis labels.
-
+        Return formulas sorted by descending R-squared.
+        
         Parameters:
-            formulas (Iterable): An iterable of formula-like objects. Each object is expected to expose attributes used in the visuals such as `name`, `category`, `r_squared`, and `formula`. Missing attributes are handled defensively.
-
+            formulas (Iterable): Iterable of formula-like objects; each should expose `r_squared` used for sorting.
+        
         Returns:
-            fig (plotly.graph_objs.Figure): A Plotly Figure populated with the dashboard traces and layout ready for rendering.
+            list: Sorted list of formulas (or original order if sorting fails).
         """
         try:
             return sorted(
