@@ -1613,7 +1613,7 @@ class TestAutoAssignWorkflowAdvanced:
         Verify the auto-assign workflow specifies "ubuntu-latest" as its runner.
 
         Parameters:
-        	auto_assign_workflow (dict[str, Any]): Parsed workflow mapping for the auto-assign workflow file.
+                auto_assign_workflow (dict[str, Any]): Parsed workflow mapping for the auto-assign workflow file.
         """
         run_job = auto_assign_workflow["jobs"]["auto-assign"]
         runs_on = run_job.get("runs-on", "")
