@@ -215,7 +215,8 @@ class TestVersionSpecifications:
         """Test that all package specifications are parseable."""
         assert len(requirements) > 0
 
-    def test_version_format_valid(self, requirements: List[Tuple[str, str]]):
+    @staticmethod
+    def test_version_format_valid(requirements: List[Tuple[str, str]]):
         """Test that version specifications use valid format."""
         version_pattern = re.compile(r"^(>=|==|<=|>|<|~=)\d+(\.\d+)*$")
 
@@ -228,7 +229,8 @@ class TestVersionSpecifications:
                         f"Invalid version spec '{spec}' for package '{pkg}'"
                     )
 
-    def test_zipp_security_version(self, requirements: List[Tuple[str, str]]):
+    @staticmethod
+    def test_zipp_security_version(requirements: List[Tuple[str, str]]):
         """Test that zipp has the security-required minimum version."""
         zipp_specs = [ver for pkg, ver in requirements if pkg.lower() == "zipp"]
         assert len(zipp_specs) > 0, "zipp should be present for security fix"
@@ -236,14 +238,16 @@ class TestVersionSpecifications:
             f"zipp should be >=3.19.1, got {zipp_specs[0]}"
         )
 
-    def test_uses_minimum_versions(self, requirements: List[Tuple[str, str]]):
+    @staticmethod
+    def test_uses_minimum_versions(requirements: List[Tuple[str, str]]):
         """Test that most packages use >= for version specifications."""
         specs_using_gte = [ver for pkg, ver in requirements if ver.startswith(">=")]
         all_with_versions = [ver for pkg, ver in requirements if ver]
         # At least 70% should use >= for flexibility
         assert len(specs_using_gte) >= len(all_with_versions) * 0.7
 
-    def test_no_exact_pins_without_comment(self, requirements: List[Tuple[str, str]]):
+    @staticmethod
+    def test_no_exact_pins_without_comment(requirements: List[Tuple[str, str]]):
         """
         Ensure exact-version pins (`==`) in the requirements file are accompanied by a comment explaining the rationale.
 
@@ -266,9 +270,6 @@ class TestVersionSpecifications:
             assert has_comment, (
                 f"Exact pin for {pkg} should have a comment explaining why"
             )
-
-
-class TestPackageConsistency:
     """Test package consistency and naming conventions."""
 
     @pytest.fixture
