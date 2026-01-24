@@ -370,6 +370,7 @@ class TestEdgeCases:
         empty_graph.add_asset(sample_equity)
         report = generate_schema_report(empty_graph)
         assert "**Total Assets**: 1" in report
+        return report
 
     @staticmethod
     def test_report_with_no_regulatory_events(empty_graph, sample_equity):
