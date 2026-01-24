@@ -216,7 +216,7 @@ def parse_review_comments(
 # --- Formatting Helpers ---
 
 
-def _format_code_suggestions(suggestions: List[dict[str, str]]) -> str:
+def _format_code_suggestions(suggestions: list[dict[str, str]]) -> str:
     """Format the code suggestion blocks."""
     output = "   - **Suggested Code:**\n"
     for suggestion in suggestions:
