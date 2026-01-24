@@ -123,9 +123,9 @@ Top Relationships:
 
 class FinancialAssetApp:
     """
-    Manages the financial asset application, including initialization of the
-    asset relationship graph, data handling, and providing interfaces for
-    analyzing and visualizing asset networks.
+ Manages the financial asset application, including initialization of the
+  asset relationship graph, data handling, and providing interfaces for
+   analyzing and visualizing asset networks.
     """
 
     def __init__(self):
@@ -134,10 +134,10 @@ class FinancialAssetApp:
 
     def _initialize_graph(self) -> None:
         """
-        Initialize the instance's asset relationship graph by building a real - data - backed graph.
+     Initialize the instance's asset relationship graph by building a real - data - backed graph.
 
-        Attempts to create and assign a real AssetRelationshipGraph to self.graph using external data sources. On failure, logs the error and re - raises the exception so callers can handle startup failures.
-        Raises:
+      Attempts to create and assign a real AssetRelationshipGraph to self.graph using external data sources. On failure, logs the error and re - raises the exception so callers can handle startup failures.
+       Raises:
             Exception: Any error raised while creating the graph is re - raised after being logged.
         """
         try:
@@ -213,7 +213,8 @@ class FinancialAssetApp:
         If no asset is selected or the asset ID is not present in the graph, returns empty structures.
 
         Parameters:
-            selected_asset(Optional[str]): The asset identifier to look up; may be None.
+            selected_asset(Optional[str]): The asset identifier to look up
+            may be None.
 
         Returns:
             Tuple[Dict, Dict]:
