@@ -198,7 +198,8 @@ class TestRequirementsFileFormat:
         with open(REQUIREMENTS_FILE, "r", encoding="utf-8") as f:
             f.read()
 
-    def test_no_trailing_whitespace(self, file_lines: List[str]):
+    @staticmethod
+    def test_no_trailing_whitespace(file_lines: List[str]):
         """Test that lines don't have trailing whitespace."""
         lines_with_trailing = [
             (i + 1, repr(line))
@@ -207,7 +208,8 @@ class TestRequirementsFileFormat:
         ]
         assert len(lines_with_trailing) == 0
 
-    def test_ends_with_newline(self, file_content: str):
+    @staticmethod
+    def test_ends_with_newline(file_content: str):
         """Test that file ends with a newline."""
         assert file_content.endswith("\n")
 
@@ -480,7 +482,8 @@ class TestVersionConstraintValidation:
         """Get parsed requirements."""
         return parsed_requirements
 
-    def test_version_operators_valid(self, requirements: List[Tuple[str, str]]):
+    @staticmethod
+    def test_version_operators_valid(requirements: List[Tuple[str, str]]):
         """Test that all version operators are valid."""
         valid_operators = {">=", "==", "<=", ">", "<", "~=", "!="}
 
@@ -497,7 +500,8 @@ class TestVersionConstraintValidation:
                     f"No valid operator found in '{ver}' for package '{pkg}'"
                 )
 
-    def test_compound_version_specs(self, requirements: List[Tuple[str, str]]):
+    @staticmethod
+    def test_compound_version_specs(requirements: List[Tuple[str, str]]):
         """Test that compound version specs are properly formatted."""
         for pkg, ver in requirements:
             if "," in ver:
@@ -523,7 +527,8 @@ class TestVersionConstraintValidation:
                     if not pkg.startswith("types-"):
                         assert major >= 0, f"Version for {pkg} should be >= 0: {ver}"
 
-    def test_no_conflicting_version_specs(self, requirements: List[Tuple[str, str]]):
+    @staticmethod
+    def test_no_conflicting_version_specs(requirements: List[Tuple[str, str]]):
         """
         Verify compound version specifiers do not contain obvious conflicts.
 
@@ -560,7 +565,8 @@ class TestPackageNamingAndCasing:
         """Get parsed requirements."""
         return parsed_requirements
 
-    def test_package_name_casing_preserved(self, requirements: List[Tuple[str, str]]):
+    @staticmethod
+    def test_package_name_casing_preserved(requirements: List[Tuple[str, str]]):
         """Test that package name casing is preserved as written."""
         # Read raw file to check original casing
         with open(REQUIREMENTS_FILE, "r", encoding="utf-8") as f:
@@ -575,7 +581,8 @@ class TestPackageNamingAndCasing:
             ]
             assert len(matching_lines) > 0, f"Package {pkg} not found in original file"
 
-    def test_no_underscore_hyphen_conflicts(self, requirements: List[Tuple[str, str]]):
+    @staticmethod
+    def test_no_underscore_hyphen_conflicts(requirements: List[Tuple[str, str]]):
         """Test that there are no packages differing only in underscore/hyphen."""
         normalized_names = {}
         for pkg, _ in requirements:
@@ -587,7 +594,8 @@ class TestPackageNamingAndCasing:
                 ), f"Potential conflict between {original} and {pkg}"
             normalized_names[normalized] = pkg
 
-    def test_common_package_name_patterns(self, requirements: List[Tuple[str, str]]):
+    @staticmethod
+    def test_common_package_name_patterns(requirements: List[Tuple[str, str]]):
         """Test that package names follow common patterns."""
         for pkg, _ in requirements:
             # Should not start or end with hyphen or underscore
@@ -713,7 +721,8 @@ class TestTypeStubConsistency:
         """Get parsed requirements."""
         return parsed_requirements
 
-    def test_type_stubs_have_base_packages(self, requirements: List[Tuple[str, str]]):
+    @staticmethod
+    def test_type_stubs_have_base_packages(requirements: List[Tuple[str, str]]):
         """
         Ensure each `types-` package in the parsed requirements has a corresponding base package present.
 
@@ -738,7 +747,8 @@ class TestTypeStubConsistency:
                     f"Type stub package {pkg} has no corresponding base package"
                 )
 
-    def test_type_stub_versions_reasonable(self, requirements: List[Tuple[str, str]]):
+    @staticmethod
+    def test_type_stub_versions_reasonable(requirements: List[Tuple[str, str]]):
         """Test that type stub packages have reasonable version constraints."""
         for pkg, ver in requirements:
             if pkg.lower().startswith("types-"):
@@ -906,7 +916,6 @@ class TestComprehensivePackageValidation:
     @staticmethod
     def test_all_packages_loadable_by_pip(requirements: List[Tuple[str, str]]):
         """Test that all package specifications are valid pip requirements."""
-
         # Re-read file and try to parse each line with pip
         with open(REQUIREMENTS_FILE, "r", encoding="utf-8") as f:
             for line in f:

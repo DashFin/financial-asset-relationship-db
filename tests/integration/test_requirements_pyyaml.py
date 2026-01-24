@@ -196,13 +196,15 @@ class TestRequirementsDevCompleteness:
         with open("requirements-dev.txt", "r", encoding="utf-8") as f:
             return f.read()
 
-    def test_file_ends_with_newline(self, requirements_content: str):
+    @staticmethod
+    def test_file_ends_with_newline(requirements_content: str):
         """Test that requirements-dev.txt ends with a newline."""
         assert requirements_content.endswith("\n"), (
             "requirements-dev.txt should end with a newline"
         )
 
-    def test_no_duplicate_packages(self, requirements_content: str):
+    @staticmethod
+    def test_no_duplicate_packages(requirements_content: str):
         """
         Assert that the requirements content contains no duplicate package entries.
 
@@ -221,7 +223,8 @@ class TestRequirementsDevCompleteness:
         duplicates = [pkg for pkg in set(packages) if packages.count(pkg) > 1]
         assert len(duplicates) == 0, f"Found duplicate packages: {duplicates}"
 
-    def test_all_lines_valid_format(self, requirements_content: str):
+    @staticmethod
+    def test_all_lines_valid_format(requirements_content: str):
         """
         Validate that each non-empty, non-comment line in requirements_content matches the expected package/version format.
 
@@ -242,7 +245,8 @@ class TestRequirementsDevCompleteness:
                 f"Line {line_num} has invalid format: {line}"
             )
 
-    def test_has_testing_dependencies(self, requirements_content: str):
+    @staticmethod
+    def test_has_testing_dependencies(requirements_content: str):
         """Test that file includes essential testing dependencies."""
         essential_packages = ["pytest", "pytest-cov"]
 
@@ -251,7 +255,8 @@ class TestRequirementsDevCompleteness:
                 f"requirements-dev.txt should include {package}"
             )
 
-    def test_has_linting_dependencies(self, requirements_content: str):
+    @staticmethod
+    def test_has_linting_dependencies(requirements_content: str):
         """
         Verify the requirements-dev.txt content includes the common linting packages: flake8, pylint, and black.
 

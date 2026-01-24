@@ -505,6 +505,9 @@ class TestValidationResultDataStructure:
 
         @staticmethod
         def test_validation_result_attributes():
+            """Test validation_result attributes for nested static method"""
+    @staticmethod
+    def test_validation_result_has_attributes():
             data = {"name": "Test", "jobs": {"build": {}}}
             result = ValidationResult(True, [], data)
 

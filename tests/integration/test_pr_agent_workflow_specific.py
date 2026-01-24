@@ -52,8 +52,9 @@ class TestPRAgentWorkflowDuplicateKeyRegression:
         with open(workflow_file, "r", encoding="utf-8") as f:
             return f.read()
 
+    @staticmethod
     def test_no_duplicate_step_name_setup_python(
-        self, workflow_content: dict[str, Any]
+        workflow_content: dict[str, Any]
     ):
         """Test that there's no duplicate 'Setup Python' step name."""
         for job_name, job_config in workflow_content.get("jobs", {}).items():
@@ -66,7 +67,8 @@ class TestPRAgentWorkflowDuplicateKeyRegression:
                 f"Job '{job_name}' has {setup_python_count} 'Setup Python' steps, expected at most 1"
             )
 
-    def test_no_duplicate_with_blocks_in_setup_python(self, workflow_raw: str):
+    @staticmethod
+    def test_no_duplicate_with_blocks_in_setup_python(workflow_raw: str):
         """Test that Setup Python step doesn't have duplicate 'with:' blocks."""
         # Split into lines and check for pattern of duplicate 'with:' after Setup Python
         lines = workflow_raw.split("\n")
@@ -86,7 +88,8 @@ class TestPRAgentWorkflowDuplicateKeyRegression:
                     f"Setup Python step at line {i + 1} has {with_count} 'with:' blocks, expected 1"
                 )
 
-    def test_setup_python_single_python_version_definition(self, workflow_raw: str):
+    @staticmethod
+    def test_setup_python_single_python_version_definition(workflow_raw: str):
         """Test that python-version is defined only once per Setup Python step."""
         lines = workflow_raw.split("\n")
 
@@ -196,9 +199,7 @@ class TestPRAgentWorkflowSetupSteps:
         return workflow["jobs"]["pr-agent-trigger"]
 
     def test_checkout_step_exists(self, pr_agent_job: dict[str, Any]):
-        """
-        Check that the job contains at least one step using `actions/checkout`.
-        """
+        """Check that the job contains at least one step using `actions/checkout`."""
         steps = pr_agent_job.get("steps", [])
         checkout_steps = [
             step
@@ -219,8 +220,8 @@ class TestPRAgentWorkflowSetupSteps:
         assert len(python_steps) == 1, "Job should have exactly one Setup Python step"
 
     def test_setup_nodejs_exists(self, pr_agent_job: dict[str, Any]):
-        """Assert that the job includes at least one step named "Setup Node.js"
-        ."""
+        """Assert that the job includes at least one step named "Setup Node.js".
+        """
         steps = pr_agent_job.get("steps", [])
         node_steps = [step for step in steps if step.get("name") == "Setup Node.js"]
         assert len(node_steps) >= 1, "Job should have Setup Node.js step"
@@ -271,5 +272,7 @@ class TestPRAgentWorkflowSetupSteps:
 
         if python_idx is not None and node_idx is not None:
             assert python_idx < node_idx, (
+                "Setup Python should come before Setup Node.js"
+            )
                 "Setup Python should come before Setup Node.js"
             )

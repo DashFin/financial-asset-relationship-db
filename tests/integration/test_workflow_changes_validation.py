@@ -71,7 +71,8 @@ class TestPRAgentWorkflowChanges:
             "Should not explicitly install PyYAML in workflow"
         )
 
-    def test_pr_agent_no_context_chunking_references(self, pr_agent_workflow):
+    @staticmethod
+    def test_pr_agent_no_context_chunking_references(pr_agent_workflow):
         """Verify context chunking logic removed from workflow."""
         workflow_str = yaml.dump(pr_agent_workflow)
 
@@ -80,7 +81,8 @@ class TestPRAgentWorkflowChanges:
         assert "chunking" not in workflow_str.lower()
         assert "tiktoken" not in workflow_str.lower()
 
-    def test_pr_agent_uses_gh_cli_for_parsing(self, pr_agent_workflow):
+    @staticmethod
+    def test_pr_agent_uses_gh_cli_for_parsing(pr_agent_workflow):
         """Verify workflow uses gh CLI for PR comment parsing."""
         pr_agent_job = pr_agent_workflow["jobs"]["pr-agent-trigger"]
         steps = pr_agent_job["steps"]
@@ -89,7 +91,8 @@ class TestPRAgentWorkflowChanges:
         assert parse_step is not None
         assert "gh api" in parse_step["run"]
 
-    def test_pr_agent_has_proper_permissions(self, pr_agent_workflow):
+    @staticmethod
+    def test_pr_agent_has_proper_permissions(pr_agent_workflow):
         """
         Verify the PR Agent workflow exposes minimal permissions.
 

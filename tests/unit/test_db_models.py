@@ -143,7 +143,8 @@ class TestAssetORM:
         assert retrieved.exchange_rate == 1.10
         assert retrieved.country == "Eurozone"
 
-    def test_asset_required_fields(self, db_session):
+    @staticmethod
+    def test_asset_required_fields(db_session):
         """Test that required fields are enforced."""
         asset = AssetORM(
             id="TEST_REQUIRED",
@@ -525,7 +526,8 @@ class TestRegulatoryEventORM:
         )
         assert remaining is None
 
-    def test_regulatory_event_with_related_assets(self, db_session):
+    @staticmethod
+    def test_regulatory_event_with_related_assets(db_session):
         """Test regulatory event with related assets."""
         # Create main asset and related assets
         main_asset = AssetORM(
@@ -640,7 +642,8 @@ class TestRegulatoryEventAssetORM:
         with pytest.raises(IntegrityError):
             db_session.commit()
 
-    def test_event_asset_cascade_delete_on_event(self, db_session):
+    @staticmethod
+    def test_event_asset_cascade_delete_on_event(db_session):
         """
         Verify that deleting a RegulatoryEventORM deletes its associated RegulatoryEventAssetORM links.
         """

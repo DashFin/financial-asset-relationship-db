@@ -222,7 +222,8 @@ class TestDeletedFilesImpact:
     """Validate that deleted files are no longer referenced."""
 
     @pytest.fixture
-    def repo_root(self) -> Path:
+    @staticmethod
+    def repo_root() -> Path:
         """
         Locate the repository root directory.
 
@@ -282,7 +283,8 @@ class TestRequirementsDevChanges:
     """Validate changes to requirements-dev.txt."""
 
     @pytest.fixture
-    def req_dev_path(self) -> Path:
+    @staticmethod
+    def req_dev_path() -> Path:
         """
         Locate the repository's requirements-dev.txt file.
 
@@ -341,7 +343,8 @@ class TestGitignoreChanges:
     """Validate changes to .gitignore."""
 
     @pytest.fixture
-    def gitignore_path(self) -> Path:
+    @staticmethod
+    def gitignore_path() -> Path:
         """
         Get the Path to the repository root .gitignore file.
 

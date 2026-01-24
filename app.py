@@ -2,7 +2,6 @@ import json
 import logging
 from dataclasses import asdict
 from typing import Dict, Optional, Tuple
-
 import gradio as gr
 import plotly.graph_objects as go
 
@@ -28,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 # ------------- Constants -------------
 class AppConstants:
+    """Constant values used throughout the Financial Asset Relationship Database Visualization application."""
     TITLE = "Financial Asset Relationship Database Visualization"
     MARKDOWN_HEADER = """
     # 🏦 Financial Asset Relationship Network
@@ -77,45 +77,35 @@ class AppConstants:
 
     Comprehensive analysis of asset relationships, distributions, and
     regulatory event impacts.
-    """
+"""
 
-    SCHEMA_RULES_GUIDE_MD = """
-    ## Database Schema & Business Rules
+SCHEMA_RULES_GUIDE_MD = """
+## Database Schema & Business Rules
 
-    View the automatically generated schema documentation including
-    relationship types, business rules, and validation constraints.
-    """
+View the automatically generated schema documentation including
+relationship types, business rules, and validation constraints.
+"""
 
-    DETAILED_ASSET_INFO_MD = """
-    ## Asset Explorer
+DETAILED_ASSET_INFO_MD = """
+## Asset Explorer
 
-    Select any asset to view detailed information including financial
-    metrics, relationships, and connected assets.
-    """
+Select any asset to view detailed information including financial
+metrics, relationships, and connected assets.
+"""
 
-    DOC_MARKDOWN = """
-    ## Documentation & Help
+DOC_MARKDOWN = """
+## Documentation & Help
 
-    ### Quick Start
-    1. **3D Visualization**: Explore the interactive network graph
-    2. **Metrics**: View quantitative analysis of relationships
-    3. **Schema**: Understand the data model and business rules
-    4. **Explorer**: Drill down into individual asset details
+### Quick Start
+1. **3D Visualization**: Explore the interactive network graph
+2. **Metrics**: View quantitative analysis of relationships
+3. **Schema**: Understand the data model and business rules
+4. **Explorer**: Drill down into individual asset details
 
-    ### Features
-    - **Cross-Asset Analysis**: Automatic relationship discovery
-    - **Regulatory Integration**: Corporate events impact modeling
-    - **Real-time Metrics**: Network statistics and strength analysis
-    - **Deterministic Layout**: Consistent 3D positioning across sessions
-
-    ### Asset Classes
-    - Equities, Bonds, Commodities, Currencies, Derivatives
-    - Relationship types: sector affinity, corporate links, currency exposure, regulatory events
-
-    For technical details, see the GitHub repository documentation.
-    """
-
-    NETWORK_STATISTICS_TEXT = """Network Statistics:
+### Features
+- **Cross-Asset Analysis**: Automatic relationship discovery
+- **Regulatory Integration**: Corporate events impact modeling
+NETWORK_STATISTICS_TEXT = """Network Statistics:
 
 Total Assets: {total_assets}
 Total Relationships: {total_relationships}
@@ -129,8 +119,13 @@ Asset Class Distribution:
 Top Relationships:
 """
 
-
 class FinancialAssetApp:
+    """
+    Manages the financial asset application, including initialization of the
+    asset relationship graph, data handling, and providing interfaces for
+    analyzing and visualizing asset networks.
+    """
+
     def __init__(self):
         self.graph: Optional[AssetRelationshipGraph] = None
         self._initialize_graph()
@@ -366,23 +361,33 @@ class FinancialAssetApp:
 
     def generate_formulaic_analysis(self, graph_state: AssetRelationshipGraph):
         """
-        Generate visualizations, selector options, and a textual summary from a formulaic analysis of the asset graph.
+        Generate visualizations, selector options, and a textual summary from a
+        formulaic analysis of the asset graph.
 
         Parameters:
-            graph_state (AssetRelationshipGraph | None): The asset graph to analyze. If None, the application's internal graph will be used.
+            graph_state (AssetRelationshipGraph | None): The asset graph to
+                analyze. If None, the application's internal graph will be
+                used.
 
         Returns:
             tuple: (
                 dashboard_fig: Plotly Figure for the formula dashboard,
-                correlation_network_fig: Plotly Figure for the empirical correlation network,
-                metric_comparison_fig: Plotly Figure comparing metrics across formulas,
-                formula_selector_update: gr.update object configuring the formula selector's choices and selected value,
-                summary_text: str containing a textual summary of the analysis,
-                error_visibility_update: gr.update object controlling visibility of any error message
+                correlation_network_fig: Plotly Figure for the empirical
+                    correlation network,
+                metric_comparison_fig: Plotly Figure comparing metrics across
+                    formulas,
+                formula_selector_update: gr.update object configuring the
+                    formula selector's choices and selected value,
+                summary_text: str containing a textual summary of the
+                    analysis,
+                error_visibility_update: gr.update object controlling
+                    visibility of any error message
             )
 
         Notes:
-            On error, the function returns three empty Plotly figures, an empty selector update, an error message string as summary_text, and an error_visibility_update that makes the error visible.
+            On error, the function returns three empty Plotly figures, an empty
+            selector update, an error message string as summary_text, and an
+            error_visibility_update that makes the error visible.
         """
         try:
             logger.info("Generating formulaic analysis")
@@ -459,23 +464,33 @@ class FinancialAssetApp:
     @staticmethod
     def _format_formula_summary(summary: Dict, analysis_results: Dict) -> str:
         """
-        Builds a human-readable markdown-formatted summary of formulaic analysis results for display.
+        Builds a human-readable markdown-formatted summary of formulaic
+        analysis results for display.
 
         Parameters:
             summary (Dict): Summary metrics with expected keys:
-                - "avg_r_squared" (float): average R² across identified formulas.
-                - "empirical_data_points" (int): number of empirical observations used.
-                - "formula_categories" (dict[str, int]): mapping of category name to formula count.
-                - "key_insights" (List[str]): short insight strings to highlight.
-            analysis_results (Dict): Full analysis output with expected keys:
-                - "formulas" (List): list of identified formulas (only the count is used).
-                - "empirical_relationships" (Dict): may contain "strongest_correlations",
-                  a list of dicts each with "pair" (str), "correlation" (float), and "strength" (str).
+                - "avg_r_squared" (float): average R² across identified
+                  formulas.
+                - "empirical_data_points" (int): number of empirical
+                  observations used.
+                - "formula_categories" (dict[str, int]): mapping of
+                  category name to formula count.
+                - "key_insights" (List[str]): short insight strings to
+                  highlight.
+            analysis_results (Dict): Full analysis output with expected
+                keys:
+                - "formulas" (List): list of identified formulas
+                  (only the count is used).
+                - "empirical_relationships" (Dict): may contain
+                  "strongest_correlations", a list of dicts each with
+                  "pair" (str), "correlation" (float), and "strength"
+                  (str).
 
         Returns:
-            str: A markdown-formatted summary string including totals, average reliability,
-            empirical data points, categorical counts, key insights, and up to three strongest
-            empirical correlations.
+            str: A markdown-formatted summary string that includes:
+                totals, average reliability, empirical data points,
+                categorical counts, key insights, and up to three of
+                the strongest empirical correlations.
         """
         formulas = analysis_results.get("formulas", [])
         empirical = analysis_results.get("empirical_relationships", {})
@@ -517,12 +532,17 @@ class FinancialAssetApp:
 
     def create_interface(self):
         """
-        Create the Gradio Blocks-based user interface for the Financial Asset Relationship Database.
+        Create the Gradio Blocks-based user interface for the
+        Financial Asset Relationship Database.
 
-        Builds the full multi-tab UI and wires event handlers to refresh visualizations, metrics, schema reports, asset exploration, documentation, and formulaic analysis while binding the application's graph state.
+        Builds the full multi-tab UI and wires event handlers to
+        refresh visualizations, metrics, schema reports, asset
+        exploration, documentation, and formulaic analysis while
+        binding the application's graph state.
 
         Returns:
-            demo (gr.Blocks): Configured Gradio Blocks application ready to be launched.
+            demo (gr.Blocks): Configured Gradio Blocks application
+                ready to be launched.
         """
         with gr.Blocks(title=AppConstants.TITLE):
             gr.Markdown(AppConstants.MARKDOWN_HEADER)

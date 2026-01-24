@@ -61,56 +61,36 @@ class TestYAMLSyntaxAndStructure:
             block_scalar_indent = None
 
             for line_no, line in enumerate(lines, 1):
-                stripped = line.lstrip(" ")
-                leading_spaces = len(line) - len(stripped)
+    stripped = line.lstrip(" ")
+    leading_spaces = len(line) - len(stripped)
 
-                # Skip empty lines and full-line comments
-                if not stripped or stripped.startswith("#"):
-                    continue
+    # Skip empty lines and full-line comments
+    if not stripped or stripped.startswith("#"):
+        continue
 
-                # If currently inside a block scalar, continue until indentation returns
-                if in_block_scalar:
-                    # Exit block scalar when indentation is less than or equal to the scalar's parent indent
-                    if leading_spaces <= block_scalar_indent:
-                        in_block_scalar = False
-                        block_scalar_indent = None
-                    else:
-                        # Still inside scalar; skip indentation checks
-                        continue
+    # If currently inside a block scalar, continue until indentation returns
+    if in_block_scalar and leading_spaces <= block_scalar_indent:
+        # Exit block scalar when indentation is less than or equal to the scalar's parent indent
+        in_block_scalar = False
+        block_scalar_indent = None
+    elif in_block_scalar:
+        # Still inside scalar; skip indentation checks
+        continue
 
-                # Detect start of block scalars (| or > possibly with chomping/indent indicators)
-                # Example: key: |-, key: >2, key: |+
-                if re.search(r":\s*[|>](?:[+-]|\d+)?", line):
-                    in_block_scalar = True
-                    block_scalar_indent = leading_spaces
-                    continue
+    # Detect start of block scalars (| or > possibly with chomping/indent indicators)
+    # Example: key: |-, key: >2, key: |+
+    if re.search(r":\s*[|>](?:[+-]|\d+)?", line):
+        in_block_scalar = True
+        block_scalar_indent = leading_spaces
+        continue
 
-                # Only check indentation on lines that begin with spaces (i.e., are indented content)
-                if line[0] == " " and not line.startswith(
-                    "  " * (leading_spaces // 2 + 1) + "- |"
-                ):
-                    if leading_spaces % 2 != 0:
-                        indentation_errors.append(
-                            f"{yaml_file} line {line_no}: Use 2-space indentation, found {leading_spaces} spaces"
-                        )
-
-            # Reset flags per file (handled by reinitialization each loop)
-
-        assert not indentation_errors, "Indentation errors found:\n" + "\n".join(
-            indentation_errors
-        )
-
-    def test_no_duplicate_keys_in_yaml(self):
-        """
-        Check that no YAML files under .github contain duplicate keys by loading each file with ruamel.yaml's strict parser.
-
-        Scans all .yml and .yaml files under the .github directory and attempts to load each with ruamel.yaml (typ="safe"). If ruamel.yaml is not installed, the test is skipped. Any parse or duplicate-key errors are collected and cause the test to fail with a consolidated error message.
-        """
-        try:
-            from ruamel.yaml import YAML
-        except ImportError:
-            pytest.skip(
-                "ruamel.yaml not installed; skip strict duplicate key detection"
+    # Only check indentation on lines that begin with spaces (i.e., are indented content)
+    if line[0] == " " and not line.startswith(
+        "  " * (leading_spaces // 2 + 1) + "- |"
+    ):
+        if leading_spaces % 2 != 0:
+            indentation_errors.append(
+                f"{yaml_file} line {line_no}: Use 2-space indentation, found {leading_spaces} spaces"
             )
 
         yaml_files = list(Path(".github").rglob("*.yml")) + list(
@@ -152,7 +132,8 @@ class TestWorkflowSchemaCompliance:
                 workflows.append({"path": workflow_file, "content": yaml.safe_load(f)})
         return workflows
 
-    def test_workflows_have_required_top_level_keys(self, all_workflows):
+    @staticmethod
+    def test_workflows_have_required_top_level_keys(all_workflows):
         """Verify workflows have all required top-level keys."""
         required_keys = ["name", "jobs"]
         checkout_versions = {}

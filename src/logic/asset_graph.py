@@ -37,10 +37,19 @@ class AssetRelationshipGraph:
         """
         Discover and populate asset relationships using built-in business rules.
 
-        This clears existing relationships and adds edges between assets present in the graph according to three rules:
-        - Same-sector: adds a bidirectional "same_sector" relationship with strength 0.7 for assets that share the same sector (excluding "Unknown").
-        - Corporate bond linkage: when a Bond's issuer_id matches another asset's id, adds a unidirectional "corporate_link" from the bond to its issuer with strength 0.9.
-        - Regulatory event impact: for each RegulatoryEvent whose source asset and related assets exist in the graph, adds a unidirectional "event_impact" relationship from the event's asset to each related asset with strength equal to the absolute value of the event's impact_score.
+        This clears existing relationships and adds edges between assets present
+        in the graph according to three rules:
+        - Same-sector: adds a bidirectional "same_sector" relationship with
+          strength 0.7 for assets that share the same sector (excluding
+          "Unknown").
+        - Corporate bond linkage: when a Bond's issuer_id matches another
+          asset's id, adds a unidirectional "corporate_link" from the bond to
+          its issuer with strength 0.9.
+        - Regulatory event impact: for each RegulatoryEvent whose source asset
+          and related assets exist in the graph, adds a unidirectional
+          "event_impact" relationship from the event's asset to each related
+          asset with strength equal to the absolute value of the event's
+          impact_score.
 
         Only relationships between assets present in self.assets are created.
         """
@@ -96,7 +105,8 @@ class AssetRelationshipGraph:
         Parameters:
             source_id (str): ID of the source asset.
             target_id (str): ID of the target asset.
-            rel_type (str): Relationship type label (for example, "same_sector", "corporate_link", "event_impact").
+            rel_type (str): Relationship type label (for example, "same_sector",
+                "corporate_link", "event_impact").
             strength (float): Numeric strength for the relationship; stored as provided.
             bidirectional (bool): If True, also adds the same relationship from target_id back to source_id.
 
@@ -124,17 +134,22 @@ class AssetRelationshipGraph:
 
     def calculate_metrics(self) -> dict[str, Any]:
         """
-        Compute network-level metrics and distributions for the asset relationship graph.
+        Compute network-level metrics and distributions
+        for the asset relationship graph.
 
         Returns:
             metrics (dict): A dictionary containing:
-                total_assets (int): Effective number of assets (max of explicitly added assets and any asset IDs appearing in relationships).
+                total_assets (int): Effective number of assets
+                    (max of explicitly added assets and any asset IDs appearing in relationships).
                 total_relationships (int): Total number of relationship entries across all sources.
-                average_relationship_strength (float): Mean strength of all relationships (0.0 if none).
-                relationship_density (float): Percentage (0-100) of actual relationships relative to possible directed edges among effective assets.
+                average_relationship_strength (float): Mean strength of all relationships
+                    (0.0 if none).
+                relationship_density (float): Percentage (0-100) of actual relationships
+                    relative to possible directed edges among effective assets.
                 relationship_distribution (dict[str, int]): Counts of relationships keyed by relationship type.
                 asset_class_distribution (dict[str, int]): Counts of assets keyed by their asset_class value.
-                top_relationships (List[Tuple[str, str, str, float]]): Up to 10 relationships sorted by strength descending; each tuple is (source_id, target_id, rel_type, strength).
+                top_relationships (List[Tuple[str, str, str, float]]): Up to 10 relationships sorted by strength descending;
+                    each tuple is (source_id, target_id, rel_type, strength).
                 regulatory_event_count (int): Number of stored regulatory events.
         """
         total_assets = len(self.assets)

@@ -23,7 +23,10 @@ def create_engine_from_url(url: Optional[str] = None) -> Engine:
     """
     Create a SQLAlchemy Engine for the given database URL or the module default.
 
-    If `url` is omitted the module `DEFAULT_DATABASE_URL` is used. When the resolved URL refers to an in-memory SQLite database, the returned engine is configured for that use case (uses `check_same_thread=False` and `StaticPool`).
+    If `url` is omitted the module `DEFAULT_DATABASE_URL` is used.
+    When the resolved URL refers to an in-memory SQLite database, the
+    returned engine is configured for that use case (uses
+    `check_same_thread=False` and `StaticPool`).
 
     Parameters:
         url (Optional[str]): Database URL to use; if None the module default is used.
@@ -60,7 +63,6 @@ def session_scope(
     session_factory: Callable[[], Session],
 ) -> Generator[Session, None, None]:
     """Provide a transactional scope around a series of operations."""
-
     session = session_factory()
     try:
         yield session

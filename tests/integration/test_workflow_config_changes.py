@@ -84,7 +84,8 @@ class TestPRAgentWorkflowChanges:
         assert install_step is not None, "Python dependency installation step not found"
         assert "run" in install_step
 
-    def test_no_duplicate_setup_python_steps(self, pr_agent_workflow):
+    @staticmethod
+    def test_no_duplicate_setup_python_steps(pr_agent_workflow):
         """Verify no duplicate 'Setup Python' steps exist."""
         jobs = pr_agent_workflow.get("jobs", {})
         pr_agent_job = jobs.get("pr-agent-action", {})
@@ -323,6 +324,12 @@ class TestLabelWorkflowChanges:
 
 
 class TestAPISecScanWorkflowChanges:
+    """
+    Tests for changes to the API security scan workflow.
+
+    Ensures the GitHub Actions workflow for API security scanning is correctly configured with
+    required jobs, steps, and settings.
+    """
     pass
 
 

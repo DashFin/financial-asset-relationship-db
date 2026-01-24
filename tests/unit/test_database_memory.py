@@ -44,7 +44,6 @@ def test_in_memory_database_persists_schema_and_data(
 
     Sets DATABASE_URL to an in-memory SQLite URI, reloads the database module, initializes the schema, inserts a user row using one context-managed connection, then reads the inserted row using a separate context-managed connection and asserts the row exists and the username matches "alice".
     """
-
     monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
 
     reloaded_database = importlib.reload(database)
@@ -81,7 +80,6 @@ def test_uri_style_memory_database_persists_schema_and_data(
 
     Sets DATABASE_URL to use a URI-style in-memory SQLite database (file::memory:?cache=shared), reloads the database module and initialises the schema, inserts a user row using one connection, then reads it using a second connection. Asserts the inserted row is present and that both context-managed connections are the same object.
     """
-
     monkeypatch.setenv("DATABASE_URL", "sqlite:///file::memory:?cache=shared")
 
     reloaded_database = importlib.reload(database)
@@ -111,8 +109,9 @@ def test_uri_style_memory_database_persists_schema_and_data(
 class TestIsMemoryDb:
     """Comprehensive tests for the _is_memory_db function."""
 
+    @staticmethod
     def test_is_memory_db_with_literal_memory(
-        self, monkeypatch, restore_database_module
+        monkeypatch, restore_database_module
     ):
         """Test that _is_memory_db returns True for literal ':memory:' string."""
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
@@ -285,28 +284,30 @@ class TestConnectWithMemoryDb:
         conn = reloaded_database._connect()
         assert conn.row_factory == sqlite3.Row
 
-    def test_connect_enables_check_same_thread_false(
-        self, monkeypatch, restore_database_module
-    ):
-        """Test that _connect disables check_same_thread for thread safety."""
-        monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
-        reloaded_database = importlib.reload(database)
+    """Module for testing that in-memory database connections disable check_same_thread for thread safety."""
+        def test_connect_enables_check_same_thread_false(
+            self, monkeypatch, restore_database_module
+        ):
+            """Test that _connect disables check_same_thread for thread safety."""
+            monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+            reloaded_database = importlib.reload(database)
 
-        conn = reloaded_database._connect()
+            conn = reloaded_database._connect()
 
-        # Verify we can use the connection from different threads
-        # by attempting to execute a query (would fail if check_same_thread=True)
-        import threading
+            # Verify we can use the connection from different threads
+            # by attempting to execute a query (would fail if check_same_thread=True)
+            import threading
 
-        def query_from_thread():
-            cursor = conn.execute("SELECT 1")
-            cursor.fetchone()
+            def query_from_thread():
+                """Execute a simple SELECT query using the shared connection from a different thread."""
+                cursor = conn.execute("SELECT 1")
+                cursor.fetchone()
 
-        thread = threading.Thread(target=query_from_thread)
-        thread.start()
-        thread.join()
+            thread = threading.Thread(target=query_from_thread)
+            thread.start()
+            thread.join()
 
-        # If we get here without exception, check_same_thread is properly disabled
+            # If we get here without exception, check_same_thread is properly disabled
 
     def test_connect_with_uri_parameter(self, monkeypatch, restore_database_module):
         """Test that _connect correctly sets uri parameter for file: URIs."""
@@ -394,6 +395,7 @@ class TestThreadSafety:
         connections = []
 
         def get_conn():
+            """Acquire a connection using the reloaded_database._connect method and append it to connections list."""
             conn = reloaded_database._connect()
             connections.append(conn)
 
@@ -424,6 +426,7 @@ class TestThreadSafety:
         errors = []
 
         def write_user(user_id):
+            """Insert a user into the database safely within a thread context."""
             try:
                 with reloaded_database.get_connection() as conn:
                     conn.execute(

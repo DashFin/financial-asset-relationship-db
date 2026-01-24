@@ -39,7 +39,11 @@ class Asset:
         """
         Validate asset fields after dataclass initialization.
 
-        Ensures `id`, `symbol`, and `name` are non-empty strings; `price` is a number greater than or equal to zero; `market_cap`, if provided, is a number greater than or equal to zero; and `currency` is a three-letter ISO code (letters only, case-insensitive). Raises `ValueError` when any validation fails with a descriptive message.
+        Ensures `id`, `symbol`, and `name` are non-empty strings;
+        `price` is a number greater than or equal to zero;
+        `market_cap`, if provided, is a number greater than or equal to zero;
+        and `currency` is a three-letter ISO code (letters only, case-insensitive).
+        Raises `ValueError` when any validation fails with a descriptive message.
         """
         if not self.id or not isinstance(self.id, str):
             raise ValueError("Asset id must be a non-empty string")
