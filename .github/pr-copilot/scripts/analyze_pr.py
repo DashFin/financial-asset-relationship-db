@@ -187,7 +187,7 @@ def calculate_score(value: int, thresholds: List[Tuple[int, int]], default: int)
     return default
 
 
-def assess_complexity(file_data: dict[str, Any], commit_count: int) -> Tuple[int, str]:
+def assess_complexity(file_data: dict[str, Any], commit_count: int) -> tuple[int, str]:
     """
     Assess overall PR complexity and map it to a risk level.
 
