@@ -143,9 +143,7 @@ class AssetRelationshipGraph:
                 r[0] == source_id and r[1] == rel_type
                 for r in self.relationships[target_id]
             ):
-                self.relationships[target_id].append(
-                    (source_id, rel_type, strength)
-                )
+                self.relationships[target_id].append((source_id, rel_type, strength))
 
     def calculate_metrics(self) -> dict[str, Any]:
         """
