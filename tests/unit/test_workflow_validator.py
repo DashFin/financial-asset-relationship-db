@@ -451,6 +451,8 @@ class TestIntegrationWithActualWorkflows:
         assert len(failed) == 0, f"Failed workflows: {failed}"
 
 
+"""Unit tests for ValidationResult ensuring attributes exist and behave as expected."""
+
 class TestValidationResultDataStructure:
     """Test ValidationResult data structure integrity"""
 
@@ -464,6 +466,7 @@ class TestValidationResultDataStructure:
 
     @staticmethod
     def test_validation_result_has_attributes():
+        """Test that ValidationResult has is_valid, errors, and workflow_data attributes"""
         data = {"name": "Test", "jobs": {"build": {}}}
         result = ValidationResult(True, [], data)
 

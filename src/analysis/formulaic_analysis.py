@@ -114,7 +114,10 @@ class FormulaicdAnalyzer:
                 name="Price-to-Earnings Ratio",
                 formula="PE = P / EPS",
                 latex=r"PE = \frac{P}{EPS}",
-                description=("Valuation metric comparing stock price to earnings per share"),
+                description=(
+                    "Valuation metric comparing stock price to "
+                    "earnings per share"
+                ),
                 variables={
                     "PE": "Price-to-Earnings Ratio",
                     "P": "Current Stock Price ($)",
@@ -511,37 +514,56 @@ class FormulaicdAnalyzer:
             categories[category] = categories.get(category, 0) + 1
         return categories
 
-    def _generate_formula_summary(self, formulas: List[Formula], empirical_relationships: Dict) -> dict[str, Any]:
+    def _generate_formula_summary(
+        self,
+        formulas: List[Formula],
+        empirical_relationships: Dict,
+    ) -> dict[str, Any]:
         """
-        Create an aggregate summary of analyzed formulas together with metrics derived
-        from empirical relationship data.
+        Create an aggregate summary of analyzed formulas.
+        Metrics are derived from empirical relationship data.
 
         Parameters:
-            formulas (List[Formula]): List of Formula objects produced by the analysis.
-            empirical_relationships (Dict): Empirical data produced from the graph analysis.
-                Expected to include a "correlation_matrix" key whose value is a mapping of
+            formulas (List[Formula]): List of Formula objects produced by the
+                analysis.
+            empirical_relationships (Dict): Empirical data produced from the
+                graph analysis. Expected to include a
+                "correlation_matrix" key whose value is a mapping of
                 asset-pair identifiers to numeric correlation values.
 
         Returns:
             summary (dict[str, Any]): Dictionary with the following keys:
                 - total_formulas (int): Number of formulas in `formulas`.
-                - avg_r_squared (float): Average `r_squared` value across `formulas` (0 if `formulas` is empty).
-                - formula_categories (dict[str, int]): Counts of formulas grouped by category.
-                - empirical_data_points (int): Number of entries in the `correlation_matrix` (0 if absent).
-                - key_insights (List[str]): Short, high-level observations derived from the formulas and empirical data.
+                - avg_r_squared (float): Average `r_squared` value across
+                  `formulas` (0 if `formulas` is empty).
+                - formula_categories (dict[str, int]): Counts of formulas
+                  grouped by category.
+                - empirical_data_points (int): Number of entries in the
+                  `correlation_matrix` (0 if absent).
+                - key_insights (List[str]): Short, high-level observations
+                  derived from the formulas and empirical data.
         """
-        avg_corr_strength = self._calculate_avg_correlation_strength_from_empirical(empirical_relationships)
+        avg_corr_strength = self._calculate_avg_correlation_strength_from_empirical(
+            empirical_relationships
+        )
         return {
             "total_formulas": len(formulas),
-            "avg_r_squared": (sum(f.r_squared for f in formulas) / len(formulas) if formulas else 0),
+            "avg_r_squared": (
+                sum(f.r_squared for f in formulas) / len(formulas)
+                if formulas
+                else 0
+            ),
             "formula_categories": self._categorize_formulas(formulas),
-            "empirical_data_points": len(empirical_relationships.get("correlation_matrix", {})),
+            "empirical_data_points": len(
+                empirical_relationships.get("correlation_matrix", {})
+            ),
             "key_insights": [
                 f"Identified {len(formulas)} mathematical relationships",
                 f"Average correlation strength: {avg_corr_strength:.2f}",
                 "Valuation models applicable to equity assets",
-                ("Portfolio theory formulas available for multi-asset analysis"),
-                ("Cross-asset relationships identified between " "commodities and currencies"),
+                "Portfolio theory formulas available for multi-asset analysis",
+                "Cross-asset relationships identified between "
+                "commodities and currencies",
             ],
         }
 
@@ -559,12 +581,14 @@ class FormulaicdAnalyzer:
         present, returns 0.5.
 
         Parameters:
-            empirical_relationships (Dict): A dictionary that may contain a "correlation_matrix"
-                key mapping identifiers to numeric correlation values.
+            empirical_relationships (Dict): A dictionary that may contain a
+                "correlation_matrix" key mapping identifiers to numeric
+                correlation values.
 
         Returns:
-            float: The average correlation (bounded by typical correlation ranges),
-            or 0.5 when no valid correlations are available.
+            float: The average correlation
+                (bounded by typical correlation ranges),
+                or 0.5 when no valid correlations are available.
         """
         correlations = empirical_relationships.get("correlation_matrix", {})
         if correlations:

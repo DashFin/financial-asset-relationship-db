@@ -162,7 +162,6 @@ class FormulaicVisualizer:
         Returns:
             go.Figure: The same Plotly figure instance with added table, chart,
                 heatmap, and bar traces for the dashboard.
-        """
         if not formulas:
             return fig
 
@@ -187,7 +186,6 @@ class FormulaicVisualizer:
             )
         except Exception:
             return list(formulas)
-            )
         except TypeError:
             # Fallback in case formulas is not directly sortable; use original order
             sorted_formulas = list(formulas)

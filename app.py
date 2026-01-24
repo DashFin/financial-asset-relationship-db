@@ -86,8 +86,6 @@ SCHEMA_RULES_GUIDE_MD = """
 
 View the automatically generated schema documentation including
 relationship types, business rules, and validation constraints.
-"""
-
 DETAILED_ASSET_INFO_MD = """
 ## Asset Explorer
 
@@ -107,6 +105,8 @@ DOC_MARKDOWN = """
 ### Features
 - **Cross-Asset Analysis**: Automatic relationship discovery
 - **Regulatory Integration**: Corporate events impact modeling
+"""
+
 NETWORK_STATISTICS_TEXT = """Network Statistics:
 
 Total Assets: {total_assets}
@@ -128,15 +128,16 @@ class FinancialAssetApp:
            analyzing and visualizing asset networks.
                """
 
-                def __init__(self):
-                    self.graph: Optional[AssetRelationshipGraph] = None
-                    self._initialize_graph()
+    def __init__(self):
+        self.graph: Optional[AssetRelationshipGraph] = None
+        self._initialize_graph()
 
-                def _initialize_graph(self) -> None:
-                    """
+    def _initialize_graph(self) -> None:
+        """
                    Initialize the instance's asset relationship graph by building a real - data - backed graph.
 
                     Attempts to create and assign a real AssetRelationshipGraph to self.graph using external data sources. On failure, logs the error and re - raises the exception so callers can handle startup failures.
+        """
                     Raises:
                         Exception: Any error raised while creating the graph is re - raised after being logged.
                     """

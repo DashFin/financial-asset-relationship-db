@@ -261,7 +261,9 @@ class AssetGraphRepository:
     @staticmethod
     def _to_asset_model(orm: AssetORM) -> Asset:
         """
-        Convert an AssetORM instance to an Asset model, mapping fields based on asset class and returning the corresponding subclass or generic Asset.
+        Convert an AssetORM instance to an Asset model, mapping fields
+        based on asset class and returning the corresponding subclass or
+        generic Asset.
         """
         asset_class = AssetClass(orm.asset_class)
         base_kwargs = {
@@ -311,7 +313,8 @@ class AssetGraphRepository:
     @staticmethod
     def _to_regulatory_event_model(orm: RegulatoryEventORM) -> RegulatoryEvent:
         """
-        Convert a RegulatoryEventORM instance to a RegulatoryEvent model, extracting related asset IDs and mapping fields accordingly.
+        Convert a RegulatoryEventORM instance to a RegulatoryEvent model.
+        Extract related asset IDs and mapping fields accordingly.
         """
         related_assets = [assoc.asset_id for assoc in orm.related_assets]
         return RegulatoryEvent(

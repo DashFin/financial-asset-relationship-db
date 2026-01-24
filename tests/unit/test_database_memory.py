@@ -295,20 +295,20 @@ class TestConnectWithMemoryDb:
 
         conn = reloaded_database._connect()
 
-          # Verify we can use the connection from different threads
-          # by attempting to execute a query (would fail if check_same_thread=True)
-          import threading
+        # Verify we can use the connection from different threads
+        # by attempting to execute a query (would fail if check_same_thread=True)
+        import threading
 
-           def query_from_thread():
-                """Execute a simple SELECT query using the shared connection from a different thread."""
-                cursor = conn.execute("SELECT 1")
-                cursor.fetchone()
+        def query_from_thread():
+            """Execute a simple SELECT query using the shared connection from a different thread."""
+            cursor = conn.execute("SELECT 1")
+            cursor.fetchone()
 
-            thread = threading.Thread(target=query_from_thread)
-            thread.start()
-            thread.join()
+        thread = threading.Thread(target=query_from_thread)
+        thread.start()
+        thread.join()
 
-            # If we get here without exception, check_same_thread is properly disabled
+        # If we get here without exception, check_same_thread is properly disabled
 
     def test_connect_with_uri_parameter(self, monkeypatch, restore_database_module):
         """Test that _connect correctly sets uri parameter for file: URIs."""

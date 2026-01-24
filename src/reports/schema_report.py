@@ -30,7 +30,7 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
     report = """# Financial Asset Relationship Database Schema & Rules
 
 ## Schema Overview
-
+report += """
 ### Entity Types
 1. **Equity** - Stock instruments with P/E ratio, dividend yield, EPS
 2. **Bond** - Fixed income with yield, coupon, maturity, credit rating
@@ -40,18 +40,14 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
 
 ### Relationship Types
 """
+for rel_type, count in sorted(
+    metrics["relationship_distribution"].items(), key=lambda x: x[1], reverse=True
+):
+    report += f"- **{rel_type}**: {count} instances\n"
 
-    for rel_type, count in sorted(
-        metrics["relationship_distribution"].items(), key=lambda x: x[1], reverse=True
-    ):
-        report += f"- **{rel_type}**: {count} instances\n"
-
-    report += f"""
-
+report += f"""
 ## Calculated Metrics
-```"""
-
-
+```markdown
 # Network Statistics
 - **Total Assets**: {metrics["total_assets"]}
 - **Total Relationships**: {metrics["total_relationships"]}
@@ -61,22 +57,18 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
 
 # Asset Class Distribution
 """
+for asset_class, count in sorted(metrics["asset_class_distribution"].items()):
+    report += f"- **{asset_class}**: {count} assets\n"
 
-    for asset_class, count in sorted(metrics["asset_class_distribution"].items()):
-        report += f"- **{asset_class}**: {count} assets\n"
-
-    report += """
-
+report += """
 # Top Relationships
 """
+for idx, (source, target, rel_type, strength) in enumerate(
+    metrics["top_relationships"], 1
+):
+    report += f"{idx}. {source} → {target} ({rel_type}): {strength:.2%}\n"
 
-    for idx, (source, target, rel_type, strength) in enumerate(
-        metrics["top_relationships"], 1
-    ):
-        report += f"{idx}. {source} → {target} ({rel_type}): {strength:.2%}\n"
-
-    report += """
-
+report += """
 # Business Rules & Constraints
 
 # Cross-Asset Rules

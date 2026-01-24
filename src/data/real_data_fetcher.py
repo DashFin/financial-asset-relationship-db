@@ -450,6 +450,8 @@ def _enum_to_value(value: Any) -> Any:
     Convert an Enum instance to its underlying value.
     Return the input unchanged otherwise.
 
+
+    """
     Parameters:
         value(Any): The value to normalise.
             If `value` is an `Enum` member its `.value` is returned.
@@ -461,6 +463,7 @@ def _enum_to_value(value: Any) -> Any:
     from enum import Enum
 
     return value.value if isinstance(value, Enum) else value
+
 
 
 def _serialize_dataclass(obj: Any) -> dict[str, Any]:
@@ -480,6 +483,7 @@ def _serialize_dataclass(obj: Any) -> dict[str, Any]:
     serialized = {key: _enum_to_value(val) for key, val in data.items()}
     serialized["__type__"] = obj.__class__.__name__
     return serialized
+
 
 
 def _serialize_graph(graph: AssetRelationshipGraph) -> dict[str, Any]:
