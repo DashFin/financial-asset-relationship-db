@@ -29,6 +29,19 @@ def codesherlock_config(codesherlock_config_path: Path) -> Dict[str, Any]:
 @pytest.fixture
 # NOTE: `codesherlock_config_path` is defined above as a Path-returning fixture.
 # The YAML-loading responsibility is handled by the `codesherlock_config` fixture.
+def codesherlock_config(codesherlock_config_path: Path) -> Dict[str, Any]:
+    """Load the codesherlock.yaml file and parse it into a dictionary.
+
+    Parameters:
+        codesherlock_config_path(Path): Path to the codesherlock.yaml file at the repository root.
+
+    Returns:
+        config(Dict[str, Any]): Parsed YAML content as a dictionary.
+    """
+    with codesherlock_config_path.open("r") as f:
+        return yaml.safe_load(f)
+# NOTE: `codesherlock_config_path` is defined above as a Path-returning fixture.
+# The YAML-loading responsibility is handled by the `codesherlock_config` fixture.
     """Load the codesherlock.yaml file and parse it into a dictionary.
 
     Parameters:
