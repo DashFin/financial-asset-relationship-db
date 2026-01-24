@@ -475,9 +475,6 @@ class TestIntegrationWithActualWorkflows:
     def test_validate_all_project_workflows():
         """
         Validate every workflow file in the project's .github/workflows directory.
-
-        Skips the test if the workflows directory does not exist or contains no .yml/.yaml files.
-        For each workflow file found, runs validate_workflow and collects any failures; the test asserts that no workflows fail validation and reports failing filenames and their errors when present.
         """
         workflows_dir = Path(__file__).parent.parent.parent / ".github" / "workflows"
 
@@ -513,6 +510,7 @@ class TestValidationResultDataStructure:
 
     @staticmethod
     def test_validation_result_has_attributes():
+        """Test that ValidationResult has is_valid, errors, and workflow_data attributes"""
         data = {"name": "Test", "jobs": {"build": {}}}
         result = ValidationResult(True, [], data)
 
@@ -572,6 +570,8 @@ class TestAdvancedValidationScenarios:
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write(
                 """
+
+
 # This is a comment
 # Another comment
 # More comments
@@ -637,7 +637,7 @@ name: 12345
 on: 67890
 jobs:
   test:
-    runs-on: 11111
+    runs - on: 11111
     steps:
       - run: 22222
 """
@@ -665,7 +665,7 @@ name: Test
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     steps:
       - run: echo test
 """
@@ -689,7 +689,7 @@ name: Test
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     env:
       LONG_VAR: "{long_string}"
     steps:
@@ -712,8 +712,8 @@ jobs:
                 """
 name: Test
 on: push
-defaults: &defaults
-  runs-on: ubuntu-latest
+defaults: & defaults
+  runs - on: ubuntu - latest
 jobs:
   test1:
     <<: *defaults
@@ -745,7 +745,7 @@ name: Test
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     steps:
       - name: Multiline literal
         run: |
@@ -821,11 +821,11 @@ class TestValidationResultBehavior:
 
 
 class TestWorkflowValidatorSecurityScenarios:
-    """Test security-related scenarios and potential exploits"""
+    """Test security - related scenarios and potential exploits"""
 
     @staticmethod
     def test_workflow_with_extremely_deep_nesting():
-        """Test workflow with extremely deep nesting (YAML bomb prevention)"""
+        """Test workflow with extremely deep nesting(YAML bomb prevention)"""
         # Create a deeply nested structure
         nested = "jobs:\n"
         for i in range(100):
@@ -887,7 +887,7 @@ name: Test
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     steps:
       - run: "echo 'safe'"
       - run: '; rm -rf /'
@@ -906,7 +906,7 @@ jobs:
 
 
 class TestWorkflowValidatorPerformance:
-    """Test performance-related aspects of workflow validation"""
+    """Test performance - related aspects of workflow validation"""
 
     @staticmethod
     def test_validate_workflow_returns_quickly_on_error():
@@ -933,16 +933,19 @@ class TestWorkflowValidatorPerformance:
             f.write(
                 f"""
 name: Test{i}
-on: push
+            f.write(
+                f.write(
+                    f.write(
+                        f"""on: push
 jobs:
   test{i}:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     steps:
       - run: echo {i}
 """
-            )
-            f.flush()
-            workflows.append(f.name)
+                    )
+                    f.flush()
+                    workflows.append(f.name)
 
         try:
             results = []
@@ -983,20 +986,20 @@ class TestWorkflowValidatorEdgeCasesExtended:
     def test_workflow_with_boolean_values():
         """Test workflow with boolean values in various positions"""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
-            f.write(
+            f.write("")
                 """
 name: Booleans
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     if: true
-    continue-on-error: false
+    continue -on - error: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions / checkout @ v4
         with:
-          fetch-depth: 0
-          persist-credentials: true
+          fetch - depth: 0
+          persist - credentials: true
 """
             )
             f.flush()
@@ -1017,8 +1020,8 @@ name: Scientific
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 1e2
+    runs - on: ubuntu - latest
+    timeout - minutes: 1e2
     steps:
       - run: echo test
 """
@@ -1045,7 +1048,7 @@ name: Floats
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     env:
       VERSION: 3.14159
       RATIO: 0.5
@@ -1087,10 +1090,10 @@ name: Trailing
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs - on: ubuntu - latest
     steps:
-      - uses: actions/checkout@v4
-        with: {ref: main, fetch-depth: 1,}
+      - uses: actions / checkout @ v4
+        with: {ref: main, fetch - depth: 1,}
 """
             )
             f.flush()
@@ -1112,8 +1115,8 @@ name: !!str Types
 on: !!str push
 jobs:
   test:
-    runs-on: !!str ubuntu-latest
-    timeout-minutes: !!int 30
+    runs - on: !!str ubuntu - latest
+    timeout - minutes: !!int 30
     steps:
       - run: !!str "echo test"
 """

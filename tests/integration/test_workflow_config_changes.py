@@ -340,8 +340,6 @@ class TestAPISecScanWorkflowChanges:
     required jobs, steps, and settings.
     """
 
-    pass
-
 
 class TestRequirementsDevChanges:
     """Tests for requirements-dev.txt changes."""

@@ -156,10 +156,10 @@ class RealDataFetcher:
 
     @staticmethod
     def _fetch_equity_data() -> List[Equity]:
-        Fetch current market data for a predefined set of major equities.
+        """Fetch current market data for a predefined set of major equities.
 
-        Skips symbols with no recent price data and continues on per - symbol errors;
-        logs warnings for missing data and errors for failed fetches.
+        Skips symbols with no recent price data and continues on per-symbol errors.
+        Logs warnings for missing data and errors for failed fetches.
 
         Returns:
             """
@@ -174,6 +174,7 @@ class RealDataFetcher:
                 Equity instances populated with fields id, symbol, name,
                 asset_class, sector, price, market_cap, pe_ratio,
                 dividend_yield, earnings_per_share, and book_value.
+        """
         """
         equity_symbols = {
             "AAPL": ("Apple Inc.", "Technology"),
@@ -226,7 +227,7 @@ class RealDataFetcher:
         corresponding Bond objects.
 
         Creates Bond instances for a small set of bond / treasury ETFs(TLT, LQD,
-        HYG) when recent price data is available. If an ETF has no recent price
+                                                                       HYG) when recent price data is available. If an ETF has no recent price
         data it is skipped. When ticker metadata is missing, defaults are used:
         `yield_to_maturity` defaults to 0.03, `coupon_rate` defaults to 0.025,
         and `maturity_date` is set to the approximate value "2035-01-01". Credit
@@ -248,6 +249,20 @@ class RealDataFetcher:
                 "iShares iBoxx $ High Yield Corporate Bond ETF",
                 "Corporate",
                 None,
+            ),
+        }
+                None,
+            ),
+        }
+            ),
+        }
+                "BBB",
+            ),
+        }
+            ),
+        }
+            ),
+        }
                 "BB",
             ),
         }
@@ -275,7 +290,8 @@ class RealDataFetcher:
 
         Each returned Commodity contains price, contract size, approximate
         delivery date, and a simple volatility estimate computed from recent
-        closing prices; if recent history is insufficient, volatility defaults
+        closing prices
+        if recent history is insufficient, volatility defaults
         to 0.20.
         The function attempts to fetch data for a predefined set of futures
         (gold, crude oil, silver) and skips any symbol with no available
@@ -283,7 +299,7 @@ class RealDataFetcher:
 
         Returns:
             List[Commodity]: A list of populated Commodity objects for
-                successfully fetched symbols.
+            successfully fetched symbols.
         """
         commodity_symbols = {
             "GC=F": ("Gold Futures", "Precious Metals", 100),
@@ -381,7 +397,7 @@ class RealDataFetcher:
 
         The returned events are hardcoded examples intended to accompany the
         fetched asset set(e.g., an earnings report for Apple,
-        a dividend announcement for Microsoft, and an SEC filing for Exxon)
+                          a dividend announcement for Microsoft, and an SEC filing for Exxon)
         and include fields such as id, asset_id, event_type, date,
         description, impact_score, and related_assets.
 
@@ -446,7 +462,8 @@ def create_real_database() -> AssetRelationshipGraph:
 
     Returns:
         AssetRelationshipGraph: The constructed graph populated with assets,
-        regulatory events and relationship mappings; the content may come from the
+        regulatory events and relationship mappings
+        the content may come from the
         cache, a real - data fetch, or the sample fallback.
     """
     fetcher = RealDataFetcher()
@@ -458,6 +475,7 @@ def _enum_to_value(value: Any) -> Any:
     Convert an Enum instance to its underlying value.
     Return the input unchanged otherwise.
 
+    """
     Parameters:
         value(Any): The value to normalise.
             If `value` is an `Enum` member its `.value` is returned.

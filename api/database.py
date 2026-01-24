@@ -121,7 +121,11 @@ def _is_memory_db(path: str | None = None) -> bool:
     return False
 
 
-def _connect() -> sqlite3.Connection:
+_memory_connection = None
+_memory_connection_lock = threading.Lock()
+
+
+def _connect(memory_connection=None) -> sqlite3.Connection:
     """
     Open a configured SQLite connection for the module's database path.
 
@@ -137,20 +141,19 @@ def _connect() -> sqlite3.Connection:
         sqlite3.Connection: A sqlite3 connection to the configured
             DATABASE_PATH (shared for in-memory, new per call for file-backed).
     """
+    if memory_connection is None:
+        memory_connection = [None]
     if _is_memory_db():
-        if not hasattr(_connect, "_memory_connection"):
-            _connect._memory_connection = None
-            _connect._memory_connection_lock = threading.Lock()
-        with _connect._memory_connection_lock:
-            if _connect._memory_connection is None:
-                _connect._memory_connection = sqlite3.connect(
+        with _memory_connection_lock:
+            if memory_connection[0] is None:
+                memory_connection[0] = sqlite3.connect(
                     DATABASE_PATH,
                     detect_types=sqlite3.PARSE_DECLTYPES,
                     check_same_thread=False,
                     uri=DATABASE_PATH.startswith("file:"),
                 )
-                _connect._memory_connection.row_factory = sqlite3.Row
-        return _connect._memory_connection
+                memory_connection[0].row_factory = sqlite3.Row
+        return memory_connection[0]
 
     connection = sqlite3.connect(
         DATABASE_PATH,

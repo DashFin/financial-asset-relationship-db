@@ -110,9 +110,7 @@ class TestIsMemoryDb:
     """Comprehensive tests for the _is_memory_db function."""
 
     @staticmethod
-    def test_is_memory_db_with_literal_memory(
-        monkeypatch, restore_database_module
-    ):
+    def test_is_memory_db_with_literal_memory(monkeypatch, restore_database_module):
         """Test that _is_memory_db returns True for literal ':memory:' string."""
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
         reloaded_database = importlib.reload(database)
@@ -276,7 +274,8 @@ class TestConnectWithMemoryDb:
             if os.path.exists(tmp_path):
                 os.remove(tmp_path)
 
-    def test_connect_sets_row_factory(self, monkeypatch, restore_database_module):
+    @staticmethod
+    def test_connect_sets_row_factory(monkeypatch, restore_database_module):
         """Test that _connect sets sqlite3.Row as the row factory."""
         import sqlite3
 
@@ -286,10 +285,9 @@ class TestConnectWithMemoryDb:
         conn = reloaded_database._connect()
         assert conn.row_factory == sqlite3.Row
 
-    """Module for testing that in-memory database connections disable check_same_thread for thread safety."""
-
+    @staticmethod
     def test_connect_enables_check_same_thread_false(
-        self, monkeypatch, restore_database_module
+        monkeypatch, restore_database_module
     ):
         """Test that _connect disables check_same_thread for thread safety."""
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
@@ -297,22 +295,23 @@ class TestConnectWithMemoryDb:
 
         conn = reloaded_database._connect()
 
-          # Verify we can use the connection from different threads
-          # by attempting to execute a query (would fail if check_same_thread=True)
-          import threading
+        # Verify we can use the connection from different threads
+        # by attempting to execute a query (would fail if check_same_thread=True)
+        import threading
 
-           def query_from_thread():
-                """Execute a simple SELECT query using the shared connection from a different thread."""
-                cursor = conn.execute("SELECT 1")
-                cursor.fetchone()
+        def query_from_thread():
+            """Execute a simple SELECT query using the shared connection from a different thread."""
+            cursor = conn.execute("SELECT 1")
+            cursor.fetchone()
 
-            thread = threading.Thread(target=query_from_thread)
-            thread.start()
-            thread.join()
+        thread = threading.Thread(target=query_from_thread)
+        thread.start()
+        thread.join()
 
-            # If we get here without exception, check_same_thread is properly disabled
+        # If we get here without exception, check_same_thread is properly disabled
 
-    def test_connect_with_uri_parameter(self, monkeypatch, restore_database_module):
+    @staticmethod
+    def test_connect_with_uri_parameter(monkeypatch, restore_database_module):
         """Test that _connect correctly sets uri parameter for file: URIs."""
         monkeypatch.setenv("DATABASE_URL", "sqlite:///file::memory:?cache=shared")
         reloaded_database = importlib.reload(database)

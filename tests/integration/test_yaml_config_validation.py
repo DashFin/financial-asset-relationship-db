@@ -61,54 +61,39 @@ class TestYAMLSyntaxAndStructure:
             block_scalar_indent = None
 
             for line_no, line in enumerate(lines, 1):
-    stripped = line.lstrip(" ")
-    leading_spaces = len(line) - len(stripped)
+                stripped = line.lstrip(" ")
+                leading_spaces = len(line) - len(stripped)
 
-    # Skip empty lines and full-line comments
-    if not stripped or stripped.startswith("#"):
-        continue
+                # Skip empty lines and full-line comments
+                if not stripped or stripped.startswith("#"):
+                    continue
 
-    # If currently inside a block scalar, continue until indentation returns
-    if in_block_scalar and leading_spaces <= block_scalar_indent:
-        # Exit block scalar when indentation is less than or equal to the scalar's parent indent
-        in_block_scalar = False
-        block_scalar_indent = None
-    elif in_block_scalar:
-        # Still inside scalar; skip indentation checks
-        continue
+                # If currently inside a block scalar, continue until indentation returns
+                if in_block_scalar and leading_spaces <= block_scalar_indent:
+                    # Exit block scalar when indentation is less than or equal to the scalar's parent indent
+                    in_block_scalar = False
+                    block_scalar_indent = None
+                elif in_block_scalar:
+                    # Still inside scalar; skip indentation checks
+                    continue
 
-    # Detect start of block scalars (| or > possibly with chomping/indent indicators)
-    # Example: key: |-, key: >2, key: |+
-    if re.search(r":\s*[|>](?:[+-]|\d+)?", line):
-        in_block_scalar = True
-        block_scalar_indent = leading_spaces
-        continue
+                # Detect start of block scalars (| or > possibly with chomping/indent indicators)
+                # Example: key: |-, key: >2, key: |+
+                if re.search(r":\s*[|>](?:[+-]|\d+)?", line):
+                    in_block_scalar = True
+                    block_scalar_indent = leading_spaces
+                    continue
 
-    # Only check indentation on lines that begin with spaces (i.e., are indented content)
-    if line[0] == " " and not line.startswith(
-        "  " * (leading_spaces // 2 + 1) + "- |"
-    ):
-        if leading_spaces % 2 != 0:
-            indentation_errors.append(
-                f"{yaml_file} line {line_no}: Use 2-space indentation, found {leading_spaces} spaces"
-            )
-
-        yaml_files = list(Path(".github").rglob("*.yml")) + list(
-            Path(".github").rglob("*.yaml")
-        )
-        parser = YAML(typ="safe")
-        parse_errors = []
-
-        for yaml_file in yaml_files:
-            try:
-                with open(yaml_file, "r") as f:
-                    parser.load(f)
-            except Exception as e:
-                parse_errors.append(f"{yaml_file}: {e}")
-
-        assert not parse_errors, (
-            "Duplicate keys or YAML errors detected:\n" + "\n".join(parse_errors)
-        )
+                # Only check indentation on lines that begin with spaces (i.e., are indented content)
+                if (
+                    line
+                    and line[0] == " "
+                    and not line.startswith("  " * (leading_spaces // 2 + 1) + "- |")
+                ):
+                    if leading_spaces % 2 != 0:
+                        indentation_errors.append(
+                            f"{yaml_file} line {line_no}: Use 2-space indentation, found {leading_spaces} spaces"
+                        )
 
 
 class TestWorkflowSchemaCompliance:

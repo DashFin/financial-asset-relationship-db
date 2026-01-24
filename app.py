@@ -89,24 +89,26 @@ relationship types, business rules, and validation constraints.
 """
 
 DETAILED_ASSET_INFO_MD = """
-## Asset Explorer
+# Asset Explorer
 
 Select any asset to view detailed information including financial
 metrics, relationships, and connected assets.
 """
 
 DOC_MARKDOWN = """
-## Documentation & Help
+# Documentation & Help
 
-### Quick Start
-1. **3D Visualization**: Explore the interactive network graph
-2. **Metrics**: View quantitative analysis of relationships
-3. **Schema**: Understand the data model and business rules
-4. **Explorer**: Drill down into individual asset details
+# Quick Start
+1. ** 3D Visualization**: Explore the interactive network graph
+2. ** Metrics**: View quantitative analysis of relationships
+3. ** Schema**: Understand the data model and business rules
+4. ** Explorer**: Drill down into individual asset details
 
-### Features
-- **Cross-Asset Analysis**: Automatic relationship discovery
+# Features
+- **Cross - Asset Analysis**: Automatic relationship discovery
 - **Regulatory Integration**: Corporate events impact modeling
+"""
+
 NETWORK_STATISTICS_TEXT = """Network Statistics:
 
 Total Assets: {total_assets}
@@ -121,6 +123,7 @@ Asset Class Distribution:
 Top Relationships:
 """
 
+
 class FinancialAssetApp:
     """
    Manages the financial asset application, including initialization of the
@@ -128,18 +131,19 @@ class FinancialAssetApp:
            analyzing and visualizing asset networks.
                """
 
-                def __init__(self):
-                    self.graph: Optional[AssetRelationshipGraph] = None
-                    self._initialize_graph()
+    def __init__(self):
+        self.graph: Optional[AssetRelationshipGraph] = None
+        self._initialize_graph()
 
-                def _initialize_graph(self) -> None:
-                    """
-                   Initialize the instance's asset relationship graph by building a real - data - backed graph.
+    def _initialize_graph(self) -> None:
+        """
+        Initialize the instance's asset relationship graph by building a real-data-backed graph.
 
-                    Attempts to create and assign a real AssetRelationshipGraph to self.graph using external data sources. On failure, logs the error and re - raises the exception so callers can handle startup failures.
-                    Raises:
-                        Exception: Any error raised while creating the graph is re - raised after being logged.
-                    """
+        Attempts to create and assign a real AssetRelationshipGraph to self.graph using external data sources. On failure, logs the error and re-raises the exception so callers can handle startup failures.
+
+        Raises:
+            Exception: Any error raised while creating the graph is re-raised after being logged.
+        """
         try:
             logger.info("Initializing with real financial data from Yahoo Finance")
             self.graph = create_real_database()
@@ -165,10 +169,10 @@ class FinancialAssetApp:
     @staticmethod
     def _update_metrics_text(graph: AssetRelationshipGraph) -> str:
         """
-                    Create a multi - line textual report summarizing network metrics for the given asset graph.
+        Create a multi - line textual report summarizing network metrics for the given asset graph.
 
-                    Parameters:
-                        graph(AssetRelationshipGraph): Graph used to compute network metrics.
+        Parameters:
+            graph(AssetRelationshipGraph): Graph used to compute network metrics.
 
                     Returns:
                         str: A formatted report containing total assets, total relationships, average relationship strength, relationship density, regulatory event count, a JSON - formatted asset class distribution, and a numbered list of top relationships with strengths shown as percentages.
@@ -363,7 +367,10 @@ class FinancialAssetApp:
             return empty_fig, gr.update(value=error_msg, visible=True)
 
     def generate_formulaic_analysis(self, graph_state: AssetRelationshipGraph):
+
+
 def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGraph] = None):
+        """
         Generate visualizations, selector options, and a textual summary from a
         formulaic analysis of the asset graph.
 
@@ -386,56 +393,55 @@ def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGra
                 error_visibility_update: gr.update object controlling
                     visibility of any error message
             )
-
-        Notes:
-            On error, the function returns three empty Plotly figures, an empty
-            selector update, an error message string as summary_text, and an
-            error_visibility_update that makes the error visible.
         """
-                    try:
-                        logger.info("Generating formulaic analysis")
-                        graph = self.ensure_graph() if graph_state is None else graph_state
+        # Notes:
+        #     On error, the function returns three empty Plotly figures, an empty
+        #     selector update, an error message string as summary_text, and an
+        #     error_visibility_update that makes the error visible.
+        try:
+            logger.info("Generating formulaic analysis")
+            graph = self.ensure_graph() if graph_state is None else graph_state
 
-                        # Initialize analyzers
-                        formulaic_analyzer = FormulaicdAnalyzer()
-                        formulaic_visualizer = FormulaicVisualizer()
+            # Initialize analyzers
+            formulaic_analyzer = FormulaicdAnalyzer()
+            formulaic_visualizer = FormulaicVisualizer()
 
-                        # Perform analysis
-                        analysis_results = formulaic_analyzer.analyze_graph(graph)
+            # Perform analysis
+            analysis_results = formulaic_analyzer.analyze_graph(graph)
 
-                        # Generate visualizations
-                        dashboard_fig = formulaic_visualizer.create_formula_dashboard(
-                            analysis_results
-                        )
-                        correlation_network_fig = formulaic_visualizer.create_correlation_network(
-                            analysis_results.get("empirical_relationships", {})
-                        )
-                        metric_comparison_fig = formulaic_visualizer.create_metric_comparison_chart(
-                            analysis_results
-                        )
+            # Generate visualizations
+            dashboard_fig = formulaic_visualizer.create_formula_dashboard(
+                analysis_results
+            )
+            correlation_network_fig = formulaic_visualizer.create_correlation_network(
+                analysis_results.get("empirical_relationships", {})
+            )
+            metric_comparison_fig = formulaic_visualizer.create_metric_comparison_chart(
+                analysis_results
+            )
 
-                        # Generate formula selector options
-                        formulas = analysis_results.get("formulas", [])
-                        formula_choices = [f.name for f in formulas]
+            # Generate formula selector options
+            formulas = analysis_results.get("formulas", [])
+            formula_choices = [f.name for f in formulas]
 
-                        # Generate summary
-                        summary = analysis_results.get("summary", {})
-                        summary_text = self._format_formula_summary(summary, analysis_results)
+            # Generate summary
+            summary = analysis_results.get("summary", {})
+            summary_text = self._format_formula_summary(summary, analysis_results)
 
-                        logger.info("Generated formulaic analysis with %d formulas", len(formulas))
-                        return (
-                            dashboard_fig,
-                            correlation_network_fig,
-                            metric_comparison_fig,
-                            gr.update(
-                                choices=formula_choices,
-                                value=formula_choices[0] if formula_choices else None,
-                            ),
-                            summary_text,
-                            gr.update(visible=False),  # Hide error message
-                        )
+            logger.info("Generated formulaic analysis with %d formulas", len(formulas))
+            return (
+                dashboard_fig,
+                correlation_network_fig,
+                metric_comparison_fig,
+                gr.update(
+                    choices=formula_choices,
+                    value=formula_choices[0] if formula_choices else None,
+                ),
+                summary_text,
+                gr.update(visible=False),  # Hide error message
+            )
 
-                    except Exception as e:
+        except Exception as e:
                         logger.error("Error generating formulaic analysis: %s", e)
                         empty_fig = go.Figure()
                         error_msg = f"Error generating formulaic analysis: {str(e)}"
@@ -447,7 +453,6 @@ def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGra
                             error_msg,
                             gr.update(value=error_msg, visible=True),
                         )
-
                 @staticmethod
                 def show_formula_details(formula_name: str, graph_state: AssetRelationshipGraph):
                     """Show detailed view of a specific formula."""
@@ -472,7 +477,7 @@ def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGra
 
                     Parameters:
                         summary(Dict): Summary metrics with expected keys:
-                            - "avg_r_squared" (float): average R² across identified
+                            - "avg_r_squared" (float): average R ^ 2 across identified
                               formulas.
                             - "empirical_data_points" (int): number of empirical
                               observations used.
@@ -527,11 +532,10 @@ def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGra
                         summary_lines.extend(["", "🔗 **Strongest Asset Correlations:**"])
                         for corr in correlations[:3]:
                             summary_lines.append(
-                                f"  • {corr['pair']}: {corr['correlation']:.3f} "
-                                f"({corr['strength']})"
+                                f"  • {corr['pair']}: {corr['correlation']:.3f} ({corr['strength']})"
                             )
 
-                    return "\n".join(summary_lines)
+                        return "\n".join(summary_lines)
 
                 def create_interface(self):
                     """
@@ -566,7 +570,7 @@ def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGra
                                     gr.Markdown("### 🎛️ Visualization Controls")
                                 with gr.Row():
                                     with gr.Column(scale=1):
-                                        view_mode = gr.Radio(
+                                        view_mode = gr.Radio()
                                             label="Visualization Mode",
                                             choices=["3D", "2D"],
                                             value="3D",

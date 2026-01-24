@@ -314,13 +314,9 @@ class AssetGraphRepository:
     @staticmethod
     def _to_asset_model(orm: AssetORM) -> Asset:
         """
-        Create an Asset-domain model from an AssetORM, returning the specific
-        subclass for the ORM's asset_class when available.
-
-        Returns:
-            An instance of Equity, Bond, Commodity, or Currency that corresponds to
-            orm.asset_class with fields populated from the ORM;
-            a generic Asset instance if the asset_class is unrecognized.
+        Convert an AssetORM instance to an Asset model, mapping fields
+        based on asset class and returning the corresponding subclass or
+        generic Asset.
         """
         asset_class = AssetClass(orm.asset_class)
         base_kwargs = {
@@ -370,19 +366,8 @@ class AssetGraphRepository:
     @staticmethod
     def _to_regulatory_event_model(orm: RegulatoryEventORM) -> RegulatoryEvent:
         """
-        Constructs a regulatory event model including the IDs of related assets.
-
-        Maps persisted fields to the model and
-        converts the stored event_type to the corresponding enumeration.
-
-        Parameters:
-            orm (RegulatoryEventORM): Persisted regulatory event ORM
-                containing related asset associations.
-
-        Returns:
-            RegulatoryEvent: Model populated with id, asset_id, event_type
-                (as enum), date, description, impact_score, and
-                related_assets (list of asset IDs).
+        Convert a RegulatoryEventORM instance to a RegulatoryEvent model.
+        Extract related asset IDs and mapping fields accordingly.
         """
         related_assets = [assoc.asset_id for assoc in orm.related_assets]
         return RegulatoryEvent(

@@ -14,11 +14,10 @@ from src.visualizations.graph_visuals import (
 
 class DummyGraph(AssetRelationshipGraph):
     def __init__(self, relationships):
-
         # relationships: dict[str, List[Tuple[str, str, float]]]
-"""
-Unit tests for graph visualization utilities including asset ID indexing, relationship indexing, trace creation, and directional arrow generation.
-"""
+        """
+        Unit tests for graph visualization utilities including asset ID indexing, relationship indexing, trace creation, and directional arrow generation.
+        """
         super().__init__()
         self.relationships = relationships
 
@@ -134,6 +133,7 @@ def test_create_directional_arrows_basic():
         assert isinstance(arrow_trace, go.Scatter3d)
         assert arrow_trace.mode == "markers"
         assert arrow_trace.showlegend is False
+
 
 # Comprehensive error handling tests for _create_directional_arrows
 # These tests address the review comment about error handling

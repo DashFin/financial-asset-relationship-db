@@ -183,8 +183,8 @@ class FormulaicVisualizer:
                 - formula: textual or mathematical expression (optional)
 
         Returns:
-            go.Figure: The same Plotly figure instance with the top-formulas table and any added example traces.
-        """
+            go.Figure: The same Plotly figure instance with added table, chart,
+                heatmap, and bar traces for the dashboard.
         if not formulas:
             return fig
 
@@ -218,7 +218,6 @@ class FormulaicVisualizer:
             )
         except Exception:
             return list(formulas)
-            )
         except TypeError:
             # Fallback in case formulas is not directly sortable; use original order
             sorted_formulas = list(formulas)
@@ -431,6 +430,7 @@ class FormulaicVisualizer:
             ),
         )
 
+
         # Update axes
         fig.update_yaxes(title_text="Count", row=2, col=2)
         fig.update_yaxes(title_text="Asset Count", row=3, col=1)
@@ -443,19 +443,19 @@ class FormulaicVisualizer:
     @staticmethod
     def create_formula_detail_view(formula: Formula) -> go.Figure:
         """
-        Render a text-based Plotly figure that presents detailed information about a
+        Render a text - based Plotly figure that presents detailed information about a
         Formula.
 
         Parameters:
-            formula (Formula): The Formula object to display. Expected to provide
+            formula(Formula): The Formula object to display. Expected to provide
                 attributes used in the view: name, formula, latex, description,
-                category, r_squared, variables (dict of variable->description), and
+                category, r_squared, variables(dict of variable -> description), and
                 optional example_calculation.
 
         Returns:
             go.Figure: A Plotly Figure containing a single annotation with the
-                formatted formula details (name, expression, LaTeX, description,
-                category, R², variables, and example calculation when present).
+                formatted formula details(name, expression, LaTeX, description,
+                category, R ^ 2, variables, and example calculation when present).
         """
         fig = go.Figure()
 
@@ -471,7 +471,7 @@ class FormulaicVisualizer:
                 f"<b>Description:</b><br>"
                 f"{formula.description}<br><br>"
                 f"<b>Category:</b> {formula.category}<br>"
-                f"<b>Reliability (R²):</b> "
+                f"<b>Reliability (R^2):</b> "
                 f"{formula.r_squared:.3f}<br><br>"
                 + "<b>Variables:</b><br>"
                 + "<br>".join(
@@ -481,6 +481,10 @@ class FormulaicVisualizer:
                     f"<br><br><b>Example Calculation:</b><br>"
                     f"{formula.example_calculation}"
                 )
+            )
+        )
+
+        return fig
             ),
         )
 
@@ -492,10 +496,10 @@ class FormulaicVisualizer:
         Render a network visualization of the strongest asset correlations.
 
         Parameters:
-            empirical_relationships (dict): Mapping that should include:
+            empirical_relationships(dict): Mapping that should include:
                 - "strongest_correlations": a list of correlation records
-                  (each expected to contain "asset1", "asset2", and
-                  "correlation").
+                  (each expected to contain "asset1", "asset2",
+                  and "correlation").
                 - "correlation_matrix": a matrix or mapping of pairwise correlations
                   used to inform the visualization.
 
@@ -582,13 +586,21 @@ class FormulaicVisualizer:
     @staticmethod
     def create_metric_comparison_chart(analysis_results: dict[str, Any]) -> go.Figure:
         """
-        Create a bar chart of average R-squared grouped by formula category.
+        Produce a bar chart of average R - squared grouped by formula category.
 
         Parameters:
-        	analysis_results (dict[str, Any]): Payload containing a "formulas" key mapping to an iterable of items where each item exposes `category` (str) and `r_squared` (numeric).
+            analysis_results(dict[str, Any]):
+                Analysis payload expected to contain a "formulas" key that maps
+                to an iterable of formula - like objects.
+                Each formula object must expose `category` (str) and
+                `r_squared` (numeric) attributes or keys.
 
         Returns:
-        	fig (go.Figure): Plotly Figure with categories on the x-axis and average R-squared per category; returns an empty Figure if no formulas are present.
+            go.Figure:
+                A Plotly Figure containing a bar chart with categories on the
+                x - axis and average R - squared per category on the y - axis.
+                If `analysis_results` contains no formulas, an empty Figure
+                is returned.
         """
         fig = go.Figure()
 
@@ -613,10 +625,28 @@ class FormulaicVisualizer:
 
         for category in category_names:
             category_formulas = categories[category]
-            avg_r_squared = sum(f.r_squared for f in category_formulas) / len(
-                category_formulas
-            )
+            avg_r_squared = sum(category_formulas) / len(category_formulas)
             r_squared_by_category.append(avg_r_squared)
+            formula_counts.append(len(category_formulas))
+
+        fig.add_trace(
+            go.Bar(
+                x=category_names,
+                y=r_squared_by_category,
+                text=formula_counts,
+                name="Avg R-squared"
+            )
+        )
+
+        fig.update_layout(
+            title="Average R-squared by Formula Category",
+            xaxis_title="Category",
+            yaxis_title="R-squared",
+            template="plotly_white",
+            margin=dict(b=20, l=5, r=5, t=40)
+        )
+
+        return fig
             formula_counts.append(len(category_formulas))
 
         # R-squared bars
