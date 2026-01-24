@@ -699,7 +699,7 @@ jobs:
                 """
 name: Test
 on: push
-defaults: & defaults
+defaults: &defaults
   runs - on: ubuntu - latest
 jobs:
   test1:
