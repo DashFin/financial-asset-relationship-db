@@ -241,12 +241,20 @@ export default function AssetList() {
   );
 
   // Extracted component to handle loading and error display
-  const AssetListStatus = ({ loading, error }: { loading: boolean; error: string | null }) => {
+  const AssetListStatus = ({
+    loading,
+    error,
+  }: {
+    loading: boolean;
+    error: string | null;
+  }) => {
     if (!loading && !error) {
       return null;
     }
     return (
-      <div className={`px-6 py-3 text-sm ${loading ? "text-gray-500" : "text-red-500"}`}>
+      <div
+        className={`px-6 py-3 text-sm ${loading ? "text-gray-500" : "text-red-500"}`}
+      >
         {loading ? "Loading..." : `Error: ${error}`}
       </div>
     );
@@ -277,15 +285,6 @@ export default function AssetList() {
       {/* Asset List */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <AssetListStatus loading={loading} error={error} />
-              error
-                ? "bg-red-50 text-red-700 border-b border-red-100"
-                : "bg-blue-50 text-blue-700 border-b border-blue-100"
-            }`}
-            role={error ? "alert" : "status"}
-          >
-            {error || `Loading results for ${querySummary}...`}
-          </div>
-        )}
 
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
