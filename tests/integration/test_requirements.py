@@ -23,20 +23,16 @@ REQUIREMENTS_FILE = Path(__file__).parent.parent.parent / "requirements.txt"
 
 
 def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
-    """Parse requirements file and return list of (package, version_spec) tuples.
+    """
+    Parse a requirements.txt file into pairs of package name and version specifier.
 
-    Examples:
-        Input line: "requests>=2.25.0"
-        Output: ("requests", ">=2.25.0")
+    The parser reads the file as UTF-8, ignores empty lines and full-line comments, strips inline comments, and removes extras and environment markers from package tokens.
 
-        Input line: "pytest>=6.0,<7.0 # testing framework"
-        Output: ("pytest", ">=6.0,<7.0")
+    Parameters:
+        file_path (Path): Path to the requirements file to parse.
 
-        Input line: "pandas"
-        Output: ("pandas", "")
-
-        Input line: "package[extra1,extra2]>=1.0"
-        Output: ("package", ">=1.0")
+    Returns:
+        List[Tuple[str, str]]: A list of tuples (package, version_spec) where `package` is the package name without extras or environment markers and `version_spec` is the normalized specifier string (e.g., ">=1.0,<2.0") or an empty string if no specifier is present.
 
     Raises:
         ValueError: If a requirement line is malformed.
@@ -189,6 +185,9 @@ class TestRequiredPackages:
 
     @staticmethod
     def test_has_httpx(package_names: List[str]):
+
+    @staticmethod
+    def test_has_httpx(package_names: List[str]):
         """Test that httpx is included for HTTP client."""
         assert "httpx" in package_names
 
@@ -335,7 +334,15 @@ class TestFileOrganization:
 
     @staticmethod
     def test_reasonable_file_size(file_lines: List[str]):
-        """Test that file size is reasonable (not too large)."""
+        """
+        Assert the requirements file contains a reasonable number of lines.
+
+        Parameters:
+            file_lines (List[str]): Lines of the requirements.txt file.
+
+        Raises:
+            AssertionError: If the file has 200 or more lines.
+        """
         # Production requirements should typically be under 100 lines
         assert len(file_lines) < 200, (
             f"Requirements file is too large: {len(file_lines)} lines"
@@ -367,7 +374,12 @@ class TestSecurityAndCompliance:
 
     @staticmethod
     def test_zipp_security_fix_present(requirements: List[Tuple[str, str]]):
-        """Test that zipp security fix is present."""
+        """
+        Verify the production requirements include exactly one `zipp` entry pinned to `>=3.19.1`.
+
+        Parameters:
+            requirements (List[Tuple[str, str]]): Parsed requirements as (package_name, version_spec) tuples where package_name is the normalized package token and version_spec is the normalized version specifier string (empty string if none).
+        """
         zipp_entries = [
             (pkg, ver) for pkg, ver in requirements if pkg.lower() == "zipp"
         ]
@@ -400,7 +412,14 @@ class TestSecurityAndCompliance:
 
     @staticmethod
     def test_no_known_vulnerable_versions(requirements: List[Tuple[str, str]]):
-        """Test that packages don't use known vulnerable version patterns."""
+        """
+        Check for obviously outdated exact version pins in parsed requirements.
+
+        Inspects each requirement's version specifier and fails the test if an exact pin (`==major.minor...`) appears to be an obviously very old release based on its major/minor numeric components.
+
+        Parameters:
+            requirements (List[Tuple[str, str]]): Parsed requirements as (package_name, version_spec) tuples where `version_spec` is the raw specifier string (for example, '==1.2.3', '>=2.0').
+        """
         # This is a basic check - in production, integrate with safety or snyk
         for _, ver in requirements:
             # Example: check that we're not using very old versions
@@ -463,7 +482,13 @@ class TestComprehensiveValidation:
 
     @staticmethod
     def test_all_packages_have_versions_or_pins(requirements: List[Tuple[str, str]]):
-        """Test that critical packages have version specifications."""
+        """
+        Verify that most packages include version specifications; at most 20% may omit a version.
+
+        Parameters:
+            requirements (List[Tuple[str, str]]): Parsed requirements as (package_name, version_spec) tuples,
+                where `version_spec` is an empty string when no version is specified.
+        """
         packages_without_versions = [pkg for pkg, ver in requirements if not ver]
         # Allow some packages without versions, but production deps should mostly be pinned
         assert len(packages_without_versions) <= len(requirements) * 0.2, (
@@ -472,7 +497,16 @@ class TestComprehensiveValidation:
 
     @staticmethod
     def test_version_consistency(requirements: List[Tuple[str, str]]):
-        """Test that version specifications are consistent in style."""
+        """
+        Ensure the majority of versioned requirements use a single versioning style.
+
+        Parameters:
+            requirements (List[Tuple[str, str]]): Parsed requirements as (package, version_spec) tuples.
+
+        Description:
+            Considers the operators '>=', '==', and '~=' and asserts that at least 60% of packages
+            that include a version specifier share the same operator style.
+        """
         version_styles = {}
         for pkg, ver in requirements:
             if ver:

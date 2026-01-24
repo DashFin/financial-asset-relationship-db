@@ -392,19 +392,21 @@ class TestShellScripts:
         fi_count = content.count("fi")
         assert if_count == fi_count, f"{script_file} has unbalanced if/fi statements"
 
-    def test_cleanup_branches_references_documentation(self):
+    @staticmethod
+    def test_cleanup_branches_references_documentation():
         """Test that cleanup-branches.sh references relevant documentation."""
         with open("cleanup-branches.sh") as f:
             content = f.read()
 
         # Should reference the analysis document
-        assert (
-            "BRANCH_CLEANUP_ANALYSIS.md" in content
-            or "documentation" in content.lower()
-        )
+        assert "BRANCH_CLEANUP_ANALYSIS.md" in content or "documentation" in content.lower()
 
     def test_shell_scripts_consistent_style(self):
-        """Test that shell scripts use consistent coding style."""
+        """
+        Verify shell scripts use consistent variable naming style.
+
+        If the scripts contain `BACKEND_PID` or `FRONTEND_PID`, assert that the script either uses explicit variable references (uses `$` before variable names) or the file content is entirely uppercase.
+        """
         for script in ["cleanup-branches.sh", "run-dev.sh"]:
             with open(script) as f:
                 content = f.read()
@@ -501,9 +503,7 @@ class TestShellScripts:
         if "git branch" in content and "-" in content:
             # Check the context of deletion
             lines = content.split("\n")
-            delete_lines = [
-                line for line in lines if "git branch -" in line and "xargs" in line
-            ]
+            delete_lines = [line for line in lines if "git branch -" in line and "xargs" in line]
             if delete_lines:
                 # Should use -d not -D in the xargs command
                 assert any("-d" in line for line in delete_lines)

@@ -14,12 +14,25 @@ from src.visualizations.graph_visuals import (
 
 class DummyGraph(AssetRelationshipGraph):
     def __init__(self, relationships):
-        # relationships: Dict[str, List[Tuple[str, str, float]]]
+
+        # relationships: dict[str, List[Tuple[str, str, float]]]
+"""
+Unit tests for graph visualization utilities including asset ID indexing, relationship indexing, trace creation, and directional arrow generation.
+"""
         super().__init__()
         self.relationships = relationships
 
     def get_3d_visualization_data_enhanced(self):
         # Return positions (n,3), asset_ids, colors, hover_texts
+        """
+        Builds deterministic 3D visualization data for the graph's assets.
+
+        Returns:
+            positions (numpy.ndarray): Float array of shape (n, 3) containing a 3D position for each asset.
+            asset_ids (list[str]): Sorted list of unique asset identifiers found as relationship sources or targets.
+            colors (list[str]): List of hex color strings, one per asset.
+            hover_texts (list[str]): Hover label for each asset, aligned with `asset_ids`.
+        """
         asset_ids = sorted(
             set(self.relationships.keys())
             | {t for v in self.relationships.values() for t, _, _ in v}
@@ -32,17 +45,20 @@ class DummyGraph(AssetRelationshipGraph):
 
 
 def test_rel_type_colors_default():
+    """Test default color mapping for unknown relationship types."""
     # Ensure defaultdict provides fallback color, and direct indexing works without KeyError
     assert REL_TYPE_COLORS["unknown_type"] == "#888888"
 
 
 def test_build_asset_id_index():
+    """Test that asset IDs are correctly indexed."""
     ids = ["A", "B", "C"]
     idx = _build_asset_id_index(ids)
     assert idx == {"A": 0, "B": 1, "C": 2}
 
 
 def test_build_relationship_index_filters_to_asset_ids():
+    """Test that relationship index filters to provided asset IDs."""
     graph = DummyGraph(
         {
             "A": [("B", "correlation", 0.9), ("X", "correlation", 0.5)],
@@ -57,6 +73,7 @@ def test_build_relationship_index_filters_to_asset_ids():
 
 
 def test_create_relationship_traces_basic():
+    """Test creation of relationship traces for bidirectional and unidirectional relationships."""
     graph = DummyGraph(
         {
             "A": [("B", "correlation", 0.9)],
@@ -80,6 +97,7 @@ def test_create_relationship_traces_basic():
 
 
 def test_create_directional_arrows_validation_errors():
+    """Test that _create_directional_arrows raises appropriate errors for invalid inputs."""
     graph = DummyGraph({})
     with pytest.raises(TypeError):
         _create_directional_arrows(object(), np.zeros((0, 3)), [])  # type: ignore[arg-type]
@@ -92,6 +110,7 @@ def test_create_directional_arrows_validation_errors():
 
 
 def test_create_directional_arrows_basic():
+    """Test basic generation of directional arrow traces for unidirectional relationships."""
     graph = DummyGraph(
         {
             "A": [("B", "correlation", 0.9)],  # unidirectional
@@ -114,18 +133,19 @@ def test_create_directional_arrows_basic():
         assert arrow_trace.mode == "markers"
         assert arrow_trace.showlegend is False
 
-
 # Comprehensive error handling tests for _create_directional_arrows
 # These tests address the review comment about error handling
 
 
 def test_create_directional_arrows_none_positions():
+    """Test that passing None positions raises a ValueError."""
     graph = DummyGraph({})
     with pytest.raises(ValueError, match="positions and asset_ids must not be None"):
         _create_directional_arrows(graph, None, ["A", "B"])  # type: ignore[arg-type]
 
 
 def test_create_directional_arrows_none_asset_ids():
+    """Test that passing None asset_ids raises a ValueError."""
     graph = DummyGraph({})
     positions = np.array([[0, 0, 0], [1, 1, 1]])
     with pytest.raises(ValueError, match="positions and asset_ids must not be None"):
@@ -133,6 +153,7 @@ def test_create_directional_arrows_none_asset_ids():
 
 
 def test_create_directional_arrows_length_mismatch():
+    """Test that mismatched lengths of positions and asset_ids raises a ValueError."""
     graph = DummyGraph({})
     positions = np.array([[0, 0, 0], [1, 1, 1]])
     asset_ids = ["A"]  # Length 1, but positions has 2 rows
@@ -143,6 +164,7 @@ def test_create_directional_arrows_length_mismatch():
 
 
 def test_create_directional_arrows_invalid_shape():
+    """Test that invalid shape of positions array raises a ValueError."""
     graph = DummyGraph({})
     positions = np.array([[0, 0], [1, 1]])  # 2D instead of 3D
     asset_ids = ["A", "B"]
@@ -153,6 +175,7 @@ def test_create_directional_arrows_invalid_shape():
 
 
 def test_create_directional_arrows_non_numeric_positions():
+    """Test that non-numeric position values raise a ValueError."""
     graph = DummyGraph({})
     positions = np.array([["a", "b", "c"], ["d", "e", "f"]])
     asset_ids = ["A", "B"]
@@ -161,6 +184,7 @@ def test_create_directional_arrows_non_numeric_positions():
 
 
 def test_create_directional_arrows_infinite_positions():
+    """Test that infinite position values raise a ValueError."""
     graph = DummyGraph({})
     positions = np.array([[0, 0, 0], [np.inf, 1, 1]])
     asset_ids = ["A", "B"]
@@ -169,6 +193,7 @@ def test_create_directional_arrows_infinite_positions():
 
 
 def test_create_directional_arrows_nan_positions():
+    """Test that NaN position values raise a ValueError."""
     graph = DummyGraph({})
     positions = np.array([[0, 0, 0], [np.nan, 1, 1]])
     asset_ids = ["A", "B"]
@@ -177,6 +202,7 @@ def test_create_directional_arrows_nan_positions():
 
 
 def test_create_directional_arrows_empty_asset_ids():
+    """Test that empty strings in asset_ids raise a ValueError."""
     graph = DummyGraph({})
     positions = np.array([[0, 0, 0], [1, 1, 1]])
     asset_ids = ["A", ""]  # Empty string
@@ -185,6 +211,7 @@ def test_create_directional_arrows_empty_asset_ids():
 
 
 def test_create_directional_arrows_non_string_asset_ids():
+    """Test that non-string asset_ids raise a ValueError."""
     graph = DummyGraph({})
     positions = np.array([[0, 0, 0], [1, 1, 1]])
     asset_ids = ["A", 123]  # type: ignore[list-item]
@@ -193,6 +220,7 @@ def test_create_directional_arrows_non_string_asset_ids():
 
 
 def test_create_directional_arrows_invalid_graph_type():
+    """Test that invalid graph types raise a TypeError."""
     positions = np.array([[0, 0, 0], [1, 1, 1]])
     asset_ids = ["A", "B"]
     with pytest.raises(
@@ -202,6 +230,7 @@ def test_create_directional_arrows_invalid_graph_type():
 
 
 def test_create_directional_arrows_valid_inputs_no_relationships():
+    """Test that no arrow traces are returned when there are no relationships."""
     graph = DummyGraph({})
     positions = np.array([[0, 0, 0], [1, 1, 1]])
     asset_ids = ["A", "B"]
@@ -210,6 +239,7 @@ def test_create_directional_arrows_valid_inputs_no_relationships():
 
 
 def test_create_directional_arrows_valid_inputs_with_unidirectional():
+    """Test generation of arrow traces for valid unidirectional relationships."""
     graph = DummyGraph(
         {
             "A": [("B", "correlation", 0.9)],
@@ -224,6 +254,7 @@ def test_create_directional_arrows_valid_inputs_with_unidirectional():
 
 
 def test_create_directional_arrows_type_coercion():
+    """Test that positions list inputs are coerced and return no arrows for empty graph."""
     graph = DummyGraph({})
     positions = [[0, 0, 0], [1, 1, 1]]  # List instead of numpy array
     asset_ids = ["A", "B"]
@@ -232,6 +263,7 @@ def test_create_directional_arrows_type_coercion():
 
 
 def test_create_directional_arrows_bidirectional_no_arrows():
+    """Test that no arrows are returned for purely bidirectional relationships."""
     graph = DummyGraph(
         {
             "A": [("B", "correlation", 0.9)],

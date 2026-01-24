@@ -22,7 +22,7 @@ class TestPRAgentWorkflowChanges:
 
     @staticmethod
     @pytest.fixture
-    def pr_agent_workflow() -> Dict[str, Any]:
+    def pr_agent_workflow() -> dict[str, Any]:
         """
         Load and parse the .github/workflows/pr-agent.yml workflow file.
 
@@ -84,7 +84,8 @@ class TestPRAgentWorkflowChanges:
         assert install_step is not None, "Python dependency installation step not found"
         assert "run" in install_step
 
-    def test_no_duplicate_setup_python_steps(self, pr_agent_workflow):
+    @staticmethod
+    def test_no_duplicate_setup_python_steps(pr_agent_workflow):
         """Verify no duplicate 'Setup Python' steps exist."""
         jobs = pr_agent_workflow.get("jobs", {})
         pr_agent_job = jobs.get("pr-agent-action", {})
@@ -99,9 +100,7 @@ class TestPRAgentWorkflowChanges:
         pr_agent_job = jobs.get("pr-agent-action", {})
         steps = pr_agent_job.get("steps", [])
 
-        setup_python_step = next(
-            (s for s in steps if s.get("name") == "Setup Python"), None
-        )
+        setup_python_step = next((s for s in steps if s.get("name") == "Setup Python"), None)
         assert setup_python_step is not None
         assert "with" in setup_python_step
         assert "python-version" in setup_python_step["with"]
@@ -113,9 +112,7 @@ class TestPRAgentWorkflowChanges:
         pr_agent_job = jobs.get("pr-agent-action", {})
         steps = pr_agent_job.get("steps", [])
 
-        checkout_step = next(
-            (s for s in steps if "actions/checkout" in s.get("uses", "")), None
-        )
+        checkout_step = next((s for s in steps if "actions/checkout" in s.get("uses", "")), None)
         assert checkout_step is not None
         assert checkout_step.get("with", {}).get("fetch-depth") == 0
 
@@ -124,12 +121,12 @@ class TestPRAgentConfigChanges:
     """Tests for pr-agent-config.yml configuration changes."""
 
     @pytest.fixture
-    def pr_agent_config(self) -> Dict[str, Any]:
+    def pr_agent_config(self) -> dict[str, Any]:
         """
         Load and parse the .github/pr-agent-config.yml file.
 
         Returns:
-            config (Dict[str, Any]): Parsed YAML configuration as a dictionary.
+            config (dict[str, Any]): Parsed YAML configuration as a dictionary.
         """
         config_path = Path(".github/pr-agent-config.yml")
         with open(config_path, "r") as f:
@@ -195,7 +192,7 @@ class TestGreetingsWorkflowChanges:
     """Tests for greetings.yml workflow changes."""
 
     @pytest.fixture
-    def greetings_workflow(self) -> Dict[str, Any]:
+    def greetings_workflow(self) -> dict[str, Any]:
         """Load greetings.yml workflow."""
         workflow_path = Path(".github/workflows/greetings.yml")
         with open(workflow_path, "r") as f:
@@ -212,9 +209,7 @@ class TestGreetingsWorkflowChanges:
         greeting_job = jobs.get("greeting", {})
         steps = greeting_job.get("steps", [])
 
-        action_step = next(
-            (s for s in steps if "actions/first-interaction" in s.get("uses", "")), None
-        )
+        action_step = next((s for s in steps if "actions/first-interaction" in s.get("uses", "")), None)
 
         assert action_step is not None
         assert "with" in action_step
@@ -228,14 +223,16 @@ class TestGreetingsWorkflowChanges:
         assert len(pr_message) < 200, "PR message should be simplified"
 
     def test_no_complex_markdown_formatting(self, greetings_workflow):
-        """Verify messages don't contain complex markdown."""
+        """
+        Check that the greeting workflow's messages do not include complex markdown fragments.
+
+        This test locates the step using actions/first-interaction in the greeting job and asserts its `issue-message` and `pr-message` (if present) do not contain a "**Resources:**" section or the "✅" checkmark character.
+        """
         jobs = greetings_workflow.get("jobs", {})
         greeting_job = jobs.get("greeting", {})
         steps = greeting_job.get("steps", [])
 
-        action_step = next(
-            (s for s in steps if "actions/first-interaction" in s.get("uses", "")), None
-        )
+        action_step = next((s for s in steps if "actions/first-interaction" in s.get("uses", "")), None)
 
         if action_step and "with" in action_step:
             issue_message = action_step["with"].get("issue-message", "")
@@ -252,7 +249,7 @@ class TestLabelWorkflowChanges:
     """Tests for label.yml workflow changes."""
 
     @pytest.fixture
-    def label_workflow(self) -> Dict[str, Any]:
+    def label_workflow(self) -> dict[str, Any]:
         """
         Load and parse the label GitHub Actions workflow file.
 
@@ -275,13 +272,15 @@ class TestLabelWorkflowChanges:
         steps = label_job.get("steps", [])
 
         # Should not have config check step
-        config_check_steps = [
-            s for s in steps if s.get("name") == "Check for labeler config"
-        ]
+        config_check_steps = [s for s in steps if s.get("name") == "Check for labeler config"]
         assert len(config_check_steps) == 0
 
     def test_no_checkout_step(self, label_workflow):
-        """Verify checkout step was removed (not needed)."""
+        """
+        Ensure the 'label' job contains no steps that use actions/checkout.
+
+        Fails if any step in the 'label' job references 'actions/checkout' in its `uses` field.
+        """
         jobs = label_workflow.get("jobs", {})
         label_job = jobs.get("label", {})
         steps = label_job.get("steps", [])
@@ -315,6 +314,13 @@ class TestLabelWorkflowChanges:
 
 
 class TestAPISecScanWorkflowChanges:
+    """
+    Tests for changes to the API security scan workflow.
+
+    Ensures the GitHub Actions workflow for API security scanning is correctly configured with
+    required jobs, steps, and settings.
+    """
+
     pass
 
 
@@ -348,9 +354,7 @@ class TestRequirementsDevChanges:
 
         # Should have version specifier
         pyyaml_line = pyyaml_lines[0]
-        assert any(op in pyyaml_line for op in ["==", ">=", "<=", "~="]), (
-            "PyYAML should have version constraint"
-        )
+        assert any(op in pyyaml_line for op in ["==", ">=", "<=", "~="]), "PyYAML should have version constraint"
 
     @staticmethod
     def test_no_duplicate_dependencies():
@@ -361,16 +365,12 @@ class TestRequirementsDevChanges:
         """
         req_path = Path("requirements-dev.txt")
         with open(req_path, "r") as f:
-            lines = [
-                line.strip() for line in f if line.strip() and not line.startswith("#")
-            ]
+            lines = [line.strip() for line in f if line.strip() and not line.startswith("#")]
 
         # Extract package names (before version specifiers)
         package_names = []
         for line in lines:
-            pkg_name = (
-                line.split("=")[0].split(">")[0].split("<")[0].split("~")[0].strip()
-            )
+            pkg_name = line.split("=")[0].split(">")[0].split("<")[0].split("~")[0].strip()
             package_names.append(pkg_name.lower())
 
         # Check for duplicates

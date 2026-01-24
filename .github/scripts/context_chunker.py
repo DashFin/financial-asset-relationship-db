@@ -33,22 +33,18 @@ class ContextChunker:
 
     def __init__(self, config_path: str = ".github/pr-agent-config.yml") -> None:
         """
-        Initialize a ContextChunker for PR agent context chunking.
+        Create a ContextChunker and load configuration used for PR context chunking.
 
-        Args:
-            config_path (str): Path to the YAML configuration file. Defaults to ".github/pr-agent-config.yml".
-                The file should contain configuration sections for 'agent.context' (chunking parameters)
-                and 'limits.fallback' (priority order for context elements).
+        Loads YAML from config_path (if present) and extracts:
+        - agent.context: keys used are `max_tokens`, `chunk_size`, `overlap_tokens`, and `summarization_threshold`.
+        - limits.fallback.priority_order: a list that defines the priority order for context elements.
 
-        Loads configuration sections:
-            - agent.context: Controls chunking parameters (max_tokens, chunk_size, overlap_tokens, summarization_threshold).
-            - limits.fallback: Specifies priority_order for context elements.
+        If the config file is missing or cannot be parsed, sensible defaults are used. If the optional tiktoken package is available, an encoder is attempted to be initialized; encoder initialization failures leave the encoder unset.
 
-        Exceptions:
-            - Prints a warning and uses defaults if the config file cannot be loaded or parsed.
-            - Prints a warning if tiktoken encoder initialization fails.
+        Parameters:
+            config_path (str): Path to the YAML configuration file (default: ".github/pr-agent-config.yml").
         """
-        self.config: Dict[str, Any] = {}
+        self.config: dict[str, Any] = {}
         cfg_file = Path(config_path)
         if cfg_file.exists():
             try:
@@ -62,13 +58,9 @@ class ContextChunker:
                 self.config = {}
         agent_cfg = (self.config.get("agent") or {}).get("context") or {}
         self.max_tokens: int = int(agent_cfg.get("max_tokens", 32000))
-        self.chunk_size: int = int(
-            agent_cfg.get("chunk_size", max(1, self.max_tokens - 4000))
-        )
+        self.chunk_size: int = int(agent_cfg.get("chunk_size", max(1, self.max_tokens - 4000)))
         self.overlap_tokens: int = int(agent_cfg.get("overlap_tokens", 2000))
-        self.summarization_threshold: int = int(
-            agent_cfg.get("summarization_threshold", int(self.max_tokens * 0.9))
-        )
+        self.summarization_threshold: int = int(agent_cfg.get("summarization_threshold", int(self.max_tokens * 0.9)))
         limits_cfg = (self.config.get("limits") or {}).get("fallback") or {}
         self.priority_order: List[str] = limits_cfg.get(
             "priority_order",
@@ -80,9 +72,7 @@ class ContextChunker:
                 "full_diff",
             ],
         )
-        self.priority_map: Dict[str, int] = {
-            name: i for i, name in enumerate(self.priority_order)
-        }
+        self.priority_map: dict[str, int] = {name: i for i, name in enumerate(self.priority_order)}
         self._encoder: Optional[Any] = None
         if TIKTOKEN_AVAILABLE:
             try:
@@ -94,14 +84,14 @@ class ContextChunker:
                 )
                 self._encoder = None
 
-    def process_context(self, payload: Dict[str, Any]) -> tuple[str, bool]:
+    def process_context(self, payload: dict[str, Any]) -> tuple[str, bool]:
         """
         Processes a PR payload dictionary into a single text string.
 
         Args:
-            payload (Dict[str, Any]): Dictionary containing PR context. Expected keys:
-                - 'reviews': Optional[List[Dict[str, Any]]] — each dict may have a 'body' key (str).
-                - 'files': Optional[List[Dict[str, Any]]] — each dict may have a 'patch' key (str).
+            payload (dict[str, Any]): Dictionary containing PR context. Expected keys:
+                - 'reviews': Optional[List[dict[str, Any]]] — each dict may have a 'body' key (str).
+                - 'files': Optional[List[dict[str, Any]]] — each dict may have a 'patch' key (str).
 
         Returns:
             tuple[str, bool]: A tuple containing:

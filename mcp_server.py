@@ -42,30 +42,36 @@ graph = _ThreadSafeGraph(AssetRelationshipGraph(), _graph_lock)
 
 def _build_mcp_app():
     """
-    Build and return the FastMCP app.
+    Create and return a FastMCP application configured for
+    managing asset relationships.
 
+    This function performs a lazy import of the MCP server package so
+    importing the module does not require the optional `mcp` dependency
+    to be present.
 
-
-    Kept in a function so importing this module (or running `--help`) does not
-    require the optional `mcp` dependency to be importable.
+    Returns:
+        FastMCP: A FastMCP application instance configured with a tool to
+            add/validate equity nodes and a resource that exposes current 3D
+            visualization layout data.
     """
     from mcp.server.fastmcp import FastMCP  # local import (lazy)
 
     mcp = FastMCP("DashFin-Relationship-Manager")
 
     @mcp.tool()
-    def add_equity_node(
-        asset_id: str, symbol: str, name: str, sector: str, price: float
-    ) -> str:
+    def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: float) -> str:
         """
-        Validate an Equity asset and add it to the graph.
+        Validate an Equity and add it to the global graph or perform
+        validation only.
 
-        If the graph exposes an `add_asset` method, the asset is added.
-        Otherwise, this tool performs validation only
-        (no persistent changes).
+        If the global graph exposes an `add_asset` method, the created Equity is
+        added; otherwise the function only validates the provided fields and does
+        not mutate graph state.
 
         Returns:
-            Success message or 'Validation Error: <message>'.
+            A success message containing the equity name and symbol when
+            validation (and addition, if supported) succeeds, or
+            `Validation Error: <message>` describing the validation failure.
         """
         try:
             # Uses existing Equity dataclass for post-init validation.
@@ -86,10 +92,7 @@ def _build_mcp_app():
 
             # Fallback: validation-only behavior if the graph does not expose an add API.
             # Explicitly indicate that no mutation occurred.
-            return (
-                f"Successfully validated (Graph mutation not supported): "
-                f"{new_equity.name} ({new_equity.symbol})"
-            )
+            return f"Successfully validated (Graph mutation not supported): " f"{new_equity.name} ({new_equity.symbol})"
         except ValueError as e:
             return f"Validation Error: {str(e)}"
 
@@ -110,6 +113,26 @@ def _build_mcp_app():
 
 
 def main(argv: list[str] | None = None) -> int:
+    """
+    Parse command-line arguments, build and run the MCP application, and return an
+    exit code.
+
+    If called with --version, prints a short version line and exits.
+    Attempts to construct the MCP app; if the optional MCP package is missing,
+    raises SystemExit with an explanatory message.
+    On successful startup, runs the MCP application and returns 0.
+
+    Parameters:
+        argv (list[str] | None): Command-line arguments to parse. If None, uses
+            the process arguments.
+
+    Returns:
+        int: Exit code (0 on success).
+
+    Raises:
+        SystemExit: If the MCP package is not installed; the exception message
+            names the missing dependency and advises installing the MCP package.
+    """
     parser = argparse.ArgumentParser(
         prog="mcp_server.py",
         description="DashFin MCP server",
@@ -131,10 +154,7 @@ def main(argv: list[str] | None = None) -> int:
         # Provide a clear message for missing optional dependency
         # when invoked via the CLI.
         missing = getattr(e, "name", None) or str(e)
-        raise SystemExit(
-            f"Missing dependency '{missing}'. "
-            + "Install the MCP package to run the server."
-        ) from e
+        raise SystemExit(f"Missing dependency '{missing}'. " + "Install the MCP package to run the server.") from e
 
     mcp.run()
     return 0
