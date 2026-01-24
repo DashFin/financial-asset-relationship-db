@@ -1009,7 +1009,7 @@ class TestWorkflowValidatorEdgeCasesExtended:
                 on: push
                 jobs:
                 test:
-                runs - on: ubuntu - latest
+                timeout-minutes: 1e2
                 timeout - minutes: 1e2
                 steps:
                 - run: echo test
