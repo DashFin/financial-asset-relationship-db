@@ -114,10 +114,7 @@ class FormulaicdAnalyzer:
                 name="Price-to-Earnings Ratio",
                 formula="PE = P / EPS",
                 latex=r"PE = \frac{P}{EPS}",
-                description=(
-                    "Valuation metric comparing stock price to "
-                    "earnings per share"
-                ),
+                description=("Valuation metric comparing stock price to " "earnings per share"),
                 variables={
                     "PE": "Price-to-Earnings Ratio",
                     "P": "Current Stock Price ($)",
@@ -543,27 +540,18 @@ class FormulaicdAnalyzer:
                 - key_insights (List[str]): Short, high-level observations
                   derived from the formulas and empirical data.
         """
-        avg_corr_strength = self._calculate_avg_correlation_strength_from_empirical(
-            empirical_relationships
-        )
+        avg_corr_strength = self._calculate_avg_correlation_strength_from_empirical(empirical_relationships)
         return {
             "total_formulas": len(formulas),
-            "avg_r_squared": (
-                sum(f.r_squared for f in formulas) / len(formulas)
-                if formulas
-                else 0
-            ),
+            "avg_r_squared": (sum(f.r_squared for f in formulas) / len(formulas) if formulas else 0),
             "formula_categories": self._categorize_formulas(formulas),
-            "empirical_data_points": len(
-                empirical_relationships.get("correlation_matrix", {})
-            ),
+            "empirical_data_points": len(empirical_relationships.get("correlation_matrix", {})),
             "key_insights": [
                 f"Identified {len(formulas)} mathematical relationships",
                 f"Average correlation strength: {avg_corr_strength:.2f}",
                 "Valuation models applicable to equity assets",
                 "Portfolio theory formulas available for multi-asset analysis",
-                "Cross-asset relationships identified between "
-                "commodities and currencies",
+                "Cross-asset relationships identified between " "commodities and currencies",
             ],
         }
 

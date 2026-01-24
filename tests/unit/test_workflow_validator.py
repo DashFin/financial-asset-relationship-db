@@ -453,6 +453,7 @@ class TestIntegrationWithActualWorkflows:
 
 """Unit tests for ValidationResult ensuring attributes exist and behave as expected."""
 
+
 class TestValidationResultDataStructure:
     """Test ValidationResult data structure integrity"""
 

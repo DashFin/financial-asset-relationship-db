@@ -119,6 +119,7 @@ def _is_memory_db(path: str | None = None) -> bool:
 _memory_connection = None
 _memory_connection_lock = threading.Lock()
 
+
 def _connect() -> sqlite3.Connection:
     """
     Open a configured SQLite connection for the module's database path.
