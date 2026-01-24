@@ -455,7 +455,6 @@ def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGra
                             error_msg,
                             gr.update(value=error_msg, visible=True),
                         )
-
                 @staticmethod
                 def show_formula_details(formula_name: str, graph_state: AssetRelationshipGraph):
                     """Show detailed view of a specific formula."""
@@ -480,7 +479,7 @@ def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGra
 
                     Parameters:
                         summary(Dict): Summary metrics with expected keys:
-                            - "avg_r_squared" (float): average R² across identified
+                            - "avg_r_squared" (float): average R^2 across identified
                               formulas.
                             - "empirical_data_points" (int): number of empirical
                               observations used.

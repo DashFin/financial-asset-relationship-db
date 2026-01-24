@@ -532,7 +532,6 @@ class TestPRAgentConfigSecurity:
             Parameters:
                 node: The value to inspect; typically a dict, list, or primitive contained in the configuration.
                 path(str): Dot - and -bracket notation string representing the current traversal path(used only for error messages).
-            """
 
             Raises:
                 AssertionError: If a value is found under a sensitive key that is not listed in `safe_placeholders`.
@@ -555,7 +554,6 @@ class TestPRAgentConfigSecurity:
 
     @staticmethod
     def test_safe_configuration_values(pr_agent_config):
-        """
         Assert that key numeric limits in the PR agent configuration fall within safe bounds.
 
         Checks that:
