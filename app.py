@@ -200,7 +200,6 @@ class FinancialAssetApp:
         """Retrieves and formats detailed information for a selected asset."""
         if not selected_asset or selected_asset not in graph.assets:
             return {}, {"outgoing": {}, "incoming": {}}
-
         asset: Asset = graph.assets[selected_asset]
         asset_dict: Dict[str, Union[str, float, int]] = asdict(asset)
         asset_dict["asset_class"] = asset.asset_class.value
@@ -218,7 +217,6 @@ class FinancialAssetApp:
                 selected_asset, []
             )
         }
-
         return asset_dict, {"outgoing": outgoing, "incoming": incoming}
 
     def refresh_all_outputs(
@@ -288,7 +286,10 @@ class FinancialAssetApp:
     ) -> go.Figure:
         """Refresh visualization with 2D/3D mode support and relationship filtering."""
         try:
-            graph = self.ensure_graph()
+            LOGGER.info("Generating formulaic analysis")
+            graph = self.ensure_graph() if graph_state is None else graph_state
+            formulaic_analyzer = FormulaicdAnalyzer()
+            formulaic_visualizer = FormulaicVisualizer()
 
             if view_mode == "2D":
                 graph_viz: go.Figure = visualize_2d_graph(
