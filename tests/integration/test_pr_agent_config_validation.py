@@ -202,6 +202,7 @@ class TestPRAgentConfigSecurity:
         return cfg
 
         """Raw YAML content of .github/pr-agent-config.yml."""
+
     def test_config_values_have_no_hardcoded_credentials(pr_agent_config):
         """
         Scan the PR agent configuration for string values that resemble hardcoded credentials.
@@ -452,11 +453,14 @@ class TestPRAgentConfigSecurity:
         def shannon_entropy(data):
             import math
             from collections import Counter
+
             if not data:
                 return 0.0
             freq = Counter(data)
             length = len(data)
-            return -sum((count / length) * math.log2(count / length) for count in freq.values())
+            return -sum(
+                (count / length) * math.log2(count / length) for count in freq.values()
+            )
 
         def is_hardcoded_secret(val):
             """Determine if a string value likely contains a hardcoded secret.
@@ -603,7 +607,11 @@ class TestPRAgentConfigSecurity:
         # Check for reasonable numeric limits
         assert limits["max_execution_time"] <= 3600, "Execution time too high"
         assert limits["max_concurrent_prs"] <= 10, "Too many concurrent PRs"
+
+
 assert limits["rate_limit_requests"] <= 1000, "Rate limit too high"
+
+
 class TestPRAgentConfigRemovedComplexity:
     """Test that complex features were properly removed."""
 
