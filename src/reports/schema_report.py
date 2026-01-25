@@ -13,7 +13,8 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
 1. **Equity** - Stock instruments with P/E ratio, dividend yield, EPS
 2. **Bond** - Fixed income with yield, coupon, maturity, credit rating
 3. **Commodity** - Physical assets with contracts and delivery dates
-4. **Currency** - FX pairs or single-currency proxies with exchange rates and policy links
+4. **Currency** - FX pairs or single-currency proxies with
+exchange rates and policy links
 5. **Regulatory Events** - Corporate actions and SEC filings
 
 ### Relationship Types
@@ -73,20 +74,20 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
         "1. **Event Propagation**: Earnings events impact related bond and currency "
         "assets\n"
         "2. **Impact Scoring**: Events range from -1 (negative) to +1 (positive)\n"
-        "3. **Related Assets**: Each event automatically creates relationships to "
-        "impacted securities\n"
+        "3. **Related Assets**: Each event automatically creates"
+        " relationships to impacted securities\n"
     )
     report += """
 
 ### Valuation Rules
 """
     report += (
-        "1. **Bond-Stock Spread**: Corporate bond yield - equity dividend yield "
-        "indicates relative value\n"
-        "2. **Sector Rotation**: Commodity prices trigger evaluation of sector "
-        "exposure\n"
-        "3. **Currency Adjustment**: All cross-border assets adjusted for FX "
-        "exposure\n"
+        "1. **Bond-Stock Spread**: Corporate bond yield - equity"
+        " dividend yield indicates relative value\n"
+        "2. **Sector Rotation**: Commodity prices trigger"
+        " evaluation of sector exposure\n"
+        "3. **Currency Adjustment**: All cross-border assets"
+        " adjusted for FX exposure\n"
     )
     report += """
 
@@ -112,7 +113,8 @@ def generate_schema_report(graph: AssetRelationshipGraph) -> str:
     report += "- Relationship strengths normalized to 0-1 range\n"
     report += "- Impact scores on -1 to +1 scale for comparability\n"
     report += (
-        "- Relationship directionality: some types are bidirectional (e.g.,\n"
+        "- Relationship directionality: some types are"
+        " bidirectional (e.g.,\n"
         "  same_sector, income_comparison);\n"
         "  others are directional\n"
     )

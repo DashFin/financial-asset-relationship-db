@@ -107,7 +107,11 @@ class RealDataFetcher:
 
                 try:
                     cache_dir = os.path.dirname(self.cache_path)
-                    with tempfile.NamedTemporaryFile("wb", dir=cache_dir, delete=False) as tmp_file:
+                    with tempfile.NamedTemporaryFile(
+                        "wb",
+                        dir=cache_dir,
+                        delete=False,
+                    ) as tmp_file:
                         tmp_path = tmp_file.name
                         _save_to_cache(graph, Path(tmp_path))
                     os.replace(tmp_path, self.cache_path)
@@ -138,6 +142,7 @@ class RealDataFetcher:
         Returns:
             An `AssetRelationshipGraph` instance either from the provided
             fallback factory or from the module sample dataset.
+        """
         """
         if self.fallback_factory is not None:
             return self.fallback_factory()
@@ -190,7 +195,12 @@ class RealDataFetcher:
                     book_value=info.get("bookValue"),
                 )
                 equities.append(equity)
-                logger.info("Fetched price for %s (%s): %s", symbol, name, current_price)
+                logger.info(
+                    "Fetched price for %s (%s): %s",
+                    symbol,
+                    name,
+                    current_price,
+                )
 
             except Exception as e:
                 logger.error("Failed to fetch data for %s: %s", symbol, e)
@@ -201,7 +211,8 @@ class RealDataFetcher:
     @staticmethod
     def _fetch_bond_data() -> List[Bond]:
         """Fetch real bond/treasury data"""
-        # For bonds, we'll use Treasury ETFs and bond proxies since individual bonds are harder to access
+        # For bonds, we'll use Treasury ETFs and bond proxies since individual
+        # bonds are harder to access
         bond_symbols = {
             "TLT": ("iShares 20+ Year Treasury Bond ETF", "Government", None, "AAA"),
             "LQD": (
@@ -245,7 +256,12 @@ class RealDataFetcher:
                     issuer_id=issuer_id,
                 )
                 bonds.append(bond)
-                logger.info("Fetched %s: %s at $%.2f", symbol, name, current_price)
+                logger.info(
+                    "Fetched %s: %s at $%.2f",
+                    symbol,
+                    name,
+                    current_price,
+                )
 
             except Exception as e:
                 logger.error("Failed to fetch bond data for %s: %s", symbol, e)
@@ -276,7 +292,9 @@ class RealDataFetcher:
 
                 # Calculate simple volatility from recent data
                 hist_week = ticker.history(period="5d")
-                volatility = float(hist_week["Close"].pct_change().std()) if len(hist_week) > 1 else 0.20
+                volatility = float(
+                    hist_week["Close"].pct_change().std()
+                ) if len(hist_week) > 1 else 0.20
 
                 commodity = Commodity(
                     id=symbol.replace("=F", "_FUTURE"),
@@ -290,10 +308,19 @@ class RealDataFetcher:
                     volatility=volatility,
                 )
                 commodities.append(commodity)
-                logger.info("Fetched %s: %s at $%.2f", symbol, name, current_price)
+                logger.info(
+                    "Fetched %s: %s at $%.2f",
+                    symbol,
+                    name,
+                    current_price,
+                )
 
             except Exception as e:
-                logger.error("Failed to fetch commodity data for %s: %s", symbol, e)
+                logger.error(
+                    "Failed to fetch commodity data for %s: %s",
+                    symbol,
+                    e,
+                )
                 continue
 
         return commodities
@@ -364,7 +391,9 @@ class RealDataFetcher:
             asset_id="MSFT",
             event_type=RegulatoryActivity.DIVIDEND_ANNOUNCEMENT,
             date="2024-09-15",
-            description="Quarterly dividend increase - Cloud growth continues",
+            description=(
+                "Quarterly dividend increase - Cloud growth continues"
+            ),
             impact_score=0.08,
             related_assets=["AAPL", "LQD"],
         )
@@ -376,7 +405,10 @@ class RealDataFetcher:
             asset_id="XOM",
             event_type=RegulatoryActivity.SEC_FILING,
             date="2024-10-01",
-            description=("10-K Filing - Increased oil reserves and sustainability initiatives"),
+            description=(
+                "10-K Filing - Increased oil reserves and "
+                "sustainability initiatives"
+            ),
             impact_score=0.05,
             related_assets=["CL_FUTURE"],  # Related to oil futures
         )
@@ -460,7 +492,10 @@ def _serialize_graph(graph: AssetRelationshipGraph) -> Dict[str, Any]:
     """
     return {
         "assets": [_serialize_dataclass(asset) for asset in graph.assets.values()],
-        "regulatory_events": [_serialize_dataclass(event) for event in graph.regulatory_events],
+        "regulatory_events": [
+            _serialize_dataclass(event)
+            for event in graph.regulatory_events
+        ],
         "relationships": {
             source: [
                 {

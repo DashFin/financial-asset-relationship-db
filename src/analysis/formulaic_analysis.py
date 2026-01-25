@@ -66,7 +66,9 @@ class FormulaicdAnalyzer:
             "empirical_relationships": empirical_relationships,
             "formula_count": len(all_formulas),
             "categories": self._categorize_formulas(all_formulas),
-            "summary": self._generate_formula_summary(all_formulas, empirical_relationships),
+            "summary": self._generate_formula_summary(
+                all_formulas, empirical_relationships
+            ),
         }
 
     def _extract_fundamental_formulas(self, graph: AssetRelationshipGraph) -> List[Formula]:
@@ -114,7 +116,10 @@ class FormulaicdAnalyzer:
             ytm_formula = Formula(
                 name=("Bond Yield-to-Maturity (Approximation)"),
                 formula=("YTM ≈ (C + (FV - P) / n) / ((FV + P) / 2)"),
-                latex=(r"YTM \approx \frac{C + \frac{FV - P}{n}}" r"{\frac{FV + P}{2}}"),
+                latex=(
+                    r"YTM \approx \frac{C + \frac{FV - P}{n}}"
+                    r"{\frac{FV + P}{2}}"
+                ),
                 description="Approximate yield-to-maturity for bonds",
                 variables={
                     "YTM": "Yield-to-Maturity (%)",
@@ -149,7 +154,10 @@ class FormulaicdAnalyzer:
 
         return formulas
 
-    def _analyze_correlation_patterns(self, graph: AssetRelationshipGraph) -> List[Formula]:
+    def _analyze_correlation_patterns(
+        self,
+        graph: AssetRelationshipGraph,
+    ) -> List[Formula]:
         """Analyze and formulate correlation patterns between assets"""
         formulas = []
 
@@ -226,7 +234,10 @@ class FormulaicdAnalyzer:
                 "Debt": "Total Debt ($)",
                 "Cash": "Cash and Cash Equivalents ($)",
             },
-            example_calculation=("EV calculation requires debt and cash data " "(not available in current dataset)"),
+            example_calculation=(
+                "EV calculation requires debt and cash data "
+                "(not available in current dataset)"
+            ),
             category="Valuation",
             r_squared=0.95,
         )
@@ -234,7 +245,10 @@ class FormulaicdAnalyzer:
 
         return formulas
 
-    def _analyze_risk_return_relationships(self, graph: AssetRelationshipGraph) -> List[Formula]:
+    def _analyze_risk_return_relationships(
+        self,
+        graph: AssetRelationshipGraph,
+    ) -> List[Formula]:
         """Analyze risk-return mathematical relationships"""
         formulas = []
 
@@ -276,7 +290,9 @@ class FormulaicdAnalyzer:
 
         return formulas
 
-    def _extract_portfolio_theory_formulas(self, graph: AssetRelationshipGraph) -> List[Formula]:
+    def _extract_portfolio_theory_formulas(
+        self, graph: AssetRelationshipGraph
+    ) -> List[Formula]:
         """Extract Modern Portfolio Theory formulas"""
         formulas = []
 
@@ -302,7 +318,10 @@ class FormulaicdAnalyzer:
         portfolio_variance_formula = Formula(
             name="Portfolio Variance (2-Asset)",
             formula="σ²_p = w₁²σ₁² + w₂²σ₂² + 2w₁w₂σ₁σ₂ρ₁₂",
-            latex=(r"\sigma_p^2 = w_1^2\sigma_1^2 + w_2^2\sigma_2^2 + " r"2w_1w_2\sigma_1\sigma_2\rho_{12}"),
+            latex=(
+                r"\sigma_p^2 = w_1^2\sigma_1^2 + w_2^2\sigma_2^2 + "
+                r"2w_1w_2\sigma_1\sigma_2\rho_{12}"
+            ),
             description="Portfolio risk considering correlation between assets",
             variables={
                 "σ²_p": "Portfolio variance",
@@ -334,7 +353,9 @@ class FormulaicdAnalyzer:
                     "EUR/GBP": "Euro to British Pound exchange rate",
                     "USD/GBP": "US Dollar to British Pound exchange rate",
                 },
-                example_calculation=(self._calculate_exchange_rate_examples(graph)),
+                example_calculation=(
+                    self._calculate_exchange_rate_examples(graph)
+                ),
                 category="Currency Markets",
                 r_squared=0.99,
             )
@@ -344,14 +365,24 @@ class FormulaicdAnalyzer:
         if self._has_commodities(graph) and self._has_currencies(graph):
             commodity_currency_formula = Formula(
                 name="Commodity-Currency Relationship",
-                formula=("Currency_Value ∝ 1/Commodity_Price (for commodity exporters)"),
-                latex=r"FX_{commodity} \propto \frac{1}{P_{commodity}}",
-                description=("Inverse relationship between commodity prices and currency values"),
+                formula=(
+                    "Currency_Value ∝ 1/Commodity_Price (for "
+                    "commodity exporters)"
+                ),
+                latex=(
+                    r"FX_{commodity} \propto \frac{1}{P_{commodity}}"
+                ),
+                description=(
+                    "Inverse relationship between commodity prices and "
+                    "currency values"
+                ),
                 variables={
                     "FX_commodity": "Currency value of commodity exporter",
                     "P_commodity": "Commodity price",
                 },
-                example_calculation=(self._calculate_commodity_currency_examples(graph)),
+                example_calculation=(
+                    self._calculate_commodity_currency_examples(graph)
+                ),
                 category="Cross-Asset",
                 r_squared=0.65,
             )
@@ -359,7 +390,9 @@ class FormulaicdAnalyzer:
 
         return formulas
 
-    def _calculate_empirical_relationships(self, graph: AssetRelationshipGraph) -> Dict[str, Any]:
+    def _calculate_empirical_relationships(
+        self, graph: AssetRelationshipGraph
+    ) -> Dict[str, Any]:
         pass
 
     @staticmethod
@@ -378,20 +411,39 @@ class FormulaicdAnalyzer:
             categories[category] = categories.get(category, 0) + 1
         return categories
 
-    def _generate_formula_summary(self, formulas: List[Formula], empirical_relationships: Dict) -> Dict[str, Any]:
+    def _generate_formula_summary(
+        self,
+        formulas: List[Formula],
+        empirical_relationships: Dict
+    ) -> Dict[str, Any]:
         """Generate a comprehensive summary of formulaic analysis"""
-        avg_corr_strength = self._calculate_avg_correlation_strength_from_empirical(empirical_relationships)
+        avg_corr_strength = self._calculate_avg_correlation_strength_from_empirical(
+            empirical_relationships
+        )
         return {
             "total_formulas": len(formulas),
-            "avg_r_squared": sum(f.r_squared for f in formulas) / len(formulas) if formulas else 0,
+            "avg_r_squared": (
+                sum(f.r_squared for f in formulas) / len(formulas)
+                if formulas else 0
+            ),
             "formula_categories": self._categorize_formulas(formulas),
-            "empirical_data_points": len(empirical_relationships.get("correlation_matrix", {})),
+            "empirical_data_points": len(
+                empirical_relationships.get(
+                    "correlation_matrix", {}
+                )
+            ),
             "key_insights": [
                 f"Identified {len(formulas)} mathematical relationships",
                 f"Average correlation strength: {avg_corr_strength:.2f}",
                 "Valuation models applicable to equity assets",
-                ("Portfolio theory formulas available for multi-asset analysis"),
-                ("Cross-asset relationships identified between " "commodities and currencies"),
+                (
+                    "Portfolio theory formulas available for "
+                    "multi-asset analysis"
+                ),
+                (
+                    "Cross-asset relationships identified between "
+                    "commodities and currencies"
+                ),
             ],
         }
 
@@ -403,5 +455,9 @@ class FormulaicdAnalyzer:
         correlations = empirical_relationships.get("correlation_matrix", {})
         if correlations:
             valid_correlations = [v for v in correlations.values() if v < 1.0]
-            return sum(valid_correlations) / len(valid_correlations) if valid_correlations else 0.5
+            return (
+                sum(valid_correlations) / len(valid_correlations)
+                if valid_correlations
+                else 0.5
+            )
         return 0.5
