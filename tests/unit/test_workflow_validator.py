@@ -700,7 +700,7 @@ jobs:
 name: Test
 on: push
 defaults: &defaults
-  runs - on: ubuntu - latest
+  runs-on: ubuntu-latest
 jobs:
   test1:
     <<: *defaults
