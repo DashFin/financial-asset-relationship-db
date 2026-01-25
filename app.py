@@ -230,12 +230,12 @@ class FinancialAssetApp:
     def refresh_all_outputs(
         self, graph_state: AssetRelationshipGraph
     ) -> Tuple[
-        go.Figure,
-        go.Figure,
-        go.Figure,
-        go.Figure,
-        str,
-        str,
+        Any,
+        Any,
+        Any,
+        Any,
+        Any,
+        Any,
         Any,
         Any,
     ]:
