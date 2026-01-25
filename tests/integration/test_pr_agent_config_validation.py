@@ -491,31 +491,31 @@ class TestPRAgentConfigSecurity:
                 obj (dict|list|tuple|any): The object to scan for sensitive entries.
                 path (str): The current dotted path in the object structure.
             """
-                    if isinstance(obj, dict):
-                        for key, value in obj.items():
-                            new_path = f"{path}.{key}" if path else key
-                            if any(pat in key.lower() for pat in sensitive_patterns):
-                                if not is_allowed_value(value):
-                                    suspected.append((new_path, value))
-                            else:
-                                scan(value, new_path)
-                    elif isinstance(obj, (list, tuple)):
-                        for idx, item in enumerate(obj):
-                            scan(item, f"{path}[{idx}]")
+            if isinstance(obj, dict):
+                for key, value in obj.items():
+                    new_path = f"{path}.{key}" if path else key
+                    if any(pat in key.lower() for pat in sensitive_patterns):
+                        if not is_allowed_value(value):
+                            suspected.append((new_path, value))
                     else:
-                        if is_hardcoded_secret(obj):
-                            suspected.append((path, obj))
+                        scan(value, new_path)
+            elif isinstance(obj, (list, tuple)):
+                for idx, item in enumerate(obj):
+                    scan(item, f"{path}[{idx}]")
+            else:
+                if is_hardcoded_secret(obj):
+                    suspected.append((path, obj))
 
-                scan(pr_agent_config)
+        scan(pr_agent_config)
 
-                if suspected:
-                    details = "\n".join(f"{p}: {v}" for p, v in suspected)
-                    pytest.fail(
-                        f"Potential hardcoded credentials found in PR agent config:\n{details}"
-                    )
-                allowed_placeholders = {None, "null", "webhook"}
+        if suspected:
+            details = "\n".join(f"{p}: {v}" for p, v in suspected)
+            pytest.fail(
+                f"Potential hardcoded credentials found in PR agent config:\n{details}"
+            )
+        allowed_placeholders = {None, "null", "webhook"}
 
-                def is_sensitive_key(key):
+        def is_sensitive_key(key):
             """Return True if the key name contains any of the predefined sensitive patterns."""
             key_lower = key.lower()
             return any(pattern in key_lower for pattern in sensitive_patterns)

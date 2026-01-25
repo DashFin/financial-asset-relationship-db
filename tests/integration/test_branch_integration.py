@@ -239,7 +239,6 @@ class TestRemovedFilesIntegration:
         # Should not have complex context management
         assert "fetch-context" not in content
 
-
 class TestWorkflowSecurityConsistency:
     """Test security practices are consistent across workflows."""
 
@@ -253,6 +252,7 @@ class TestWorkflowSecurityConsistency:
         workflow_files = list(Path(".github/workflows").glob("*.yml"))
         dangerous = [
             r"\$\{\{.*github\.event\.pull_request\.title.*\}\}.*\|",
+        ]
         ]
         ]
             r"\$\{\{.*github\.event\.pull_request\.body.*\}\}.*\|",
