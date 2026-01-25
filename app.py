@@ -822,8 +822,6 @@ class FinancialAssetApp:
                     visualization_outputs[1],
                 ],
             )
-                )
-                return fig, err, gr.update(visible=view_mode == "2D")
 
             view_mode.change(
                 _on_view_mode_change,
