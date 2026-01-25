@@ -431,6 +431,7 @@ class FinancialAssetApp:
 
         insights: List[str] = summary.get("key_insights", []) or []
         if insights:
+            pass
 
     @staticmethod
     def _format_formula_summary_legacy(summary: Dict, analysis_results: Dict) -> str:
