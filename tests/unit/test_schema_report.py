@@ -231,8 +231,14 @@ class TestDataQualityScore:
         assert re.search(pattern, report)
 
     @staticmethod
-    def test_quality_score_calculation_with_events(populated_graph, sample_regulatory_event):
-        """Test quality score calculation with regulatory events."""
+    def test_quality_score_calculation_with_events(
+        populated_graph, sample_regulatory_event
+    ):
+        """
+        Verify that adding a regulatory event preserves the Data Quality Score in the generated schema report.
+
+        After adding the provided regulatory event to the graph, generate the schema report and assert that the report contains the "Data Quality Score:" label.
+        """
         populated_graph.add_regulatory_event(sample_regulatory_event)
         report = generate_schema_report(populated_graph)
         assert "Data Quality Score:" in report
@@ -299,6 +305,7 @@ class TestBusinessRules:
         """Test that currency exposure rule is documented."""
         report = generate_schema_report(populated_graph)
         assert "Currency Exposure" in report or "currency" in report.lower()
+        return report
 
     @staticmethod
     def test_event_propagation_rule_documented(populated_graph):
@@ -365,6 +372,7 @@ class TestEdgeCases:
         empty_graph.add_asset(sample_equity)
         report = generate_schema_report(empty_graph)
         assert "**Total Assets**: 1" in report
+        return report
 
     @staticmethod
     def test_report_with_no_regulatory_events(empty_graph, sample_equity):

@@ -19,18 +19,18 @@ REQUIREMENTS_FILE = Path(__file__).parent.parent.parent / "requirements-dev.txt"
 
 def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
     """
-    Parse a pip-style requirements file into a list of package names with their version specifiers.
+    Parse a pip-format requirements file into a list of (package_name, version_specifier) pairs.
 
-    Ignores blank lines and lines beginning with '#'. Extras and environment markers on a requirement line are ignored for matching.
+    Skips blank lines and lines beginning with '#'. Extras and environment markers on a requirement line are ignored for matching.
 
     Parameters:
-        file_path (Path): Path to a requirements file (e.g., requirements-dev.txt).
+        file_path (Path): Path to the requirements file (e.g., requirements-dev.txt).
 
     Returns:
-        List[Tuple[str, str]]: List of (package_name, version_specifier) tuples; `version_specifier` is the specifier string or an empty string if none.
+        List[Tuple[str, str]]: A list of tuples where the first element is the package name and the second is the version specifier string (empty string if none).
 
     Raises:
-        ValueError: If any non-empty, non-comment line cannot be parsed as a requirement.
+        ValueError: If a non-empty, non-comment line cannot be parsed as a requirement; the exception message includes the offending line.
     """
     requirements: List[Tuple[str, str]] = []
 
@@ -47,7 +47,9 @@ def parse_requirements(file_path: Path) -> List[Tuple[str, str]]:
                 requirements.append((req.name, str(req.specifier)))
             except Exception as e:
                 # Surface unparseable requirement lines to avoid masking issues
-                raise ValueError(f"Failed to parse requirement line: '{line}'. Error: {e}") from e
+                raise ValueError(
+                    f"Failed to parse requirement line: '{line}'. Error: {e}"
+                ) from e
     return requirements
 
 
@@ -74,7 +76,11 @@ class TestWorkflowCanInstallRequirements:
                 step_name = step.get("name", "").lower()
 
                 # Look for pip install or requirements file installation
-                if "pip install" in run_cmd.lower() or "requirements" in run_cmd.lower() or "requirements" in step_name:
+                if (
+                    "pip install" in run_cmd.lower()
+                    or "requirements" in run_cmd.lower()
+                    or "requirements" in step_name
+                ):
                     has_install_step = True
                     break
 
@@ -111,13 +117,13 @@ class TestWorkflowCanInstallRequirements:
                 run_cmd = step.get("run", "").lower()
                 step_name = step.get("name", "").lower()
 
-                if "pip install" in run_cmd or "requirements" in run_cmd:
-                    if install_idx is None:
-                        install_idx = i
+                if (
+                    "pip install" in run_cmd or "requirements" in run_cmd
+                ) and install_idx is None:
+                    install_idx = i
 
-                if "pytest" in run_cmd or "test" in step_name:
-                    if test_idx is None:
-                        test_idx = i
+                if ("pytest" in run_cmd or "test" in step_name) and test_idx is None:
+                    test_idx = i
 
             # If both exist, install should come before test
             if install_idx is not None and test_idx is not None:
@@ -149,7 +155,9 @@ class TestPyYAMLAvailability:
     @staticmethod
     def test_pyyaml_can_parse_workflow_files():
         """Test that installed PyYAML can successfully parse workflow files."""
-        workflow_files = list(WORKFLOWS_DIR.glob("*.yml")) + list(WORKFLOWS_DIR.glob("*.yaml"))
+        workflow_files = list(WORKFLOWS_DIR.glob("*.yml")) + list(
+            WORKFLOWS_DIR.glob("*.yaml")
+        )
 
         assert len(workflow_files) > 0, "No workflow files found to test"
 
@@ -157,7 +165,9 @@ class TestPyYAMLAvailability:
             with open(workflow_file, "r") as f:
                 try:
                     content = yaml.safe_load(f)
-                    assert isinstance(content, dict), f"{workflow_file.name} should parse to a dictionary"
+                    assert isinstance(content, dict), (
+                        f"{workflow_file.name} should parse to a dictionary"
+                    )
                 except yaml.YAMLError as e:
                     pytest.fail(f"PyYAML failed to parse {workflow_file.name}: {e}")
 
@@ -170,7 +180,8 @@ class TestPyYAMLAvailability:
         package_names = [pkg for pkg, _ in requirements]
 
         assert "types-PyYAML" in package_names, (
-            "types-PyYAML should be in requirements-dev.txt for static type checking " "of code that uses PyYAML"
+            "types-PyYAML should be in requirements-dev.txt for static type checking "
+            "of code that uses PyYAML"
         )
 
 
@@ -180,16 +191,18 @@ class TestRequirementsMatchWorkflowNeeds:
     @staticmethod
     def test_has_pytest_for_testing():
         """
-        Check that pytest is present in requirements-dev.txt for workflow tests.
+        Check that the project's dev requirements include pytest so workflow tests can run.
 
-        Asserts the requirements-dev.txt file exists and that one of the parsed package names equals 'pytest' (case-insensitive).
+        Asserts that requirements-dev.txt exists and contains a package named "pytest" (case-insensitive).
         """
         assert REQUIREMENTS_FILE.exists(), "requirements-dev.txt not found"
 
         requirements = parse_requirements(REQUIREMENTS_FILE)
         package_names = [pkg.lower() for pkg, _ in requirements]
 
-        assert "pytest" in package_names, "pytest must be in requirements-dev.txt as workflows run pytest for testing"
+        assert "pytest" in package_names, (
+            "pytest must be in requirements-dev.txt as workflows run pytest for testing"
+        )
 
     @staticmethod
     def test_has_required_dev_tools():
@@ -203,7 +216,9 @@ class TestRequirementsMatchWorkflowNeeds:
         essential_tools = ["pytest", "flake8", "black", "mypy"]
 
         for tool in essential_tools:
-            assert tool in package_names, f"{tool} should be in requirements-dev.txt for code quality and testing"
+            assert tool in package_names, (
+                f"{tool} should be in requirements-dev.txt for code quality and testing"
+            )
 
     @staticmethod
     def test_requirements_support_python_version_in_workflow():
@@ -237,6 +252,6 @@ class TestRequirementsMatchWorkflowNeeds:
                 major = int(version_parts[0])
                 minor = int(version_parts[1])
 
-                assert (major > 3) or (
-                    major == 3 and minor >= 8
-                ), f"Workflow uses Python {python_version}, but requires 3.8+ for modern tooling"
+                assert (major > 3) or (major == 3 and minor >= 8), (
+                    f"Workflow uses Python {python_version}, but requires 3.8+ for modern tooling"
+                )

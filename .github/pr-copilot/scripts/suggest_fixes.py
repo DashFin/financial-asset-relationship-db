@@ -19,14 +19,17 @@ try:
     import yaml
     from github import Github, GithubException
 except ImportError:
-    print("Error: Required packages not installed. Run: pip install PyGithub pyyaml", file=sys.stderr)
+    print(
+        "Error: Required packages not installed. Run: pip install PyGithub pyyaml",
+        file=sys.stderr,
+    )
     sys.exit(1)
 
 
 # --- Configuration ---
 
 
-def load_config() -> Dict[str, Any]:
+def load_config() -> dict[str, Any]:
     """Load configuration from pr-copilot-config.yml."""
     config_path = ".github/pr-copilot-config.yml"
     try:
@@ -56,35 +59,62 @@ def load_config() -> Dict[str, Any]:
 # --- Parsing Logic ---
 
 
-def extract_code_suggestions(comment_body: str) -> List[Dict[str, str]]:
-    """Extract code suggestions from comment body."""
+def extract_code_suggestions(comment_body: str) -> list[dict[str, str]]:
+    """
+    Extracts suggested code snippets from a review comment body.
+
+    Scans the provided comment text for two suggestion forms:
+    - fenced suggestion blocks starting with ```suggestion``` (captured as `code_suggestion`)
+    - inline suggestions using phrases like "should be", "change to", "replace with", or "use" followed by backticked content (captured as `inline_suggestion`).
+
+    Parameters:
+        comment_body (str): The raw comment text (Markdown) to analyze for suggestions.
+
+    Returns:
+        List[dict[str, str]]: A list of suggestion objects. Each object has:
+            - `type`: either `"code_suggestion"` or `"inline_suggestion"`.
+            - `content`: the suggested code or inline replacement text.
+    """
     suggestions = []
 
     # Pattern 1: Code blocks with suggestion marker
     suggestion_pattern = r"```suggestion\s*\n(.*?)\n```"
     matches = re.finditer(suggestion_pattern, comment_body, re.DOTALL)
     for match in matches:
-        suggestions.append({"type": "code_suggestion", "content": match.group(1).strip()})
+        suggestions.append(
+            {"type": "code_suggestion", "content": match.group(1).strip()}
+        )
 
     # Pattern 2: Inline code in quotes with suggestion words
     inline_pattern = r"(?:should be|change to|replace with|use)\s+`([^`]+)`"
     matches = re.finditer(inline_pattern, comment_body, re.IGNORECASE)
     for match in matches:
-        suggestions.append({"type": "inline_suggestion", "content": match.group(1).strip()})
+        suggestions.append(
+            {"type": "inline_suggestion", "content": match.group(1).strip()}
+        )
 
     return suggestions
 
 
 def categorize_comment(comment_body: str) -> Tuple[str, int]:
     """
-    Categorize comment by type and priority.
-    Returns: (category, priority)
+    Assigns a category and priority to a review comment based on keyword matching.
+
+    Parameters:
+        comment_body (str): The review comment text to classify.
+
+    Returns:
+        tuple: (category, priority) where `category` is one of 'critical', 'bug', 'question', 'style', or 'improvement', and `priority` is 1 (high), 2 (medium), or 3 (low). Defaults to ('improvement', 2) when no keywords match.
     """
     body_lower = comment_body.lower()
 
     # Define category keywords with their priorities
     categories = [
-        ("critical", 1, ["security", "vulnerability", "exploit", "critical", "breaking"]),
+        (
+            "critical",
+            1,
+            ["security", "vulnerability", "exploit", "critical", "breaking"],
+        ),
         ("bug", 1, ["bug", "error", "fails", "broken", "incorrect", "wrong"]),
         ("question", 3, ["why", "what", "how", "?", "clarify", "explain"]),
         ("style", 3, ["style", "format", "lint", "naming", "convention"]),
@@ -101,13 +131,43 @@ def categorize_comment(comment_body: str) -> Tuple[str, int]:
 
 
 def is_actionable(comment_body: str, actionable_keywords: List[str]) -> bool:
-    """Check if comment contains actionable feedback."""
+    """
+    Determine whether a review comment contains any actionable keywords (case-insensitive).
+
+    Parameters:
+        comment_body (str): The text of the comment to inspect.
+        actionable_keywords (List[str]): Substrings that indicate actionable feedback.
+
+    Returns:
+        `true` if any actionable keyword appears in the comment body, `false` otherwise.
+    """
     body_lower = comment_body.lower()
     return any(keyword in body_lower for keyword in actionable_keywords)
 
 
-def parse_review_comments(pr: Any, actionable_keywords: List[str]) -> List[Dict[str, Any]]:
-    """Parse all review comments and extract actionable items."""
+def parse_review_comments(
+    pr: Any, actionable_keywords: List[str]
+) -> List[dict[str, Any]]:
+    """
+    Collect actionable review comments from a pull request and return them as structured items.
+
+    Parameters:
+        pr (Any): The GitHub pull request object to scan for review comments and reviews.
+        actionable_keywords (List[str]): Keywords used to determine whether a comment is actionable.
+
+    Returns:
+        List[dict[str, Any]]: A list of actionable item dictionaries with the following keys:
+            - id (int): Comment or review identifier.
+            - author (str): Comment author's login.
+            - body (str): Full comment text.
+            - category (str): Assigned category (e.g., "critical", "bug", "style", "improvement", "question").
+            - priority (int): Numeric priority where lower is higher importance (1 = High).
+            - file (str | None): Path of the file the comment refers to, if any.
+            - line (int | None): Line number the comment refers to, if available.
+            - code_suggestions (List[dict[str, str]]): Extracted code suggestions (type and content).
+            - url (str): URL to the original comment or review.
+            - created_at (datetime): Timestamp when the comment or review was created/submitted.
+    """
     actionable_items = []
 
     # Helper to process a raw comment object
@@ -156,7 +216,7 @@ def parse_review_comments(pr: Any, actionable_keywords: List[str]) -> List[Dict[
 # --- Formatting Helpers ---
 
 
-def _format_code_suggestions(suggestions: List[Dict[str, str]]) -> str:
+def _format_code_suggestions(suggestions: list[dict[str, str]]) -> str:
     """Format the code suggestion blocks."""
     output = "   - **Suggested Code:**\n"
     for suggestion in suggestions:
@@ -167,7 +227,7 @@ def _format_code_suggestions(suggestions: List[Dict[str, str]]) -> str:
     return output
 
 
-def _format_item(index: int, item: Dict[str, Any]) -> str:
+def _format_item(index: int, item: dict[str, Any]) -> str:
     """Format a single actionable item entry."""
     priority_map = {1: "🔴 High", 2: "🟡 Medium", 3: "🟢 Low"}
 
@@ -190,7 +250,7 @@ def _format_item(index: int, item: Dict[str, Any]) -> str:
     return report
 
 
-def _generate_summary(items: List[Dict[str, Any]]) -> str:
+def _generate_summary(items: List[dict[str, Any]]) -> str:
     """Generate the statistical summary footer."""
     counts = defaultdict(int)
     for item in items:
@@ -214,8 +274,19 @@ def _generate_summary(items: List[Dict[str, Any]]) -> str:
     return summary + "\n*Generated by PR Copilot Fix Suggestion Tool*\n"
 
 
-def generate_fix_proposals(actionable_items: List[Dict[str, Any]]) -> str:
-    """Generate structured fix proposals from actionable items."""
+def generate_fix_proposals(actionable_items: List[dict[str, Any]]) -> str:
+    """
+    Generate a human-readable, categorized report of fix proposals based on actionable review items.
+
+    Parameters:
+        actionable_items (List[dict[str, Any]]): A list of actionable item dictionaries (as returned by parse_review_comments),
+            where each item contains keys such as "category", "priority", "body", "file", "line", "code_suggestions", "url", and "created_at".
+
+    Returns:
+        report (str): A formatted markdown string that groups items by category (critical, bug, improvement, style, question),
+            includes per-item summaries and suggested code, and ends with a statistical summary. If the input list is empty,
+            returns a short message indicating no actionable items were found.
+    """
     if not actionable_items:
         return "✅ No actionable items found in review comments."
 
@@ -228,7 +299,13 @@ def generate_fix_proposals(actionable_items: List[Dict[str, Any]]) -> str:
 
     # Order of presentation
     priority_order = ["critical", "bug", "improvement", "style", "question"]
-    emoji_map = {"critical": "🚨", "bug": "🐛", "improvement": "💡", "style": "🎨", "question": "❓"}
+    emoji_map = {
+        "critical": "🚨",
+        "bug": "🐛",
+        "improvement": "💡",
+        "style": "🎨",
+        "question": "❓",
+    }
 
     for category in priority_order:
         items = categorized.get(category, [])
@@ -248,7 +325,14 @@ def generate_fix_proposals(actionable_items: List[Dict[str, Any]]) -> str:
 
 
 def write_output(report: str) -> None:
-    """Write report to GITHUB_STEP_SUMMARY and secure temp file."""
+    """
+    Persist the generated report to the GitHub step summary file (if configured), write it to a secure temporary Markdown file, and print the report to standard output.
+
+    If the GITHUB_STEP_SUMMARY environment variable is set, the report is appended to that file. The report is also written to a temporary file with a .md suffix and the temporary file path is printed to stderr. IO errors when writing either file are reported to stderr but are not raised.
+
+    Parameters:
+        report (str): The formatted report content to persist and print.
+    """
     # 1. GitHub Summary
     gh_summary = os.environ.get("GITHUB_STEP_SUMMARY")
     if gh_summary:
@@ -256,12 +340,18 @@ def write_output(report: str) -> None:
             with open(gh_summary, "a", encoding="utf-8") as f:
                 f.write(report)
         except IOError as e:
-            print(f"Warning: Failed to write to GITHUB_STEP_SUMMARY: {e}", file=sys.stderr)
+            print(
+                f"Warning: Failed to write to GITHUB_STEP_SUMMARY: {e}", file=sys.stderr
+            )
 
     # 2. Secure Temp File
     try:
         with tempfile.NamedTemporaryFile(
-            mode="w", encoding="utf-8", delete=False, suffix=".md", prefix="fix_proposals_"
+            mode="w",
+            encoding="utf-8",
+            delete=False,
+            suffix=".md",
+            prefix="fix_proposals_",
         ) as tmp:
             tmp.write(report)
             print(f"Fix proposals generated: {tmp.name}", file=sys.stderr)
@@ -272,7 +362,11 @@ def write_output(report: str) -> None:
 
 
 def main():
-    """Main execution function."""
+    """
+    Orchestrates script execution: validates environment, loads configuration, parses PR review comments, generates fix proposals, and writes the report.
+
+    Validates that GITHUB_TOKEN, PR_NUMBER, REPO_OWNER, and REPO_NAME are present in the environment and that PR_NUMBER is an integer. Loads configuration (including actionable review keywords), fetches the pull request from GitHub, extracts actionable review items, generates a human-readable fix proposal report, and writes the report to the GitHub step summary, a secure temporary file, and standard output. Exits with status 1 if required environment variables are missing, PR_NUMBER is not an integer, a GitHub API error occurs, or any other unexpected error happens.
+    """
     required = ["GITHUB_TOKEN", "PR_NUMBER", "REPO_OWNER", "REPO_NAME"]
     env_vars = {var: os.environ.get(var) for var in required}
 
@@ -288,7 +382,8 @@ def main():
 
     config = load_config()
     keywords = config.get("review_handling", {}).get(
-        "actionable_keywords", ["please", "should", "fix", "refactor", "change", "update", "add", "remove"]
+        "actionable_keywords",
+        ["please", "should", "fix", "refactor", "change", "update", "add", "remove"],
     )
 
     try:

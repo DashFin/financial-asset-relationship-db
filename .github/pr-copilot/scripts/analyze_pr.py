@@ -69,21 +69,34 @@ EXTENSION_MAP = {
 class AnalysisData:
     """Container for PR analysis results."""
 
-    file_analysis: Dict[str, Any]
+    file_analysis: dict[str, Any]
     complexity_score: int
     risk_level: str
     scope_issues: List[str]
-    related_issues: List[Dict[str, str]]
+    related_issues: list[dict[str, str]]
     commit_count: int
 
 
 # --- Core Logic ---
 
 
-def load_config() -> Dict[str, Any]:
-    """Load configuration from YAML file safely."""
+def load_config() -> dict[str, Any]:
+    """
+    Load repository configuration from the YAML config file.
+
+    Reads and parses the file at CONFIG_PATH and returns its contents as a dictionary.
+    If the config file does not exist or cannot be parsed/read, an informational or
+    warning message is written to stderr and an empty dictionary is returned.
+
+    Returns:
+        config (dict[str, Any]): Parsed configuration dictionary, or an empty dict if
+        the file is missing or cannot be loaded.
+    """
     if not os.path.exists(CONFIG_PATH):
-        print(f"Info: Config file not found at {CONFIG_PATH}, using defaults.", file=sys.stderr)
+        print(
+            f"Info: Config file not found at {CONFIG_PATH}, using defaults.",
+            file=sys.stderr,
+        )
         return {}
 
     try:
@@ -110,11 +123,26 @@ def categorize_filename(filename: str) -> str:
     return EXTENSION_MAP.get(suffix, "other")
 
 
-def analyze_pr_files(pr_files_iterable: Any) -> Dict[str, Any]:
-    """Iterate through files to gather stats."""
-    categories: Dict[str, int] = defaultdict(int)
+def analyze_pr_files(pr_files_iterable: Any) -> dict[str, Any]:
+    """
+    Analyze an iterable of pull request file objects and summarize file-level change statistics.
+
+    Parameters:
+        pr_files_iterable (Iterable): An iterable of objects exposing `filename` (str), `additions` (int), and `deletions` (int).
+
+    Returns:
+        dict[str, Any]: A summary dictionary with the following keys:
+            - "file_count": total number of files processed.
+            - "file_categories": mapping of category name to count of files in that category.
+            - "total_additions": sum of all additions across files.
+            - "total_deletions": sum of all deletions across files.
+            - "total_changes": sum of additions and deletions across files.
+            - "large_files": list of dicts for files with more than 500 changes; each dict contains "filename", "changes", "additions", and "deletions".
+            - "has_large_files": `True` if any large files were found, `False` otherwise.
+    """
+    categories: dict[str, int] = defaultdict(int)
     stats = {"additions": 0, "deletions": 0, "changes": 0}
-    large_files: List[Dict[str, Any]] = []
+    large_files: list[dict[str, Any]] = []
     file_count = 0
 
     for pr_file in pr_files_iterable:
@@ -131,7 +159,14 @@ def analyze_pr_files(pr_files_iterable: Any) -> Dict[str, Any]:
         stats["changes"] += total
 
         if total > 500:
-            large_files.append({"filename": pr_file.filename, "changes": total, "additions": adds, "deletions": dels})
+            large_files.append(
+                {
+                    "filename": pr_file.filename,
+                    "changes": total,
+                    "additions": adds,
+                    "deletions": dels,
+                }
+            )
 
     return {
         "file_count": file_count,
@@ -152,15 +187,32 @@ def calculate_score(value: int, thresholds: List[Tuple[int, int]], default: int)
     return default
 
 
-def assess_complexity(file_data: Dict[str, Any], commit_count: int) -> Tuple[int, str]:
-    """Calculate 0-100 complexity score and risk level."""
+def assess_complexity(file_data: dict[str, Any], commit_count: int) -> tuple[int, str]:
+    """
+    Assess overall PR complexity and map it to a risk level.
+
+    Parameters:
+        file_data (dict[str, Any]): Aggregated file change data with keys:
+            - file_count (int): number of files changed
+            - total_changes (int): sum of additions and deletions across files
+            - has_large_files (bool): whether any files exceed the large-file threshold
+            - large_files (List[dict[str, int]]): list of large-file entries (used to compute a penalty)
+        commit_count (int): number of commits in the pull request
+
+    Returns:
+        Tuple[int, str]: A tuple (score, risk_level) where `score` is an integer complexity score (typically in the 0–100 range) and `risk_level` is one of "High", "Medium", or "Low".
+    """
     score = 0
 
     # File count impact
-    score += calculate_score(file_data["file_count"], [(50, 30), (20, 20), (10, 10)], default=5)
+    score += calculate_score(
+        file_data["file_count"], [(50, 30), (20, 20), (10, 10)], default=5
+    )
 
     # Line change impact
-    score += calculate_score(file_data["total_changes"], [(2000, 30), (1000, 20), (500, 15)], default=5)
+    score += calculate_score(
+        file_data["total_changes"], [(2000, 30), (1000, 20), (500, 15)], default=5
+    )
 
     # Large file penalty (capped at 20)
     if file_data["has_large_files"]:
@@ -177,8 +229,22 @@ def assess_complexity(file_data: Dict[str, Any], commit_count: int) -> Tuple[int
     return score, "Low"
 
 
-def find_scope_issues(pr_title: str, file_data: Dict[str, Any], config: Dict[str, Any]) -> List[str]:
-    """Identify potential scope creep."""
+def find_scope_issues(
+    pr_title: str, file_data: dict[str, Any], config: dict[str, Any]
+) -> list[str]:
+    """
+    Identify scope-related issues in a pull request based on its title and aggregated file-change data.
+
+    Parameters:
+        pr_title (str): The pull request title to evaluate.
+        file_data (dict[str, Any]): Aggregated file-change metrics produced by analyze_pr_files(), expected to contain
+            'file_count' (int), 'total_changes' (int), and 'file_categories' (mapping of category->count).
+        config (dict[str, Any]): Configuration dictionary; relevant keys under 'scope' include
+            'warn_on_long_title', 'max_files_changed', 'max_total_changes', and 'max_file_types_changed'.
+
+    Returns:
+        List[str]: A list of human-readable scope issue messages detected for the PR; empty if no issues found.
+    """
     issues = []
     scope_conf = config.get("scope", {})
 
@@ -193,12 +259,16 @@ def find_scope_issues(pr_title: str, file_data: Dict[str, Any], config: Dict[str
     # Size checks - File Count
     max_files = int(scope_conf.get("max_files_changed", 30))
     if file_data["file_count"] > max_files:
-        issues.append(f"Too many files changed ({file_data['file_count']} > {max_files})")
+        issues.append(
+            f"Too many files changed ({file_data['file_count']} > {max_files})"
+        )
 
     # FIX: Re-added missing logic for Total Changes
     max_total_changes = int(scope_conf.get("max_total_changes", 1500))
     if file_data["total_changes"] > max_total_changes:
-        issues.append(f"Large changeset ({file_data['total_changes']} lines > {max_total_changes})")
+        issues.append(
+            f"Large changeset ({file_data['total_changes']} lines > {max_total_changes})"
+        )
 
     # Context switching check
     distinct_types = len(file_data["file_categories"])
@@ -209,8 +279,19 @@ def find_scope_issues(pr_title: str, file_data: Dict[str, Any], config: Dict[str
     return issues
 
 
-def find_related_issues(pr_body: Optional[str], repo_url: str) -> List[Dict[str, str]]:
-    """Parse PR body for linked issues."""
+def find_related_issues(pr_body: Optional[str], repo_url: str) -> List[dict[str, str]]:
+    """
+    Extract referenced issue numbers and build their issue URLs from a pull request body.
+
+    Parses the PR body for issue references (e.g., "#123", "fixes #123", "closes #123") and returns a list of unique issues in the order they are first found.
+
+    Parameters:
+        pr_body (Optional[str]): The pull request body text to scan. If empty or None, no issues are returned.
+        repo_url (str): Base repository URL used to construct issue links (e.g., "https://github.com/owner/repo").
+
+    Returns:
+        List[dict[str, str]]: A list of dictionaries with keys `"number"` (issue number as a string) and `"url"` (full issue URL). Duplicate issue references are omitted.
+    """
     if not pr_body:
         return []
 
@@ -220,10 +301,14 @@ def find_related_issues(pr_body: Optional[str], repo_url: str) -> List[Dict[str,
 
     for pattern in patterns:
         for match in re.finditer(pattern, pr_body, re.IGNORECASE):
-            issue_num = match.group(1) if match.lastindex == 1 else match.group(match.lastindex)
+            issue_num = (
+                match.group(1) if match.lastindex == 1 else match.group(match.lastindex)
+            )
             if issue_num not in found_ids:
                 found_ids.add(issue_num)
-                results.append({"number": issue_num, "url": f"{repo_url}/issues/{issue_num}"})
+                results.append(
+                    {"number": issue_num, "url": f"{repo_url}/issues/{issue_num}"}
+                )
     return results
 
 
@@ -231,29 +316,62 @@ def find_related_issues(pr_body: Optional[str], repo_url: str) -> List[Dict[str,
 
 
 def generate_markdown(pr: Any, data: AnalysisData) -> str:
-    """Build the markdown report."""
+    """
+    Compose a markdown-formatted PR analysis report suitable for display in CI summaries.
+
+    Parameters:
+        pr (Any): Pull request object used for metadata (e.g., number and author).
+        data (AnalysisData): Analysis results including file breakdown, complexity score, risk level, scope issues, large files, and related issues.
+
+    Returns:
+        str: A Markdown string summarizing the PR overview, file breakdown, large-file highlights, scope issues, related issues, and recommended actions.
+    """
     emoji_map = {"Low": "🟢", "Medium": "🟡", "High": "🔴"}
     risk_emoji = emoji_map.get(data.risk_level, "⚪")
 
     def list_items(items: List[str], header: str) -> str:
+        """
+        Render a Markdown bullet list with a bold header from the provided items.
+
+        Parameters:
+                items (List[str]): Lines to include as bullet points. If empty, an empty string is returned.
+                header (str): Text displayed as a bold header above the bullet list.
+
+        Returns:
+                markdown (str): Empty string when `items` is empty; otherwise a Markdown block with the header in bold followed by each item as a `- ` bullet on its own line.
+        """
         if not items:
             return ""
         return f"\n**{header}**\n" + "".join([f"- {i}\n" for i in items])
 
-    cat_str = "\n".join([f"- {k.title()}: {v}" for k, v in data.file_analysis["file_categories"].items()])
+    cat_str = "\n".join(
+        [
+            f"- {k.title()}: {v}"
+            for k, v in data.file_analysis["file_categories"].items()
+        ]
+    )
 
     large_files_str = ""
     if data.file_analysis["large_files"]:
-        lines = [f"- `{f['filename']}`: {f['changes']} lines" for f in data.file_analysis["large_files"]]
+        lines = [
+            f"- `{f['filename']}`: {f['changes']} lines"
+            for f in data.file_analysis["large_files"]
+        ]
         large_files_str = "\n**Large Files (>500 lines):**\n" + "\n".join(lines) + "\n"
 
     related_str = ""
     if data.related_issues:
-        related_str = "\n**Related Issues:**\n" + "".join([f"- #{i['number']}\n" for i in data.related_issues])
+        related_str = "\n**Related Issues:**\n" + "".join(
+            [f"- #{i['number']}\n" for i in data.related_issues]
+        )
 
     recs = []
     if data.risk_level == "High":
-        recs = ["⚠️ Split into smaller changes", "📋 Comprehensive testing required", "👥 Request multiple reviewers"]
+        recs = [
+            "⚠️ Split into smaller changes",
+            "📋 Comprehensive testing required",
+            "👥 Request multiple reviewers",
+        ]
     elif data.risk_level == "Medium":
         recs = ["✅ Complexity manageable", "📝 Ensure adequate tests"]
     else:
@@ -265,7 +383,7 @@ def generate_markdown(pr: Any, data: AnalysisData) -> str:
 **Overview**
 - **PR:** #{pr.number} by @{pr.user.login}
 - **Score:** {data.complexity_score}/100 ({risk_emoji} {data.risk_level})
-- **Changes:** {data.file_analysis['file_count']} files, {data.file_analysis['total_changes']} lines
+- **Changes:** {data.file_analysis["file_count"]} files, {data.file_analysis["total_changes"]} lines
 
 **File Breakdown**
 {cat_str}
@@ -278,7 +396,11 @@ def generate_markdown(pr: Any, data: AnalysisData) -> str:
 
 
 def write_output(report: str) -> None:
-    """Write report to GITHUB_STEP_SUMMARY and a secure temp file."""
+    """
+    Write the given report to the GitHub Actions summary (if configured), to a securely-created temporary file, and to standard output.
+
+    If the GITHUB_STEP_SUMMARY environment variable is set, the report is appended to that file. A temporary file with a randomized name is created (its path is printed) to persist the report for other steps. The report is also printed to stdout.
+    """
     # 1. GitHub Actions Summary
     gh_summary = os.environ.get("GITHUB_STEP_SUMMARY")
     if gh_summary:
@@ -286,13 +408,19 @@ def write_output(report: str) -> None:
             with open(gh_summary, "a", encoding="utf-8") as f:
                 f.write(report)
         except IOError as e:
-            print(f"Warning: Failed to write to GITHUB_STEP_SUMMARY: {e}", file=sys.stderr)
+            print(
+                f"Warning: Failed to write to GITHUB_STEP_SUMMARY: {e}", file=sys.stderr
+            )
 
     # 2. FIX: Secure Temp File (Address Bandit B303)
     try:
         # delete=False ensures other steps can read it, but the name is random/secure
         with tempfile.NamedTemporaryFile(
-            mode="w", encoding="utf-8", delete=False, suffix=".md", prefix="pr_analysis_"
+            mode="w",
+            encoding="utf-8",
+            delete=False,
+            suffix=".md",
+            prefix="pr_analysis_",
         ) as tmp:
             tmp.write(report)
             print(f"Report written to: {tmp.name}")
@@ -307,12 +435,25 @@ def write_output(report: str) -> None:
 
 
 def run() -> None:
-    """Main execution flow."""
+    """
+    Execute the PR analysis workflow and emit a Markdown report for the specified pull request.
+
+    This function reads required environment variables (GITHUB_TOKEN, PR_NUMBER, REPO_OWNER, REPO_NAME), loads configuration, fetches the referenced pull request from GitHub, analyzes changed files and commits, computes a complexity score and risk level, identifies scope issues and related issues, generates a Markdown report, and writes the report to the GitHub Actions summary, a secure temporary file, and stdout. On success it exits with code 0. If the computed risk is "High" a GitHub Actions warning annotation is emitted.
+
+    Error behavior:
+    - Prints an error to stderr and exits with code 1 if any required environment variable is missing.
+    - Prints an error to stderr and exits with code 1 if PR_NUMBER cannot be parsed as an integer.
+    - Prints GitHub API errors to stderr and exits with code 1 for GitHub-related failures.
+    - Prints a full traceback and exits with code 1 for any other unexpected exceptions.
+    """
     required_vars = ["GITHUB_TOKEN", "PR_NUMBER", "REPO_OWNER", "REPO_NAME"]
     env_vars = {var: os.environ.get(var) for var in required_vars}
 
     if not all(env_vars.values()):
-        print(f"Error: Missing vars: {[k for k, v in env_vars.items() if not v]}", file=sys.stderr)
+        print(
+            f"Error: Missing vars: {[k for k, v in env_vars.items() if not v]}",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     try:
