@@ -272,7 +272,7 @@ class FinancialAssetApp:
             schema_report = gr.Textbox(interactive=False)
             asset_selector = gr.Dropdown(choices=[])
             gr.JSON()
-            asset_relationships = gr.JSON()
+            gr.JSON()
 
             graph_state = gr.State(self.graph)
 
