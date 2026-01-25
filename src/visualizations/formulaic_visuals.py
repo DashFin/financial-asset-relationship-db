@@ -387,33 +387,33 @@ class FormulaicVisualizer:
             render it with Plotly."""
         G = nx.Graph()
 
-            # Add edges from strongest correlations (expected: list of dict-like objects)
-            for item in strongest_correlations or []:
-                if not isinstance(item, dict):
-                    continue
+        # Add edges from strongest correlations (expected: list of dict-like objects)
+        for item in strongest_correlations or []:
+            if not isinstance(item, dict):
+                continue
 
-                a1 = item.get("asset1") or item.get("source") or item.get("from")
-                a2 = item.get("asset2") or item.get("target") or item.get("to")
-                corr = item.get("correlation") or item.get("corr") or item.get("value")
+            a1 = item.get("asset1") or item.get("source") or item.get("from")
+            a2 = item.get("asset2") or item.get("target") or item.get("to")
+            corr = item.get("correlation") or item.get("corr") or item.get("value")
 
-                if not (a1 and a2):
-                    continue
+            if not (a1 and a2):
+                continue
 
-                try:
-                    weight = float(corr) if corr is not None else 0.0
-                except (TypeError, ValueError):
-                    weight = 0.0
+            try:
+                weight = float(corr) if corr is not None else 0.0
+            except (TypeError, ValueError):
+                weight = 0.0
 
-                G.add_edge(a1, a2, weight=weight)
+            G.add_edge(a1, a2, weight=weight)
 
-                if G.number_of_nodes() == 0:
-                    return FormulaicVisualizer._create_empty_correlation_figure()
+            if G.number_of_nodes() == 0:
+                return FormulaicVisualizer._create_empty_correlation_figure()
 
-                # Layout
-                positions = nx.spring_layout(G, seed=42)
+        # Layout
+        positions = nx.spring_layout(G, seed=42)
 
-                # Edge traces
-            edge_traces = []
+        # Edge traces
+        edge_traces = []
             for u, v, data in G.edges(data=True):
                 x0, y0 = positions[u]
                 x1, y1 = positions[v]
