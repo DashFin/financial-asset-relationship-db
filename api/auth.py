@@ -19,10 +19,7 @@ from .models import UserInDB
 # Security configuration
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
-    raise ValueError(
-        "SECRET_KEY environment variable must be set before "
-        "importing api.auth"
-    )
+    raise ValueError("SECRET_KEY environment variable must be set before " "importing api.auth")
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -48,6 +45,8 @@ class User(BaseModel):
     full_name: Optional[str] = None
     disabled: Optional[bool] = None
     hashed_password: str
+
+
 def _is_truthy(value: str | None) -> bool:
     """
     Determine whether a string value represents a truthy boolean.
@@ -211,8 +210,7 @@ _seed_credentials_from_env(user_repository)
 
 if not user_repository.has_users():
     raise ValueError(
-        "No user credentials available. Provide ADMIN_USERNAME "
-        "and ADMIN_PASSWORD or pre-populate the database."
+        "No user credentials available. Provide ADMIN_USERNAME " "and ADMIN_PASSWORD or pre-populate the database."
     )
 
 

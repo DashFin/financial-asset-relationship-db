@@ -106,11 +106,7 @@ class FormulaicVisualizer:
             names.append(name)
             categories.append(getattr(f, "category", "N/A"))
             r_value = getattr(f, "r_squared", None)
-            r_squares.append(
-                f"{r_value:.4f}"
-                if isinstance(r_value, (int, float))
-                else "N/A"
-            )
+            r_squares.append(f"{r_value:.4f}" if isinstance(r_value, (int, float)) else "N/A")
 
         fig.add_trace(
             go.Table(
@@ -136,12 +132,7 @@ class FormulaicVisualizer:
                     labels=list(categories.keys()),
                     values=list(categories.values()),
                     hole=0.4,
-                    marker=dict(
-                        colors=[
-                            self.color_scheme.get(cat, "#CCCCCC")
-                            for cat in categories.keys()
-                        ]
-                    ),
+                    marker=dict(colors=[self.color_scheme.get(cat, "#CCCCCC") for cat in categories.keys()]),
                     textinfo="label+percent",
                     textposition="auto",
                 ),
@@ -151,15 +142,9 @@ class FormulaicVisualizer:
 
         # 2. Formula Reliability Bar Chart
         if formulas:
-            formula_names = [
-                f.name[:20] + "..." if len(f.name) > 20 else f.name
-                for f in formulas
-            ]
+            formula_names = [f.name[:20] + "..." if len(f.name) > 20 else f.name for f in formulas]
             r_squared_values = [f.r_squared for f in formulas]
-            colors = [
-                self.color_scheme.get(f.category, "#CCCCCC")
-                for f in formulas
-            ]
+            colors = [self.color_scheme.get(f.category, "#CCCCCC") for f in formulas]
 
             fig.add_trace(
                 go.Bar(
@@ -199,9 +184,7 @@ class FormulaicVisualizer:
                     else:
                         key1 = f"{asset1}-{asset2}"
                         key2 = f"{asset2}-{asset1}"
-                        corr = correlation_matrix.get(
-                            key1, correlation_matrix.get(key2, 0.5)
-                        )
+                        corr = correlation_matrix.get(key1, correlation_matrix.get(key2, 0.5))
                     row.append(corr)
                 z_matrix.append(row)
 
@@ -334,16 +317,8 @@ class FormulaicVisualizer:
                 f"<b>Category:</b> {formula.category}<br>"
                 f"<b>Reliability (R²):</b> {formula.r_squared:.3f}<br><br>"
                 "<b>Variables:</b><br>"
-                + "<br>".join(
-                    [
-                        f"• {var}: {desc}"
-                        for var, desc in formula.variables.items()
-                    ]
-                )
-                + (
-                    f"<br><br><b>Example Calculation:</b><br>"
-                    f"{formula.example_calculation}"
-                )
+                + "<br>".join([f"• {var}: {desc}" for var, desc in formula.variables.items()])
+                + (f"<br><br><b>Example Calculation:</b><br>" f"{formula.example_calculation}")
             ),
         )
 
@@ -366,8 +341,7 @@ class FormulaicVisualizer:
         # Create positions in a circle
         # Create positions in a circle based on strongest correlations
         assets = sorted(
-            {corr["asset1"] for corr in strongest_correlations}
-            | {corr["asset2"] for corr in strongest_correlations}
+            {corr["asset1"] for corr in strongest_correlations} | {corr["asset2"] for corr in strongest_correlations}
         )
         if not assets:
             assets = list(G.nodes())
@@ -453,9 +427,7 @@ class FormulaicVisualizer:
         return fig
 
     @staticmethod
-    def create_metric_comparison_chart(
-        analysis_results: Dict[str, Any]
-    ) -> go.Figure:
+    def create_metric_comparison_chart(analysis_results: Dict[str, Any]) -> go.Figure:
         """Create a chart comparing different metrics derived from formulas."""
         fig = go.Figure()
 
@@ -480,10 +452,7 @@ class FormulaicVisualizer:
 
         for category in category_names:
             category_formulas = categories[category]
-            avg_r_squared = (
-                sum(f.r_squared for f in category_formulas)
-                / len(category_formulas)
-            )
+            avg_r_squared = sum(f.r_squared for f in category_formulas) / len(category_formulas)
             r_squared_by_category.append(avg_r_squared)
             formula_counts.append(len(category_formulas))
 
