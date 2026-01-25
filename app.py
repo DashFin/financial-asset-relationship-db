@@ -776,7 +776,7 @@ class FinancialAssetApp:
             view_mode.change(
                 _on_view_mode_change,
                 inputs=visualization_inputs,
-                outputs=[visualization_3d, error_message, layout_type],
+                outputs=[visualization_3d, layout_type, error_message],
             )
 
             # Reset view button
