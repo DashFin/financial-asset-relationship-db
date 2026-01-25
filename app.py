@@ -770,7 +770,7 @@ class FinancialAssetApp:
             # View mode change handler (refresh visualization + toggle layout_type visibility)
             def _on_view_mode_change(
                 graph_state: AssetRelationshipGraph,
-                view_mode: str,
+                view_mode_value: str,
                 layout_type_value: str,
                 show_same_sector_value: bool,
                 show_market_cap_value: bool,
@@ -780,24 +780,11 @@ class FinancialAssetApp:
                 show_income_comparison_value: bool,
                 show_regulatory_value: bool,
                 show_all_relationships_value: bool,
-                # View mode change handlers:
-                # 1) refresh visualization
-                view_mode.change(
-                    self.refresh_visualization,
-                    inputs=visualization_inputs,
-                    outputs=visualization_outputs,
-                )
-
-                # 2) toggle 2D layout selector visibility
-                view_mode.change(
-                    lambda mode: gr.update(visible=(mode == "2D")),
-                    inputs=[view_mode],
-                    outputs=[layout_type],
-                )
+                toggle_arrows_value: bool,
             ) -> Tuple[go.Figure, Any, Any]:
                 fig, err = self.refresh_visualization(
                     graph_state,
-                    view_mode,
+                    view_mode_value,
                     layout_type_value,
                     show_same_sector_value,
                     show_market_cap_value,
@@ -808,6 +795,33 @@ class FinancialAssetApp:
                     show_regulatory_value,
                     show_all_relationships_value,
                     toggle_arrows_value,
+                )
+                # Toggle 2D layout selector visibility
+                layout_update = gr.update(visible=(view_mode_value == "2D"))
+                return fig, layout_update, err
+
+            view_mode.change(
+                _on_view_mode_change,
+                inputs=[
+                    graph_state,
+                    view_mode,
+                    layout_type,
+                    show_same_sector,
+                    show_market_cap,
+                    show_correlation,
+                    show_corporate_bond,
+                    show_commodity_currency,
+                    show_income_comparison,
+                    show_regulatory,
+                    show_all_relationships,
+                    toggle_arrows,
+                ],
+                outputs=[
+                    visualization_outputs[0],
+                    layout_type,
+                    visualization_outputs[1],
+                ],
+            )
                 )
                 return fig, err, gr.update(visible=view_mode == "2D")
 
