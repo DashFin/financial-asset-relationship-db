@@ -296,9 +296,7 @@ class RealDataFetcher:
 
                 # Calculate simple volatility from recent data
                 hist_week = ticker.history(period="5d")
-                volatility = float(
-                    hist_week["Close"].pct_change().std()
-                ) if len(hist_week) > 1 else 0.20
+                volatility = float(hist_week["Close"].pct_change().std()) if len(hist_week) > 1 else 0.20
 
                 commodity = Commodity(
                     id=symbol.replace("=F", "_FUTURE"),
@@ -395,9 +393,7 @@ class RealDataFetcher:
             asset_id="MSFT",
             event_type=RegulatoryActivity.DIVIDEND_ANNOUNCEMENT,
             date="2024-09-15",
-            description=(
-                "Quarterly dividend increase - Cloud growth continues"
-            ),
+            description=("Quarterly dividend increase - Cloud growth continues"),
             impact_score=0.08,
             related_assets=["AAPL", "LQD"],
         )
@@ -409,10 +405,7 @@ class RealDataFetcher:
             asset_id="XOM",
             event_type=RegulatoryActivity.SEC_FILING,
             date="2024-10-01",
-            description=(
-                "10-K Filing - Increased oil reserves and "
-                "sustainability initiatives"
-            ),
+            description=("10-K Filing - Increased oil reserves and " "sustainability initiatives"),
             impact_score=0.05,
             related_assets=["CL_FUTURE"],  # Related to oil futures
         )
@@ -496,10 +489,7 @@ def _serialize_graph(graph: AssetRelationshipGraph) -> Dict[str, Any]:
     """
     return {
         "assets": [_serialize_dataclass(asset) for asset in graph.assets.values()],
-        "regulatory_events": [
-            _serialize_dataclass(event)
-            for event in graph.regulatory_events
-        ],
+        "regulatory_events": [_serialize_dataclass(event) for event in graph.regulatory_events],
         "relationships": {
             source: [
                 {
