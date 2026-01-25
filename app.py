@@ -327,7 +327,8 @@ class FinancialAssetApp:
         analysis_results = formulaic_analyzer.analyze_graph(graph)
 
         # Generate visualizations
-        dashboard_fig = formulaic_visualizer.create_formula_dashboard(
+        summary = analysis_results.get("summary", {})
+        summary_text = self._format_formula_summary(summary, analysis_results)
             analysis_results
         )
         correlation_network_fig = formulaic_visualizer.create_correlation_network(
