@@ -97,7 +97,6 @@ class RealDataFetcher:
             events = self._create_regulatory_events()
             for event in events:
                 graph.add_regulatory_event(event)
-
             # Build relationships
             graph.build_relationships()
 
@@ -122,7 +121,7 @@ class RealDataFetcher:
             return graph
 
         except Exception as e:
-            logger.error(f"Failed to create real database: {e}")
+            logger.error("Failed to create real database: %s", e)
             # Fallback to sample data if real data fetch failure
             logger.warning("Falling back to sample data due to real data fetch failure")
             return self._fallback()
@@ -147,7 +146,7 @@ class RealDataFetcher:
 
     @staticmethod
     def _fetch_equity_data() -> List[Equity]:
-        """
+        
         Fetches current market data for a predefined set of major equities and
         returns them as Equity objects.
 
