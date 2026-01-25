@@ -383,7 +383,7 @@ class FormulaicVisualizer:
         strongest_correlations: Any,
         _correlation_matrix: Dict[str, Any],
     ) -> go.Figure:
-            """Build a NetworkX graph from strongest correlations and
+        """Build a NetworkX graph from strongest correlations and
             render it with Plotly."""
         G = nx.Graph()
 
