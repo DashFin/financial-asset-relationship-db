@@ -419,6 +419,7 @@ class FinancialAssetApp:
             "",
             "📋 **Formula Categories:**",
         ]
+
     def create_interface(self) -> gr.Blocks:
         """
         Creates the Gradio interface for the Financial Asset Relationship Database.
