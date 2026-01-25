@@ -166,7 +166,7 @@ class FinancialAssetApp:
     @staticmethod
     def _update_metrics_text(graph: AssetRelationshipGraph) -> str:
         """Generates the formatted text for network statistics."""
-        metrics: Dict[str, Union[int, float, Dict, List]] = graph.calculate_metrics()
+        metrics: RelationshipMetrics = graph.calculate_metrics()
         text: str = AppConstants.NETWORK_STATISTICS_TEXT.format(
             total_assets=metrics["total_assets"],
             total_relationships=metrics["total_relationships"],
