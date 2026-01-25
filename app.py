@@ -416,7 +416,6 @@ analyzing and visualizing asset networks.
             # Perform analysis
             analysis_results = formulaic_analyzer.analyze_graph(graph)
 
-            # Generate visualizations
             # (Existing visualization and return logic continues here)
             # Generate visualizations
             dashboard_fig = formulaic_visualizer.create_formula_dashboard(
@@ -428,15 +427,14 @@ analyzing and visualizing asset networks.
             metric_comparison_fig = formulaic_visualizer.create_metric_comparison_chart(
                 analysis_results
             )
-            dashboard_fig = formulaic_visualizer.create_formula_dashboard(
+
             # Generate formula selector options
-            formulas=analysis_results.get("formulas", [])
-            formula_choices=[f.name for f in formulas]
-            )
+            formulas = analysis_results.get("formulas", [])
+            formula_choices = [f.name for f in formulas]
+
             # Generate summary
             summary = analysis_results.get("summary", {})
             summary_text = self._format_formula_summary(summary, analysis_results)
-            summary = analysis_results.get("summary", {})
             logger.info("Generated formulaic analysis with %d formulas", len(formulas))
             return (
                 dashboard_fig,
@@ -449,13 +447,16 @@ analyzing and visualizing asset networks.
                 summary_text,
                 gr.update(visible=False),  # Hide error message
             )
-            return (
         except Exception as e:
-                        error_msg=f"Error generating formulaic analysis: {str(e)}"
-                        return (
-                            empty_fig,
-                            empty_fig,
-                            empty_fig,
+            error_msg = f"Error generating formulaic analysis: {str(e)}"
+            return (
+                empty_fig,
+                empty_fig,
+                empty_fig,
+                gr.update(visible=False),
+                error_msg,
+                gr.update(visible=True),
+            )
                             gr.update(choices=[], value=None),
                             error_msg,
                             gr.update(value=error_msg, visible=True),
