@@ -392,8 +392,9 @@ class FinancialAssetApp:
                 gr.update(value=error_msg, visible=True),
             )
 
+    @staticmethod
     def show_formula_details(
-        self, formula_name: str, graph_state: AssetRelationshipGraph
+        formula_name: str, graph_state: AssetRelationshipGraph
     ) -> Tuple[go.Figure, Any]:
         """Show detailed analysis for a specific formula."""
         try:
@@ -417,34 +418,13 @@ class FinancialAssetApp:
             f"🔗 **Empirical Data Points:** {summary.get('empirical_data_points', 0)}",
             "",
             "📋 **Formula Categories:",
-        ]
-
-        categories: Dict[str, int] = summary.get("formula_categories", {})
-        for category, count in categories.items():
-            summary_lines.append(f"  • {category}: {count} formulas")
-
-        summary_lines.extend(["", "🎯 **Key Insights:**"])
-        insights: List[str] = summary.get("key_insights", [])
-        for insight in insights:
-            summary_lines.append(f"  • {insight}")
-
-        correlations: List[Dict] = empirical.get("strongest_correlations", [])
-        if correlations:
-            summary_lines.extend(["", "🔗 **Strongest Asset Correlations:**"])
-            for corr in correlations[:3]:
-                summary_lines.append(
-                    f"  • {corr['pair']}: {corr['correlation']:.3f} ({corr['strength']})"
-                )
-
-        return "\n".join(summary_lines)
-
     def create_interface(self) -> gr.Blocks:
         """
         Creates the Gradio interface for the Financial Asset Relationship Database.
         """
-        demo: gr.Blocks = gr.Blocks(title=AppConstants.TITLE)
+        interface: gr.Blocks = gr.Blocks(title=AppConstants.TITLE)
 
-        with demo:
+        with interface:
             gr.Markdown(AppConstants.MARKDOWN_HEADER)
 
             error_message: gr.Textbox = gr.Textbox(
@@ -721,7 +701,7 @@ class FinancialAssetApp:
 
             # Update layout_type visibility based on view_mode
             view_mode.change(
-                lambda mode: gr.update(visible=(mode == "2D")),
+                lambda mode: gr.update(visible=mode == "2D"),
                 inputs=[view_mode],
                 outputs=[layout_type],
             )
