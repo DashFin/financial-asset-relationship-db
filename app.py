@@ -366,36 +366,41 @@ class FinancialAssetApp:
             return empty_fig, gr.update(value=error_msg, visible=True)
 
 
-def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGraph] = None):
-    """
-    Generate visualizations, selector options, and a textual summary from a
-    formulaic analysis of the asset graph.
+    def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGraph] = None):
+        """
+        Generate visualizations, selector options, and a textual summary from a
+        formulaic analysis of the asset graph.
 
-    Parameters:
-        graph_state(AssetRelationshipGraph | None): The asset graph to
-            analyze. If None, the application's internal graph will be
-            used.
+        Parameters
+        ----------
+        graph_state : AssetRelationshipGraph | None
+            The asset graph to analyze. If None, the application's internal graph
+            will be used.
 
-    Returns:
-        tuple: (
-            dashboard_fig: Plotly Figure for the formula dashboard,
-            correlation_network_fig: Plotly Figure for the empirical
-                correlation network,
-            metric_comparison_fig: Plotly Figure comparing metrics across
-                formulas,
-        )
-    """
-            formula_selector_update: gr.update object configuring the
-                formula selector's choices and selected value,
-            summary_text: str containing a textual summary of the
-                analysis,
-            error_visibility_update: gr.update object controlling
-                visibility of any error message
-        )
-    """
-    # Notes:
-    #     On error, the function returns three empty Plotly figures, an empty
-    #     selector update, an error message string as summary_text, and an
+        Returns
+        -------
+        tuple
+            (
+                dashboard_fig: Plotly Figure for the formula dashboard,
+                correlation_network_fig: Plotly Figure for the empirical
+                    correlation network,
+                metric_comparison_fig: Plotly Figure comparing metrics across
+                    formulas,
+                formula_selector_update: gr.update object configuring the
+                    formula selector's choices and selected value,
+                summary_text: str containing a textual summary of the
+                    analysis,
+                error_visibility_update: gr.update object controlling
+                    visibility of any error message
+            )
+
+        Notes
+        -----
+        On error, the function returns three empty Plotly figures, an empty
+        selector update, an error message string as summary_text, and an
+        error_visibility_update that makes the error visible.
+        """
+        try:
     #     error_visibility_update that makes the error visible.
     try:
         logger.info("Generating formulaic analysis")
