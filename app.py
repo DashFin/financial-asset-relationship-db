@@ -405,6 +405,46 @@ class FinancialAssetApp:
             return go.Figure(), gr.update(value=f"Error: {e}", visible=True)
 
     @staticmethod
+    def _format_formula_summary(
+        summary: Dict[str, Any], analysis_results: Dict[str, Any]
+    ) -> str:
+        """Format the formula analysis summary for display."""
+        formulas: List[Any] = analysis_results.get("formulas", [])
+        empirical: Dict[str, Any] = analysis_results.get("empirical_relationships", {})
+
+        summary_lines: List[str] = [
+            "🔍 **Formulaic Analysis Summary**",
+            "",
+            f"📊 **Total Formulas Identified:** {len(formulas)}",
+            f"📈 **Average Reliability (R²):** {summary.get('avg_r_squared', 0):.3f}",
+            f"🔗 **Empirical Data Points:** {summary.get('empirical_data_points', 0)}",
+            "",
+            "📋 **Formula Categories:**",
+        ]
+
+        categories: Dict[str, int] = summary.get("formula_categories", {}) or {}
+        if categories:
+            for category, count in categories.items():
+                summary_lines.append(f"  • {category}: {count} formulas")
+        else:
+            summary_lines.append("  • N/A")
+
+        insights: List[str] = summary.get("key_insights", []) or []
+        if insights:
+            summary_lines.extend(["", "🎯 **Key Insights:**"])
+            for insight in insights:
+                summary_lines.append(f"  • {insight}")
+
+        correlations: List[Dict[str, Any]] = empirical.get("strongest_correlations", []) or []
+        if correlations:
+            summary_lines.extend(["", "🔗 **Strongest Asset Correlations:**"])
+            for corr in correlations[:3]:
+                pair: str = str(corr.get("pair", "N/A"))
+                corr_val: float = float(corr.get("correlation", 0.0) or 0.0)
+                strength: str = str(corr.get("strength", "N/A"))
+                summary_lines.append(f"  • {pair}: {corr_val:.3f} ({strength})")
+
+        return "\n".join(summary_lines)
     def _format_formula_summary(summary: Dict, analysis_results: Dict) -> str:
         """Format the formula analysis summary for display."""
         formulas: List = analysis_results.get("formulas", [])
