@@ -6,6 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import yfinance as yf
 
+from src.data.sample_database import create_sample_database
 from src.logic.asset_graph import AssetRelationshipGraph
 from src.models.financial_models import (
     Asset,
@@ -107,7 +108,11 @@ class RealDataFetcher:
 
                 try:
                     cache_dir = os.path.dirname(self.cache_path)
-                    with tempfile.NamedTemporaryFile("wb", dir=cache_dir, delete=False) as tmp_file:
+                    with tempfile.NamedTemporaryFile(
+                        "wb",
+                        dir=cache_dir,
+                        delete=False,
+                    ) as tmp_file:
                         tmp_path = tmp_file.name
                         _save_to_cache(graph, Path(tmp_path))
                     os.replace(tmp_path, self.cache_path)
@@ -141,8 +146,6 @@ class RealDataFetcher:
         """
         if self.fallback_factory is not None:
             return self.fallback_factory()
-        from src.data.sample_data import create_sample_database
-
         return create_sample_database()
 
     @staticmethod
@@ -190,7 +193,12 @@ class RealDataFetcher:
                     book_value=info.get("bookValue"),
                 )
                 equities.append(equity)
-                logger.info("Fetched price for %s (%s): %s", symbol, name, current_price)
+                logger.info(
+                    "Fetched price for %s (%s): %s",
+                    symbol,
+                    name,
+                    current_price,
+                )
 
             except Exception as e:
                 logger.error("Failed to fetch data for %s: %s", symbol, e)
@@ -201,7 +209,8 @@ class RealDataFetcher:
     @staticmethod
     def _fetch_bond_data() -> List[Bond]:
         """Fetch real bond/treasury data"""
-        # For bonds, we'll use Treasury ETFs and bond proxies since individual bonds are harder to access
+        # For bonds, we'll use Treasury ETFs and bond proxies since individual bonds
+        # are harder to access.
         bond_symbols = {
             "TLT": ("iShares 20+ Year Treasury Bond ETF", "Government", None, "AAA"),
             "LQD": (
@@ -245,7 +254,12 @@ class RealDataFetcher:
                     issuer_id=issuer_id,
                 )
                 bonds.append(bond)
-                logger.info("Fetched %s: %s at $%.2f", symbol, name, current_price)
+                logger.info(
+                    "Fetched %s: %s at $%.2f",
+                    symbol,
+                    name,
+                    current_price,
+                )
 
             except Exception as e:
                 logger.error("Failed to fetch bond data for %s: %s", symbol, e)
@@ -290,10 +304,19 @@ class RealDataFetcher:
                     volatility=volatility,
                 )
                 commodities.append(commodity)
-                logger.info("Fetched %s: %s at $%.2f", symbol, name, current_price)
+                logger.info(
+                    "Fetched %s: %s at $%.2f",
+                    symbol,
+                    name,
+                    current_price,
+                )
 
             except Exception as e:
-                logger.error("Failed to fetch commodity data for %s: %s", symbol, e)
+                logger.error(
+                    "Failed to fetch commodity data for %s: %s",
+                    symbol,
+                    e,
+                )
                 continue
 
         return commodities
@@ -364,7 +387,7 @@ class RealDataFetcher:
             asset_id="MSFT",
             event_type=RegulatoryActivity.DIVIDEND_ANNOUNCEMENT,
             date="2024-09-15",
-            description="Quarterly dividend increase - Cloud growth continues",
+            description=("Quarterly dividend increase - Cloud growth continues"),
             impact_score=0.08,
             related_assets=["AAPL", "LQD"],
         )
@@ -411,7 +434,7 @@ def _enum_to_value(value: Any) -> Any:
     Return the input unchanged otherwise.
 
     Parameters:
-        value (Any): The value to normalise.
+        value(Any): The value to normalise.
             If `value` is an `Enum` member its `.value` is returned.
 
     Returns:
@@ -429,7 +452,7 @@ def _serialize_dataclass(obj: Any) -> Dict[str, Any]:
     with enum values converted.
 
     Parameters:
-        obj (Any): A dataclass instance (e.g. Asset or subclass) to serialize.
+        obj(Any): A dataclass instance(e.g. Asset or subclass) to serialize.
 
     Returns:
         Dict[str, Any]: A mapping of field names to values where
@@ -444,10 +467,10 @@ def _serialize_dataclass(obj: Any) -> Dict[str, Any]:
 
 def _serialize_graph(graph: AssetRelationshipGraph) -> Dict[str, Any]:
     """
-    Serialize an AssetRelationshipGraph into a JSON-serialisable dictionary.
+    Serialize an AssetRelationshipGraph into a JSON - serialisable dictionary.
 
     Parameters:
-        graph (AssetRelationshipGraph): Graph to serialize.
+        graph(AssetRelationshipGraph): Graph to serialize.
 
     Returns:
         Dict[str, Any]: Dictionary containing:
@@ -491,7 +514,7 @@ def _deserialize_asset(data: Dict[str, Any]) -> Asset:
     Deserialize a dictionary representation of an asset back into an Asset instance.
 
     Parameters:
-        data (Dict[str, Any]): Dictionary containing asset data
+        data(Dict[str, Any]): Dictionary containing asset data
             with a "__type__" key indicating the asset subclass.
 
     Returns:
@@ -523,7 +546,7 @@ def _deserialize_event(data: Dict[str, Any]) -> RegulatoryEvent:
     the RegulatoryActivity enum before creating the RegulatoryEvent instance.
 
     Parameters:
-        data (Dict[str, Any]): Serialized event payload — must include an
+        data(Dict[str, Any]): Serialized event payload — must include an
             "event_type" value compatible with RegulatoryActivity and the
             remaining fields accepted by RegulatoryEvent.
 
@@ -540,7 +563,7 @@ def _deserialize_graph(payload: Dict[str, Any]) -> AssetRelationshipGraph:
     Reconstructs an AssetRelationshipGraph from a serialized payload.
 
     Parameters:
-        payload (Dict[str, Any]): Serialized graph payload containing the keys
+        payload(Dict[str, Any]): Serialized graph payload containing the keys
             "assets", "regulatory_events", "relationships", etc.
 
     Returns:
@@ -573,7 +596,7 @@ def _load_from_cache(path: Path) -> AssetRelationshipGraph:
     Load an AssetRelationshipGraph from a JSON cache file.
 
     Parameters:
-        path (Path): Filesystem path to the cache JSON file to read.
+        path(Path): Filesystem path to the cache JSON file to read.
 
     Returns:
         AssetRelationshipGraph: The graph reconstructed from the JSON payload.
@@ -593,8 +616,8 @@ def _save_to_cache(graph: AssetRelationshipGraph, path: Path) -> None:
     and overwrites any existing file at the path.
 
     Parameters:
-        graph (AssetRelationshipGraph): The graph to persist.
-        path (Path): Filesystem path where the JSON representation will be written.
+        graph(AssetRelationshipGraph): The graph to persist.
+        path(Path): Filesystem path where the JSON representation will be written.
     """
     payload = _serialize_graph(graph)
     path.parent.mkdir(parents=True, exist_ok=True)

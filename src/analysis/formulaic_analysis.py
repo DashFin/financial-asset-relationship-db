@@ -149,7 +149,10 @@ class FormulaicdAnalyzer:
 
         return formulas
 
-    def _analyze_correlation_patterns(self, graph: AssetRelationshipGraph) -> List[Formula]:
+    def _analyze_correlation_patterns(
+        self,
+        graph: AssetRelationshipGraph,
+    ) -> List[Formula]:
         """Analyze and formulate correlation patterns between assets"""
         formulas = []
 
@@ -234,7 +237,10 @@ class FormulaicdAnalyzer:
 
         return formulas
 
-    def _analyze_risk_return_relationships(self, graph: AssetRelationshipGraph) -> List[Formula]:
+    def _analyze_risk_return_relationships(
+        self,
+        graph: AssetRelationshipGraph,
+    ) -> List[Formula]:
         """Analyze risk-return mathematical relationships"""
         formulas = []
 
@@ -345,7 +351,7 @@ class FormulaicdAnalyzer:
             commodity_currency_formula = Formula(
                 name="Commodity-Currency Relationship",
                 formula=("Currency_Value ∝ 1/Commodity_Price (for commodity exporters)"),
-                latex=r"FX_{commodity} \propto \frac{1}{P_{commodity}}",
+                latex=(r"FX_{commodity} \propto \frac{1}{P_{commodity}}"),
                 description=("Inverse relationship between commodity prices and currency values"),
                 variables={
                     "FX_commodity": "Currency value of commodity exporter",
@@ -383,7 +389,7 @@ class FormulaicdAnalyzer:
         avg_corr_strength = self._calculate_avg_correlation_strength_from_empirical(empirical_relationships)
         return {
             "total_formulas": len(formulas),
-            "avg_r_squared": sum(f.r_squared for f in formulas) / len(formulas) if formulas else 0,
+            "avg_r_squared": (sum(f.r_squared for f in formulas) / len(formulas) if formulas else 0),
             "formula_categories": self._categorize_formulas(formulas),
             "empirical_data_points": len(empirical_relationships.get("correlation_matrix", {})),
             "key_insights": [

@@ -63,7 +63,11 @@ class FormulaicVisualizer:
     def _plot_reliability(self, fig: go.Figure, formulas: Any) -> None:
         pass
 
-    def _plot_empirical_correlation(self, fig: go.Figure, empirical_relationships: Any) -> None:
+    def _plot_empirical_correlation(
+        self,
+        fig: go.Figure,
+        empirical_relationships: Any,
+    ) -> None:
         pass
 
     def _plot_asset_class_relationships(self, fig: go.Figure, formulas: Any) -> None:
@@ -311,9 +315,8 @@ class FormulaicVisualizer:
                 f"<b>Description:</b><br>"
                 f"{formula.description}<br><br>"
                 f"<b>Category:</b> {formula.category}<br>"
-                f"<b>Reliability (R²):</b> "
-                f"{formula.r_squared:.3f}<br><br>"
-                + "<b>Variables:</b><br>"
+                f"<b>Reliability (R²):</b> {formula.r_squared:.3f}<br><br>"
+                "<b>Variables:</b><br>"
                 + "<br>".join([f"• {var}: {desc}" for var, desc in formula.variables.items()])
                 + (f"<br><br><b>Example Calculation:</b><br>" f"{formula.example_calculation}")
             ),

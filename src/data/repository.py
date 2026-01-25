@@ -123,7 +123,12 @@ class AssetGraphRepository:
             for rel in result
         ]
 
-    def get_relationship(self, source_id: str, target_id: str, rel_type: str) -> Optional[RelationshipRecord]:
+    def get_relationship(
+        self,
+        source_id: str,
+        target_id: str,
+        rel_type: str,
+    ) -> Optional[RelationshipRecord]:
         """Fetch a single relationship if it exists."""
 
         stmt = select(AssetRelationshipORM).where(
@@ -142,7 +147,12 @@ class AssetGraphRepository:
             bidirectional=relationship.bidirectional,
         )
 
-    def delete_relationship(self, source_id: str, target_id: str, rel_type: str) -> None:
+    def delete_relationship(
+        self,
+        source_id: str,
+        target_id: str,
+        rel_type: str,
+    ) -> None:
         """Remove a relationship."""
 
         stmt = select(AssetRelationshipORM).where(
