@@ -467,9 +467,10 @@ class FormulaicVisualizer:
                 ),
             )
             return fig
+
         def _create_empty_correlation_figure() -> go.Figure:
             """Return an empty placeholder figure for the correlation network."""
-            fig=go.Figure()
+            fig = go.Figure()
             fig.update_layout(
                 title="Correlation Network Graph",
                 template="plotly_white",
@@ -490,50 +491,50 @@ class FormulaicVisualizer:
             )
             return fig
 
-        @ staticmethod
+        @staticmethod
         def _build_and_render_correlation_network(
             strongest_correlations: Any,
             correlation_matrix: Dict[str, Any],
         ) -> go.Figure:
             """Build a NetworkX graph from strongest correlations and render it with Plotly."""
-            G=nx.Graph()
+            G = nx.Graph()
 
             # Add edges from strongest correlations (expected: list of dict-like objects)
             for item in strongest_correlations or []:
                 if not isinstance(item, dict):
                     continue
-                a1=item.get("asset1") or item.get("source") or item.get("from")
-                a2=item.get("asset2") or item.get("target") or item.get("to")
-                corr=item.get("correlation") or item.get("corr") or item.get("value")
+                a1 = item.get("asset1") or item.get("source") or item.get("from")
+                a2 = item.get("asset2") or item.get("target") or item.get("to")
+                corr = item.get("correlation") or item.get("corr") or item.get("value")
                 if a1 and a2:
                     try:
-                        weight=float(corr) if corr is not None else 0.0
+                        weight = float(corr) if corr is not None else 0.0
                     except (TypeError, ValueError):
-                        weight=0.0
+                        weight = 0.0
                     G.add_edge(a1, a2, weight=weight)
 
             if G.number_of_nodes() == 0:
                 return FormulaicVisualizer._create_empty_correlation_figure()
 
             # Layout
-            positions=nx.spring_layout(G, seed=42)
+            positions = nx.spring_layout(G, seed=42)
 
             # Edge traces
-            edge_traces=[]
+            edge_traces = []
             for u, v, data in G.edges(data=True):
-                x0, y0=positions[u]
-                x1, y1=positions[v]
-                weight=float(data.get("weight", 0.0))
+                x0, y0 = positions[u]
+                x1, y1 = positions[v]
+                weight = float(data.get("weight", 0.0))
                 # Highlight strong correlations
                 if abs(weight) >= 0.7:
-                    color="#E74C3C"  # red
-                    width=3
+                    color = "#E74C3C"  # red
+                    width = 3
                 elif abs(weight) >= 0.4:
-                    color="#3498DB"  # blue
-                    width=2
+                    color = "#3498DB"  # blue
+                    width = 2
                 else:
-                    color="lightgray"
-                    width=1
+                    color = "lightgray"
+                    width = 1
 
                 edge_traces.append(
                     go.Scatter(
@@ -547,12 +548,12 @@ class FormulaicVisualizer:
                 )
 
             # Node trace (colored by degree)
-            nodes=list(G.nodes())
-            node_x=[positions[n][0] for n in nodes]
-            node_y=[positions[n][1] for n in nodes]
-            degrees=[G.degree(n) for n in nodes]
+            nodes = list(G.nodes())
+            node_x = [positions[n][0] for n in nodes]
+            node_y = [positions[n][1] for n in nodes]
+            degrees = [G.degree(n) for n in nodes]
 
-            node_trace=go.Scatter(
+            node_trace = go.Scatter(
                 x=node_x,
                 y=node_y,
                 mode="markers+text",
@@ -575,7 +576,7 @@ class FormulaicVisualizer:
                 showlegend=False,
             )
 
-            fig=go.Figure(
+            fig = go.Figure(
                 data=[*edge_traces, node_trace],
                 layout=go.Layout(
                     title="Correlation Network Graph",
@@ -610,12 +611,12 @@ class FormulaicVisualizer:
         node_text = assets
 
         node_trace = go.Scatter(
-            x=node_x,
-            y=node_y,
-            mode="markers+text",
-            text=node_text,
-            textposition="top center",
-            marker=dict(
+            x = node_x,
+            y = node_y,
+            mode = "markers+text",
+            text = node_text,
+            textposition = "top center",
+            marker = dict(
                 showscale=True,
                 colorscale="YlGnBu",
                 size=10,
@@ -627,7 +628,7 @@ class FormulaicVisualizer:
                 ),
                 line_width=2,
             ),
-            hoverinfo="text",
+            hoverinfo = "text",
         )
 
         # Color nodes by degree
@@ -637,8 +638,8 @@ class FormulaicVisualizer:
         node_trace.marker.color = node_adjacencies
 
         fig = go.Figure(
-            data=[edge_trace, node_trace],
-            layout=go.Layout(
+            data = [edge_trace, node_trace],
+            layout = go.Layout(
                 title="Correlation Network Graph",
                 titlefont_size=16,
                 showlegend=False,
@@ -650,7 +651,7 @@ class FormulaicVisualizer:
         )
         return fig
 
-    @staticmethod
+    @ staticmethod
     def create_metric_comparison_chart(analysis_results: Dict[str, Any]) -> go.Figure:
         """Create a chart comparing different metrics derived from formulas."""
         fig = go.Figure()
@@ -693,10 +694,10 @@ class FormulaicVisualizer:
         )
 
         fig.update_layout(
-            title="Formula Reliability Distribution by Category",
-            yaxis_title="R-Squared Score",
-            xaxis_title="Formula Category",
-            showlegend=False,
-            template="plotly_white",
+            title = "Formula Reliability Distribution by Category",
+            yaxis_title = "R-Squared Score",
+            xaxis_title = "Formula Category",
+            showlegend = False,
+            template = "plotly_white",
         )
         return fig
