@@ -325,12 +325,12 @@ class FinancialAssetApp:
 
         # Perform analysis
         analysis_results = formulaic_analyzer.analyze_graph(graph)
+
+        # Generate formula selector options
+        formulas = analysis_results.get("formulas", [])
         formula_choices = [f.name for f in formulas]
+
         # Generate visualizations
-        summary = analysis_results.get("summary", {})
-        summary_text = self._format_formula_summary(summary, analysis_results)
-            analysis_results
-        )
         correlation_network_fig = formulaic_visualizer.create_correlation_network(
             analysis_results.get("empirical_relationships", {})
         )
@@ -338,24 +338,21 @@ class FinancialAssetApp:
             analysis_results
         )
 
-        # Generate formula selector options
-        formulas = analysis_results.get("formulas", [])
-            formula_choices = [f.name for f in formulas]
+        # Generate summary
+        summary = analysis_results.get("summary", {})
+        summary_text = self._format_formula_summary(summary, analysis_results)
 
-            # Generate summary
-            summary = analysis_results.get("summary", {})
-            summary_text = self._format_formula_summary(summary, analysis_results)
-
-            logger.info("Generated formulaic analysis with %d formulas", len(formulas))
-            return (
-                dashboard_fig,
-                correlation_network_fig,
-                metric_comparison_fig,
-                gr.update(
-                    choices=formula_choices,
-                    value=formula_choices[0] if formula_choices else None,
-                ),
-                summary_text,
+        logger.info("Generated formulaic analysis with %d formulas", len(formulas))
+        return (
+            dashboard_fig,
+            correlation_network_fig,
+            metric_comparison_fig,
+            gr.update(
+                choices=formula_choices,
+                value=formula_choices[0] if formula_choices else None,
+            ),
+            summary_text,
+        )
                 gr.update(visible=False),  # Hide error message
             )
 
