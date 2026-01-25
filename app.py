@@ -316,30 +316,29 @@ class FinancialAssetApp:
 
     def generate_formulaic_analysis(self, graph_state: AssetRelationshipGraph):
         """Generate comprehensive formulaic analysis of the asset graph."""
-        try:
-            logger.info("Generating formulaic analysis")
-            graph = self.ensure_graph() if graph_state is None else graph_state
+        logger.info("Generating formulaic analysis")
+        graph = self.ensure_graph() if graph_state is None else graph_state
 
-            # Initialize analyzers
-            formulaic_analyzer = FormulaicdAnalyzer()
-            formulaic_visualizer = FormulaicVisualizer()
+        # Initialize analyzers
+        formulaic_analyzer = FormulaicdAnalyzer()
+        formulaic_visualizer = FormulaicVisualizer()
 
-            # Perform analysis
-            analysis_results = formulaic_analyzer.analyze_graph(graph)
+        # Perform analysis
+        analysis_results = formulaic_analyzer.analyze_graph(graph)
 
-            # Generate visualizations
-            dashboard_fig = formulaic_visualizer.create_formula_dashboard(
-                analysis_results
-            )
-            correlation_network_fig = formulaic_visualizer.create_correlation_network(
-                analysis_results.get("empirical_relationships", {})
-            )
-            metric_comparison_fig = formulaic_visualizer.create_metric_comparison_chart(
-                analysis_results
-            )
+        # Generate visualizations
+        dashboard_fig = formulaic_visualizer.create_formula_dashboard(
+            analysis_results
+        )
+        correlation_network_fig = formulaic_visualizer.create_correlation_network(
+            analysis_results.get("empirical_relationships", {})
+        )
+        metric_comparison_fig = formulaic_visualizer.create_metric_comparison_chart(
+            analysis_results
+        )
 
-            # Generate formula selector options
-            formulas = analysis_results.get("formulas", [])
+        # Generate formula selector options
+        formulas = analysis_results.get("formulas", [])
             formula_choices = [f.name for f in formulas]
 
             # Generate summary
