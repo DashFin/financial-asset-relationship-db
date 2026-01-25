@@ -1,4 +1,3 @@
-import math
 from typing import Any, Dict
 
 import networkx as nx
@@ -379,12 +378,13 @@ class FormulaicVisualizer:
         )
         return fig
 
-        @staticmethod
-        def _build_and_render_correlation_network(
-            strongest_correlations: Any,
-            correlation_matrix: Dict[str, Any],
-        ) -> go.Figure:
-            """Build a NetworkX graph from strongest correlations and render it with Plotly."""
+    @staticmethod
+    def _build_and_render_correlation_network(
+        strongest_correlations: Any,
+        _correlation_matrix: Dict[str, Any],
+    ) -> go.Figure:
+            """Build a NetworkX graph from strongest correlations and
+            render it with Plotly."""
             G = nx.Graph()
 
             # Add edges from strongest correlations (expected: list of dict-like objects)
@@ -406,13 +406,13 @@ class FormulaicVisualizer:
 
                 G.add_edge(a1, a2, weight=weight)
 
-            if G.number_of_nodes() == 0:
-                return FormulaicVisualizer._create_empty_correlation_figure()
+                if G.number_of_nodes() == 0:
+                    return FormulaicVisualizer._create_empty_correlation_figure()
 
-            # Layout
-            positions = nx.spring_layout(G, seed=42)
+                # Layout
+                positions = nx.spring_layout(G, seed=42)
 
-            # Edge traces
+                # Edge traces
             edge_traces = []
             for u, v, data in G.edges(data=True):
                 x0, y0 = positions[u]
@@ -510,9 +510,10 @@ class FormulaicVisualizer:
         @staticmethod
         def _build_and_render_correlation_network(
             strongest_correlations: Any,
-            correlation_matrix: Dict[str, Any],
+            _correlation_matrix: Dict[str, Any],
         ) -> go.Figure:
-            """Build a NetworkX graph from strongest correlations and render it with Plotly."""
+            """Build a NetworkX graph from strongest correlations
+            and render it with Plotly."""
             G = nx.Graph()
 
             # Add edges from strongest correlations (expected: list of dict-like objects)
@@ -617,7 +618,7 @@ class FormulaicVisualizer:
         correlation_matrix = empirical_relationships.get("correlation_matrix", {})
 
         if not strongest_correlations:
-            return FormulaicVisualizer._create_empty_correlation_figure()
+            return FormulaicVisualizer._create_empty_correlation_network_figure()
 
         return FormulaicVisualizer._build_and_render_correlation_network(
             strongest_correlations,
@@ -625,7 +626,7 @@ class FormulaicVisualizer:
         )
 
     @staticmethod
-    def _create_empty_correlation_figure() -> go.Figure:
+    def _create_empty_correlation_network_figure() -> go.Figure:
         """Return an empty placeholder figure for the correlation network."""
         fig = go.Figure()
         fig.update_layout(
@@ -649,31 +650,43 @@ class FormulaicVisualizer:
         return fig
 
     @staticmethod
+    def _extract_correlation_edge(item):
+        """
+        Extract nodes and weight from a correlation item.
+        """
+        if not isinstance(item, dict):
+            return None
+        a1_keys = ["asset1", "source", "from"]
+        a2_keys = ["asset2", "target", "to"]
+        corr_keys = ["correlation", "corr", "value"]
+        a1 = next((item.get(k) for k in a1_keys if item.get(k)), None)
+        a2 = next((item.get(k) for k in a2_keys if item.get(k)), None)
+        corr = next((item.get(k) for k in corr_keys if item.get(k) is not None), None)
+        if not (a1 and a2):
+            return None
+        try:
+            weight = float(corr) if corr is not None else 0.0
+        except (TypeError, ValueError):
+            weight = 0.0
+        return a1, a2, weight
+
+    @staticmethod
     def _build_and_render_correlation_network(
         strongest_correlations: Any,
         correlation_matrix: Dict[str, Any],
     ) -> go.Figure:
-        """Build a NetworkX graph from strongest correlations and render it with Plotly."""
+        """
+        Build a NetworkX graph from strongest correlations and render it with
+        Plotly.
+        """
         G = nx.Graph()
 
         # Add edges from strongest correlations (expected: list of dict-like objects)
         for item in strongest_correlations or []:
-            if not isinstance(item, dict):
-                continue
-
-            a1 = item.get("asset1") or item.get("source") or item.get("from")
-            a2 = item.get("asset2") or item.get("target") or item.get("to")
-            corr = item.get("correlation") or item.get("corr") or item.get("value")
-
-            if not (a1 and a2):
-                continue
-
-            try:
-                weight = float(corr) if corr is not None else 0.0
-            except (TypeError, ValueError):
-                weight = 0.0
-
-            G.add_edge(a1, a2, weight=weight)
+            edge = FormulaicVisualizer._extract_correlation_edge(item)
+            if edge:
+                a1, a2, weight = edge
+                G.add_edge(a1, a2, weight=weight)
 
         if G.number_of_nodes() == 0:
             return FormulaicVisualizer._create_empty_correlation_figure()
@@ -752,32 +765,6 @@ class FormulaicVisualizer:
             ),
         )
         return fig
-        color = "lightgray"
-        width = 2
-
-        edge_traces.append(
-            go.Scatter(
-                x=[x0, x1, None],
-                y=[y0, y1, None],
-                mode="lines",
-                line=dict(color=color, width=width),
-                hoverinfo="none",
-                showlegend=False,
-            )
-        )
-
-        # Create node trace
-        node_x = [positions[asset][0] for asset in assets]
-        node_y = [positions[asset][1] for asset in assets]
-        node_text = assets
-
-        node_trace = go.Scatter(
-            x=node_x,
-            y=node_y,
-            mode="markers+text",
-            text=node_text,
-            textposition="top center",
-            marker=dict(
                 showscale=True,
                 colorscale="YlGnBu",
                 size=10,
