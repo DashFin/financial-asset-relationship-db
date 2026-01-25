@@ -29,7 +29,7 @@ if not LOGGER.handlers:
     _handler.setFormatter(_formatter)
     LOGGER.addHandler(_handler)
     LOGGER.setLevel(logging.INFO)
-    LOGGER.propagate = False
+    # Removed: LOGGER.propagate = False
 
 
 class AppConstants:
@@ -419,6 +419,25 @@ class FinancialAssetApp:
             "",
             "📋 **Formula Categories:**",
         ]
+
+        categories: Dict[str, int] = summary.get("formula_categories", {})
+        for category, count in categories.items():
+            summary_lines.append(f"  • {category}: {count} formulas")
+
+        summary_lines.extend(["", "🎯 **Key Insights:**"])
+        insights: List[str] = summary.get("key_insights", [])
+        for insight in insights:
+            summary_lines.append(f"  • {insight}")
+
+        correlations: List[Dict] = empirical.get("strongest_correlations", [])
+        if correlations:
+            summary_lines.extend(["", "🔗 **Strongest Asset Correlations:**"])
+            for corr in correlations[:3]:
+                summary_lines.append(
+                    f"  • {corr['pair']}: {corr['correlation']:.3f} ({corr['strength']})"
+                )
+
+        return "\n".join(summary_lines)
 
     def create_interface(self) -> gr.Blocks:
         """
