@@ -274,7 +274,6 @@ class TestPRAgentConfigSecurity:
         Parameters:
             pr_agent_config (dict): Parsed PR agent configuration to scan for secrets.
         """
-
         inline_creds_re = re.compile(
             r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\\s]+:[^/@\\s]+@", re.IGNORECASE
         )
