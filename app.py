@@ -896,8 +896,8 @@ analyzing and visualizing asset networks.
                         )
                         return demo
 
-
-if __name__ == "__main__":
+        app = FinancialAssetApp()
+        demo = app.create_interface()
     try:
         logger.info(AppConstants.APP_START_INFO)
         app=FinancialAssetApp()
