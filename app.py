@@ -192,7 +192,7 @@ class FinancialAssetApp:
     @staticmethod
     def update_asset_info(
         selected_asset: Optional[str], graph: AssetRelationshipGraph
-    ) -> Tuple[Dict, Dict[str, Dict]]:
+    ) -> Tuple[Dict, AssetRelationshipView]:
         """Retrieves and formats detailed information for a selected asset."""
         if not selected_asset or selected_asset not in graph.assets:
             return {}, {"outgoing": {}, "incoming": {}}
