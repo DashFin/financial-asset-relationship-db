@@ -201,7 +201,6 @@ class TestPRAgentConfigSecurity:
             pytest.fail("Config must be a YAML mapping (dict) and not empty")
         return cfg
 
-        """Raw YAML content of .github/pr-agent-config.yml."""
 
     def test_config_values_have_no_hardcoded_credentials(pr_agent_config):
         """
