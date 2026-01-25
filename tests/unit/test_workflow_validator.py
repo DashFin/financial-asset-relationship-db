@@ -731,7 +731,7 @@ name: Test
 on: push
 jobs:
   test:
-    runs - on: ubuntu - latest
+    runs-on: ubuntu-latest
     steps:
       - name: Multiline literal
         run: |
