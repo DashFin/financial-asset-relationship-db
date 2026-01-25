@@ -771,7 +771,7 @@ class FormulaicVisualizer:
                 colorbar = dict(
                     thickness=15,
                     title="Node Connections",
-                    xanchor="left",
+                xanchor="left",
                     titleside="right",
                 ),
                 line_width = 2,
