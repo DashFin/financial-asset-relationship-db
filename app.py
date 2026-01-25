@@ -435,7 +435,9 @@ class FinancialAssetApp:
             for insight in insights:
                 summary_lines.append(f"  • {insight}")
 
-        correlations: List[Dict[str, Any]] = empirical.get("strongest_correlations", []) or []
+        correlations: List[Dict[str, Any]] = (
+            empirical.get("strongest_correlations", []) or []
+        )
         if correlations:
             summary_lines.extend(["", "🔗 **Strongest Asset Correlations:**"])
             for corr in correlations[:3]:
@@ -445,6 +447,7 @@ class FinancialAssetApp:
                 summary_lines.append(f"  • {pair}: {corr_val:.3f} ({strength})")
 
         return "\n".join(summary_lines)
+
     def _format_formula_summary(summary: Dict, analysis_results: Dict) -> str:
         """Format the formula analysis summary for display."""
         formulas: List = analysis_results.get("formulas", [])
