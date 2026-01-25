@@ -694,12 +694,21 @@ class FinancialAssetApp:
                 show_corporate_bond,
                 show_commodity_currency,
                 show_income_comparison,
-                layout_type.change(
+                show_regulatory,
+                show_all_relationships,
+                toggle_arrows,
+            ]:
+                checkbox.change(
                     self.refresh_visualization,
                     inputs=visualization_inputs,
                     outputs=visualization_outputs,
                 )
 
+            layout_type.change(
+                self.refresh_visualization,
+                inputs=visualization_inputs,
+                outputs=visualization_outputs,
+            )
             # View mode change handlers
             view_mode.change(
                 self.refresh_visualization,
