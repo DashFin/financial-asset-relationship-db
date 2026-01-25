@@ -712,6 +712,7 @@ class FinancialAssetApp:
             # View mode change handler is defined below in `_on_view_mode_change`
             # Update layout_type visibility based on view_mode
             # View mode change handler (refresh visualization + toggle layout_type visibility)
+
             def _on_view_mode_change(
                 graph_state: AssetRelationshipGraph,
                 view_mode_value: str,
