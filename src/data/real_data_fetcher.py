@@ -611,7 +611,7 @@ def _save_to_cache(graph: AssetRelationshipGraph, path: Path) -> None:
     Persist an AssetRelationshipGraph to a JSON file at the given filesystem path.
 
     The function serialises the provided graph to JSON
-    (UTF - 8, pretty - printed with two - space indentation),
+    (UTF-8, pretty-printed with two-space indentation),
     creates parent directories if necessary,
     and overwrites any existing file at the path.
 
