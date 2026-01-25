@@ -370,7 +370,7 @@ def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGra
     """
     Generate visualizations, selector options, and a textual summary from a
     formulaic analysis of the asset graph.
-    """
+
     Parameters:
         graph_state(AssetRelationshipGraph | None): The asset graph to
             analyze. If None, the application's internal graph will be
@@ -383,6 +383,8 @@ def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGra
                 correlation network,
             metric_comparison_fig: Plotly Figure comparing metrics across
                 formulas,
+        )
+    """
             formula_selector_update: gr.update object configuring the
                 formula selector's choices and selected value,
             summary_text: str containing a textual summary of the
