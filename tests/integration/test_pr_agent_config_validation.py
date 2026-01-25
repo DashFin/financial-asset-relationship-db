@@ -201,7 +201,6 @@ class TestPRAgentConfigSecurity:
             pytest.fail("Config must be a YAML mapping (dict) and not empty")
         return cfg
 
-
     def test_config_values_have_no_hardcoded_credentials(pr_agent_config):
         """
         Scan the PR agent configuration for string values that resemble hardcoded credentials.
