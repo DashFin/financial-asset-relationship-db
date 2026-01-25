@@ -320,6 +320,13 @@ class TestRequirementsDevChanges:
         assert "tiktoken" not in content, (
             "tiktoken should not be in requirements-dev.txt"
         )
+        """
+        with open(req_dev_path, "r") as f:
+            content = f.read().lower()
+
+        assert "tiktoken" not in content, (
+            "tiktoken should not be in requirements-dev.txt"
+        )
 
         Fails the test if the requirements - dev.txt at the provided path contains the substring "tiktoken" (case-insensitive).
         """

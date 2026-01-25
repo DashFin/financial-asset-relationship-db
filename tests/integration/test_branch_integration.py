@@ -254,6 +254,7 @@ class TestWorkflowSecurityConsistency:
         dangerous = [
             r"\$\{\{.*github\.event\.pull_request\.title.*\}\}.*\|",
         ]
+        ]
             r"\$\{\{.*github\.event\.pull_request\.body.*\}\}.*\|",
             r"\$\{\{.*github\.event\.issue\.title.*\}\}.*\$\(",
         ]
