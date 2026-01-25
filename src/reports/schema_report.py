@@ -20,9 +20,7 @@ exchange rates and policy links
 ### Relationship Types
 """
 
-    for rel_type, count in sorted(
-        metrics["relationship_distribution"].items(), key=lambda x: x[1], reverse=True
-    ):
+    for rel_type, count in sorted(metrics["relationship_distribution"].items(), key=lambda x: x[1], reverse=True):
         report += f"- **{rel_type}**: {count} instances\n"
 
     report += f"""
@@ -47,9 +45,7 @@ exchange rates and policy links
 ## Top Relationships
 """
 
-    for idx, (source, target, rel_type, strength) in enumerate(
-        metrics["top_relationships"], 1
-    ):
+    for idx, (source, target, rel_type, strength) in enumerate(metrics["top_relationships"], 1):
         report += f"{idx}. {source} → {target} ({rel_type}): {strength:.2%}\n"
 
     report += """
@@ -101,8 +97,7 @@ exchange rates and policy links
 
     quality_score = min(
         1.0,
-        metrics["average_relationship_strength"]
-        + (metrics["regulatory_event_count"] / 10),
+        metrics["average_relationship_strength"] + (metrics["regulatory_event_count"] / 10),
     )
     report += f"{quality_score:.1%}\n"
 
@@ -118,7 +113,7 @@ exchange rates and policy links
     report += "- Relationship strengths normalized to 0-1 range\n"
     report += "- Impact scores on -1 to +1 scale for comparability\n"
     report += (
-"- Relationship directionality: some types are bidirectional "
+        "- Relationship directionality: some types are bidirectional "
         "(e.g.,\n"
         "  same_sector, income_comparison);\n"
         "  others are directional\n"
