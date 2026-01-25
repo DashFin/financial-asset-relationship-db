@@ -271,7 +271,7 @@ class FinancialAssetApp:
             metrics_text = gr.Textbox(interactive=False)
             schema_report = gr.Textbox(interactive=False)
             asset_selector = gr.Dropdown(choices=[])
-            asset_info = gr.JSON()
+            gr.JSON()
             asset_relationships = gr.JSON()
 
             graph_state = gr.State(self.graph)
