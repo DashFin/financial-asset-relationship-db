@@ -431,66 +431,17 @@ class FinancialAssetApp:
 
         insights: List[str] = summary.get("key_insights", []) or []
         if insights:
-            summary_lines.extend(["", "🎯 **Key Insights:**"])
-            for insight in insights:
-                summary_lines.append(f"  • {insight}")
-
-        correlations: List[Dict[str, Any]] = (
-            empirical.get("strongest_correlations", []) or []
-        )
-        if correlations:
-            summary_lines.extend(["", "🔗 **Strongest Asset Correlations:**"])
-            for corr in correlations[:3]:
-                pair: str = str(corr.get("pair", "N/A"))
-                corr_val: float = float(corr.get("correlation", 0.0) or 0.0)
-                strength: str = str(corr.get("strength", "N/A"))
-                summary_lines.append(f"  • {pair}: {corr_val:.3f} ({strength})")
-
-        return "\n".join(summary_lines)
-
-    @staticmethod
+            @staticmethod
     def _format_formula_summary_legacy(summary: Dict, analysis_results: Dict) -> str:
-        """Deprecated: kept for backward compatibility; delegates to the canonical formatter."""
+        """Deprecated: kept for backward compatibility; delegates to the
+        canonical formatter."""
         return FinancialAssetApp._format_formula_summary(summary, analysis_results)
-        """Format the formula analysis summary for display."""
-        formulas: List = analysis_results.get("formulas", [])
-        empirical: Dict = analysis_results.get("empirical_relationships", {})
-
-        summary_lines: List[str] = [
-            "🔍 **Formulaic Analysis Summary**",
-            "",
-            f"📊 **Total Formulas Identified:** {len(formulas)}",
-            f"📈 **Average Reliability (R²):** {summary.get('avg_r_squared', 0):.3f}",
-            f"🔗 **Empirical Data Points:** {summary.get('empirical_data_points', 0)}",
-            "",
-            "📋 **Formula Categories:**",
-        ]
-
-        categories: Dict[str, int] = summary.get("formula_categories", {})
-        for category, count in categories.items():
-            summary_lines.append(f"  • {category}: {count} formulas")
-
-        summary_lines.extend(["", "🎯 **Key Insights:**"])
-        insights: List[str] = summary.get("key_insights", [])
-        for insight in insights:
-            summary_lines.append(f"  • {insight}")
-
-        correlations: List[Dict] = empirical.get("strongest_correlations", [])
-        if correlations:
-            summary_lines.extend(["", "🔗 **Strongest Asset Correlations:**"])
-            for corr in correlations[:3]:
-                summary_lines.append(
-                    f"  • {corr['pair']}: {corr['correlation']:.3f} ({corr['strength']})"
-                )
-
-        return "\n".join(summary_lines)
 
     def create_interface(self) -> gr.Blocks:
         """
         Creates the Gradio interface for the Financial Asset Relationship Database.
         """
-        return interface
-
+        interface = gr.Blocks()
         with interface:
             gr.Markdown(AppConstants.MARKDOWN_HEADER)
 
@@ -743,21 +694,11 @@ class FinancialAssetApp:
                 show_corporate_bond,
                 show_commodity_currency,
                 show_income_comparison,
-                show_regulatory,
-                show_all_relationships,
-                toggle_arrows,
-            ]:
-                checkbox.change(
+                layout_type.change(
                     self.refresh_visualization,
                     inputs=visualization_inputs,
                     outputs=visualization_outputs,
                 )
-
-            layout_type.change(
-                self.refresh_visualization,
-                inputs=visualization_inputs,
-                outputs=visualization_outputs,
-            )
 
             # View mode change handlers
             view_mode.change(
@@ -782,6 +723,11 @@ class FinancialAssetApp:
                 show_all_relationships_value: bool,
                 toggle_arrows_value: bool,
             ) -> Tuple[go.Figure, Any, Any]:
+                """
+                Handler called when the view mode changes. Refreshes the visualization
+                and updates layout_type visibility based on the selected view mode and
+                various display options.
+                """
                 fig, err = self.refresh_visualization(
                     graph_state,
                     view_mode_value,
@@ -797,7 +743,7 @@ class FinancialAssetApp:
                     toggle_arrows_value,
                 )
                 # Toggle 2D layout selector visibility
-                layout_update = gr.update(visible=(view_mode_value == "2D"))
+                layout_update = gr.update(visible=view_mode_value == "2D")
                 return fig, layout_update, err
 
             view_mode.change(
