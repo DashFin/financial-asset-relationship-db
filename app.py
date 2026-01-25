@@ -428,7 +428,7 @@ class FinancialAssetApp:
         # Generate formula selector options
         formulas=analysis_results.get("formulas", [])
         formula_choices=[f.name for f in formulas]
-        formulas=analysis_results.get("formulas", [])
+        )
             # Generate summary
             summary=analysis_results.get("summary", {})
             summary_text=self._format_formula_summary(summary, analysis_results)
