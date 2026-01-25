@@ -335,6 +335,9 @@ class FormulaicVisualizer:
             strongest_correlations,
             correlation_matrix,
         )
+            strongest_correlations,
+            correlation_matrix,
+        )
 
         @ staticmethod
         def _create_empty_correlation_figure() -> go.Figure:
