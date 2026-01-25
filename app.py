@@ -332,13 +332,16 @@ class FinancialAssetApp:
         formulas = analysis_results.get("formulas", [])
         formula_choices = [f.name for f in formulas]
 
-        # Generate visualizations
-        correlation_network_fig = formulaic_visualizer.create_correlation_network(
-            analysis_results.get("empirical_relationships", {})
-        )
-        metric_comparison_fig = formulaic_visualizer.create_metric_comparison_chart(
-            analysis_results
-        )
+            # Generate visualizations
+            dashboard_fig = formulaic_visualizer.create_formula_dashboard(
+                analysis_results
+            )
+            correlation_network_fig = formulaic_visualizer.create_correlation_network(
+                analysis_results.get("empirical_relationships", {})
+            )
+            metric_comparison_fig = formulaic_visualizer.create_metric_comparison_chart(
+                analysis_results
+            )
 
         # Generate summary
         summary = analysis_results.get("summary", {})
