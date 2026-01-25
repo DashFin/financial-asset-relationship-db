@@ -589,6 +589,7 @@ class FormulaicVisualizer:
                 ),
             )
             return fig
+
     @staticmethod
     def create_correlation_network(empirical_relationships: Dict[str, Any]) -> go.Figure:
         """Create a network graph showing asset correlations."""
