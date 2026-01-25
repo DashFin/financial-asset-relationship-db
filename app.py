@@ -365,7 +365,6 @@ class FinancialAssetApp:
             error_msg = f"Error refreshing visualization: {str(e)}"
             return empty_fig, gr.update(value=error_msg, visible=True)
 
-
     def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGraph] = None):
         """
         Generate visualizations, selector options, and a textual summary from a
@@ -567,7 +566,7 @@ class FinancialAssetApp:
                             with gr.Tab("🌐 Network Visualization (2D/3D)"):
                                 gr.Markdown(AppConstants.INTERACTIVE_3D_GRAPH_MD)
 
-                                        view_mode = gr.Radio(
+                                        view_mode=gr.Radio(
                                             label="Visualization Mode",
                                             choices=["3D", "2D"],
                                             value="3D",
