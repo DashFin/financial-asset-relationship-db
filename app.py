@@ -297,7 +297,7 @@ class FinancialAssetApp:
                 )
 
             return graph_viz, gr.update(visible=False)
-        except Exception as e:
+            return go.Figure(), gr.update(value=f"Error: {e}", visible=True)
             logger.error("Error refreshing visualization: %s", e)
             return gr.update(), gr.update(value=f"Error: {e}", visible=True)
 
