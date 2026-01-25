@@ -161,6 +161,10 @@ class FinancialAssetApp:
         if self.graph is None:
             LOGGER.warning("Graph is None, re-creating sample database.")
             self._initialize_graph()
+            if self.graph is None:
+                # Critical invariant: graph must not be None after initialization.
+                raise RuntimeError("Asset graph initialization failed: graph is None")
+        assert self.graph is not None
         return self.graph
 
     @staticmethod
