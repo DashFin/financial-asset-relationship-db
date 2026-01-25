@@ -415,20 +415,20 @@ class FinancialAssetApp:
             # Generate visualizations
             # (Existing visualization and return logic continues here)
             # Generate visualizations
-        dashboard_fig = formulaic_visualizer.create_formula_dashboard(
-            analysis_results
-        )
-        correlation_network_fig = formulaic_visualizer.create_correlation_network(
-            analysis_results.get("empirical_relationships", {})
-        )
-        metric_comparison_fig = formulaic_visualizer.create_metric_comparison_chart(
-            analysis_results
-        )
-        dashboard_fig = formulaic_visualizer.create_formula_dashboard(
-        # Generate formula selector options
-        formulas=analysis_results.get("formulas", [])
-        formula_choices=[f.name for f in formulas]
-        )
+            dashboard_fig = formulaic_visualizer.create_formula_dashboard(
+                analysis_results
+            )
+            correlation_network_fig = formulaic_visualizer.create_correlation_network(
+                analysis_results.get("empirical_relationships", {})
+            )
+            metric_comparison_fig = formulaic_visualizer.create_metric_comparison_chart(
+                analysis_results
+            )
+            dashboard_fig = formulaic_visualizer.create_formula_dashboard(
+            # Generate formula selector options
+            formulas=analysis_results.get("formulas", [])
+            formula_choices=[f.name for f in formulas]
+            )
             # Generate summary
             summary = analysis_results.get("summary", {})
             summary_text = self._format_formula_summary(summary, analysis_results)
