@@ -765,7 +765,7 @@ class FormulaicVisualizer:
             ),
         )
         return fig
-            showscale=True,
+            showscale = True,
                 colorscale = "YlGnBu",
                 size = 10,
                 colorbar = dict(
@@ -776,7 +776,7 @@ class FormulaicVisualizer:
                 ),
                 line_width = 2,
             ),
-            hoverinfo="text",
+            hoverinfo = "text",
         )
 
         # Color nodes by degree
@@ -788,19 +788,19 @@ class FormulaicVisualizer:
         fig = go.Figure(
             data=[edge_traces, node_trace],
             layout=go.Layout(
-                title="Correlation Network Graph",
-                titlefont_size=16,
-                showlegend=False,
-                hovermode="closest",
-                margin=dict(b=20, l=5, r=5, t=40),
-                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                title = "Correlation Network Graph",
+                titlefont_size = 16,
+                showlegend = False,
+                hovermode = "closest",
+                margin = dict(b=20, l=5, r=5, t=40),
+                xaxis = dict(showgrid=False, zeroline=False, showticklabels=False),
+                yaxis = dict(showgrid=False, zeroline=False, showticklabels=False),
             ),
         )
         return fig
 
 
-@staticmethod
+@ staticmethod
 def create_metric_comparison_chart(analysis_results: Dict[str, Any]) -> go.Figure:
     """Create a chart comparing different metrics derived from formulas."""
     fig = go.Figure()
@@ -835,12 +835,12 @@ def create_metric_comparison_chart(analysis_results: Dict[str, Any]) -> go.Figur
     # R-squared bars
     fig.add_trace(
         go.Bar(
-            name="Average R-squared",
-            x=category_names,
-            y=r_squared_by_category,
-            marker=dict(color="lightcoral"),
-            yaxis="y",
-            offsetgroup=1,
+            name = "Average R-squared",
+            x = category_names,
+            y = r_squared_by_category,
+            marker = dict(color="lightcoral"),
+            yaxis = "y",
+            offsetgroup = 1,
         )
     )
 
