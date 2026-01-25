@@ -107,6 +107,7 @@ DOC_MARKDOWN = """
 # Features
 - **Cross-Asset Analysis**: Automatic relationship discovery
 - **Regulatory Integration**: Corporate events impact modeling
+"""
 NETWORK_STATISTICS_TEXT = """Network Statistics:
 
 Total Assets: {total_assets}
