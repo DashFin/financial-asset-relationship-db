@@ -690,7 +690,7 @@ name: Test
 on: push
 jobs:
   test:
-    runs - on: ubuntu - latest
+    runs-on: ubuntu-latest
     env:
       LONG_VAR: "{long_string}"
     steps:
@@ -888,7 +888,7 @@ name: Test
 on: push
 jobs:
   test:
-    runs - on: ubuntu - latest
+    runs-on: ubuntu-latest
     steps:
       - run: "echo 'safe'"
       - run: '; rm -rf /'

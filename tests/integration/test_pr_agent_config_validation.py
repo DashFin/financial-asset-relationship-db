@@ -433,66 +433,66 @@ class TestPRAgentConfigSecurity:
             "api_key",
             "apikey",
             "access_key",
-                    "private_key",
-                ]
-                # Values considered safe placeholders
-                allowed_placeholders = {None, "null", "webhook"}
+            "private_key",
+        ]
+        # Values considered safe placeholders
+        allowed_placeholders = {None, "null", "webhook"}
 
-                def is_allowed_value(val):
-                    """Check if a value is an allowed placeholder or templated variable.
+        def is_allowed_value(val):
+            """Check if a value is an allowed placeholder or templated variable.
 
-                    Returns:
-                        bool: True if the value is a permitted placeholder(None, 'null', 'webhook') or a
-                        templated variable in the form '${VAR}', False otherwise.
-                    """
-                    if val in allowed_placeholders:
-                        return True
-                    if isinstance(val, str) and val.startswith("${") and val.endswith("}"):
-                        return True
-                    return False
+            Returns:
+            bool: True if the value is a permitted placeholder (None, 'null', 'webhook') or a
+            templated variable in the form '${VAR}', False otherwise.
+            """
+            if val in allowed_placeholders:
+                return True
+            if isinstance(val, str) and val.startswith("${") and val.endswith("}"):
+                return True
+            return False
 
-                def shannon_entropy(data):
-                    import math
-                    from collections import Counter
-                    if not data:
-                        return 0.0
-                    freq = Counter(data)
-                    length = len(data)
-                    return -sum((count / length) * math.log2(count / length) for count in freq.values())
+        def shannon_entropy(data):
+            import math
+            from collections import Counter
+            if not data:
+                return 0.0
+            freq = Counter(data)
+            length = len(data)
+            return -sum((count / length) * math.log2(count / length) for count in freq.values())
 
-                def is_hardcoded_secret(val):
-                    """Determine if a string value likely contains a hardcoded secret.
+        def is_hardcoded_secret(val):
+            """Determine if a string value likely contains a hardcoded secret.
 
-                    Returns:
-                        bool: True if the value matches patterns indicating a potential secret based on
-                        keywords, length, entropy, or encoding, False otherwise.
-                    """
-                    if not isinstance(val, str):
-                        return False
-                    low = val.lower()
-                    # Marker-based secrets
-                    if any(marker in low for marker in sensitive_patterns) and len(val) >= 12:
-                        return True
-                    # Base64/URL-safe like long strings
-                    if (
-                        re.fullmatch(r"[A-Za-z0-9_\-]{20,}", val)
-                        and shannon_entropy(val) >= 3.5
-                    ):
-                        return True
-                    # Hex-encoded long strings (e.g., keys)
-                    if re.fullmatch(r"[A-Fa-f0-9]{32,}", val):
-                        return True
-                    return False
+            Returns:
+                bool: True if the value matches patterns indicating a potential secret based on
+                keywords, length, entropy, or encoding, False otherwise.
+            """
+            if not isinstance(val, str):
+                return False
+            low = val.lower()
+            # Marker-based secrets
+            if any(marker in low for marker in sensitive_patterns) and len(val) >= 12:
+                return True
+            # Base64/URL-safe like long strings
+            if (
+                re.fullmatch(r"[A-Za-z0-9_\-]{20,}", val)
+                and shannon_entropy(val) >= 3.5
+            ):
+                return True
+            # Hex-encoded long strings (e.g., keys)
+            if re.fullmatch(r"[A-Fa-f0-9]{32,}", val):
+                return True
+            return False
 
-                suspected = []
+        suspected = []
 
-                def scan(obj, path=""):
-                    """Recursively scan a nested dict / list object for sensitive keys and hardcoded secrets.
+        def scan(obj, path=""):
+            """Recursively scan a nested dict/list object for sensitive keys and hardcoded secrets.
 
-                    Parameters:
-                        obj(dict | list | tuple | any): The object to scan for sensitive entries.
-                        path(str): The current dotted path in the object structure.
-                    """
+            Parameters:
+                obj (dict|list|tuple|any): The object to scan for sensitive entries.
+                path (str): The current dotted path in the object structure.
+            """
                     if isinstance(obj, dict):
                         for key, value in obj.items():
                             new_path = f"{path}.{key}" if path else key

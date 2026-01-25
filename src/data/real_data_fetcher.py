@@ -245,6 +245,10 @@ class RealDataFetcher:
                 "iShares iBoxx $ High Yield Corporate Bond ETF",
                 "Corporate",
                 None,
+            ),
+                None,
+            ),
+        }
                 "BB",
             ),
         }
