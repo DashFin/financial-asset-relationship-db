@@ -135,12 +135,12 @@ class FinancialAssetApp:
 
     def _initialize_graph(self) -> None:
         """
-        Initialize the instance's asset relationship graph by building a real-data-backed graph.
+        Initialize the instance's asset relationship graph by building a real - data - backed graph.
 
-        Attempts to create and assign a real AssetRelationshipGraph to self.graph using external data sources. On failure, logs the error and re-raises the exception so callers can handle startup failures.
+        Attempts to create and assign a real AssetRelationshipGraph to self.graph using external data sources. On failure, logs the error and re - raises the exception so callers can handle startup failures.
 
         Raises:
-            Exception: Any error raised while creating the graph is re-raised after being logged.
+            Exception: Any error raised while creating the graph is re - raised after being logged.
         """
         try:
             logger.info("Initializing with real financial data from Yahoo Finance")
