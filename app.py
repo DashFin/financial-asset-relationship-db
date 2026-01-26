@@ -50,7 +50,7 @@ class AppConstants:
     HEADER_MARKDOWN: str = """
     # 🏦 Financial Asset Relationship Network
     An advanced visualization platform designed for analyzing interconnected
-    financial assets through structural network analysis and  validation.
+    financial assets through structural network analysis and schema validation.
     """
 
     # UI Tab Labels
@@ -256,8 +256,7 @@ class FinancialAssetApp(AssetUIController):
             # 2. Metrics Components
             m_a, m_r, m_e, m_t = self.prepare_metrics_view(active_graph)
 
-
-asset_list = sorted(active_graph.assets.keys())
+    asset_list = sorted(active_graph.assets.keys())
 
             LOGGER.info("UI Refresh sequence completed.")
             return (
@@ -266,7 +265,10 @@ asset_list = sorted(active_graph.assets.keys())
                 m_r,
                 m_e,
                 m_t,
-                schema_report,
+            # 3. Schema Report
+            schema_report=generate_schema_report(active_graph)
+
+            asset_list=sorted(active_graph.assets.keys())
                 gr.update(choices=asset_list, value=None),
                 gr.update(value="", visible=False),
             )
