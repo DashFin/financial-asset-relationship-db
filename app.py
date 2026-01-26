@@ -1,7 +1,7 @@
 import json
 import logging
 from dataclasses import asdict
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Final, List, Optional, Tuple, Union
 
 import gradio as gr
 import plotly.graph_objects as go
@@ -19,20 +19,25 @@ from src.visualizations.graph_visuals import (
 )
 from src.visualizations.metric_visuals import visualize_metrics
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+# Configure module-level logger without altering global logging configuration
 LOGGER = logging.getLogger(__name__)
+if not LOGGER.handlers:
+    _handler = logging.StreamHandler()
+    _formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
+    _handler.setFormatter(_formatter)
+    LOGGER.addHandler(_handler)
+    LOGGER.setLevel(logging.INFO)
+    # Removed: LOGGER.propagate = False
 
 
 class AppConstants:
     """Holds all application constants including labels, markdown, and messages."""
 
-    TITLE: str = "Financial Asset Relationship Database Visualization"
+    TITLE: Final[str] = "Financial Asset Relationship Database Visualization"
 
-    MARKDOWN_HEADER: str = """
+    MARKDOWN_HEADER: Final[str] = """
     # 🏦 Financial Asset Relationship Network
 
     A comprehensive 3D visualization of interconnected financial
@@ -41,27 +46,30 @@ class AppConstants:
     Events**
     """
 
-    TAB_3D_VISUALIZATION: str = "3D Network Visualization"
-    TAB_METRICS_ANALYTICS: str = "Metrics & Analytics"
-    TAB_SCHEMA_RULES: str = "Schema & Rules"
-    TAB_ASSET_EXPLORER: str = "Asset Explorer"
-    TAB_DOCUMENTATION: str = "Documentation"
+    TAB_3D_VISUALIZATION: Final[str] = "3D Network Visualization"
+    TAB_METRICS_ANALYTICS: Final[str] = "Metrics & Analytics"
+    TAB_SCHEMA_RULES: Final[str] = "Schema & Rules"
+    TAB_ASSET_EXPLORER: Final[str] = "Asset Explorer"
+    TAB_DOCUMENTATION: Final[str] = "Documentation"
 
-    ERROR_LABEL: str = "Error"
-    REFRESH_BUTTON_LABEL: str = "Refresh Visualization"
-    GENERATE_SCHEMA_BUTTON_LABEL: str = "Generate Schema Report"
-    SELECT_ASSET_LABEL: str = "Select Asset"
-    ASSET_DETAILS_LABEL: str = "Asset Details"
-    RELATED_ASSETS_LABEL: str = "Related Assets"
-    NETWORK_STATISTICS_LABEL: str = "Network Statistics"
+    ERROR_LABEL: Final[str] = "Error"
+    REFRESH_BUTTON_LABEL: Final[str] = "Refresh Visualization"
+    GENERATE_SCHEMA_BUTTON_LABEL: Final[str] = "Generate Schema Report"
+    SELECT_ASSET_LABEL: Final[str] = "Select Asset"
+    ASSET_DETAILS_LABEL: Final[str] = "Asset Details"
+    RELATED_ASSETS_LABEL: Final[str] = "Related Assets"
+    NETWORK_STATISTICS_LABEL: Final[str] = "Network Statistics"
+    SCHEMA_REPORT_LABEL: Final[str] = "Schema Report"
 
-    INITIAL_GRAPH_ERROR: str = "Failed to create sample database"
-    REFRESH_OUTPUTS_ERROR: str = "Error refreshing outputs"
-    APP_START_INFO: str = "Starting Financial Asset Relationship Database application"
-    APP_LAUNCH_INFO: str = "Launching Gradio interface"
-    APP_START_ERROR: str = "Failed to start application"
+    INITIAL_GRAPH_ERROR: Final[str] = "Failed to create sample database"
+    REFRESH_OUTPUTS_ERROR: Final[str] = "Error refreshing outputs"
+    APP_START_INFO: Final[str] = (
+        "Starting Financial Asset Relationship Database application"
+    )
+    APP_LAUNCH_INFO: Final[str] = "Launching Gradio interface"
+    APP_START_ERROR: Final[str] = "Failed to start application"
 
-    INTERACTIVE_3D_GRAPH_MD: str = """
+    INTERACTIVE_3D_GRAPH_MD: Final[str] = """
     ## Interactive 3D Network Graph
 
     Explore the relationships between financial assets in three dimensions.
@@ -76,28 +84,28 @@ class AppConstants:
     - 🟣 Purple: Derivatives
     """
 
-    NETWORK_METRICS_ANALYSIS_MD: str = """
+    NETWORK_METRICS_ANALYSIS_MD: Final[str] = """
     ## Network Metrics & Analytics
 
     Comprehensive analysis of asset relationships, distributions, and
     regulatory event impacts.
     """
 
-    SCHEMA_RULES_GUIDE_MD: str = """
+    SCHEMA_RULES_GUIDE_MD: Final[str] = """
     ## Database Schema & Business Rules
 
     View the automatically generated schema documentation including
     relationship types, business rules, and validation constraints.
     """
 
-    DETAILED_ASSET_INFO_MD: str = """
+    DETAILED_ASSET_INFO_MD: Final[str] = """
     ## Asset Explorer
 
     Select any asset to view detailed information including financial
     metrics, relationships, and connected assets.
     """
 
-    DOC_MARKDOWN: str = """
+    DOC_MARKDOWN: Final[str] = """
     ## Documentation & Help
 
     ### Quick Start
@@ -119,7 +127,7 @@ class AppConstants:
     For technical details, see the GitHub repository documentation.
     """
 
-    NETWORK_STATISTICS_TEXT: str = """Network Statistics:
+    NETWORK_STATISTICS_TEXT: Final[str] = """Network Statistics:
 
 Total Assets: {total_assets}
 Total Relationships: {total_relationships}
@@ -170,7 +178,7 @@ class FinancialAssetApp:
     @staticmethod
     def _update_metrics_text(graph: AssetRelationshipGraph) -> str:
         """Generates the formatted text for network statistics."""
-        metrics: RelationshipMetrics = graph.calculate_metrics()
+        metrics: Dict[str, Union[int, float, Dict, List]] = graph.calculate_metrics()
         text: str = AppConstants.NETWORK_STATISTICS_TEXT.format(
             total_assets=metrics["total_assets"],
             total_relationships=metrics["total_relationships"],
@@ -196,7 +204,7 @@ class FinancialAssetApp:
     @staticmethod
     def update_asset_info(
         selected_asset: Optional[str], graph: AssetRelationshipGraph
-    ) -> Tuple[Dict, AssetRelationshipView]:
+    ) -> Tuple[Dict, Dict[str, Dict]]:
         """Retrieves and formats detailed information for a selected asset."""
         if not selected_asset or selected_asset not in graph.assets:
             return {}, {"outgoing": {}, "incoming": {}}
@@ -222,14 +230,14 @@ class FinancialAssetApp:
     def refresh_all_outputs(
         self, graph_state: AssetRelationshipGraph
     ) -> Tuple[
-        gr.Plot,
-        gr.Plot,
-        gr.Plot,
-        gr.Plot,
-        gr.Textbox,
-        gr.Textbox,
-        gr.Dropdown,
-        gr.Textbox,
+        Any,
+        Any,
+        Any,
+        Any,
+        Any,
+        Any,
+        Any,
+        Any,
     ]:
         """Refreshes all visualizations and reports in the Gradio interface."""
         try:
@@ -283,13 +291,11 @@ class FinancialAssetApp:
         show_regulatory: bool,
         show_all_relationships: bool,
         toggle_arrows: bool,
-    ) -> go.Figure:
+    ) -> Tuple[go.Figure, Any]:
         """Refresh visualization with 2D/3D mode support and relationship filtering."""
         try:
-            LOGGER.info("Generating formulaic analysis")
+            LOGGER.info("Refreshing visualization")
             graph = self.ensure_graph() if graph_state is None else graph_state
-            FormulaicdAnalyzer()
-            FormulaicVisualizer()
 
             if view_mode == "2D":
                 graph_viz: go.Figure = visualize_2d_graph(
@@ -318,15 +324,15 @@ class FinancialAssetApp:
                     toggle_arrows=toggle_arrows,
                 )
 
-            return graph_viz
+            return graph_viz, gr.update(visible=False)
 
         except Exception as e:
             LOGGER.error("Error refreshing visualization: %s", e)
-            return go.Figure()
+            return go.Figure(), gr.update(value=f"Error: {str(e)}", visible=True)
 
     def generate_formulaic_analysis(
         self, graph_state: Optional[AssetRelationshipGraph]
-    ) -> Tuple[go.Figure, go.Figure, go.Figure, gr.Dropdown, str, gr.Textbox]:
+    ) -> Tuple[go.Figure, go.Figure, go.Figure, Any, str, Any]:
         """Generate comprehensive formulaic analysis of the asset graph."""
         try:
             LOGGER.info("Generating formulaic analysis")
@@ -386,22 +392,25 @@ class FinancialAssetApp:
                 gr.update(value=error_msg, visible=True),
             )
 
-        @staticmethod
-        def show_formula_details(
-            formula_name: str, graph_state: AssetRelationshipGraph
-        ) -> Tuple[go.Figure, gr.Textbox]:
+    @staticmethod
+    def show_formula_details(
+        formula_name: str, graph_state: AssetRelationshipGraph
+    ) -> Tuple[go.Figure, Any]:
+        """Show detailed analysis for a specific formula."""
+        try:
             LOGGER.warning("Formula detail view is not yet implemented.")
-            try:
-                return go.Figure(), gr.update(value=None, visible=False)
-            except Exception as e:
-                LOGGER.error("Error showing formula details: %s", e)
-                return go.Figure(), gr.update(value=f"Error: {e}", visible=True)
+            return go.Figure(), gr.update(value=None, visible=False)
+        except Exception as e:
+            LOGGER.error("Error showing formula details: %s", e)
+            return go.Figure(), gr.update(value=f"Error: {e}", visible=True)
 
     @staticmethod
-    def _format_formula_summary(summary: Dict, analysis_results: Dict) -> str:
+    def _format_formula_summary(
+        summary: Dict[str, Any], analysis_results: Dict[str, Any]
+    ) -> str:
         """Format the formula analysis summary for display."""
-        formulas: List = analysis_results.get("formulas", [])
-        empirical: Dict = analysis_results.get("empirical_relationships", {})
+        formulas: List[Any] = analysis_results.get("formulas", [])
+        analysis_results.get("empirical_relationships", {})
 
         summary_lines: List[str] = [
             "🔍 **Formulaic Analysis Summary**",
@@ -410,35 +419,37 @@ class FinancialAssetApp:
             f"📈 **Average Reliability (R²):** {summary.get('avg_r_squared', 0):.3f}",
             f"🔗 **Empirical Data Points:** {summary.get('empirical_data_points', 0)}",
             "",
-            "📋 **Formula Categories:",
+            "📋 **Formula Categories:**",
         ]
 
-        categories: Dict[str, int] = summary.get("formula_categories", {})
-        for category, count in categories.items():
-            summary_lines.append(f"  • {category}: {count} formulas")
+        categories: Dict[str, int] = summary.get("formula_categories", {}) or {}
+        if categories:
+            for category, count in categories.items():
+                summary_lines.append(f"  • {category}: {count} formulas")
+        else:
+            summary_lines.append("  • N/A")
 
-        summary_lines.extend(["", "🎯 **Key Insights:**"])
-        insights: List[str] = summary.get("key_insights", [])
-        for insight in insights:
-            summary_lines.append(f"  • {insight}")
-
-        correlations: List[Dict] = empirical.get("strongest_correlations", [])
-        if correlations:
-            summary_lines.extend(["", "🔗 **Strongest Asset Correlations:**"])
-            for corr in correlations[:3]:
-                summary_lines.append(
-                    f"  • {corr['pair']}: {corr['correlation']:.3f} ({corr['strength']})"
-                )
+        insights: List[str] = summary.get("key_insights", []) or []
+        if insights:
+            summary_lines.append("")
+            summary_lines.append("💡 **Key Insights:**")
+            for insight in insights:
+                summary_lines.append(f"  • {insight}")
 
         return "\n".join(summary_lines)
+
+    @staticmethod
+    def _format_formula_summary_legacy(summary: Dict, analysis_results: Dict) -> str:
+        """Deprecated: kept for backward compatibility; delegates to the
+        canonical formatter."""
+        return FinancialAssetApp._format_formula_summary(summary, analysis_results)
 
     def create_interface(self) -> gr.Blocks:
         """
         Creates the Gradio interface for the Financial Asset Relationship Database.
         """
-        demo: gr.Blocks = gr.Blocks(title=AppConstants.TITLE)
-
-        with demo:
+        interface = gr.Blocks()
+        with interface:
             gr.Markdown(AppConstants.MARKDOWN_HEADER)
 
             error_message: gr.Textbox = gr.Textbox(
@@ -568,7 +579,9 @@ class FinancialAssetApp:
                             gr.Markdown("")
 
                     with gr.Row():
-                        gr.JSON(label=AppConstants.ASSET_DETAILS_LABEL)
+                        asset_info: gr.JSON = gr.JSON(
+                            label=AppConstants.ASSET_DETAILS_LABEL
+                        )
                     with gr.Row():
                         asset_relationships: gr.JSON = gr.JSON(
                             label=AppConstants.RELATED_ASSETS_LABEL
@@ -703,12 +716,65 @@ class FinancialAssetApp:
                 inputs=visualization_inputs,
                 outputs=visualization_outputs,
             )
+            # View mode change handler is defined below in `_on_view_mode_change`
+            # Update layout_type visibility based on view_mode
+            # View mode change handler (refresh visualization + toggle layout_type visibility)
+
+            def _on_view_mode_change(
+                graph_state: AssetRelationshipGraph,
+                view_mode_value: str,
+                layout_type_value: str,
+                show_same_sector_value: bool,
+                show_market_cap_value: bool,
+                show_correlation_value: bool,
+                show_corporate_bond_value: bool,
+                show_commodity_currency_value: bool,
+                show_income_comparison_value: bool,
+                show_regulatory_value: bool,
+                show_all_relationships_value: bool,
+                toggle_arrows_value: bool,
+            ) -> Tuple[go.Figure, Any, Any]:
+                """
+                Handler called when the view mode changes. Refreshes the visualization
+                and updates layout_type visibility based on the selected view mode and
+                various display options.
+                """
+                fig, err = self.refresh_visualization(
+                    graph_state,
+                    view_mode_value,
+                    layout_type_value,
+                    show_same_sector_value,
+                    show_market_cap_value,
+                    show_correlation_value,
+                    show_corporate_bond_value,
+                    show_commodity_currency_value,
+                    show_income_comparison_value,
+                    show_regulatory_value,
+                    show_all_relationships_value,
+                    toggle_arrows_value,
+                )
+                # Toggle 2D layout selector visibility
+                layout_update = gr.update(visible=view_mode_value == "2D")
+                return fig, layout_update, err
+
+            view_mode.change(
+                _on_view_mode_change,
+                inputs=visualization_inputs,
+                outputs=[visualization_3d, layout_type, error_message],
+            )
 
             # Reset view button
             reset_view_btn.click(
-                lambda *args: self.refresh_visualization(*args),
+                self.refresh_visualization,
                 inputs=visualization_inputs,
                 outputs=visualization_outputs,
+            )
+
+            # Asset selector change handler
+            asset_selector.change(
+                self.update_asset_info,
+                inputs=[asset_selector, graph_state],
+                outputs=[asset_info, asset_relationships],
             )
 
             # Formulaic analysis handlers
