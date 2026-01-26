@@ -1,4 +1,3 @@
-import math
 from typing import Any, Dict
 
 import networkx as nx
@@ -63,7 +62,9 @@ class FormulaicVisualizer:
     def _plot_reliability(self, fig: go.Figure, formulas: Any) -> None:
         pass
 
-    def _plot_empirical_correlation(self, fig: go.Figure, empirical_relationships: Any) -> None:
+    def _plot_empirical_correlation(
+        self, fig: go.Figure, empirical_relationships: Any
+    ) -> None:
         pass
 
     def _plot_asset_class_relationships(self, fig: go.Figure, formulas: Any) -> None:
@@ -102,7 +103,9 @@ class FormulaicVisualizer:
             names.append(name)
             categories.append(getattr(f, "category", "N/A"))
             r_value = getattr(f, "r_squared", None)
-            r_squares.append(f"{r_value:.4f}" if isinstance(r_value, (int, float)) else "N/A")
+            r_squares.append(
+                f"{r_value:.4f}" if isinstance(r_value, (int, float)) else "N/A"
+            )
 
         fig.add_trace(
             go.Table(
@@ -128,7 +131,12 @@ class FormulaicVisualizer:
                     labels=list(categories.keys()),
                     values=list(categories.values()),
                     hole=0.4,
-                    marker=dict(colors=[self.color_scheme.get(cat, "#CCCCCC") for cat in categories.keys()]),
+                    marker=dict(
+                        colors=[
+                            self.color_scheme.get(cat, "#CCCCCC")
+                            for cat in categories.keys()
+                        ]
+                    ),
                     textinfo="label+percent",
                     textposition="auto",
                 ),
@@ -138,7 +146,9 @@ class FormulaicVisualizer:
 
         # 2. Formula Reliability Bar Chart
         if formulas:
-            formula_names = [f.name[:20] + "..." if len(f.name) > 20 else f.name for f in formulas]
+            formula_names = [
+                f.name[:20] + "..." if len(f.name) > 20 else f.name for f in formulas
+            ]
             r_squared_values = [f.r_squared for f in formulas]
             colors = [self.color_scheme.get(f.category, "#CCCCCC") for f in formulas]
 
@@ -180,7 +190,9 @@ class FormulaicVisualizer:
                     else:
                         key1 = f"{asset1}-{asset2}"
                         key2 = f"{asset2}-{asset1}"
-                        corr = correlation_matrix.get(key1, correlation_matrix.get(key2, 0.5))
+                        corr = correlation_matrix.get(
+                            key1, correlation_matrix.get(key2, 0.5)
+                        )
                     row.append(corr)
                 z_matrix.append(row)
 
@@ -314,8 +326,13 @@ class FormulaicVisualizer:
                 f"<b>Reliability (R²):</b> "
                 f"{formula.r_squared:.3f}<br><br>"
                 + "<b>Variables:</b><br>"
-                + "<br>".join([f"• {var}: {desc}" for var, desc in formula.variables.items()])
-                + (f"<br><br><b>Example Calculation:</b><br>" f"{formula.example_calculation}")
+                + "<br>".join(
+                    [f"• {var}: {desc}" for var, desc in formula.variables.items()]
+                )
+                + (
+                    f"<br><br><b>Example Calculation:</b><br>"
+                    f"{formula.example_calculation}"
+                )
             ),
         )
 
@@ -324,7 +341,9 @@ class FormulaicVisualizer:
         empirical_relationships: Dict[str, Any],
     ) -> go.Figure:
         """Create a network graph showing asset correlations"""
-        strongest_correlations = empirical_relationships.get("strongest_correlations", [])
+        strongest_correlations = empirical_relationships.get(
+            "strongest_correlations", []
+        )
         correlation_matrix = empirical_relationships.get("correlation_matrix", {})
 
         if not strongest_correlations:
@@ -335,36 +354,363 @@ class FormulaicVisualizer:
             correlation_matrix,
         )
 
-        # Create positions in a circle
-        # Create positions in a circle based on strongest correlations
-        assets = sorted(
-            {corr["asset1"] for corr in strongest_correlations} | {corr["asset2"] for corr in strongest_correlations}
+    @staticmethod
+    def _create_empty_correlation_figure() -> go.Figure:
+        """Return an empty placeholder figure for the correlation network."""
+        fig = go.Figure()
+        fig.update_layout(
+            title="Correlation Network Graph",
+            template="plotly_white",
+            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            margin=dict(b=20, l=5, r=5, t=40),
+            annotations=[
+                dict(
+                    text="No correlation data available",
+                    x=0.5,
+                    y=0.5,
+                    xref="paper",
+                    yref="paper",
+                    showarrow=False,
+                    font=dict(size=14, color="gray"),
+                )
+            ],
         )
-        if not assets:
-            assets = list(G.nodes())
-        n_assets = len(assets)
-        if n_assets == 0:
-            positions = {}
-        else:
-            angles = [2 * math.pi * i / n_assets for i in range(n_assets)]
-            positions = {asset: (math.cos(angle), math.sin(angle)) for asset, angle in zip(assets, angles)}
-        # Create edge traces
-        edge_traces = []
-        for corr in strongest_correlations[:10]:  # Limit to top 10 correlations
-            asset1, asset2 = corr["asset1"], corr["asset2"]
-            x0, y0 = positions[asset1]
-            x1, y1 = positions[asset2]
+        return fig
 
-            # Color based on correlation strength
-            if corr["correlation"] > 0.7:
-                color = "red"
-                width = 4
-            elif corr["correlation"] > 0.4:
-                color = "orange"
+    @staticmethod
+    def _build_and_render_correlation_network(
+        strongest_correlations: Any,
+        _correlation_matrix: Dict[str, Any],
+    ) -> go.Figure:
+        """Build a NetworkX graph from strongest correlations and
+            render it with Plotly."""
+        G = nx.Graph()
+
+        # Add edges from strongest correlations (expected: list of dict-like objects)
+        for item in strongest_correlations or []:
+            if not isinstance(item, dict):
+                continue
+
+            a1 = item.get("asset1") or item.get("source") or item.get("from")
+            a2 = item.get("asset2") or item.get("target") or item.get("to")
+            corr = item.get("correlation") or item.get("corr") or item.get("value")
+
+            if not (a1 and a2):
+                continue
+
+            try:
+                weight = float(corr) if corr is not None else 0.0
+            except (TypeError, ValueError):
+                weight = 0.0
+
+            G.add_edge(a1, a2, weight=weight)
+
+            if G.number_of_nodes() == 0:
+                return FormulaicVisualizer._create_empty_correlation_figure()
+
+        # Layout
+        positions = nx.spring_layout(G, seed=42)
+
+        # Edge traces
+        edge_traces = []
+            for u, v, data in G.edges(data=True):
+                x0, y0 = positions[u]
+                x1, y1 = positions[v]
+                weight = float(data.get("weight", 0.0))
+
+                # Highlight strong correlations
+                if abs(weight) >= 0.7:
+                    color = "#E74C3C"  # red
+                    width = 3
+                elif abs(weight) >= 0.4:
+                    color = "#3498DB"  # blue
+                    width = 2
+                else:
+                    color = "lightgray"
+                    width = 1
+
+                edge_traces.append(
+                    go.Scatter(
+                        x=[x0, x1, None],
+                        y=[y0, y1, None],
+                        mode="lines",
+                        line=dict(color=color, width=width),
+                        hoverinfo="none",
+                        showlegend=False,
+                    )
+                )
+
+            # Node trace (colored by degree)
+            nodes = list(G.nodes())
+            node_x = [positions[n][0] for n in nodes]
+            node_y = [positions[n][1] for n in nodes]
+            degrees = [G.degree(n) for n in nodes]
+
+            node_trace = go.Scatter(
+                x=node_x,
+                y=node_y,
+                mode="markers+text",
+                text=nodes,
+                textposition="top center",
+                marker=dict(
+                    showscale=True,
+                    colorscale="YlGnBu",
+                    size=10,
+                    color=degrees,
+                    colorbar=dict(
+                        thickness=15,
+                        title="Node Connections",
+                        xanchor="left",
+                        titleside="right",
+                    ),
+                    line_width=2,
+                ),
+                hoverinfo="text",
+                showlegend=False,
+            )
+
+            fig = go.Figure(
+                data=[*edge_traces, node_trace],
+                layout=go.Layout(
+                    title="Correlation Network Graph",
+                    titlefont_size=16,
+                    showlegend=False,
+                    hovermode="closest",
+                    margin=dict(b=20, l=5, r=5, t=40),
+                    xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                    yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                ),
+            )
+            return fig
+
+        def _create_empty_correlation_figure() -> go.Figure:
+            """Return an empty placeholder figure for the correlation network."""
+            fig = go.Figure()
+            fig.update_layout(
+                title="Correlation Network Graph",
+                template="plotly_white",
+                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                margin=dict(b=20, l=5, r=5, t=40),
+                annotations=[
+                    dict(
+                        text="No correlation data available",
+                        x=0.5,
+                        y=0.5,
+                        xref="paper",
+                        yref="paper",
+                        showarrow=False,
+                        font=dict(size=14, color="gray"),
+                    )
+                ],
+            )
+            return fig
+
+        @staticmethod
+        def _build_and_render_correlation_network(
+            strongest_correlations: Any,
+            _correlation_matrix: Dict[str, Any],
+        ) -> go.Figure:
+            """Build a NetworkX graph from strongest correlations
+            and render it with Plotly."""
+            G = nx.Graph()
+
+            # Add edges from strongest correlations (expected: list of dict-like objects)
+            for item in strongest_correlations or []:
+                if not isinstance(item, dict):
+                    continue
+                a1 = item.get("asset1") or item.get("source") or item.get("from")
+                a2 = item.get("asset2") or item.get("target") or item.get("to")
+                corr = item.get("correlation") or item.get("corr") or item.get("value")
+                if a1 and a2:
+                    try:
+                        weight = float(corr) if corr is not None else 0.0
+                    except (TypeError, ValueError):
+                        weight = 0.0
+                    G.add_edge(a1, a2, weight=weight)
+
+            if G.number_of_nodes() == 0:
+                return FormulaicVisualizer._create_empty_correlation_figure()
+
+            # Layout
+            positions = nx.spring_layout(G, seed=42)
+
+            # Edge traces
+            edge_traces = []
+            for u, v, data in G.edges(data=True):
+                x0, y0 = positions[u]
+                x1, y1 = positions[v]
+                weight = float(data.get("weight", 0.0))
+                # Highlight strong correlations
+                if abs(weight) >= 0.7:
+                    color = "#E74C3C"  # red
+                    width = 3
+                elif abs(weight) >= 0.4:
+                    color = "#3498DB"  # blue
+                    width = 2
+                else:
+                    color = "lightgray"
+                    width = 1
+
+                edge_traces.append(
+                    go.Scatter(
+                        x=[x0, x1, None],
+                        y=[y0, y1, None],
+                        mode="lines",
+                        line=dict(color=color, width=width),
+                        hoverinfo="none",
+                        showlegend=False,
+                    )
+                )
+
+            # Node trace (colored by degree)
+            nodes = list(G.nodes())
+            node_x = [positions[n][0] for n in nodes]
+            node_y = [positions[n][1] for n in nodes]
+            degrees = [G.degree(n) for n in nodes]
+
+            node_trace = go.Scatter(
+                x=node_x,
+                y=node_y,
+                mode="markers+text",
+                text=nodes,
+                textposition="top center",
+                marker=dict(
+                    showscale=True,
+                    colorscale="YlGnBu",
+                    size=10,
+                    color=degrees,
+                    colorbar=dict(
+                        thickness=15,
+                        title="Node Connections",
+                        xanchor="left",
+                        titleside="right",
+                    ),
+                    line_width=2,
+                ),
+                hoverinfo="text",
+                showlegend=False,
+            )
+
+            fig = go.Figure(
+                data=[*edge_traces, node_trace],
+                layout=go.Layout(
+                    title="Correlation Network Graph",
+                    titlefont_size=16,
+                    showlegend=False,
+                    hovermode="closest",
+                    margin=dict(b=20, l=5, r=5, t=40),
+                    xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                    yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                ),
+            )
+            return fig
+
+    @staticmethod
+    def create_correlation_network(
+        empirical_relationships: Dict[str, Any],
+    ) -> go.Figure:
+        """Create a network graph showing asset correlations."""
+        strongest_correlations = empirical_relationships.get(
+            "strongest_correlations", []
+        )
+        correlation_matrix = empirical_relationships.get("correlation_matrix", {})
+
+        if not strongest_correlations:
+            return FormulaicVisualizer._create_empty_correlation_network_figure()
+
+        return FormulaicVisualizer._build_and_render_correlation_network(
+            strongest_correlations,
+            correlation_matrix,
+        )
+
+    @staticmethod
+    def _create_empty_correlation_network_figure() -> go.Figure:
+        """Return an empty placeholder figure for the correlation network."""
+        fig = go.Figure()
+        fig.update_layout(
+            title="Correlation Network Graph",
+            template="plotly_white",
+            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            margin=dict(b=20, l=5, r=5, t=40),
+            annotations=[
+                dict(
+                    text="No correlation data available",
+                    x=0.5,
+                    y=0.5,
+                    xref="paper",
+                    yref="paper",
+                    showarrow=False,
+                    font=dict(size=14, color="gray"),
+                )
+            ],
+        )
+        return fig
+
+    @staticmethod
+    def _extract_correlation_edge(item):
+        """
+        Extract nodes and weight from a correlation item.
+        """
+        if not isinstance(item, dict):
+            return None
+        a1_keys = ["asset1", "source", "from"]
+        a2_keys = ["asset2", "target", "to"]
+        corr_keys = ["correlation", "corr", "value"]
+        a1 = next((item.get(k) for k in a1_keys if item.get(k)), None)
+        a2 = next((item.get(k) for k in a2_keys if item.get(k)), None)
+        corr = next((item.get(k) for k in corr_keys if item.get(k) is not None), None)
+        if not (a1 and a2):
+            return None
+        try:
+            weight = float(corr) if corr is not None else 0.0
+        except (TypeError, ValueError):
+            weight = 0.0
+        return a1, a2, weight
+
+    @staticmethod
+    def _build_and_render_correlation_network(
+        strongest_correlations: Any,
+        correlation_matrix: Dict[str, Any],
+    ) -> go.Figure:
+        """
+        Build a NetworkX graph from strongest correlations and render it with
+        Plotly.
+        """
+        G = nx.Graph()
+
+        # Add edges from strongest correlations (expected: list of dict-like objects)
+        for item in strongest_correlations or []:
+            edge = FormulaicVisualizer._extract_correlation_edge(item)
+            if edge:
+                a1, a2, weight = edge
+                G.add_edge(a1, a2, weight=weight)
+
+        if G.number_of_nodes() == 0:
+            return FormulaicVisualizer._create_empty_correlation_network_figure()
+
+        # Layout
+        positions = nx.spring_layout(G, seed=42)
+
+        # Edge traces
+        edge_traces = []
+        for u, v, data in G.edges(data=True):
+            x0, y0 = positions[u]
+            x1, y1 = positions[v]
+            weight = float(data.get("weight", 0.0))
+
+            # Highlight strong correlations
+            if abs(weight) >= 0.7:
+                color = "#E74C3C"  # red
                 width = 3
+            elif abs(weight) >= 0.4:
+                color = "#3498DB"  # blue
+                width = 2
             else:
                 color = "lightgray"
-                width = 2
+                width = 1
 
             edge_traces.append(
                 go.Scatter(
@@ -377,21 +723,23 @@ class FormulaicVisualizer:
                 )
             )
 
-        # Create node trace
-        node_x = [positions[asset][0] for asset in assets]
-        node_y = [positions[asset][1] for asset in assets]
-        node_text = assets
+        # Node trace (colored by degree)
+        nodes = list(G.nodes())
+        node_x = [positions[n][0] for n in nodes]
+        node_y = [positions[n][1] for n in nodes]
+        degrees = [G.degree(n) for n in nodes]
 
         node_trace = go.Scatter(
             x=node_x,
             y=node_y,
             mode="markers+text",
-            text=node_text,
+            text=nodes,
             textposition="top center",
             marker=dict(
                 showscale=True,
                 colorscale="YlGnBu",
                 size=10,
+                color=degrees,
                 colorbar=dict(
                     thickness=15,
                     title="Node Connections",
@@ -401,16 +749,11 @@ class FormulaicVisualizer:
                 line_width=2,
             ),
             hoverinfo="text",
+            showlegend=False,
         )
 
-        # Color nodes by degree
-        node_adjacencies = []
-        for _, adjacencies in enumerate(G.adjacency()):
-            node_adjacencies.append(len(adjacencies[1]))
-        node_trace.marker.color = node_adjacencies
-
         fig = go.Figure(
-            data=[edge_trace, node_trace],
+            data=[*edge_traces, node_trace],
             layout=go.Layout(
                 title="Correlation Network Graph",
                 titlefont_size=16,
@@ -422,54 +765,90 @@ class FormulaicVisualizer:
             ),
         )
         return fig
-
-    @staticmethod
-    def create_metric_comparison_chart(analysis_results: Dict[str, Any]) -> go.Figure:
-        """Create a chart comparing different metrics derived from formulas."""
-        fig = go.Figure()
-
-        # Example logic: Compare theoretical vs empirical values if available
-        # For now, we plot R-squared distribution by category
-        formulas = analysis_results.get("formulas", [])
-        if not formulas:
-            return fig
-
-        categories = {}
-        for f in formulas:
-            if f.category not in categories:
-                categories[f.category] = []
-            categories[f.category].append(f.r_squared)
-
-        fig = go.Figure()
-
-        # Create bar chart for each category
-        category_names = list(categories.keys())
-        r_squared_by_category = []
-        formula_counts = []
-
-        for category in category_names:
-            category_formulas = categories[category]
-            avg_r_squared = sum(f.r_squared for f in category_formulas) / len(category_formulas)
-            r_squared_by_category.append(avg_r_squared)
-            formula_counts.append(len(category_formulas))
-
-        # R-squared bars
-        fig.add_trace(
-            go.Bar(
-                name="Average R-squared",
-                x=category_names,
-                y=r_squared_by_category,
-                marker=dict(color="lightcoral"),
-                yaxis="y",
-                offsetgroup=1,
-            )
+            showscale = True,
+                colorscale = "YlGnBu",
+                size = 10,
+                colorbar = dict(
+                    thickness=15,
+                    title="Node Connections",
+                xanchor="left",
+                    titleside="right",
+                ),
+                line_width = 2,
+            ),
+            hoverinfo = "text",
         )
 
-        fig.update_layout(
-            title="Formula Reliability Distribution by Category",
-            yaxis_title="R-Squared Score",
-            xaxis_title="Formula Category",
-            showlegend=False,
-            template="plotly_white",
+        # Color nodes by degree
+        node_adjacencies = []
+        for _, adjacencies in enumerate(G.adjacency()):
+            node_adjacencies.append(len(adjacencies[1]))
+        node_trace.marker.color = node_adjacencies
+
+        fig = go.Figure(
+            data=[edge_traces, node_trace],
+            layout=go.Layout(
+                title = "Correlation Network Graph",
+                titlefont_size = 16,
+                showlegend = False,
+                hovermode = "closest",
+                margin = dict(b=20, l=5, r=5, t=40),
+                xaxis = dict(showgrid=False, zeroline=False, showticklabels=False),
+                yaxis = dict(showgrid=False, zeroline=False, showticklabels=False),
+            ),
         )
         return fig
+
+
+@ staticmethod
+def create_metric_comparison_chart(analysis_results: Dict[str, Any]) -> go.Figure:
+    """Create a chart comparing different metrics derived from formulas."""
+    fig = go.Figure()
+
+    # Example logic: Compare theoretical vs empirical values if available
+    # For now, we plot R-squared distribution by category
+    formulas = analysis_results.get("formulas", [])
+    if not formulas:
+        return fig
+
+    categories = {}
+    for f in formulas:
+        if f.category not in categories:
+            categories[f.category] = []
+        categories[f.category].append(f.r_squared)
+
+    fig = go.Figure()
+
+    # Create bar chart for each category
+    category_names = list(categories.keys())
+    r_squared_by_category = []
+    formula_counts = []
+
+    for category in category_names:
+        category_formulas = categories[category]
+        avg_r_squared = sum(f.r_squared for f in category_formulas) / len(
+            category_formulas
+        )
+        r_squared_by_category.append(avg_r_squared)
+        formula_counts.append(len(category_formulas))
+
+    # R-squared bars
+    fig.add_trace(
+        go.Bar(
+            name = "Average R-squared",
+            x = category_names,
+            y = r_squared_by_category,
+            marker = dict(color="lightcoral"),
+            yaxis = "y",
+            offsetgroup = 1,
+        )
+    )
+
+    fig.update_layout(
+        title="Formula Reliability Distribution by Category",
+        yaxis_title="R-Squared Score",
+        xaxis_title="Formula Category",
+        showlegend=False,
+        template="plotly_white",
+    )
+    return fig
