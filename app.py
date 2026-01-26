@@ -385,7 +385,8 @@ class FinancialAssetApp:
         """
         try:
             LOGGER.info("Refreshing network visualization")
-            graph = self.ensure_graph() if graph_state is None else graph_state
+            default_graph = self.ensure_graph()
+            graph = graph_state or default_graph
 
             if view_mode == "2D":
                 graph_viz: go.Figure = visualize_2d_graph(
