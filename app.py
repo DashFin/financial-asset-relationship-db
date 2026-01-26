@@ -426,30 +426,31 @@ class FinancialAssetApp:
 
     class FinancialAssetApp:
     ...
+
     def generate_formulaic_analysis(
         self, graph_state: Optional[AssetRelationshipGraph]
     ) -> Tuple[go.Figure, go.Figure, go.Figure, gr.Dropdown, str, gr.Textbox]:
         Produce a formulaic analysis dashboard and companion visualizations
         derived from the asset graph.
         Parameters:
-            graph_state (Optional[AssetRelationshipGraph]): Asset graph to analyze; if
+            graph_state(Optional[AssetRelationshipGraph]): Asset graph to analyze; if
                 None, the app's initialized graph is used.
         Returns:
             Tuple containing:
-            - dashboard_fig (go.Figure): Main formula dashboard summarizing identified
+            - dashboard_fig(go.Figure): Main formula dashboard summarizing identified
                 formulas and metrics.
-            - correlation_network_fig (go.Figure): Network figure showing empirical
-                relationships and correlations between assets/metrics.
-            - metric_comparison_fig (go.Figure): Figure comparing metrics used by the
+            - correlation_network_fig(go.Figure): Network figure showing empirical
+                relationships and correlations between assets / metrics.
+            - metric_comparison_fig(go.Figure): Figure comparing metrics used by the
                 discovered formulas.
-            - formula_selector_update (gr.Dropdown): Gradio update for the formula
-                selector populated with discovered formula names (selected value set to
+            - formula_selector_update(gr.Dropdown): Gradio update for the formula
+                selector populated with discovered formula names(selected value set to
                 the first formula when available, otherwise cleared).
-            - summary_text (str): Human-readable summary of the formulaic analysis
+            - summary_text(str): Human - readable summary of the formulaic analysis
                 and key insights.
-            - error_textbox_update (gr.Textbox): Gradio update for the error textbox
-                (hidden on success; when an error occurs contains the error message and
-                is visible).
+            - error_textbox_update(gr.Textbox): Gradio update for the error textbox
+                (hidden on success; when an error occurs contains the error message
+                and is visible).
         """
         try:
             LOGGER.info("Generating formulaic analysis")
@@ -508,9 +509,9 @@ class FinancialAssetApp:
         and hide the detail textbox while the feature is not implemented.
 
         Parameters:
-            formula_name (str):
+            formula_name(str):
                 The name of the formula whose details would be shown.
-            graph_state (AssetRelationshipGraph):
+            graph_state(AssetRelationshipGraph):
                 The current asset relationship graph used for analysis.
 
         Returns:
@@ -525,23 +526,23 @@ class FinancialAssetApp:
     @staticmethod
     def _format_formula_summary(summary: Dict, analysis_results: Dict) -> str:
         """
-        Builds a human-readable, markdown-formatted summary of formulaic analysis
+        Builds a human - readable, markdown - formatted summary of formulaic analysis
         and empirical relationships.
 
         Parameters:
-            summary (Dict): Aggregated summary metrics with keys such as
+            summary(Dict): Aggregated summary metrics with keys such as
                 - "avg_r_squared" (float): average R² across formulas,
                 - "empirical_data_points" (int): number of empirical observations,
                 - "formula_categories" (Dict[str, int]): counts per category,
                 - "key_insights" (List[str]): notable insights to highlight.
-            analysis_results (Dict): Detailed analysis payload containing at least
+            analysis_results(Dict): Detailed analysis payload containing at least
                 - "formulas" (List): list of discovered formulas,
                 - "empirical_relationships" (Dict): empirical data including
                   "strongest_correlations" (List[Dict]) where each dict has keys
                   "pair", "correlation", and "strength".
 
         Returns:
-            str: A multi-line markdown string summarizing totals, average reliability,
+            str: A multi - line markdown string summarizing totals, average reliability,
                  empirical data points, categorized formula counts, key insights, and
                  top asset correlations suitable for display in the UI.
         """
@@ -606,16 +607,16 @@ class FinancialAssetApp:
         Builds the Gradio Blocks user interface for the
         Financial Asset Relationship Database application.
 
-        Creates a multi-tab UI containing:
-        - Network Visualization (2D/3D) with visualization controls,
-          relationship visibility toggles, a 3D/2D plot, and
-          refresh/reset actions.
+        Creates a multi - tab UI containing:
+        - Network Visualization(2D / 3D) with visualization controls,
+          relationship visibility toggles, a 3D / 2D plot, and
+          refresh / reset actions.
         - Metrics & Analytics with metric charts
           and a network statistics textbox.
         - Schema & Rules with a generated schema report and
           refresh action.
         - Asset Explorer with an asset selector,
-          asset details and related-assets JSON views,
+          asset details and related - assets JSON views,
           and refresh action.
         - Documentation with static markdown.
         - Formulaic Analysis with a dashboard,
@@ -625,13 +626,13 @@ class FinancialAssetApp:
         Event handlers and state:
         - Initializes a gr.State holding the application's graph.
         - Wires refresh buttons, visualization controls, layout selection, and
-          formula-related controls to the corresponding FinancialAssetApp methods
+          formula - related controls to the corresponding FinancialAssetApp methods
           so UI components update based on the current graph state.
         - Provides an error message textbox that is updated by
           event handlers.
 
         Returns:
-            demo_ui (gr.Blocks): The constructed Gradio Blocks instance
+            demo_ui(gr.Blocks): The constructed Gradio Blocks instance
                 representing the complete application UI.
         """
         demo_ui: gr.Blocks = gr.Blocks(title=AppConstants.TITLE)
