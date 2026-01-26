@@ -421,8 +421,8 @@ class FinancialAssetApp:
             return graph_viz
 
         except Exception as e:
-            LOGGER.error("Error refreshing visualization: %s", e)
-            return go.Figure()
+                    LOGGER.error("Error refreshing visualization", exc_info=True)
+                    return go.Figure(), gr.update(visible=False)
 
     def generate_formulaic_analysis(
         self, graph_state: Optional[AssetRelationshipGraph]
