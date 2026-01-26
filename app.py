@@ -20,13 +20,13 @@ import plotly.graph_objects as go
 
 # --- Managed Imports ---
 # Consolidated imports to resolve redundancies found in the original source
-from src.analysis.formulaic_analysis import FormulaicdAnalyzer
+from src.analysis.formulaic_analysis import FormulaicAnalyzer
 from src.data.real_data_fetcher import create_real_database
 from src.logging import LOGGER
 from src.logic.asset_graph import AssetRelationshipGraph
 from src.models.financial_models import Asset
 from src.reports.schema_report import generate_schema_report
-from src.visualizations.formulaic_visuals import FormulaicdVisualizer
+from src.visualizations.formulaic_visuals import FormulaicVisualizer
 from src.visualizations.graph_2d_visuals import visualize_2d_graph
 from src.visualizations.graph_visuals import (
     visualize_3d_graph,
@@ -50,7 +50,7 @@ class AppConstants:
     HEADER_MARKDOWN: str = """
     # 🏦 Financial Asset Relationship Network
     An advanced visualization platform designed for analyzing interconnected
-    financial assets through structural network analysis and formulaic validation.
+    financial assets through structural network analysis and  validation.
     """
 
     # UI Tab Labels
@@ -58,7 +58,7 @@ class AppConstants:
     TAB_METRICS_ANALYTICS: str = "📊 Metrics & Analytics"
     TAB_SCHEMA_RULES: str = "📜 Schema & Rules"
     TAB_ASSET_EXPLORER: str = "🔍 Asset Explorer"
-    TAB_FORMULAIC_ANALYSIS: str = "🧪 Formulaic Analysis"
+    TAB__ANALYSIS: str = "🧪  Analysis"
     TAB_DOCUMENTATION: str = "📖 Documentation"
 
     # UI Component Labels
@@ -73,7 +73,7 @@ class AppConstants:
     BTN_REFRESH_VIZ: str = "Apply Visualization Filters"
     BTN_REFRESH_METRICS: str = "Refresh Network Metrics"
     BTN_GEN_SCHEMA: str = "Generate Schema Report"
-    BTN_RUN_ANALYSIS: str = "Execute Formulaic Discovery"
+    BTN_RUN_ANALYSIS: str = "Execute  Discovery"
     BTN_RESET: str = "Reset Graph View"
 
     # Legend & UI Context (Restored per user request)
@@ -101,7 +101,7 @@ Top Weighted Relationships:
     MSG_INIT_SUCCESS: str = "Database successfully initialized with %d assets."
     MSG_REFRESH_START: str = "Global UI refresh sequence initiated."
     MSG_REFRESH_ERROR: str = "Critical failure during UI refresh sequence."
-    MSG_ANALYSIS_START: str = "Starting systemic formulaic analysis engine..."
+    MSG_ANALYSIS_START: str = "Starting systemic  analysis engine..."
 
 
 class AssetUIController:
@@ -163,7 +163,7 @@ class AssetUIController:
         empirical = results.get("empirical_relationships", {})
 
         md_output = [
-            "### Systemic Formulaic Analysis",
+            "### Systemic  Analysis",
             f"\n- **Total Active Formulas**: {len(formulas)}",
             f"- **Aggregate R-Squared**: {summary.get('avg_r_squared', 0.0):.4f}",
             f"- **Empirical Data Points**: {summary.get('empirical_data_points', 0)}",
@@ -360,9 +360,9 @@ class FinancialAssetApp(AssetUIController):
             LOGGER.info(AppConstants.MSG_ANALYSIS_START)
             active_graph = graph_state or self.get_valid_graph()
 
-            # --- TYPO TO BE FIXED AFTER IMPORT SOURCE IS CORRECTED: FormulaicdAnalyzer -> FormulaicdAnalyzer ---
-            analyzer = FormulaicdAnalyzer()
-            visualizer = FormulaicdVisualizer()
+            # --- TYPO CORRECTED IN IMPORT SOURCE : FormulaicdAnalyzer -> FormulaicAnalyzer ---
+            analyzer = FormulaicAnalyzer()
+            visualizer = FormulaicVisualizer()
 
             results = analyzer.analyze_graph(active_graph)
 
@@ -538,7 +538,7 @@ class FinancialAssetApp(AssetUIController):
             ### Features
             - **3D Network Visualization**:
               Interactive force-directed graph.
-            - **Formulaic Discovery**:
+            - ** Discovery**:
               Validates theoretical pricing models against the graph.
             - **Regulatory Tracking**:
               Maps assets to systemic regulatory events.
@@ -613,7 +613,7 @@ class FinancialAssetApp(AssetUIController):
                 outputs=[asset_primary_json, asset_network_json],
             )
 
-            # Formulaic Analysis Actions
+            #  Analysis Actions
             execute_analysis_btn.click(
                 self.execute_analysis_workflow,
                 inputs=[graph_persistence],
