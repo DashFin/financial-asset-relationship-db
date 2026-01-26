@@ -252,7 +252,10 @@ class FinancialAssetApp:
                 and their relationships.
 
         Returns:
-            Tuple[Dict[str, Union[str, float, int]], Dict[str, Dict[str, Dict[str, Union[str, float]]]]]:
+            Tuple[
+                Dict[str, Union[str, float, int]],
+                Dict[str, Dict[str, Dict[str, Union[str, float]]]],
+            ]:
                 - First element: a dictionary of the asset's fields
                   (converted from the dataclass)
                   with an added `"asset_class"` key
@@ -261,9 +264,9 @@ class FinancialAssetApp:
                   `"outgoing"` and `"incoming"`,
                   each mapping counterparty asset ids to
                   dictionaries of the form
-                  `{"relationship_type": <str>, "strength": <float>}`.
+                  `{`"relationship_type"`: <str>, `"strength"`: <float>}`.
                   If the asset is missing, returns an empty dict
-                  and `{"outgoing": {}, "incoming": {}}`.
+                  and `{`"outgoing"`: {}, `"incoming"`: {}}`.
         """
         if not selected_asset or selected_asset not in graph.assets:
             return {}, {"outgoing": {}, "incoming": {}}
