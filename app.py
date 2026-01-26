@@ -360,7 +360,7 @@ class FinancialAssetApp(AssetUIController):
             LOGGER.info(AppConstants.MSG_ANALYSIS_START)
             active_graph = graph_state or self.get_valid_graph()
 
-            # --- FIXED TYPO: FormulaicdAnalyzer -> FormulaicdAnalyzer ---
+            # --- TYPO TO BE FIXED AFTER IMPORT SOURCE IS CORRECTED: FormulaicdAnalyzer -> FormulaicdAnalyzer ---
             analyzer = FormulaicdAnalyzer()
             visualizer = FormulaicdVisualizer()
 
