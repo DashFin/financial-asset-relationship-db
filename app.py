@@ -939,7 +939,7 @@ class FinancialAssetApp:
                 outputs=[formula_detail_view, error_message],
             )
 
-        return demo
+        return demo_ui
 
 
 if __name__ == "__main__":
