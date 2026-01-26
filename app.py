@@ -502,6 +502,9 @@ asset_list = sorted(active_graph.assets.keys())
                         asset_network_json = gr.JSON(label=AppConstants.LBL_REL_JSON)
                     refresh_explorer_btn = gr.Button("Refresh Explorer Data")
 
+                # --- TAB 5: FORMULAIC ANALYSIS ---
+                with gr.Tab(AppConstants.TAB_FORMULAIC_ANALYSIS):
+
                 # --- TAB 6: DOCUMENTATION ---
                 with gr.Tab(AppConstants.TAB_DOCUMENTATION):
                     gr.Markdown(
