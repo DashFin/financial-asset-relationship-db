@@ -252,7 +252,7 @@ class FinancialAssetApp:
                 and their relationships.
 
         Returns:
-            Tuple[Dict[str, Union[str, float, int]], AssetRelationshipView]:
+            Tuple[Dict[str, Union[str, float, int]], Dict[str, Dict[str, Dict[str, Union[str, float]]]]]:
                 - First element: a dictionary of the asset's fields
                   (converted from the dataclass)
                   with an added `"asset_class"` key
