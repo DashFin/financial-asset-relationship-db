@@ -402,7 +402,7 @@ class FinancialAssetApp(AssetUIController):
             )
 
     @staticmethod
-    def show_drill_down_formula(formula_name: str, graph: Any) -> tuple[go.Figure, Any]:
+    def show_drill_down_formula(formula_name: str, graph: AssetRelationshipGraph | None) -> tuple[go.Figure, Any]:
         """Placeholder for detailed formula drill-down visualization."""
         LOGGER.debug(f"Drill-down: {formula_name}")
         return go.Figure(), gr.update(visible=False)
