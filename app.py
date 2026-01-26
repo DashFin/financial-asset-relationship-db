@@ -759,29 +759,6 @@ class FinancialAssetApp:
 
             view_mode.change(
                 _on_view_mode_change,
-                inputs=[
-                    graph_state,
-                    view_mode,
-                    layout_type,
-                    show_same_sector,
-                    show_market_cap,
-                    show_correlation,
-                    show_corporate_bond,
-                    show_commodity_currency,
-                    show_income_comparison,
-                    show_regulatory,
-                    show_all_relationships,
-                    toggle_arrows,
-                ],
-                outputs=[
-                    visualization_outputs[0],
-                    layout_type,
-                    visualization_outputs[1],
-                ],
-            )
-
-            view_mode.change(
-                _on_view_mode_change,
                 inputs=visualization_inputs,
                 outputs=[visualization_3d, layout_type, error_message],
             )
