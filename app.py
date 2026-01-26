@@ -610,36 +610,9 @@ class FinancialAssetApp(AssetUIController):
                 inputs=viz_inputs,
                 outputs=[main_graph_plot, error_output],
             )
-            f_bond.change(
-                self.filter_visualization,
-                inputs=viz_inputs,
-                outputs=[main_graph_plot, error_output],
-            )
-            f_comm.change(
-                self.filter_visualization,
-                inputs=viz_inputs,
-                outputs=[main_graph_plot, error_output],
-            )
-            f_inc.change(
-                self.filter_visualization,
-                inputs=viz_inputs,
-                outputs=[main_graph_plot, error_output],
-            )
-            f_reg.change(
-                self.filter_visualization,
-                inputs=viz_inputs,
-                outputs=[main_graph_plot, error_output],
-            )
-            f_all.change(
-                self.filter_visualization,
-                inputs=viz_inputs,
-                outputs=[main_graph_plot, error_output],
-            )
-            t_arrows.change(
-                self.filter_visualization,
-                inputs=viz_inputs,
-                outputs=[main_graph_plot, error_output],
-            )
+            # Note: Filter checkboxes no longer trigger an immediate graph
+            # re-render on every change. Filters are applied via the
+            # dedicated "Apply Filters" button and the reset view action.
 
             reset_view_btn.click(
                 self.filter_visualization,
