@@ -416,9 +416,9 @@ class FinancialAssetApp:
                  show_regulatory=show_regulatory,
                  show_all_relationships=show_all_relationships,
                  toggle_arrows=toggle_arrows,
-             )
+        )
 
-         return graph_viz, gr.update(visible=False)
+        return graph_viz, gr.update(visible=False)
 
      except Exception as e:
          LOGGER.error("Error refreshing visualization", exc_info=True)
