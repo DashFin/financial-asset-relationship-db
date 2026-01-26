@@ -30,9 +30,9 @@ LOGGER = logging.getLogger(__name__)
 class AppConstants:
     """Holds all application constants including labels, markdown, and messages."""
 
-    TITLE: str = "Financial Asset Relationship Database Visualization"
+    TITLE: str="Financial Asset Relationship Database Visualization"
 
-    MARKDOWN_HEADER: str = """
+    MARKDOWN_HEADER: str="""
     # 🏦 Financial Asset Relationship Network
 
     A comprehensive 3D visualization of interconnected financial
@@ -41,27 +41,28 @@ class AppConstants:
     Events**
     """
 
-    TAB_3D_VISUALIZATION: str = "3D Network Visualization"
-    TAB_METRICS_ANALYTICS: str = "Metrics & Analytics"
-    TAB_SCHEMA_RULES: str = "Schema & Rules"
-    TAB_ASSET_EXPLORER: str = "Asset Explorer"
-    TAB_DOCUMENTATION: str = "Documentation"
+    TAB_3D_VISUALIZATION: str="3D Network Visualization"
+    TAB_METRICS_ANALYTICS: str="Metrics & Analytics"
+    TAB_SCHEMA_RULES: str="Schema & Rules"
+    TAB_ASSET_EXPLORER: str="Asset Explorer"
+    TAB_DOCUMENTATION: str="Documentation"
+    
+    ERROR_LABEL: str="Error"
+    REFRESH_BUTTON_LABEL: str="Refresh Visualization"
+    GENERATE_SCHEMA_BUTTON_LABEL: str="Generate Schema Report"
+    SCHEMA_REPORT_LABEL: str="Generate Schema Report"
+    SELECT_ASSET_LABEL: str="Select Asset"
+    ASSET_DETAILS_LABEL: str="Asset Details"
+    RELATED_ASSETS_LABEL: str="Related Assets"
+    NETWORK_STATISTICS_LABEL: str="Network Statistics"
 
-    ERROR_LABEL: str = "Error"
-    REFRESH_BUTTON_LABEL: str = "Refresh Visualization"
-    GENERATE_SCHEMA_BUTTON_LABEL: str = "Generate Schema Report"
-    SELECT_ASSET_LABEL: str = "Select Asset"
-    ASSET_DETAILS_LABEL: str = "Asset Details"
-    RELATED_ASSETS_LABEL: str = "Related Assets"
-    NETWORK_STATISTICS_LABEL: str = "Network Statistics"
+    INITIAL_GRAPH_ERROR: str="Failed to create sample database"
+    REFRESH_OUTPUTS_ERROR: str="Error refreshing outputs"
+    APP_START_INFO: str="Starting Financial Asset Relationship Database application"
+    APP_LAUNCH_INFO: str="Launching Gradio interface"
+    APP_START_ERROR: str="Failed to start application"
 
-    INITIAL_GRAPH_ERROR: str = "Failed to create sample database"
-    REFRESH_OUTPUTS_ERROR: str = "Error refreshing outputs"
-    APP_START_INFO: str = "Starting Financial Asset Relationship Database application"
-    APP_LAUNCH_INFO: str = "Launching Gradio interface"
-    APP_START_ERROR: str = "Failed to start application"
-
-    INTERACTIVE_3D_GRAPH_MD: str = """
+    INTERACTIVE_3D_GRAPH_MD: str="""
     ## Interactive 3D Network Graph
 
     Explore the relationships between financial assets in three dimensions.
@@ -76,28 +77,28 @@ class AppConstants:
     - 🟣 Purple: Derivatives
     """
 
-    NETWORK_METRICS_ANALYSIS_MD: str = """
+    NETWORK_METRICS_ANALYSIS_MD: str="""
     ## Network Metrics & Analytics
 
     Comprehensive analysis of asset relationships, distributions, and
     regulatory event impacts.
     """
 
-    SCHEMA_RULES_GUIDE_MD: str = """
+    SCHEMA_RULES_GUIDE_MD: str="""
     ## Database Schema & Business Rules
 
     View the automatically generated schema documentation including
     relationship types, business rules, and validation constraints.
     """
 
-    DETAILED_ASSET_INFO_MD: str = """
+    DETAILED_ASSET_INFO_MD: str="""
     ## Asset Explorer
 
     Select any asset to view detailed information including financial
     metrics, relationships, and connected assets.
     """
 
-    DOC_MARKDOWN: str = """
+    DOC_MARKDOWN: str="""
     ## Documentation & Help
 
     ### Quick Start
@@ -119,7 +120,7 @@ class AppConstants:
     For technical details, see the GitHub repository documentation.
     """
 
-    NETWORK_STATISTICS_TEXT: str = """Network Statistics:
+    NETWORK_STATISTICS_TEXT: str="""Network Statistics:
 
 Total Assets: {total_assets}
 Total Relationships: {total_relationships}
@@ -202,26 +203,17 @@ class FinancialAssetApp:
         """
         metrics = graph.calculate_metrics()
         text: str = AppConstants.NETWORK_STATISTICS_TEXT.format(
-            total_assets=metrics["total_assets"],
-        text: str=AppConstants.NETWORK_STATISTICS_TEXT.format(
-            total_assets=metrics["total_assets"],
-            total_relationships=metrics["total_relationships"],
-            average_relationship_strength=metrics["average_relationship_strength"],
-            relationship_density=metrics["relationship_density"],
-            regulatory_event_count=metrics["regulatory_event_count"],
-            asset_class_distribution=json.dumps(
-                metrics["asset_class_distribution"], indent=2
-            ),
-        )
+            text: str = AppConstants.NETWORK_STATISTICS_TEXT.format(
             total_assets=metrics["total_assets"],
             total_relationships=metrics["total_relationships"],
             average_relationship_strength=metrics["average_relationship_strength"],
             relationship_density=metrics["relationship_density"],
             regulatory_event_count=metrics["regulatory_event_count"],
             asset_class_distribution=json.dumps(
-                metrics["asset_class_distribution"], indent=2
+            metrics["asset_class_distribution"], indent=2
             ),
-        )
+        )           
+
         for idx, (s, t, rel, strength) in enumerate(metrics["top_relationships"], 1):
             text += f"{idx}. {s} → {t} ({rel}): {strength:.1%}\n"
         return text
@@ -242,6 +234,18 @@ class FinancialAssetApp:
                 figures (metric visualizations) and a string with the formatted network
                 metrics report.
         """
+
+    def _update_metrics_text(graph: AssetRelationshipGraph) -> str:
+        """
+        Format network statistics...
+
+        Parameters:
+            graph (AssetRelationshipGraph): The asset graph to compute metrics from.
+
+        Returns:
+            str: Formatted metrics text ready for display.
+        """
+
         f1, f2, f3 = visualize_metrics(graph)
         text: str = self._update_metrics_text(graph)
         return f1, f2, f3, text
@@ -428,18 +432,6 @@ class FinancialAssetApp:
             LOGGER.error("Error refreshing visualization", exc_info=True)
             return go.Figure(), gr.update(value=f"Error: {e}", visible=True)
 
-    ...
-
-    '''
-    def generate_formulaic_analysis(
-        self, graph_state: Optional[AssetRelationshipGraph]
-    ) -> Tuple[go.Figure, go.Figure, go.Figure, gr.Dropdown, str, gr.Textbox]:
-        """
-        Produce a formulaic analysis dashboard and companion visualizations
-        derived from the asset graph.
-        Parameters:
-            graph_state(Optional[AssetRelationshipGraph]): Asset graph to analyze; if
-                None, the app's initialized graph is used.
         Returns:
             Tuple containing:
             - dashboard_fig(go.Figure): Main formula dashboard summarizing identified
