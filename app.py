@@ -361,7 +361,7 @@ class FinancialAssetApp(AssetUIController):
 
             # --- FIXED TYPO: FormulaicdAnalyzer -> FormulaicdAnalyzer ---
             analyzer = FormulaicdAnalyzer()
-            visualizer = FormulaicVisualizer()
+            visualizer = FormulaicdVisualizer()
 
             results = analyzer.analyze_graph(active_graph)
 
