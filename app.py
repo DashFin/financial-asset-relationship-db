@@ -12,12 +12,13 @@ financial dependencies and systemic risks.
 from __future__ import annotations
 
 import json
-import logging
 from dataclasses import asdict
 from typing import Any
 
 import gradio as gr
 import plotly.graph_objects as go
+
+from asset_graph import AssetGraph, Asset, AssetRelationshipGraph
 
 # --- Managed Imports ---
 # Consolidated imports to resolve redundancies found in the original source
@@ -155,7 +156,8 @@ class AssetUIController:
     @staticmethod
     def format_analysis_summary(results: dict[str, Any]) -> str:
         """
-        Converts the results of the Formulaic Analysis into a structured Markdown report.
+        Converts the results of the Formulaic Analysis into a structured
+        Markdown report.
         """
         summary = results.get("summary", {})
         formulas = results.get("formulas", [])
@@ -203,7 +205,7 @@ class FinancialAssetApp(AssetUIController):
             LOGGER.error(f"Initialization Error: {e}")
             raise
 
-    def get_valid_graph(self) -> AssetRelationshipGraph:
+    def get_valid_graph(self) -> AssetGraph:
         """Ensures the graph is loaded before any operation."""
         if self.graph is None:
             LOGGER.warning("Graph state empty. Attempting re-initialization.")
@@ -213,8 +215,9 @@ class FinancialAssetApp(AssetUIController):
             raise RuntimeError("Failed to initialize graph")
         return self.graph
 
+    @staticmethod
     def prepare_metrics_view(
-        self, graph: AssetRelationshipGraph
+        graph: AssetGraph
     ) -> tuple[go.Figure, go.Figure, go.Figure, str]:
         """Generates metric visualizations and textual summaries."""
         LOGGER.info("Metrics: Recalculating network statistics.")
@@ -239,7 +242,7 @@ class FinancialAssetApp(AssetUIController):
         return fig_assets, fig_rels, fig_events, stat_text
 
     def refresh_global_state(
-        self, current_state: AssetRelationshipGraph | None
+        self, current_state: AssetGraph | None
     ) -> tuple:
         """
         Synchronizes all UI components across all tabs with the current graph state.
@@ -285,7 +288,7 @@ class FinancialAssetApp(AssetUIController):
 
     def filter_visualization(
         self,
-        graph_state: AssetRelationshipGraph | None,
+        graph_state: AssetGraph | None,
         mode: str,
         layout: str,
         show_sector: bool,
@@ -301,6 +304,17 @@ class FinancialAssetApp(AssetUIController):
         """Generates a filtered 2D or 3D graph view based on user selection."""
         try:
             active_graph = graph_state or self.get_valid_graph()
+            filters = (
+                show_sector,
+                show_market_cap,
+                show_correlation,
+                show_corporate_bond,
+                show_commodity_currency,
+                show_income_comparison,
+                show_regulatory,
+                show_all,
+                toggle_arrows,
+            )
             s_sec, s_mc, s_corr, s_cb, s_cc, s_ic, s_reg, s_all, t_arr = filters
 
             LOGGER.info(f"Filtering: Generating {mode} visualization.")
@@ -341,7 +355,8 @@ class FinancialAssetApp(AssetUIController):
     def execute_analysis_workflow(
         self, graph_state: AssetRelationshipGraph | None
     ) -> tuple[go.Figure, go.Figure, go.Figure, Any, str, Any]:
-        """Runs the complex formula discovery engine and prepares the analysis dashboard."""
+        """Runs the complex formula discovery engine and prepares
+        the analysis dashboard."""
         try:
             LOGGER.info(AppConstants.MSG_ANALYSIS_START)
             active_graph = graph_state or self.get_valid_graph()
@@ -390,7 +405,7 @@ class FinancialAssetApp(AssetUIController):
 
     @staticmethod
     def show_drill_down_formula(
-        formula_name: str, graph: AssetRelationshipGraph
+        formula_name: str, graph: Any
     ) -> tuple[go.Figure, Any]:
         """Placeholder for detailed formula drill-down visualization."""
         LOGGER.debug(f"Drill-down: {formula_name}")
@@ -490,64 +505,69 @@ class FinancialAssetApp(AssetUIController):
                         asset_primary_json = gr.JSON(label=AppConstants.LBL_ASSET_JSON)
                         asset_network_json = gr.JSON(label=AppConstants.LBL_REL_JSON)
                     refresh_explorer_btn = gr.Button("Refresh Explorer Data")
+                            # --- TAB 5: FORMULAIC ANALYSIS ---
+                            with gr.Tab(AppConstants.TAB_FORMULAIC_ANALYSIS):
+                                with gr.Row():
+                                    formula_dashboard = gr.Plot(scale=2)
+                                    with gr.Column(scale=1):
+                                        formula_drilldown = gr.Dropdown(label="Drill-down Formula")
+                                        formula_drill_plot = gr.Plot()
+                                with gr.Row():
+                                    formula_corr_plot = gr.Plot(label="Correlation Network")
+                                    formula_metric_plot = gr.Plot(label="Metric Comparison")
+                                formula_md_output = gr.Markdown(
+                                    "Click 'Execute Formulaic Discovery' to begin."
+                                )
+                                execute_analysis_btn = gr.Button(
+                                    AppConstants.BTN_RUN_ANALYSIS, variant="primary"
+                                )
 
-                # --- TAB 5: FORMULAIC ANALYSIS ---
-                with gr.Tab(AppConstants.TAB_FORMULAIC_ANALYSIS):
-                    with gr.Row():
-                        formula_dashboard = gr.Plot(scale=2)
-                        with gr.Column(scale=1):
-                            formula_drilldown = gr.Dropdown(label="Drill-down Formula")
-                            formula_drill_plot = gr.Plot()
-                    with gr.Row():
-                        formula_corr_plot = gr.Plot(label="Correlation Network")
-                        formula_metric_plot = gr.Plot(label="Metric Comparison")
-                    formula_md_output = gr.Markdown(
-                        "Click 'Execute Formulaic Discovery' to begin."
-                    )
-                    execute_analysis_btn = gr.Button(
-                        AppConstants.BTN_RUN_ANALYSIS, variant="primary"
-                    )
+                            # --- TAB 6: DOCUMENTATION ---
+                            with gr.Tab(AppConstants.TAB_DOCUMENTATION):
+                                gr.Markdown(
+                                    """
+            ## Application Documentation
 
-                # --- TAB 6: DOCUMENTATION ---
-                with gr.Tab(AppConstants.TAB_DOCUMENTATION):
-                    gr.Markdown(
-                        """
-                    ## Application Documentation
+            ### Overview
+            This system maps financial assets as nodes in a
+            weighted, directed graph.
+            Relationships are derived from sector similarity,
+            price correlation,
+            capital structure (Bonds/Equity),
+            and regulatory oversight.
 
-                    ### Overview
-                    This system maps financial assets as nodes in a weighted, directed graph.
-                    Relationships are derived from sector similarity, price correlation,
-                    capital structure (Bonds/Equity), and regulatory oversight.
+            ### Features
+            - **3D Network Visualization**:
+              Interactive force-directed graph.
+            - **Formulaic Discovery**:
+              Validates theoretical pricing models against the graph.
+            - **Regulatory Tracking**:
+              Maps assets to systemic regulatory events.
+            """
+                                )
 
-                    ### Features
-                    - **3D Network Visualization**: Interactive force-directed graph.
-                    - **Formulaic Discovery**: Validates theoretical pricing models against the graph.
-                    - **Regulatory Tracking**: Maps assets to systemic regulatory events.
-                    """
-                    )
+                        # --- EVENT HANDLING LOGIC ---
+                        # (Maintaining explicit definitions for structural volume and clarity)
 
-            # --- EVENT HANDLING LOGIC ---
-            # (Maintaining explicit definitions for structural volume and clarity)
+                        # Collection of components for global refresh
+                        refresh_outputs = [
+                            main_graph_plot,
+                            metric_asset_plot,
+                            metric_rel_plot,
+                            metric_event_plot,
+                            metric_stats_text,
+                            schema_report_text,
+                            asset_selector,
+                            error_output,
+                        ]
 
-            # Collection of components for global refresh
-            refresh_outputs = [
-                main_graph_plot,
-                metric_asset_plot,
-                metric_rel_plot,
-                metric_event_plot,
-                metric_stats_text,
-                schema_report_text,
-                asset_selector,
-                error_output,
-            ]
-
-            # Trigger global refreshes from multiple buttons
-            for refresh_trigger in [
-                apply_filters_btn,
-                refresh_metrics_btn,
-                generate_schema_btn,
-                refresh_explorer_btn,
-            ]:
+                        # Trigger global refreshes from multiple buttons
+                        for refresh_trigger in [
+                            apply_filters_btn,
+                            refresh_metrics_btn,
+                            generate_schema_btn,
+                            refresh_explorer_btn,
+                        ]:
                 refresh_trigger.click(
                     self.refresh_global_state,
                     inputs=[graph_persistence],
@@ -572,7 +592,7 @@ class FinancialAssetApp(AssetUIController):
 
             # Toggle 2D layout visibility
             view_mode.change(
-                lambda m: gr.update(visible=(m == "2D")),
+                lambda m: gr.update(visible=m == "2D"),
                 inputs=[view_mode],
                 outputs=[layout_2d],
             )
@@ -637,6 +657,7 @@ class FinancialAssetApp(AssetUIController):
                 outputs=[asset_primary_json, asset_network_json],
             )
 
+
             # Formulaic Analysis Actions
             execute_analysis_btn.click(
                 self.execute_analysis_workflow,
@@ -661,10 +682,8 @@ class FinancialAssetApp(AssetUIController):
 
 
 if __name__ == "__main__":
-    """
-    Main entry point for the application.
-    Instantiates the app and launches the Gradio block interface.
-    """
+    # Main entry point for the application.
+    # Instantiates the app and launches the Gradio block interface.
     try:
         LOGGER.info("Starting Financial Asset Network Visualization Platform...")
         financial_app = FinancialAssetApp()
