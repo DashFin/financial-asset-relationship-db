@@ -260,13 +260,14 @@ class FinancialAssetApp:
                   (converted from the dataclass)
                   with an added `"asset_class"` key
                   containing the asset class value.
-                - Second element: an AssetRelationshipView with two keys,
-                  `"outgoing"` and `"incoming"`,
-                  each mapping counterparty asset ids to
-                  dictionaries of the form
-                  `{`"relationship_type"`: <str>, `"strength"`: <float>}`.
-                  If the asset is missing, returns an empty dict
-                  and `{`"outgoing"`: {}, `"incoming"`: {}}`.
+                - Second element: a nested dictionary with two top-level keys,
+                  `"outgoing"` and `"incoming"`.
+                  Each of these maps counterparty asset ids (as strings) to
+                  dictionaries with keys `"relationship_type"` (str)
+                  and `"strength"` (float).
+                  If the asset is missing, returns an empty dict for the
+                  asset and a relationship dictionary of the form
+                  `{"outgoing": {}, "incoming": {}}`.
         """
         if not selected_asset or selected_asset not in graph.assets:
             return {}, {"outgoing": {}, "incoming": {}}
