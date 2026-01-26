@@ -377,7 +377,7 @@ class FinancialAssetApp:
             Figure if visualization fails.
         """
         try:
-            LOGGER.info("Generating formulaic analysis")
+            LOGGER.info("Refreshing network visualization")
             graph = self.ensure_graph() if graph_state is None else graph_state
             FormulaicdAnalyzer()
             FormulaicVisualizer()
