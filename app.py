@@ -636,4 +636,5 @@ if __name__ == "__main__":
         interface_demo.launch(debug=True)
         # Launching without debug to avoid exposing internal details in production
         interface_demo.launch()
+    except Exception as fatal_error:
         LOGGER.critical(f"FATAL: Application crashed during startup: {fatal_error}")
