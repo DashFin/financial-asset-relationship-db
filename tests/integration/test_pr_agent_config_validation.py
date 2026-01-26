@@ -76,7 +76,7 @@ class TestPRAgentConfigSimplification:
 
     @staticmethod
     def test_no_fallback_strategies(pr_agent_config):
-        """Ensure the limits section does not contain a fallback key."""
+        """Ensure the `limits` section does not contain a `fallback` key."""
         limits = pr_agent_config.get("limits", {})
         assert "fallback" not in limits
 
