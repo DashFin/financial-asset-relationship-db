@@ -306,7 +306,7 @@ class FinancialAssetApp:
         Refreshes all UI visuals, metrics, schema report,
         and asset selector options.
 
-        @returns Tuple containing:
+        Returns: Tuple containing:
             - 3D network visualization figure for the main plot.
             - Metric figure 1 (Plotly figure) for metrics visualization.
             - Metric figure 2 (Plotly figure) for metrics visualization.
