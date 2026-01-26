@@ -285,7 +285,7 @@ class FinancialAssetApp:
         Create a 2D or 3D network visualization filtered by the provided flags.
 
         Parameters:
-            graph_state (AssetRelationshipGraph): The asset relationship graph or state object to visualize.
+            graph_state (AssetRelationshipGraph | None): The asset relationship graph or state object to visualize.
             view_mode (str): "2D" to produce a 2D layout; any other value produces a 3D visualization.
             layout_type (str): Layout algorithm or style name used for 2D layouts.
             *filters (bool): Boolean flags in the order:
