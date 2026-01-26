@@ -439,7 +439,7 @@ class FinancialAssetApp(AssetUIController):
                             )
                             layout_2d = gr.Dropdown(
                                 label="2D Layout Algorithm",
-                                choices=["spring", "circular", "grid", "shell"],
+                                choices=["spring", "circular", "grid"],
                                 value="spring",
                                 visible=False,
                             )
