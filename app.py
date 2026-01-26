@@ -431,7 +431,12 @@ class FinancialAssetApp:
 
         insights: List[str] = summary.get("key_insights", []) or []
         if insights:
-            pass
+            summary_lines.append("")
+            summary_lines.append("💡 **Key Insights:**")
+            for insight in insights:
+                summary_lines.append(f"  • {insight}")
+
+        return "\n".join(summary_lines)
 
     @staticmethod
     def _format_formula_summary_legacy(summary: Dict, analysis_results: Dict) -> str:
