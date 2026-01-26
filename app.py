@@ -200,7 +200,9 @@ class FinancialAssetApp:
         Returns:
             str: Formatted metrics text ready for display.
         """
-        metrics: RelationshipMetrics = graph.calculate_metrics()
+        metrics = graph.calculate_metrics()
+        text: str = AppConstants.NETWORK_STATISTICS_TEXT.format(
+            total_assets=metrics["total_assets"],
         text: str = AppConstants.NETWORK_STATISTICS_TEXT.format(
             total_assets=metrics["total_assets"],
             total_relationships=metrics["total_relationships"],
