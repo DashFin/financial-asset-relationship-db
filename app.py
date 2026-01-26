@@ -20,7 +20,6 @@ from src.analysis.formulaic_visualizer import FormulaicVisualizer
 from src.data.real_data_fetcher import create_real_database
 from src.graph.asset_graph import Asset, AssetRelationshipGraph
 from src.logging import LOGGER
-from src.models.financial_models import Asset as FinancialAsset
 from src.reports.schema_report import generate_schema_report
 from src.visualizations.graph_2d_visuals import visualize_2d_graph
 from src.visualizations.graph_visuals import (
@@ -46,48 +45,51 @@ class AppConstants:
     # 🏦 Financial Asset Relationship Network
     A comprehensive 3D visualization of interconnected financial assets:
     **Equities, Bonds, Commodities, Currencies, and Regulatory Events**
-    """
+"""
+"""
 
-    TAB_3D_VISUALIZATION = "3D Network Visualization"
-    TAB_METRICS_ANALYTICS = "Metrics & Analytics"
-    TAB_SCHEMA_RULES = "Schema & Rules"
-    TAB_ASSET_EXPLORER = "Asset Explorer"
-    TAB_DOCUMENTATION = "Documentation"
+TAB_3D_VISUALIZATION = "3D Network Visualization"
+TAB_METRICS_ANALYTICS = "Metrics & Analytics"
+TAB_SCHEMA_RULES = "Schema & Rules"
+TAB_ASSET_EXPLORER = "Asset Explorer"
+TAB_DOCUMENTATION = "Documentation"
 
-    ERROR_LABEL = "Error"
-    REFRESH_BUTTON_LABEL = "Refresh Visualization"
-    GENERATE_SCHEMA_BUTTON_LABEL = "Generate Schema Report"
-    SCHEMA_REPORT_LABEL = "Generate Schema Report"
-    SELECT_ASSET_LABEL = "Select Asset"
-    ASSET_DETAILS_LABEL = "Asset Details"
-    RELATED_ASSETS_LABEL = "Related Assets"
-    NETWORK_STATISTICS_LABEL = "Network Statistics"
+ERROR_LABEL = "Error"
+REFRESH_BUTTON_LABEL = "Refresh Visualization"
+GENERATE_SCHEMA_BUTTON_LABEL = "Generate Schema Report"
+SCHEMA_REPORT_LABEL = "Generate Schema Report"
+SELECT_ASSET_LABEL = "Select Asset"
+ASSET_DETAILS_LABEL = "Asset Details"
+RELATED_ASSETS_LABEL = "Related Assets"
+NETWORK_STATISTICS_LABEL = "Network Statistics"
 
-    INITIAL_GRAPH_ERROR = "Failed to create sample database"
-    REFRESH_OUTPUTS_ERROR = "Error refreshing outputs"
-    APP_START_INFO = "Starting Financial Asset Relationship Database application"
-    APP_LAUNCH_INFO = "Launching Gradio interface"
-    APP_START_ERROR = "Failed to start application"
+INITIAL_GRAPH_ERROR = "Failed to create sample database"
+REFRESH_OUTPUTS_ERROR = "Error refreshing outputs"
+APP_START_INFO = "Starting Financial Asset Relationship Database application"
+APP_LAUNCH_INFO = "Launching Gradio interface"
+APP_START_ERROR = "Failed to start application"
 
-    INTERACTIVE_3D_GRAPH_MD = """
-    ## Interactive 3D Network Graph
-    Explore asset relationships in 3D. Nodes represent assets; edges show relationship strength.
-    **Asset Colors:** 🔵 Equities | 🟢 Bonds | 🟠 Commodities | 🔴 Currencies | 🟣 Derivatives
-    """
+INTERACTIVE_3D_GRAPH_MD = """
+## Interactive 3D Network Graph
+Explore asset relationships in 3D.
+Nodes represent assets; edges show relationship strength.
+**Asset Colors:** 🔵 Equities | 🟢 Bonds | 🟠 Commodities |
+🔴 Currencies | 🟣 Derivatives
+"""
 
-    NETWORK_METRICS_ANALYSIS_MD = "## Network Metrics & Analytics"
-    SCHEMA_RULES_GUIDE_MD = "## Database Schema & Business Rules"
-    DETAILED_ASSET_INFO_MD = "## Asset Explorer"
+NETWORK_METRICS_ANALYSIS_MD = "## Network Metrics & Analytics"
+SCHEMA_RULES_GUIDE_MD = "## Database Schema & Business Rules"
+DETAILED_ASSET_INFO_MD = "## Asset Explorer"
 
-    DOC_MARKDOWN = """
-    ## Documentation & Help
-    - **3D Visualization**: Interactive network graph exploration.
-    - **Metrics**: Quantitative analysis of relationships.
-    - **Schema**: Data model and business rules documentation.
-    - **Explorer**: Detailed individual asset analysis.
-    """
+DOC_MARKDOWN = """
+## Documentation & Help
+- **3D Visualization**: Interactive network graph exploration.
+- **Metrics**: Quantitative analysis of relationships.
+- **Schema**: Data model and business rules documentation.
+- **Explorer**: Detailed individual asset analysis.
+"""
 
-    NETWORK_STATISTICS_TEXT = """Network Statistics:
+NETWORK_STATISTICS_TEXT = """Network Statistics:
 Total Assets: {total_assets}
 Total Relationships: {total_relationships}
 Average Relationship Strength: {average_relationship_strength:.3f}
