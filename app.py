@@ -502,27 +502,27 @@ class FinancialAssetApp(AssetUIController):
                         asset_primary_json = gr.JSON(label=AppConstants.LBL_ASSET_JSON)
                         asset_network_json = gr.JSON(label=AppConstants.LBL_REL_JSON)
                     refresh_explorer_btn = gr.Button("Refresh Explorer Data")
-                            # --- TAB 5: FORMULAIC ANALYSIS ---
-                            with gr.Tab(AppConstants.TAB_FORMULAIC_ANALYSIS):
-                                with gr.Row():
-                                    formula_dashboard = gr.Plot(scale=2)
-                                    with gr.Column(scale=1):
-                                        formula_drilldown = gr.Dropdown(label="Drill-down Formula")
-                                        formula_drill_plot = gr.Plot()
-                                with gr.Row():
-                                    formula_corr_plot = gr.Plot(label="Correlation Network")
-                                    formula_metric_plot = gr.Plot(label="Metric Comparison")
-                                formula_md_output = gr.Markdown(
-                                    "Click 'Execute Formulaic Discovery' to begin."
-                                )
-                                execute_analysis_btn = gr.Button(
-                                    AppConstants.BTN_RUN_ANALYSIS, variant="primary"
-                                )
+                           # --- TAB 5: FORMULAIC ANALYSIS ---
+                       with gr.Tab(AppConstants.TAB_FORMULAIC_ANALYSIS):
+                            with gr.Row():
+                                formula_dashboard = gr.Plot(scale=2)
+                                with gr.Column(scale=1):
+                                    formula_drilldown = gr.Dropdown(label="Drill-down Formula")
+                                    formula_drill_plot = gr.Plot()
+                            with gr.Row():
+                                formula_corr_plot = gr.Plot(label="Correlation Network")
+                                formula_metric_plot = gr.Plot(label="Metric Comparison")
+                            formula_md_output = gr.Markdown(
+                                "Click 'Execute Formulaic Discovery' to begin."
+                            )
+                            execute_analysis_btn = gr.Button(
+                                AppConstants.BTN_RUN_ANALYSIS, variant="primary"
+                            )
 
-                            # --- TAB 6: DOCUMENTATION ---
-                            with gr.Tab(AppConstants.TAB_DOCUMENTATION):
-                                gr.Markdown(
-                                    """
+                        # --- TAB 6: DOCUMENTATION ---
+                        with gr.Tab(AppConstants.TAB_DOCUMENTATION):
+                            gr.Markdown(
+                                """
             ## Application Documentation
 
             ### Overview
@@ -541,7 +541,7 @@ class FinancialAssetApp(AssetUIController):
             - **Regulatory Tracking**:
               Maps assets to systemic regulatory events.
             """
-                                )
+                            )
 
                 # --- EVENT HANDLING LOGIC ---
                 # (Maintaining explicit definitions for structural volume and clarity)
@@ -558,13 +558,13 @@ class FinancialAssetApp(AssetUIController):
                     error_output,
                 ]
 
-                        # Trigger global refreshes from multiple buttons
-                        for refresh_trigger in [
-                            apply_filters_btn,
-                            refresh_metrics_btn,
-                            generate_schema_btn,
-                            refresh_explorer_btn,
-                        ]:
+                       # Trigger global refreshes from multiple buttons
+                   for refresh_trigger in [
+                        apply_filters_btn,
+                        refresh_metrics_btn,
+                        generate_schema_btn,
+                        refresh_explorer_btn,
+                    ]:
                 refresh_trigger.click(
                     self.refresh_global_state,
                     inputs=[graph_persistence],
@@ -653,7 +653,6 @@ class FinancialAssetApp(AssetUIController):
                 inputs=[asset_selector, graph_persistence],
                 outputs=[asset_primary_json, asset_network_json],
             )
-
 
             # Formulaic Analysis Actions
             execute_analysis_btn.click(
