@@ -203,7 +203,7 @@ class FinancialAssetApp(AssetUIController):
             LOGGER.error(f"Initialization Error: {e}")
             raise
 
-    def get_valid_graph(self) -> AssetGraph:
+    def get_valid_graph(self) -> AssetRelationshipGraph:
         """Ensures the graph is loaded before any operation."""
         if self.graph is None:
             LOGGER.warning("Graph state empty. Attempting re-initialization.")
@@ -215,7 +215,7 @@ class FinancialAssetApp(AssetUIController):
 
     @staticmethod
     def prepare_metrics_view(
-        graph: AssetGraph
+        graph: AssetRelationshipGraph
     ) -> tuple[go.Figure, go.Figure, go.Figure, str]:
         """Generates metric visualizations and textual summaries."""
         LOGGER.info("Metrics: Recalculating network statistics.")
