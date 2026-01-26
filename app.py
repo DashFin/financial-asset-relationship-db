@@ -427,6 +427,7 @@ class FinancialAssetApp:
     class FinancialAssetApp:
     ...
 
+    '''
     def generate_formulaic_analysis(
         self, graph_state: Optional[AssetRelationshipGraph]
     ) -> Tuple[go.Figure, go.Figure, go.Figure, gr.Dropdown, str, gr.Textbox]:
