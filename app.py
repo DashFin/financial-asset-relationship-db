@@ -503,7 +503,7 @@ class FinancialAssetApp(AssetUIController):
                         asset_network_json = gr.JSON(label=AppConstants.LBL_REL_JSON)
                         refresh_explorer_btn = gr.Button("Refresh Explorer Data")
                            # --- TAB 5: FORMULAIC ANALYSIS ---
-                       with gr.Tab(AppConstants.TAB_FORMULAIC_ANALYSIS):
+                        with gr.Tab(AppConstants.TAB_FORMULAIC_ANALYSIS):
                             with gr.Row():
                                 formula_dashboard = gr.Plot(scale=2)
                                 with gr.Column(scale=1):
