@@ -58,7 +58,7 @@ class AppConstants:
     TAB_METRICS_ANALYTICS: str = "📊 Metrics & Analytics"
     TAB_SCHEMA_RULES: str = "📜 Schema & Rules"
     TAB_ASSET_EXPLORER: str = "🔍 Asset Explorer"
-    TAB__ANALYSIS: str = "🧪  Analysis"
+    TAB_FORMULAIC_ANALYSIS: str = "🧪 Analysis"
     TAB_DOCUMENTATION: str = "📖 Documentation"
 
     # UI Component Labels
