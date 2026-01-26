@@ -424,27 +424,27 @@ class FinancialAssetApp:
              LOGGER.error("Error refreshing visualization", exc_info=True)
              return go.Figure(), gr.update(value=f"Error: {e}", visible=True)
 
+    class FinancialAssetApp:
+    ...
     def generate_formulaic_analysis(
-    self, graph_state: Optional[AssetRelationshipGraph]
+        self, graph_state: Optional[AssetRelationshipGraph]
     ) -> Tuple[go.Figure, go.Figure, go.Figure, gr.Dropdown, str, gr.Textbox]:
-    """
-    Produce a formulaic analysis dashboard and companion visualizations
-    derived from the asset graph.
-
-    Parameters:
-        graph_state (Optional[AssetRelationshipGraph]): Asset graph to analyze; if
-            None, the app's initialized graph is used.
-
-    Returns:
-        Tuple containing:
-        - dashboard_fig (go.Figure): Main formula dashboard summarizing identified
-            formulas and metrics.
-        - correlation_network_fig (go.Figure): Network figure showing empirical
-            relationships and correlations between assets/metrics.
-        - metric_comparison_fig (go.Figure): Figure comparing metrics used by the
-            discovered formulas.
-        - formula_selector_update (gr.Dropdown): Gradio update for the formula
-            selector populated with discovered formula names (selected value set to
+        """
+        Produce a formulaic analysis dashboard and companion visualizations
+        derived from the asset graph.
+        Parameters:
+            graph_state (Optional[AssetRelationshipGraph]): Asset graph to analyze; if
+                None, the app's initialized graph is used.
+        Returns:
+            Tuple containing:
+            - dashboard_fig (go.Figure): Main formula dashboard summarizing identified
+                formulas and metrics.
+            - correlation_network_fig (go.Figure): Network figure showing empirical
+                relationships and correlations between assets/metrics.
+            - metric_comparison_fig (go.Figure): Figure comparing metrics used by the
+                discovered formulas.
+            - formula_selector_update (gr.Dropdown): Gradio update for the formula
+                selector populated with discovered formula names (selected value set to
                 the first formula when available, otherwise cleared).
             - summary_text (str): Human-readable summary of the formulaic analysis
                 and key insights.
@@ -457,33 +457,25 @@ class FinancialAssetApp:
             graph: AssetRelationshipGraph = (
                 self.ensure_graph() if graph_state is None else graph_state
             )
-
             formulaic_visualizer: FormulaicVisualizer = FormulaicVisualizer()
             formulaic_analyzer: FormulaicdAnalyzer = FormulaicdAnalyzer()
             analysis_results: Dict = formulaic_analyzer.analyze_graph(graph)
-
             dashboard_fig: go.Figure = formulaic_visualizer.create_formula_dashboard(
                 analysis_results
             )
-
             correlation_network_fig: go.Figure = (
                 formulaic_visualizer.create_correlation_network(
                     analysis_results.get("empirical_relationships", {})
                 )
             )
-
             metric_comparison_fig: go.Figure = (
                 formulaic_visualizer.create_metric_comparison_chart(analysis_results)
             )
-
             formulas: List = analysis_results.get("formulas", [])
             formula_choices: List[str] = [f.name for f in formulas]
-
             summary: Dict = analysis_results.get("summary", {})
             summary_text: str = self._format_formula_summary(summary, analysis_results)
-
             LOGGER.info("Generated formulaic analysis with %d formulas", len(formulas))
-
             return (
                 dashboard_fig,
                 correlation_network_fig,
@@ -495,7 +487,6 @@ class FinancialAssetApp:
                 summary_text,
                 gr.update(visible=False),
             )
-
         except Exception as e:
             LOGGER.error("Error generating formulaic analysis: %s", e)
             empty_fig: go.Figure = go.Figure()
