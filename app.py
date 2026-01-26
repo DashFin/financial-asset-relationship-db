@@ -101,7 +101,7 @@ Top Weighted Relationships:
     MSG_INIT_SUCCESS: str = "Database successfully initialized with %d assets."
     MSG_REFRESH_START: str = "Global UI refresh sequence initiated."
     MSG_REFRESH_ERROR: str = "Critical failure during UI refresh sequence."
-    MSG_ANALYSIS_START: str = "Starting systemic  analysis engine..."
+    MSG_ANALYSIS_START: str = "Starting systemic analysis engine..."
 
 
 class AssetUIController:
