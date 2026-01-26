@@ -50,7 +50,7 @@ class AppConstants:
     HEADER_MARKDOWN: str = """
     # 🏦 Financial Asset Relationship Network
     An advanced visualization platform designed for analyzing interconnected
-    financial assets through structural network analysis and  validation.
+    financial assets through structural network analysis and schema validation.
     """
 
     # UI Tab Labels
