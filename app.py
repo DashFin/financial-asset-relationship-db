@@ -249,35 +249,20 @@ class FinancialAssetApp:
         text: str = self._update_metrics_text(graph)
         return f1, f2, f3, text
 
+    @staticmethod
+    def update_asset_info(
+        selected_asset: Optional[str], graph: AssetRelationshipGraph
+    ) -> Tuple[Dict[str, Union[str, float, int]], Dict[str, Dict[str, Dict[str, Union[str, float]]]]]:
         """
-        Return detailed information and related relationships
-        for the specified asset.
+        Return detailed information and related relationships for the specified asset.
 
         Parameters:
-            selected_asset (Optional[str]): Asset identifier to look up
-                in `graph.assets`.
-                If `None` or not present,
-                no asset is returned.
-            graph (AssetRelationshipGraph): Graph containing assets
-                and their relationships.
+            selected_asset: Optional[str] - asset id to fetch
+            graph: AssetRelationshipGraph - the graph
 
         Returns:
-            Tuple[
-                Dict[str, Union[str, float, int]],
-                Dict[str, Dict[str, Dict[str, Union[str, float]]]],
-            ]:
-                - First element: a dictionary of the asset's fields
-                  (converted from the dataclass)
-                  with an added `"asset_class"` key
-                  containing the asset class value.
-                - Second element: a nested dictionary with two top-level keys,
-                  `"outgoing"` and `"incoming"`.
-                  Each of these maps counterparty asset ids (as strings) to
-                  dictionaries with keys `"relationship_type"` (str)
-                  and `"strength"` (float).
-                  If the asset is missing, returns an empty dict for the
-                  asset and a relationship dictionary of the form
-                  `{"outgoing": {}, "incoming": {}}`.
+            Tuple of (asset_dict, {'outgoing': ..., 'incoming': ...}).
+            If the asset is not present, returns ({}, {'outgoing': {}, 'incoming': {}}).
         """
         if not selected_asset or selected_asset not in graph.assets:
             return {}, {"outgoing": {}, "incoming": {}}
@@ -287,16 +272,12 @@ class FinancialAssetApp:
 
         outgoing: Dict[str, Dict[str, Union[str, float]]] = {
             target_id: {"relationship_type": rel_type, "strength": strength}
-            for target_id, rel_type, strength in graph.relationships.get(
-                selected_asset, []
-            )
+            for target_id, rel_type, strength in graph.relationships.get(selected_asset, [])
         }
 
         incoming: Dict[str, Dict[str, Union[str, float]]] = {
             src_id: {"relationship_type": rel_type, "strength": strength}
-            for src_id, rel_type, strength in graph.incoming_relationships.get(
-                selected_asset, []
-            )
+            for src_id, rel_type, strength in graph.incoming_relationships.get(selected_asset, [])
         }
         return asset_dict, {"outgoing": outgoing, "incoming": incoming}
 
