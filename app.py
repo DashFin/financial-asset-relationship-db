@@ -235,7 +235,10 @@ class FinancialAssetApp:
     @staticmethod
     def update_asset_info(
         selected_asset: Optional[str], graph: AssetRelationshipGraph
-    ) -> Tuple[Dict, AssetRelationshipView]:
+    ) -> Tuple[
+        Dict[str, Union[str, float, int]],
+        Dict[str, Dict[str, Dict[str, Union[str, float]]]],
+    ]:
         """
         Return detailed information and related relationships
         for the specified asset.
