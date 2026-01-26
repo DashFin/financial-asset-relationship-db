@@ -145,7 +145,7 @@ class FinancialAssetApp:
         self._initialize_graph()
 
     def _initialize_graph(self) -> None:
-    """
+        """
         Builds and assigns the asset relationship graph from real financial data.
 
         Attempts to initialize the application's asset graph by loading real
@@ -153,7 +153,7 @@ class FinancialAssetApp:
         self.graph. If initialization fails, the original exception is
         propagated.
         """
-       try:
+        try:
             LOGGER.info("Initializing with real financial data from Yahoo Finance")
             self.graph = create_real_database()
             LOGGER.info(
