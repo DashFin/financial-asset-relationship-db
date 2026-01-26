@@ -283,7 +283,6 @@ class FinancialAssetApp(AssetUIController):
                 "",
                 "",
                 gr.update(choices=[]),
-                gr.update(value="", visible=False),
                 gr.update(value=f"Error: {e}", visible=True),
             )
 
