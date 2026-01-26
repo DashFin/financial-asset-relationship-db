@@ -373,7 +373,7 @@ class FinancialAssetApp:
         show_regulatory: bool,
         show_all_relationships: bool,
         toggle_arrows: bool,
-    ) -> go.Figure:
+    ) -> Tuple[go.Figure, gr.Textbox]:
         """
         Generate a network visualization of the asset relationship graph with optional
         2D/3D mode and relationship filters.
