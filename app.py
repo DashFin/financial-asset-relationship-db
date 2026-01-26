@@ -575,18 +575,17 @@ class FinancialAssetApp:
         - Formulaic Analysis with a dashboard,
           formula selector, detail view,
           correlation network, metric comparison chart, and summary.
-        """
 
         Event handlers and state:
         - Initializes a gr.State holding the application's graph.
         - Wires refresh buttons, visualization controls, layout selection, and
-          formula - related controls to the corresponding FinancialAssetApp methods
+          formula-related controls to the corresponding FinancialAssetApp methods
           so UI components update based on the current graph state.
         - Provides an error message textbox that is updated by
           event handlers.
 
         Returns:
-            demo_ui(gr.Blocks): The constructed Gradio Blocks instance
+            demo_ui (gr.Blocks): The constructed Gradio Blocks instance
                 representing the complete application UI.
         """
         demo_ui: gr.Blocks = gr.Blocks(title=AppConstants.TITLE)
