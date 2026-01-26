@@ -240,7 +240,7 @@ class FinancialAssetApp(AssetUIController):
         return fig_assets, fig_rels, fig_events, stat_text
 
     def refresh_global_state(
-        self, current_state: AssetGraph | None
+        self, current_state: AssetRelationshipGraph | None
     ) -> tuple:
         """
         Synchronizes all UI components across all tabs with the current graph state.
