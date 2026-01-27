@@ -123,12 +123,6 @@ class TestDatabaseInitialization:
         """Test that init_db creates all tables."""
         engine = create_engine("sqlite:///:memory:")
 
-        # Create a simple test model
-        class _TestModel(Base):
-            __tablename__ = "test_model"
-            id = Column(Integer, primary_key=True)
-            name = Column(String)
-
         init_db(engine)
 
         # Verify table was created
@@ -137,10 +131,6 @@ class TestDatabaseInitialization:
     def test_init_db_is_idempotent(self):
         """Test that init_db can be called multiple times safely."""
         engine = create_engine("sqlite:///:memory:")
-
-        class _TestModel(Base):
-            __tablename__ = "test_idempotent"
-            id = Column(Integer, primary_key=True)
 
         # Call init_db multiple times
         init_db(engine)

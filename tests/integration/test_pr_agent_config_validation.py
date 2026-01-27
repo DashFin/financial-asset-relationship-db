@@ -405,10 +405,6 @@ class TestPRAgentConfigSecurity:
         ]
         safe_placeholders = {None, "null", "webhook"}
 
-        def check_sensitive_keys(node, path="root"):
-            if isinstance(node, dict):
-                pass
-
     @staticmethod
     def test_no_hardcoded_secrets(pr_agent_config):
         """
@@ -427,33 +423,6 @@ class TestPRAgentConfigSecurity:
         ]
 
         allowed_placeholders = {"null", "none", "placeholder", "***"}
-
-        def value_contains_secret(val: str) -> bool:
-            low = val.lower()
-            if low in allowed_placeholders or ("${" in val and "}" in val):
-                return False
-            return any(pat in low for pat in sensitive_patterns)
-
-        def scan_dict(node: dict, path: str):
-            for k, v in node.items():
-                key_l = str(k).lower()
-                new_path = f"{path}.{k}"
-                if any(pat in key_l for pat in sensitive_patterns):
-                    assert v in allowed_placeholders, (
-                        f"Potential hardcoded credential at '{new_path}'"
-                    )
-                scan_for_secrets(v, new_path)
-
-        def scan_list(node: list, path: str):
-            for idx, item in enumerate(node):
-                scan_for_secrets(item, f"{path}[{idx}]")
-
-        def scan_for_secrets(node, path="root"):
-            if isinstance(node, dict):
-                scan_dict(node, path)
-            elif isinstance(node, list):
-                scan_list(node, path)
-            # primitives ignored
 
         safe_placeholders = {None, "null", "webhook"}
 
