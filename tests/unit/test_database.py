@@ -16,6 +16,7 @@ import pytest
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
+from sqlalchemy.exc import IntegrityError
 
 from src.data.database import (
     DEFAULT_DATABASE_URL,
@@ -346,33 +347,26 @@ class TestEdgeCases:
         engine = create_engine_from_url(None)
         assert engine is not None
 
-    def test_session_scope_with_database_error():
-
-
-@staticmethod
-def test_session_scope_with_database_error():
-    """Unit tests for the session_scope context manager and database-level integrity error handling."""
-
+    @staticmethod
     def test_session_scope_with_database_error():
         """Test session scope behavior with database-level errors."""
-         from sqlalchemy.exc import IntegrityError
 
-          engine = create_engine("sqlite:///:memory:")
+        engine = create_engine("sqlite:///:memory:")
 
-           class TestModel(Base):
-                __tablename__ = "test_db_error"
-                id = Column(Integer, primary_key=True)
+        class TestModel(Base):
+            __tablename__ = "test_db_error"
+            id = Column(Integer, primary_key=True)
 
-            init_db(engine)
-            factory = create_session_factory(engine)
+        init_db(engine)
+        factory = create_session_factory(engine)
 
-            def _cause_integrity_error() -> None:
-                """Cause a database integrity error by adding duplicate primary keys within a session."""
-                with session_scope(factory) as session:
-                    session.add(TestModel(id=1))
-                    session.flush()
-                    session.add(TestModel(id=1))
-                    session.flush()
+        def _cause_integrity_error() -> None:
+            """Cause a database integrity error by adding duplicate primary keys within a session."""
+            with session_scope(factory) as session:
+                session.add(TestModel(id=1))
+                session.flush()
+                session.add(TestModel(id=1))
+                session.flush()
 
-            with pytest.raises(IntegrityError):
-                _cause_integrity_error()
+        with pytest.raises(IntegrityError):
+            _cause_integrity_error()
