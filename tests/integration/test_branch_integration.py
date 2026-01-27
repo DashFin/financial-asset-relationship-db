@@ -210,7 +210,7 @@ class TestWorkflowSecurityConsistency:
         dangerous_patterns = [
             r"\$\{\{.*github\.event\.pull_request\.title.*\}\}.*\|",
             r"\$\{\{.*github\.event\.pull_request\.body.*\}\}.*\|",
-            r"\$\{\{.*github\.event\.issue\.title.*\}\}.*\$(",
+            r"\$\{\{.*github\.event\.issue\.title.*\}\}.*\|",
         ]
 
         injection_risks: List[str] = []
