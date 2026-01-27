@@ -548,7 +548,7 @@ class TestEdgeCases:
 
     """Integration tests for the PR agent configuration module to enforce constraints on configuration values."""
 
-     def test_no_excessively_long_values(self, config: object) -> None:
+    def test_no_excessively_long_values(self, config: object) -> None:
     """Configuration values should not be excessively long."""
 
     def check_length(obj: object, path: str = "") -> None:
