@@ -378,6 +378,7 @@ describe("Edge Cases with Node and Edge Data", () => {
           strength: 0.5,
         },
       ],
+    };
 
     render(<NetworkVisualization data={zeroData} />);
 
@@ -411,6 +412,7 @@ describe("Edge Cases with Node and Edge Data", () => {
           strength: 0.5,
         },
       ],
+    };
 
     render(<NetworkVisualization data={negativeData} />);
 
