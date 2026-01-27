@@ -406,8 +406,8 @@ class TestPRAgentWorkflow:
 class TestWorkflowSecurityBestPractices:
     """Test security best practices across all workflows."""
 
-    @pytest.fixture
     @staticmethod
+    @pytest.fixture
     def all_workflows() -> Dict[str, Dict[str, Any]]:
         """Load all workflow files."""
         workflows_dir = Path(__file__).parent.parent.parent / ".github" / "workflows"
