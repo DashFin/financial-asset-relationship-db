@@ -8,7 +8,6 @@ Tests cover:
 - Deletion validation for removed files
 """
 
-import os
 from pathlib import Path
 from typing import Any, Dict
 
@@ -20,7 +19,8 @@ class TestPRAgentConfigChanges:
     """Validate changes to PR Agent configuration file."""
 
     @pytest.fixture
-    def config_path(self) -> Path:
+    @staticmethod
+    def config_path() -> Path:
         """
         Return the Path to the PR Agent YAML configuration file relative to the test module.
 

@@ -18,7 +18,8 @@ class TestPRAgentWorkflowChanges:
     """Test PR agent workflow simplification changes."""
 
     @pytest.fixture
-    def pr_agent_workflow(self):
+    @staticmethod
+    def pr_agent_workflow():
         """
         Load and parse the PR Agent GitHub Actions workflow file.
 
@@ -106,7 +107,8 @@ class TestGreetingsWorkflowChanges:
     """Test greetings workflow simplification."""
 
     @pytest.fixture
-    def greetings_workflow(self):
+    @staticmethod
+    def greetings_workflow():
         """
         Load and parse the .github/workflows/greetings.yml GitHub Actions workflow file.
 
@@ -149,7 +151,8 @@ class TestLabelWorkflowChanges:
         with open(workflow_path, "r") as f:
             return yaml.safe_load(f)
 
-    def test_label_workflow_no_config_check(self, label_workflow):
+    @staticmethod
+    def test_label_workflow_no_config_check(label_workflow):
         """
         Verify the 'label' job does not include a step that checks for a configuration file.
 
@@ -164,7 +167,8 @@ class TestLabelWorkflowChanges:
             "check" in name.lower() and "config" in name.lower() for name in step_names
         )
 
-    def test_label_workflow_uses_actions_labeler(self, label_workflow):
+    @staticmethod
+    def test_label_workflow_uses_actions_labeler(label_workflow):
         """
         Check that the label workflow uses the actions/labeler action and provides a repo-token.
 
@@ -197,7 +201,8 @@ class TestAPISecWorkflowChanges:
         with open(workflow_path, "r") as f:
             return yaml.safe_load(f)
 
-    def test_apisec_no_credential_checks(self, apisec_workflow):
+    @staticmethod
+    def test_apisec_no_credential_checks(apisec_workflow):
         """
         Ensure the APISec Trigger_APIsec_scan job contains no credential-checking steps.
 
@@ -213,7 +218,8 @@ class TestAPISecWorkflowChanges:
             for name in step_names
         )
 
-    def test_apisec_no_conditional_if(self, apisec_workflow):
+    @staticmethod
+    def test_apisec_no_conditional_if(apisec_workflow):
         """Verify APISec job doesn't have conditional execution."""
         job = apisec_workflow["jobs"]["Trigger_APIsec_scan"]
         assert "if" not in job, "APISec job should not have conditional execution"
@@ -222,7 +228,8 @@ class TestAPISecWorkflowChanges:
 class TestDeletedFilesImpact:
     """Test that deleted files don't break workflows."""
 
-    def test_labeler_config_file_deleted(self):
+    @staticmethod
+    def test_labeler_config_file_deleted():
         """
         Check that the repository no longer contains the labeler configuration file.
 
@@ -231,17 +238,20 @@ class TestDeletedFilesImpact:
         labeler_path = Path(".github/labeler.yml")
         assert not labeler_path.exists(), "labeler.yml should be deleted"
 
-    def test_context_chunker_script_deleted(self):
+    @staticmethod
+    def test_context_chunker_script_deleted():
         """Verify context_chunker.py script was removed."""
         chunker_path = Path(".github/scripts/context_chunker.py")
         assert not chunker_path.exists(), "context_chunker.py should be deleted"
 
-    def test_scripts_readme_deleted(self):
+    @staticmethod
+    def test_scripts_readme_deleted():
         """Verify scripts README was removed."""
         readme_path = Path(".github/scripts/README.md")
         assert not readme_path.exists(), "scripts/README.md should be deleted"
 
-    def test_no_workflow_references_to_deleted_scripts(self):
+    @staticmethod
+    def test_no_workflow_references_to_deleted_scripts():
         """Verify no workflows reference the deleted context_chunker script."""
         workflows_dir = Path(".github/workflows")
 
@@ -256,7 +266,8 @@ class TestDeletedFilesImpact:
 class TestWorkflowSecurityBestPractices:
     """Test security best practices in modified workflows."""
 
-    def test_workflows_use_pinned_action_versions(self):
+    @staticmethod
+    def test_workflows_use_pinned_action_versions():
         """
         Ensure workflow steps that use actions specify a pinned version and do not use 'latest' or 'master'.
 
@@ -269,7 +280,7 @@ class TestWorkflowSecurityBestPractices:
                 workflow = yaml.safe_load(f)
 
             # Check all jobs and steps
-            for job_name, job in workflow.get("jobs", {}).items():
+            for _, job in workflow.get("jobs", {}).items():
                 for step in job.get("steps", []):
                     if "uses" in step:
                         action = step["uses"]
@@ -281,7 +292,8 @@ class TestWorkflowSecurityBestPractices:
                         assert "@latest" not in action.lower()
                         assert "@master" not in action.lower()
 
-    def test_workflows_limit_github_token_permissions(self):
+    @staticmethod
+    def test_workflows_limit_github_token_permissions():
         """Verify workflows follow least-privilege principle."""
         workflows_dir = Path(".github/workflows")
 
@@ -301,7 +313,8 @@ class TestWorkflowSecurityBestPractices:
 class TestWorkflowYAMLValidity:
     """Test YAML validity and formatting of workflows."""
 
-    def test_all_workflows_valid_yaml(self):
+    @staticmethod
+    def test_all_workflows_valid_yaml():
         """
         Check each YAML workflow in .github/workflows for valid syntax.
 
@@ -316,7 +329,8 @@ class TestWorkflowYAMLValidity:
                 except yaml.YAMLError as e:
                     pytest.fail(f"{workflow_file.name} has invalid YAML: {e}")
 
-    def test_workflows_have_required_fields(self):
+    @staticmethod
+    def test_workflows_have_required_fields():
         """
         Ensure every workflow in .github/workflows defines top-level 'name', 'on', and 'jobs' keys.
 
@@ -332,7 +346,8 @@ class TestWorkflowYAMLValidity:
             assert "on" in workflow, f"{workflow_file.name} missing 'on' trigger"
             assert "jobs" in workflow, f"{workflow_file.name} missing 'jobs'"
 
-    def test_workflow_jobs_have_runs_on(self):
+    @staticmethod
+    def test_workflow_jobs_have_runs_on():
         """
         Ensure every job in every GitHub Actions workflow specifies its runner with the 'runs-on' key.
 
@@ -353,7 +368,8 @@ class TestWorkflowYAMLValidity:
 class TestWorkflowIntegration:
     """Test integration between workflows and repository structure."""
 
-    def test_workflows_reference_existing_paths(self):
+    @staticmethod
+    def test_workflows_reference_existing_paths():
         """
         Verify that file paths referenced in workflow YAML files exist in the repository.
 

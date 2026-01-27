@@ -53,7 +53,8 @@ class TestWorkflowRequirementsConsistency:
         return packages
 
     @pytest.fixture
-    def pr_agent_workflow(self) -> Dict[str, Any]:
+    @staticmethod
+    def pr_agent_workflow() -> Dict[str, Any]:
         """Load PR agent workflow."""
         workflow_path = (
             Path(__file__).parent.parent.parent
@@ -100,9 +101,8 @@ class TestWorkflowRequirementsConsistency:
 
             python_versions = []
             for step in steps:
-                if "uses" in step and "setup-python" in step["uses"]:
-                    if "with" in step and "python-version" in step["with"]:
-                        python_versions.append(step["with"]["python-version"])
+                if "uses" in step and "setup-python" in step["uses"] and "with" in step and "python-version" in step["with"]:
+                    python_versions.append(step["with"]["python-version"])
 
             # All Python versions in a job should match
             if len(python_versions) > 1:

@@ -3,6 +3,7 @@ Validation tests for requirements changes.
 
 Tests that requirements-dev.txt changes are valid:
 - PyYAML added with correct version
+"""
 - No conflicting dependencies
 - All dependencies installable
 """
@@ -90,7 +91,6 @@ class TestRequirementsDevChanges:
         Parameters:
             requirements_dev_content (str): Contents of requirements-dev.txt.
         """
-        import re
 
         lines = [
             l.strip()
@@ -130,7 +130,8 @@ class TestRequirementsDevChanges:
 class TestRequirementsDependencyCompatibility:
     """Test dependency compatibility."""
 
-    def test_pyyaml_compatible_with_python_version(self):
+    @staticmethod
+    def test_pyyaml_compatible_with_python_version():
         """
         Assert that if PyYAML is listed in requirements-dev.txt the current Python interpreter is at least 3.6.
 
@@ -203,6 +204,7 @@ class TestRequirementsInstallability:
             ["pip", "install", "--dry-run", "-r", "requirements-dev.txt"],
             capture_output=True,
             text=True,
+            check=True,
         )
 
         # Should not have syntax errors
@@ -215,7 +217,8 @@ class TestRequirementsInstallability:
 class TestRequirementsDocumentation:
     """Test requirements documentation and comments."""
 
-    def test_requirements_has_helpful_comments(self):
+    @staticmethod
+    def test_requirements_has_helpful_comments():
         """
         Verify that requirements-dev.txt contains at least one comment line.
 
@@ -231,7 +234,8 @@ class TestRequirementsDocumentation:
             "requirements-dev.txt should have explanatory comments"
         )
 
-    def test_pyyaml_purpose_documented(self):
+    @staticmethod
+    def test_pyyaml_purpose_documented():
         """Verify PyYAML addition has comment explaining purpose."""
         req_dev_path = Path("requirements-dev.txt")
         with open(req_dev_path, "r") as f:

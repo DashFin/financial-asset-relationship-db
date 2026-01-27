@@ -23,14 +23,16 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 class TestValidationResult:
     """Test suite for ValidationResult class"""
 
-    def test_validation_result_creation_valid(self):
+    @staticmethod
+    def test_validation_result_creation_valid():
         """Test creating a valid ValidationResult"""
         result = ValidationResult(True, [], {"key": "value"})
         assert result.is_valid is True
         assert result.errors == []
         assert result.workflow_data == {"key": "value"}
 
-    def test_validation_result_creation_invalid(self):
+    @staticmethod
+    def test_validation_result_creation_invalid():
         """Test creating an invalid ValidationResult"""
         errors = ["Error 1", "Error 2"]
         result = ValidationResult(False, errors, {})
@@ -38,7 +40,8 @@ class TestValidationResult:
         assert result.errors == errors
         assert result.workflow_data == {}
 
-    def test_validation_result_with_workflow_data(self):
+    @staticmethod
+    def test_validation_result_with_workflow_data():
         """Test ValidationResult retains workflow data even when invalid"""
         data = {"name": "Test", "on": "push"}
         result = ValidationResult(False, ["Missing jobs"], data)
@@ -704,8 +707,6 @@ jobs:
 """
             )
             f.flush()
-
-            try:
                 result = validate_workflow(f.name)
                 assert result.is_valid is True
             finally:
@@ -844,7 +845,8 @@ jobs:
 class TestWorkflowValidatorPerformance:
     """Test performance-related aspects of workflow validation"""
 
-    def test_validate_workflow_returns_quickly_on_error(self):
+    @staticmethod
+    def test_validate_workflow_returns_quickly_on_error():
         """Test that validation returns quickly even on error"""
         import time
 

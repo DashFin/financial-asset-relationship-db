@@ -5,7 +5,6 @@ This test suite validates that the documentation file exists, is well-formed,
 contains required sections, and has no broken internal references.
 """
 
-import re
 from pathlib import Path
 from typing import List, Set
 
@@ -18,15 +17,18 @@ DOC_FILE = Path(__file__).parent.parent.parent / "TEST_GENERATION_WORKFLOW_SUMMA
 class TestDocumentationExists:
     """Test that the documentation file exists and is readable."""
 
-    def test_file_exists(self):
+    @staticmethod
+    def test_file_exists():
         """Test that TEST_GENERATION_WORKFLOW_SUMMARY.md exists."""
         assert DOC_FILE.exists(), f"Documentation file {DOC_FILE} does not exist"
 
-    def test_file_is_file(self):
+    @staticmethod
+    def test_file_is_file():
         """Test that the path is a file, not a directory."""
         assert DOC_FILE.is_file(), f"{DOC_FILE} is not a file"
 
-    def test_file_is_readable(self):
+    @staticmethod
+    def test_file_is_readable():
         """Test that the file can be read."""
         try:
             with open(DOC_FILE, "r", encoding="utf-8") as f:
@@ -35,7 +37,8 @@ class TestDocumentationExists:
         except Exception as e:
             pytest.fail(f"Could not read documentation file: {e}")
 
-    def test_file_extension(self):
+    @staticmethod
+    def test_file_extension():
         """Test that the file has .md extension."""
         assert DOC_FILE.suffix == ".md", "Documentation file should have .md extension"
 
@@ -59,7 +62,6 @@ class TestDocumentationStructure:
                 return f.read()
         except FileNotFoundError:
             pytest.fail(f"Documentation file not found: {DOC_FILE}")
-        return [line.strip() for line in doc_lines if line.lstrip().startswith("#")]
 
     def test_has_overview(self, section_headers: List[str]):
         """Test that there's an Overview section."""

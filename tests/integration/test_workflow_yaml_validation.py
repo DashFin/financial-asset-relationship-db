@@ -54,6 +54,7 @@ class TestWorkflowYAMLSyntax:
                 try:
                     yaml.safe_load(f)
                 except yaml.YAMLError as e:
+                    pytest.fail(f"{workflow_file.name} invalid YAML: {e}")
             with open(workflow_file, 'r') as f:
                 data = yaml.safe_load(f)
             if data is None:

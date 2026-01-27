@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+import os
 import yaml
 
 
@@ -23,17 +24,6 @@ class ValidationResult:
     ) -> None:
         """
         Initialize a ValidationResult representing the outcome of validation.
-
-        Args:
-            is_valid: True if validation passed.
-            errors: Human-readable validation error messages.
-            workflow_data: Parsed workflow YAML data.
-        """
-        self.is_valid = is_valid
-        self.errors = errors
-        self.workflow_data = workflow_data
-
-
 def validate_workflow(workflow_path: str) -> ValidationResult:
     """
     Validate a workflow YAML file at the given filesystem path.
@@ -47,8 +37,17 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
     Returns:
         ValidationResult describing the validation outcome.
     """
+    filename = os.path.basename(workflow_path)
+    ALLOWED_WORKFLOWS = {"ci.yml", "publish.yml", "deploy.yml"}
+    if filename not in ALLOWED_WORKFLOWS:
+        return ValidationResult(
+            is_valid=False,
+            errors=[f"Invalid workflow filename: {filename}"],
+            workflow_data={},
+        )
+    safe_path = os.path.join("workflows", filename)
     try:
-        with open(workflow_path, encoding="utf-8") as file_handle:
+        with open(safe_path, encoding="utf-8") as file_handle:
             data = yaml.safe_load(file_handle)
 
         if data is None:

@@ -27,8 +27,9 @@ class TestWorkflowConsistency:
         Load a fixed set of GitHub Actions workflow files.
 
         Returns:
-            Mapping from workflow path to parsed YAML dict.
-        """
+    @staticmethod
+    def all_workflows() -> Dict[str, Dict]:
+        """Mapping from workflow path to parsed YAML dict."""
         workflow_files = [
             ".github/workflows/pr-agent.yml",
             ".github/workflows/apisec-scan.yml",
@@ -122,6 +123,12 @@ class TestDependencyWorkflowIntegration:
         if not workflow_dir.exists():
             pytest.skip("Workflows directory not found")
 
+"""
+Integration tests for branch coherence and workflow validation.
+
+This module contains tests to ensure GitHub workflows and branch changes
+adhere to project standards, avoid security issues, and maintain consistency.
+"""
         for wf_file in workflow_dir.glob("*.yml"):
             try:
                 with open(wf_file, encoding="utf-8") as file_handle:
@@ -144,7 +151,9 @@ class TestDependencyWorkflowIntegration:
 class TestRemovedFilesIntegration:
     """Test that removed files don't break functionality."""
 
-    def test_workflows_dont_reference_removed_scripts(self) -> None:
+    @staticmethod
+    def test_workflows_dont_reference_removed_scripts() -> None:
+        """Ensure workflows do not reference scripts that have been removed."""
         removed_files = {
             "context_chunker.py",
             ".github/scripts/README.md",
@@ -165,7 +174,9 @@ class TestRemovedFilesIntegration:
             for removed in removed_files:
                 assert removed not in content, f"{wf_file} references {removed}"
 
-    def test_label_workflow_doesnt_need_labeler_config(self) -> None:
+    @staticmethod
+    def test_label_workflow_doesnt_need_labeler_config() -> None:
+        """Verify that the label workflow does not require an external labeler configuration."""
         label_path = Path(".github/workflows/label.yml")
         if not label_path.exists():
             pytest.skip("label.yml not present")
@@ -183,7 +194,9 @@ class TestRemovedFilesIntegration:
             or with_config.get("config-path") == ".github/labeler.yml"
         )
 
-    def test_pr_agent_workflow_self_contained(self) -> None:
+    @staticmethod
+    def test_pr_agent_workflow_self_contained() -> None:
+        """Check that the pull request agent workflow is self-contained without external script references."""
         content = Path(".github/workflows/pr-agent.yml").read_text(encoding="utf-8")
 
         assert "context_chunker" not in content
@@ -194,11 +207,13 @@ class TestRemovedFilesIntegration:
 class TestWorkflowSecurityConsistency:
     """Test security practices across workflows."""
 
-    def test_all_workflows_avoid_pr_injection(self) -> None:
+    @staticmethod
+    def test_all_workflows_avoid_pr_injection() -> None:
+        """Detect unsafe patterns in workflows to prevent PR content injection vulnerabilities."""
         dangerous_patterns = [
             r"\$\{\{.*github\.event\.pull_request\.title.*\}\}.*\|",
             r"\$\{\{.*github\.event\.pull_request\.body.*\}\}.*\|",
-            r"\$\{\{.*github\.event\.issue\.title.*\}\}.*\$\(",
+            r"\$\{\{.*github\.event\.issue\.title.*\}\}.*\$(",
         ]
 
         injection_risks: List[str] = []
@@ -218,7 +233,9 @@ class TestWorkflowSecurityConsistency:
 class TestBranchCoherence:
     """Test overall branch coherence."""
 
-    def test_simplification_theme_consistent(self) -> None:
+    @staticmethod
+    def test_simplification_theme_consistent() -> None:
+        """Ensure workflows adhere to simplification theme by staying within defined line limits."""
         workflows_to_check = [
             (".github/workflows/pr-agent.yml", 200),
             (".github/workflows/label.yml", 30),
@@ -239,7 +256,9 @@ class TestBranchCoherence:
 class TestBranchQuality:
     """Test overall quality of branch changes."""
 
-    def test_no_merge_conflict_markers(self) -> None:
+    @staticmethod
+    def test_no_merge_conflict_markers() -> None:
+        """Confirm no merge conflict markers are present in workflows and other files."""
         conflict_markers = {"<<<<<<<", "=======", ">>>>>>>"}
         files_to_check = [
             ".github/workflows/pr-agent.yml",

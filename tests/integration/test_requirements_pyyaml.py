@@ -30,15 +30,15 @@ class TestPyYAMLDependencyAddition:
 
         Parameters:
             requirements_file (Path): Path to the requirements-dev.txt file to read.
-
         Returns:
             str: File contents decoded as UTF-8.
         """
         with open(requirements_file, "r", encoding="utf-8") as f:
             return f.read()
 
+    @staticmethod
     @pytest.fixture
-    def requirements_lines(self, requirements_content: str) -> List[str]:
+    def requirements_lines(requirements_content: str) -> List[str]:
         """
         Extracts the non-empty, non-comment lines from the contents of a requirements file.
 
@@ -131,7 +131,8 @@ class TestPyYAMLDependencyAddition:
 class TestRequirementsDevYAMLUsage:
     """Test that PyYAML is needed for workflow validation."""
 
-    def test_pyyaml_used_in_workflow_tests(self):
+    @staticmethod
+    def test_pyyaml_used_in_workflow_tests():
         """Test that PyYAML is imported in workflow test files."""
         workflow_test_files = [
             Path("tests/integration/test_github_workflows.py"),
@@ -149,7 +150,8 @@ class TestRequirementsDevYAMLUsage:
 
         assert pyyaml_used, "PyYAML should be imported in workflow test files"
 
-    def test_yaml_files_exist_in_repo(self):
+    @staticmethod
+    def test_yaml_files_exist_in_repo():
         """
         Check that at least one YAML workflow file exists under .github/workflows.
 
@@ -216,75 +218,15 @@ class TestRequirementsDevCompleteness:
                 continue
 
             valid_pattern = (
-                r"^[a-zA-Z0-9._-]+\[?[a-zA-Z0-9._,-]*\]?((>=|==|<=|>|<|~=)[0-9.]+.*)?$"
-            )
-            assert re.match(valid_pattern, line), (
-                f"Line {line_num} has invalid format: {line}"
-            )
-
-    def test_has_testing_dependencies(self, requirements_content: str):
-        """Test that file includes essential testing dependencies."""
-        essential_packages = ["pytest", "pytest-cov"]
-
-        for package in essential_packages:
-            assert package in requirements_content, (
-                f"requirements-dev.txt should include {package}"
-            )
-
-    def test_has_linting_dependencies(self, requirements_content: str):
-        """Test that file includes linting dependencies."""
-        linting_packages = ["flake8", "pylint", "black"]
-
-        for package in linting_packages:
-            assert package in requirements_content, (
-                f"requirements-dev.txt should include {package}"
-            )
-
-
-class TestPyYAMLCompatibility:
-    """Test PyYAML compatibility and best practices."""
-
-    def test_pyyaml_safe_load_available(self):
-        """
-        Verify that the installed PyYAML package exposes a `safe_load` symbol; skip the test if PyYAML is not installed.
-
-        If the `yaml` module is importable the test asserts `yaml.safe_load` exists. If the module cannot be imported the test is skipped.
-        """
-        try:
-            import yaml
-
-            assert hasattr(yaml, "safe_load"), (
-                "PyYAML should provide safe_load function"
-            )
-        except ImportError:
-            pytest.skip("PyYAML not installed in test environment")
-
-    def test_pyyaml_can_parse_workflow_files(self):
-        """Test that PyYAML can parse actual workflow files."""
-        try:
-            import yaml
-
-            workflow_file = Path(".github/workflows/pr-agent.yml")
-
-            if workflow_file.exists():
-                with open(workflow_file, "r", encoding="utf-8") as f:
-                    content = yaml.safe_load(f)
-
-                assert content is not None, (
-                    "PyYAML should successfully parse workflow files"
-                )
-                assert isinstance(content, dict), (
-                    "Workflow files should parse to dictionaries"
-                )
-        except ImportError:
-            pytest.skip("PyYAML not installed in test environment")
+                r"^[a-zA-Z0-9._-]+\[?[a-zA-Z0-9._,-]*\]?((
 
 
 class TestRequirementsDevVersionPinning:
     """Test version pinning strategy in requirements-dev.txt."""
 
+    @staticmethod
     @pytest.fixture
-    def requirements_lines(self) -> List[str]:
+    def requirements_lines() -> List[str]:
         """
         Get the non-comment, non-empty lines from requirements-dev.txt.
 

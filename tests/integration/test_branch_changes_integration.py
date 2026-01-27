@@ -1,5 +1,4 @@
-                content = f.read()
-Integration tests for all changes in the current branch.
+"""Integration tests for all changes in the current branch.
 
 Tests validate that all modifications work together correctly and
 don't introduce inconsistencies or broken references.

@@ -57,8 +57,9 @@ def pr_agent_config_data() -> Dict[str, Any]:
 class TestWorkflowEnvironmentVariables:
     """Test environment variable usage and naming in workflows."""
 
+    @staticmethod
     def test_no_chunking_env_vars_in_pr_agent(
-        self, pr_agent_workflow_data: Dict[str, Any]
+        pr_agent_workflow_data: Dict[str, Any]
     ):
         """Verify chunking-related environment variables are removed."""
         workflow_str = yaml.dump(pr_agent_workflow_data)
@@ -162,9 +163,8 @@ class TestWorkflowStepDependencies:
             if any(
                 keyword in step.get("run", "")
                 for keyword in ["pip install", "npm install", "pytest", "flake8"]
-            ):
-                if code_op_index is None:
-                    code_op_index = i
+            ) and code_op_index is None:
+                code_op_index = i
 
         assert checkout_index is not None, "Checkout step should exist"
         if code_op_index is not None:
@@ -184,15 +184,13 @@ class TestWorkflowStepDependencies:
 
         for i, step in enumerate(steps):
             name = step.get("name", "").lower()
-            uses = step.get("uses", "")
             run = step.get("run", "")
 
             if "setup" in name and "python" in name:
                 setup_python_index = i
 
-            if "python" in run or "pip" in run or "pytest" in run:
-                if python_command_index is None:
-                    python_command_index = i
+            if ("python" in run or "pip" in run or "pytest" in run) and python_command_index is None:
+                python_command_index = i
 
         if python_command_index is not None:
             assert setup_python_index is not None, "Python setup step should exist"
@@ -217,9 +215,8 @@ class TestWorkflowStepDependencies:
             if "install" in name and "dependencies" in name:
                 install_index = i
 
-            if "test" in name or "pytest" in run:
-                if test_index is None:
-                    test_index = i
+            if ("test" in name or "pytest" in run) and test_index is None:
+                test_index = i
 
         if test_index is not None and install_index is not None:
             assert install_index < test_index, (
@@ -241,9 +238,8 @@ class TestWorkflowStepDependencies:
                 parse_index = i
 
             run_script = step.get("run", "") + step.get("with", {}).get("script", "")
-            if "steps.parse-comments.outputs.action_items" in run_script:
-                if usage_index is None:
-                    usage_index = i
+            if "steps.parse-comments.outputs.action_items" in run_script and usage_index is None:
+                usage_index = i
 
         if usage_index is not None:
             assert parse_index is not None, "Parse comments step should exist"
@@ -251,12 +247,12 @@ class TestWorkflowStepDependencies:
                 "Parse comments must run before using action_items output"
             )
 
-
 class TestWorkflowErrorHandling:
     """Test error handling and fallback scenarios in workflows."""
 
+    @staticmethod
     def test_dependency_install_has_fallback(
-        self, pr_agent_workflow_data: Dict[str, Any]
+        pr_agent_workflow_data: Dict[str, Any]
     ):
         """Verify dependency installation has fallback for missing files."""
         job = pr_agent_workflow_data["jobs"].get("pr-agent-trigger")
@@ -279,8 +275,9 @@ class TestWorkflowErrorHandling:
         # Should have else clause for fallback
         assert "else" in script, "Should have fallback when files don't exist"
 
+    @staticmethod
     def test_parse_comments_handles_no_reviews(
-        self, pr_agent_workflow_data: Dict[str, Any]
+        pr_agent_workflow_data: Dict[str, Any]
     ):
         """Verify parse comments step handles case with no reviews."""
         job = pr_agent_workflow_data["jobs"].get("pr-agent-trigger")
@@ -303,8 +300,9 @@ class TestWorkflowErrorHandling:
 class TestWorkflowSimplificationRegression:
     """Regression tests to ensure simplifications didn't break functionality."""
 
+    @staticmethod
     def test_pr_agent_still_runs_on_review(
-        self, pr_agent_workflow_data: Dict[str, Any]
+        pr_agent_workflow_data: Dict[str, Any]
     ):
         """Verify PR agent still triggers on review submission."""
         triggers = pr_agent_workflow_data.get("on", {})
@@ -316,8 +314,9 @@ class TestWorkflowSimplificationRegression:
             "Should trigger on review submission"
         )
 
+    @staticmethod
     def test_pr_agent_still_parses_reviews(
-        self, pr_agent_workflow_data: Dict[str, Any]
+        pr_agent_workflow_data: Dict[str, Any]
     ):
         """Verify PR agent still extracts action items from reviews."""
         job = pr_agent_workflow_data["jobs"].get("pr-agent-trigger")
@@ -336,8 +335,9 @@ class TestWorkflowSimplificationRegression:
         assert "reviews" in script, "Should fetch reviews"
         assert "changes_requested" in script, "Should filter for changes requested"
 
+    @staticmethod
     def test_apisec_removed_conditional_execution(
-        self, apisec_workflow_data: Dict[str, Any]
+        apisec_workflow_data: Dict[str, Any]
     ):
         """Verify APIsec workflow no longer has conditional credential checks."""
         job = apisec_workflow_data["jobs"].get("Trigger_APIsec_scan")
@@ -358,7 +358,10 @@ class TestWorkflowSimplificationRegression:
             "Should not have credential check step"
         )
 
-    def test_apisec_still_uses_secrets(self, apisec_workflow_data: Dict[str, Any]):
+    @staticmethod
+    def test_apisec_still_uses_secrets(
+        apisec_workflow_data: Dict[str, Any]
+    ):
         """Verify APIsec workflow still properly references secrets."""
         workflow_str = yaml.dump(apisec_workflow_data)
 
@@ -374,8 +377,9 @@ class TestWorkflowSimplificationRegression:
 class TestWorkflowConfigIntegration:
     """Test integration between workflows and pr-agent-config.yml."""
 
+    @staticmethod
     def test_config_version_matches_simplified_approach(
-        self, pr_agent_config_data: Dict[str, Any]
+        pr_agent_config_data: Dict[str, Any]
     ):
         """Verify config version reflects simplified approach."""
         agent = pr_agent_config_data.get("agent", {})
@@ -386,8 +390,9 @@ class TestWorkflowConfigIntegration:
             f"Config version should be 1.0.0 after simplification, got {version}"
         )
 
+    @staticmethod
     def test_config_no_longer_has_chunking_settings(
-        self, pr_agent_config_data: Dict[str, Any]
+        pr_agent_config_data: Dict[str, Any]
     ):
         """Verify config no longer has context chunking settings."""
         # Agent section should not have 'context' configuration
@@ -396,8 +401,9 @@ class TestWorkflowConfigIntegration:
             "Agent section should not have 'context' configuration"
         )
 
+    @staticmethod
     def test_config_quality_standards_still_defined(
-        self, pr_agent_config_data: Dict[str, Any]
+        pr_agent_config_data: Dict[str, Any]
     ):
         """Verify quality standards remain after simplification."""
         assert "quality" in pr_agent_config_data, (
@@ -408,8 +414,8 @@ class TestWorkflowConfigIntegration:
         assert "python" in quality, "Python quality standards should exist"
         assert "typescript" in quality, "TypeScript quality standards should exist"
 
+    @staticmethod
     def test_workflow_uses_config_quality_standards(
-        self,
         pr_agent_workflow_data: Dict[str, Any],
         pr_agent_config_data: Dict[str, Any],
     ):
@@ -438,8 +444,9 @@ class TestWorkflowConfigIntegration:
 class TestWorkflowPermissions:
     """Test workflow permission configurations remain secure."""
 
+    @staticmethod
     def test_pr_agent_has_minimal_top_level_permissions(
-        self, pr_agent_workflow_data: Dict[str, Any]
+        pr_agent_workflow_data: Dict[str, Any]
     ):
         """Verify PR agent has minimal top-level permissions."""
         top_level_perms = pr_agent_workflow_data.get("permissions", {})
@@ -450,8 +457,9 @@ class TestWorkflowPermissions:
             "Top-level contents should be read-only"
         )
 
+    @staticmethod
     def test_pr_agent_job_has_write_permissions_scoped(
-        self, pr_agent_workflow_data: Dict[str, Any]
+        pr_agent_workflow_data: Dict[str, Any]
     ):
         """Verify job-level write permissions are properly scoped."""
         job = pr_agent_workflow_data["jobs"].get("pr-agent-trigger")
@@ -465,7 +473,8 @@ class TestWorkflowPermissions:
 class TestWorkflowConcurrency:
     """Test workflow concurrency controls."""
 
-    def test_apisec_has_concurrency_control(self, apisec_workflow_data: Dict[str, Any]):
+    @staticmethod
+    def test_apisec_has_concurrency_control(apisec_workflow_data: Dict[str, Any]):
         """Verify APIsec workflow has concurrency control."""
         job = apisec_workflow_data["jobs"].get("Trigger_APIsec_scan")
         assert job, "Job 'Trigger_APIsec_scan' not found"
@@ -500,7 +509,8 @@ class TestGreetingsWorkflowSimplification:
         with open(path, "r") as f:
             return yaml.safe_load(f)
 
-    def test_greetings_uses_simple_messages(self, greetings_workflow: Dict[str, Any]):
+    @staticmethod
+    def test_greetings_uses_simple_messages(greetings_workflow: Dict[str, Any]):
         """Verify greetings workflow uses simple placeholder messages."""
         job = greetings_workflow["jobs"]["greeting"]
         step = job["steps"][0]
@@ -529,7 +539,8 @@ class TestLabelWorkflowSimplification:
         with open(path, "r") as f:
             return yaml.safe_load(f)
 
-    def test_label_workflow_no_config_check(self, label_workflow: Dict[str, Any]):
+    @staticmethod
+    def test_label_workflow_no_config_check(label_workflow: Dict[str, Any]):
         """Verify label workflow no longer checks for config file."""
         job = label_workflow["jobs"]["label"]
         step_names = [step.get("name", "") for step in job["steps"]]
@@ -545,7 +556,8 @@ class TestLabelWorkflowSimplification:
             "check" in name.lower() and "config" in name.lower() for name in step_names
         ), "Should not have config check step"
 
-    def test_label_workflow_directly_runs_labeler(self, label_workflow: Dict[str, Any]):
+    @staticmethod
+    def test_label_workflow_directly_runs_labeler(label_workflow: Dict[str, Any]):
         """Verify label workflow directly runs labeler action."""
         job = label_workflow["jobs"]["label"]
         steps = job["steps"]

@@ -1,6 +1,7 @@
 """
 Comprehensive YAML schema validation tests for GitHub Actions workflows.
 
+"""
 Tests workflow files for:
 - Valid YAML syntax
 - GitHub Actions schema compliance
@@ -9,20 +10,22 @@ Tests workflow files for:
 - Proper use of GitHub Actions features
 """
 
-import os
 import re
 from pathlib import Path
 from typing import Any, Dict, List
 
 import pytest
+"""Module to validate GitHub Actions workflow YAML files for syntax, duplicate keys, and required fields."""
+
 import yaml
 
 
 class TestWorkflowYAMLSyntax:
     """Test basic YAML syntax and structure of workflow files."""
 
+    @staticmethod
     @pytest.fixture
-    def workflow_files(self) -> List[Path]:
+    def workflow_files() -> List[Path]:
         """Get all workflow YAML files."""
         workflow_dir = Path(".github/workflows")
         return list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml"))
@@ -40,6 +43,7 @@ class TestWorkflowYAMLSyntax:
         """Test that workflow files don't have duplicate keys at any level."""
 
         def check_duplicates(data, path=""):
+            """Recursively check for duplicate keys in nested dictionaries and lists, returning an error message if found."""
             if isinstance(data, dict):
                 keys = list(data.keys())
                 if len(keys) != len(set(keys)):
@@ -249,7 +253,7 @@ class TestWorkflowPerformanceOptimization:
 
                 if matrix and isinstance(matrix, dict):
                     total_combinations = 1
-                    for key, values in matrix.items():
+                    for _, values in matrix.items():
                         if isinstance(values, list):
                             total_combinations *= len(values)
 
@@ -262,12 +266,14 @@ class TestWorkflowTriggerValidation:
     """Test workflow trigger configurations."""
 
     @pytest.fixture
-    def workflow_files(self) -> List[Path]:
+    @staticmethod
+    def workflow_files() -> List[Path]:
         """Get all workflow YAML files."""
         workflow_dir = Path(".github/workflows")
         return list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml"))
 
-    def test_push_triggers_are_restricted(self, workflow_files):
+    @staticmethod
+    def test_push_triggers_are_restricted(workflow_files):
         """Test that push triggers are limited to specific branches."""
         for workflow_file in workflow_files:
             with open(workflow_file, "r") as f:
@@ -286,7 +292,8 @@ class TestWorkflowTriggerValidation:
                             f"{workflow_file} has unrestricted push trigger"
                         )
 
-    def test_schedule_triggers_have_reasonable_frequency(self, workflow_files):
+    @staticmethod
+    def test_schedule_triggers_have_reasonable_frequency(workflow_files):
         """Test that scheduled workflows don't run too frequently."""
         MIN_INTERVAL_MINUTES = 15
 

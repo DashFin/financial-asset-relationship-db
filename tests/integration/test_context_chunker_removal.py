@@ -23,19 +23,22 @@ SCRIPTS_DIR = REPO_ROOT / ".github" / "scripts"
 class TestContextChunkerRemoval:
     """Verify context_chunker.py was completely removed."""
 
-    def test_context_chunker_file_does_not_exist(self) -> None:
+    @staticmethod
+    def test_context_chunker_file_does_not_exist() -> None:
         """context_chunker.py should no longer exist."""
         context_chunker = SCRIPTS_DIR / "context_chunker.py"
         assert not context_chunker.exists(), (
             "context_chunker.py should have been removed"
         )
 
-    def test_scripts_readme_does_not_exist(self) -> None:
+    @staticmethod
+    def test_scripts_readme_does_not_exist() -> None:
         """Scripts README documenting chunker should be removed."""
         scripts_readme = SCRIPTS_DIR / "README.md"
         assert not scripts_readme.exists(), "Scripts README should have been removed"
 
-    def test_no_imports_of_context_chunker(self) -> None:
+    @staticmethod
+    def test_no_imports_of_context_chunker() -> None:
         """No Python files should import context_chunker."""
         python_files = list(REPO_ROOT.rglob("*.py"))
 
@@ -54,12 +57,13 @@ class TestContextChunkerRemoval:
                 assert not import_pattern.search(content), (
                     f"{py_file} imports context_chunker"
                 )
-            except (OSError, IOError):
+            except OSError:
                 continue
             except Exception as exc:  # pragma: no cover - defensive
                 pytest.fail(f"Unexpected error reading {py_file}: {exc}")
 
-    def test_no_references_in_workflows(self) -> None:
+    @staticmethod
+    def test_no_references_in_workflows() -> None:
         """Workflow files should not reference context_chunker.py."""
         if not WORKFLOWS_DIR.exists():
             pytest.skip("Workflows directory not found")
@@ -83,7 +87,8 @@ class TestContextChunkerRemoval:
 class TestConfigurationCleanup:
     """Verify configuration was updated to remove chunking references."""
 
-    def test_pr_agent_config_no_chunking_section(self) -> None:
+    @staticmethod
+    def test_pr_agent_config_no_chunking_section() -> None:
         """PR agent config should not reference the removed context_chunker script."""
         config_file = REPO_ROOT / ".github" / "pr-agent-config.yml"
 
@@ -96,7 +101,8 @@ class TestConfigurationCleanup:
             "PR agent config still references context_chunker script"
         )
 
-    def test_pr_agent_config_version_updated(self) -> None:
+    @staticmethod
+    def test_pr_agent_config_version_updated() -> None:
         """PR agent config version should match the expected agent version."""
         config_file = REPO_ROOT / ".github" / "pr-agent-config.yml"
 
@@ -119,7 +125,8 @@ class TestConfigurationCleanup:
 class TestWorkflowSimplification:
     """Verify workflows were simplified to remove chunking logic."""
 
-    def test_pr_agent_workflow_simplified(self) -> None:
+    @staticmethod
+    def test_pr_agent_workflow_simplified() -> None:
         """PR agent workflow should be simplified."""
         pr_agent_workflow = WORKFLOWS_DIR / "pr-agent.yml"
 
@@ -131,7 +138,8 @@ class TestWorkflowSimplification:
         assert "Fetch PR Context with Chunking" not in content
         assert "context_chunker" not in content
 
-    def test_pr_agent_workflow_no_duplicate_setup(self) -> None:
+    @staticmethod
+    def test_pr_agent_workflow_no_duplicate_setup() -> None:
         """PR agent workflow should not have duplicate setup steps."""
         pr_agent_workflow = WORKFLOWS_DIR / "pr-agent.yml"
 
@@ -145,7 +153,8 @@ class TestWorkflowSimplification:
             f"PR agent workflow has {setup_python_count} 'Setup Python' steps"
         )
 
-    def test_no_pyyaml_installation_for_chunking(self) -> None:
+    @staticmethod
+    def test_no_pyyaml_installation_for_chunking() -> None:
         """Workflows should not install PyYAML for chunking purposes."""
         if not WORKFLOWS_DIR.exists():
             pytest.skip("Workflows directory not found")
@@ -166,7 +175,8 @@ class TestWorkflowSimplification:
 class TestDependenciesCleanup:
     """Verify dependencies were cleaned up."""
 
-    def test_requirements_dev_appropriate(self) -> None:
+    @staticmethod
+    def test_requirements_dev_appropriate() -> None:
         """requirements-dev.txt should have appropriate dependencies."""
         req_file = REPO_ROOT / "requirements-dev.txt"
 
@@ -182,7 +192,8 @@ class TestDependenciesCleanup:
 class TestDocumentationUpdates:
     """Verify documentation was updated."""
 
-    def test_no_chunking_documentation(self) -> None:
+    @staticmethod
+    def test_no_chunking_documentation() -> None:
         """Documentation should not describe chunking functionality."""
         doc_files = [
             REPO_ROOT / "README.md",
@@ -210,19 +221,26 @@ class TestNoRegressionOfFixes:
             pytest.skip("PR agent workflow not found")
 
         class DuplicateKeyLoader(yaml.SafeLoader):
-            def construct_mapping(self, node, deep=False):
-                mapping = {}
-                for key_node, value_node in node.value:
-                    key = self.construct_object(key_node, deep=deep)
-                    if key in mapping:
-                        raise yaml.constructor.ConstructorError(
-                            "while constructing a mapping",
-                            node.start_mark,
-                            f"found duplicate key: {key}",
-                            key_node.start_mark,
-                        )
-                    mapping[key] = self.construct_object(value_node, deep=deep)
-                return mapping
+            class DuplicateKeyLoader(yaml.SafeLoader):
+                """A YAML loader that raises an error when duplicate keys are encountered in mappings."""
+                def construct_mapping(self, node, deep=False):
+                    """Construct a Python mapping from a YAML mapping node.
+                    
+                    Iterates over each key-value pair in the YAML node, constructs the corresponding
+                    Python objects, and raises a ConstructorError if a duplicate key is encountered.
+                    """
+                    mapping = {}
+                    for key_node, value_node in node.value:
+                        key = self.construct_object(key_node, deep=deep)
+                        if key in mapping:
+                            raise yaml.constructor.ConstructorError(
+                                "while constructing a mapping",
+                                node.start_mark,
+                                f"found duplicate key: {key}",
+                                key_node.start_mark,
+                            )
+                        mapping[key] = self.construct_object(value_node, deep=deep)
+                    return mapping
 
         try:
             yaml.load(
@@ -232,7 +250,8 @@ class TestNoRegressionOfFixes:
         except yaml.constructor.ConstructorError as exc:
             pytest.fail(f"PR agent workflow has duplicate keys: {exc}")
 
-    def test_workflow_indentation_fixed(self) -> None:
+    @staticmethod
+    def test_workflow_indentation_fixed() -> None:
         """All workflows should have proper YAML indentation."""
         if not WORKFLOWS_DIR.exists():
             pytest.skip("Workflows directory not found")
@@ -254,11 +273,11 @@ class TestNoRegressionOfFixes:
                             f"{workflow_file.name}:{i} has odd indentation"
                         )
 
-
 class TestCleanCodebase:
     """Verify codebase is clean after removal."""
 
-    def test_no_orphaned_comments_about_chunking(self) -> None:
+    @staticmethod
+    def test_no_orphaned_comments_about_chunking() -> None:
         """Code should not have orphaned comments about chunking."""
         files_to_check = [
             WORKFLOWS_DIR / "pr-agent.yml",
@@ -280,12 +299,14 @@ class TestCleanCodebase:
 
             assert not chunking_comments, f"{file_path.name} has chunking comments"
 
-    def test_labeler_yml_removed(self) -> None:
+    @staticmethod
+    def test_labeler_yml_removed() -> None:
         """labeler.yml should be removed."""
         labeler_file = REPO_ROOT / ".github" / "labeler.yml"
         assert not labeler_file.exists()
 
-    def test_workflow_checks_simplified(self) -> None:
+    @staticmethod
+    def test_workflow_checks_simplified() -> None:
         """Workflow checks should be simplified."""
         apisec_workflow = WORKFLOWS_DIR / "apisec-scan.yml"
         if apisec_workflow.exists():

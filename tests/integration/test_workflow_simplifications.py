@@ -519,16 +519,15 @@ class TestDeletedScriptFilesVerification:
         """Test that .github/scripts directory is empty or doesn't exist."""
         scripts_dir = Path(__file__).parent.parent.parent / '.github' / 'scripts'
         contents = list(scripts_dir.iterdir())
-            # If it exists, should be empty or only contain __pycache__
-            ignorable_names = {'__pycache__', '.DS_Store', '.gitkeep'}
-            non_ignorable = [
-                f for f in contents
-                if f.name not in ignorable_names and not f.name.startswith('.')
-            ]
-
-            assert len(non_ignorable) == 0, (
-                f".github/scripts directory should be empty, found: {non_ignorable}"
-            )
+        # If it exists, should be empty or only contain __pycache__
+        ignorable_names = {'__pycache__', '.DS_Store', '.gitkeep'}
+        non_ignorable = [
+            f for f in contents
+            if f.name not in ignorable_names and not f.name.startswith('.')
+        ]
+        assert len(non_ignorable) == 0, (
+            f".github/scripts directory should be empty, found: {non_ignorable}"
+        )
 
 
 class TestWorkflowRegressionPrevention:

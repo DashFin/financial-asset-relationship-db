@@ -326,32 +326,24 @@ class TestWorkflowPermissionsHardening:
                             version = action.split('@')[1]
                             # Enforce 40-character hex string (commit SHA)
                             assert re.match(r'^[a-f0-9]{40}$', version), \
-                                    def test_third_party_actions_pinned_to_sha(self, all_workflows):
-                                """Verify third-party actions are pinned to a full commit SHA."""
-                                for workflow in all_workflows:
-                                    jobs = workflow['content'].get('jobs', {})
-                                    for job_name, job_config in jobs.items():
-                                        steps = job_config.get('steps', [])
-                                        for step in steps:
-                                            action = step.get('uses', '')
-                                            if not action:
-                                                continue
-                                            # Skip local actions
-                                            if action.startswith('./') or action.startswith('.\\'):
+                                f"Third-party action '{action}' in workflow {workflow['path']} is not pinned to a commit SHA"
 
-                        def test_third_party_actions_pinned_to_commit_sha(self, all_workflows):
-                            """
-                            Ensure third-party actions referenced with '@' are pinned to a 40-character lowercase hex commit SHA.
+    def test_third_party_actions_pinned_to_commit_sha(self, all_workflows):
+        """
+        Ensure third-party actions referenced with '@' are pinned to a 40-character lowercase hex commit SHA.
 
-                            Asserts that any step `uses` value containing an `@` refers to a full commit SHA (40 lowercase hexadecimal characters) rather than a branch or tag.
-                            """
-                            for workflow in all_workflows:
-                                jobs = workflow['content'].get('jobs', {})
-                                for job_name, job_config in jobs.items():
-                                    steps = job_config.get('steps', [])
-                                    for step in steps:
-                                        action = step.get('uses', '')
-                                        if not action:
+        Asserts that any step `uses` value containing an `@` refers to a full commit SHA (40 lowercase hexadecimal characters) rather than a branch or tag.
+        """
+        for workflow in all_workflows:
+            jobs = workflow['content'].get('jobs', {})
+            for job_name, job_config in jobs.items():
+                steps = job_config.get('steps', [])
+                for step in steps:
+                    action = step.get('uses', '')
+                    if not action:
+                        continue
+                    # Skip local actions
+                    if action.startswith('./') or action.startswith('.\\'):
                                             continue
                                         # Skip local actions and official actions pinned by ref without '@'
                                         if '@' in action:

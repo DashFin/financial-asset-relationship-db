@@ -8,7 +8,6 @@ properly integrated, and don't introduce regressions.
 from pathlib import Path
 from typing import Any, Dict, Generator, List
 
-import pytest
 import yaml
 
 # --- Helper Functions ---
@@ -47,7 +46,8 @@ def _iter_uses_values(node: Any) -> Generator[str, None, None]:
 class TestWorkflowModifications:
     """Tests covering workflow file modifications."""
 
-    def test_pr_agent_workflow_no_chunking_references(self) -> None:
+    @staticmethod
+    def test_pr_agent_workflow_no_chunking_references() -> None:
         """PR agent workflow should not reference deleted chunking functionality."""
         workflow_path = Path(".github/workflows/pr-agent.yml")
 
@@ -63,7 +63,8 @@ class TestWorkflowModifications:
                 "# chunking"
             ), "Found 'chunking' references outside of comments"
 
-    def test_pr_agent_workflow_has_simplified_parsing(self) -> None:
+    @staticmethod
+    def test_pr_agent_workflow_has_simplified_parsing() -> None:
         """PR agent workflow should have simplified comment parsing."""
         workflow_path = Path(".github/workflows/pr-agent.yml")
         data = _load_yaml_safe(workflow_path)
@@ -77,7 +78,8 @@ class TestWorkflowModifications:
             "parse" in name.lower() and "comment" in name.lower() for name in step_names
         )
 
-    def test_apisec_workflow_no_credential_checks(self) -> None:
+    @staticmethod
+    def test_apisec_workflow_no_credential_checks() -> None:
         """APIsec workflow should not include credential pre-check steps."""
         workflow_path = Path(".github/workflows/apisec-scan.yml")
         data = _load_yaml_safe(workflow_path)
@@ -98,7 +100,8 @@ class TestWorkflowModifications:
             "credential" in name or "secret" in name for name in step_names
         ), "Credential pre-check steps should not be present"
 
-    def test_label_workflow_simplified(self) -> None:
+    @staticmethod
+    def test_label_workflow_simplified() -> None:
         """Label workflow should be simplified without config checks."""
         workflow_path = Path(".github/workflows/label.yml")
         assert workflow_path.exists()
@@ -130,7 +133,8 @@ class TestWorkflowModifications:
                 )
                 assert not any(keyword in haystack for keyword in config_keywords)
 
-    def test_greetings_workflow_simplified(self) -> None:
+    @staticmethod
+    def test_greetings_workflow_simplified() -> None:
         """Greetings workflow should exist and parse correctly."""
         workflow_path = Path(".github/workflows/greetings.yml")
         data = _load_yaml_safe(workflow_path)
@@ -138,11 +142,13 @@ class TestWorkflowModifications:
         jobs = data.get("jobs", {})
         assert jobs.get("greeting")
 
-    def test_labeler_config_deleted(self) -> None:
+    @staticmethod
+    def test_labeler_config_deleted() -> None:
         """Labeler.yml configuration should be deleted."""
         assert not Path(".github/labeler.yml").exists()
 
-    def test_scripts_readme_deleted(self) -> None:
+    @staticmethod
+    def test_scripts_readme_deleted() -> None:
         """Scripts README should be deleted."""
         assert not Path(".github/scripts/README.md").exists()
 
@@ -150,7 +156,8 @@ class TestWorkflowModifications:
 class TestRequirementsDevUpdates:
     """Tests for requirements-dev.txt updates."""
 
-    def test_requirements_dev_has_pyyaml(self) -> None:
+    @staticmethod
+    def test_requirements_dev_has_pyyaml() -> None:
         """requirements-dev.txt should include PyYAML."""
         req_path = Path("requirements-dev.txt")
 
@@ -160,7 +167,8 @@ class TestRequirementsDevUpdates:
         assert "PyYAML" in content
         assert "types-PyYAML" in content
 
-    def test_requirements_dev_valid_format(self) -> None:
+    @staticmethod
+    def test_requirements_dev_valid_format() -> None:
         """requirements-dev.txt entries should include version specifiers."""
         req_path = Path("requirements-dev.txt")
 
@@ -174,7 +182,8 @@ class TestRequirementsDevUpdates:
 class TestPRAgentConfigSimplified:
     """Tests covering PR agent configuration simplification."""
 
-    def test_config_version_downgraded(self) -> None:
+    @staticmethod
+    def test_config_version_downgraded() -> None:
         """PR agent config version should be 1.0.0."""
         config_path = Path(".github/pr-agent-config.yml")
         data = _load_yaml_safe(config_path)
@@ -182,7 +191,8 @@ class TestPRAgentConfigSimplified:
         version = data.get("agent", {}).get("version")
         assert version == "1.0.0"
 
-    def test_config_no_chunking_settings(self) -> None:
+    @staticmethod
+    def test_config_no_chunking_settings() -> None:
         """PR agent config should not contain chunking settings."""
         config_path = Path(".github/pr-agent-config.yml")
         data = _load_yaml_safe(config_path)
@@ -190,7 +200,8 @@ class TestPRAgentConfigSimplified:
         assert "context" not in data.get("agent", {})
         assert "max_files_per_chunk" not in data.get("limits", {})
 
-    def test_no_broken_workflow_references(self) -> None:
+    @staticmethod
+    def test_no_broken_workflow_references() -> None:
         """Workflows should not reference missing local files or actions."""
         repo_root = Path(".").resolve()
         workflow_files = _get_workflow_files()
@@ -217,6 +228,7 @@ class TestPRAgentConfigSimplified:
                         (target / name).exists()
                         for name in ("action.yml", "action.yaml", "Dockerfile")
                     )
+                    )
                 else:
                     assert target.suffix in {".yml", ".yaml"}
 
@@ -227,13 +239,15 @@ class TestPRAgentConfigSimplified:
 class TestDocumentationConsistency:
     """Tests ensuring documentation matches current functionality."""
 
-    def test_summary_files_exist(self) -> None:
+    @staticmethod
+    def test_summary_files_exist() -> None:
         """Summary documentation files must exist and be non-empty."""
         summary_path = Path("COMPREHENSIVE_BRANCH_TEST_GENERATION_SUMMARY.md")
         assert summary_path.is_file()
         assert summary_path.stat().st_size > 0
 
-    def test_no_misleading_documentation(self) -> None:
+    @staticmethod
+    def test_no_misleading_documentation() -> None:
         """Documentation should not present removed features as active."""
         readme = Path("README.md")
 
@@ -242,5 +256,4 @@ class TestDocumentationConsistency:
                 content = handle.read().lower()
 
             # Historical mentions are acceptable
-            if "chunking" in content:
-                pass
+            assert "chunking" not in content, "Removed feature 'chunking' should not be mentioned in README.md"

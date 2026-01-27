@@ -38,7 +38,8 @@ class TestMicroagentValidation:
         assert len(files) > 0, "No microagent files found"
         return files
 
-    def parse_frontmatter(self, content: str) -> tuple[Dict[str, Any], str]:
+    @staticmethod
+    def parse_frontmatter(content: str) -> tuple[Dict[str, Any], str]:
         """
         Parse YAML frontmatter from markdown content.
 
@@ -72,7 +73,8 @@ class TestRepoEngineerLead(TestMicroagentValidation):
     """Test cases for repo_engineer_lead.md microagent."""
 
     @pytest.fixture
-    def repo_engineer_path(self, microagents_dir: Path) -> Path:
+    @staticmethod
+    def repo_engineer_path(microagents_dir: Path) -> Path:
         """Return the path to repo_engineer_lead.md."""
         path = microagents_dir / "repo_engineer_lead.md"
         assert path.exists(), "repo_engineer_lead.md not found"
@@ -393,12 +395,14 @@ class TestMicroagentSemantic:
     """Semantic validation tests for microagent content."""
 
     @pytest.fixture
-    def repo_engineer_path(self) -> Path:
+    @staticmethod
+    def repo_engineer_path() -> Path:
         """Return the path to repo_engineer_lead.md."""
         return Path(".openhands/microagents/repo_engineer_lead.md")
 
     @pytest.fixture
-    def repo_engineer_content(self, repo_engineer_path: Path) -> str:
+    @staticmethod
+    def repo_engineer_content(repo_engineer_path: Path) -> str:
         """Load repo_engineer_lead.md content."""
         with open(repo_engineer_path, encoding="utf-8") as f:
             return f.read()
@@ -483,7 +487,8 @@ class TestMicroagentEdgeCases:
     """Test edge cases and error conditions."""
 
     @pytest.fixture
-    def repo_engineer_path(self) -> Path:
+    @staticmethod
+    def repo_engineer_path() -> Path:
         """Return the path to repo_engineer_lead.md."""
         return Path(".openhands/microagents/repo_engineer_lead.md")
 

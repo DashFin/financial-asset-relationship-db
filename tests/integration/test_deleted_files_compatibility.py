@@ -3,6 +3,7 @@ Tests to ensure that deleted files don't break existing functionality.
 
 This test suite validates that removal of:
 - .github/scripts/context_chunker.py
+"""
 - .github/scripts/README.md
 - .github/labeler.yml
 
@@ -28,7 +29,8 @@ def _get_workflow_files() -> List[Path]:
 class TestDeletedContextChunker:
     """Validate that context_chunker.py removal doesn't break workflows."""
 
-    def test_no_references_to_context_chunker_in_workflows(self) -> None:
+    @staticmethod
+    def test_no_references_to_context_chunker_in_workflows() -> None:
         """Workflows should not reference the deleted context_chunker.py."""
         for workflow_file in _get_workflow_files():
             with open(workflow_file, "r", encoding="utf-8") as handle:
@@ -41,7 +43,8 @@ class TestDeletedContextChunker:
                 f"{workflow_file.name} references deleted chunker script"
             )
 
-    def test_workflows_dont_depend_on_chunking_functionality(self) -> None:
+    @staticmethod
+    def test_workflows_dont_depend_on_chunking_functionality() -> None:
         """Workflows should operate without chunking functionality."""
         pr_agent_workflow = Path(".github/workflows/pr-agent.yml")
 
@@ -66,14 +69,15 @@ class TestDeletedContextChunker:
             lines_with_term = [
                 line
                 for line in content.splitlines()
-                if term in line and not line.strip().startswith("#")
+                if term in line and not line.strip().startsWith("#")
             ]
 
             assert not lines_with_term, (
                 f"PR agent workflow still has chunking logic: {term}"
             )
 
-    def test_no_python_dependencies_for_chunking(self) -> None:
+    @staticmethod
+    def test_no_python_dependencies_for_chunking() -> None:
         """Dev requirements should not include chunking-only dependencies."""
         req_dev = Path("requirements-dev.txt")
 
@@ -89,7 +93,8 @@ class TestDeletedContextChunker:
                 f"requirements-dev.txt should not include {package}"
             )
 
-    def test_scripts_directory_exists_or_empty(self) -> None:
+    @staticmethod
+    def test_scripts_directory_exists_or_empty() -> None:
         """Scripts directory should not contain deleted chunker artifacts."""
         scripts_dir = Path(".github/scripts")
 
@@ -113,7 +118,8 @@ class TestDeletedContextChunker:
 class TestDeletedLabelerConfig:
     """Validate that labeler.yml removal doesn't break label workflow."""
 
-    def test_label_workflow_doesnt_require_config(self) -> None:
+    @staticmethod
+    def test_label_workflow_doesnt_require_config() -> None:
         """Label workflow should handle missing labeler config gracefully."""
         label_workflow = Path(".github/workflows/label.yml")
 
@@ -128,11 +134,13 @@ class TestDeletedLabelerConfig:
                 "Label workflow references labeler.yml without checking existence"
             )
 
-    def test_labeler_yml_deleted(self) -> None:
+    @staticmethod
+    def test_labeler_yml_deleted() -> None:
         """Labeler configuration file should be deleted."""
         assert not Path(".github/labeler.yml").exists(), "labeler.yml should be deleted"
 
-    def test_label_workflow_still_functional(self) -> None:
+    @staticmethod
+    def test_label_workflow_still_functional() -> None:
         """Label workflow should exist and be valid YAML."""
         label_workflow = Path(".github/workflows/label.yml")
         assert label_workflow.exists(), "Label workflow should exist"
@@ -143,7 +151,8 @@ class TestDeletedLabelerConfig:
         assert isinstance(data, dict)
         assert "jobs" in data
 
-    def test_no_broken_labeler_action_calls(self) -> None:
+    @staticmethod
+    def test_no_broken_labeler_action_calls() -> None:
         """Labeler action should not be invoked without config or conditions."""
         label_workflow = Path(".github/workflows/label.yml")
 
@@ -170,12 +179,14 @@ class TestDeletedLabelerConfig:
                 assert step_if or with_config, (
                     "Labeler action used without condition or inline configuration"
                 )
+                )
 
 
 class TestDeletedScriptsReadme:
     """Validate that scripts README removal doesn't break documentation."""
 
-    def test_main_docs_dont_reference_scripts_readme(self) -> None:
+    @staticmethod
+    def test_main_docs_dont_reference_scripts_readme() -> None:
         """Main documentation should not reference deleted scripts README."""
         doc_files = [
             "README.md",
@@ -196,7 +207,8 @@ class TestDeletedScriptsReadme:
                 f"{doc_file} references deleted scripts README"
             )
 
-    def test_no_orphaned_script_documentation(self) -> None:
+    @staticmethod
+    def test_no_orphaned_script_documentation() -> None:
         """Documentation should not provide instructions for deleted scripts."""
         for doc_file in Path(".").glob("*.md"):
             with open(doc_file, "r", encoding="utf-8") as handle:
@@ -258,13 +270,14 @@ class TestWorkflowConfigConsistency:
                 "Config contains chunking settings unused by workflow"
             )
 
-    def test_no_missing_config_files_referenced(self) -> None:
+    @staticmethod
+    def test_no_missing_config_files_referenced() -> None:
         """Workflows should not reference missing config files."""
         for workflow_file in _get_workflow_files():
             with open(workflow_file, "r", encoding="utf-8") as handle:
                 content = handle.read()
 
-            file_patterns = re.findall(r'\.github/[^\s\'"]+', content)
+            file_patterns = re.findall(r'\.github/[^\s\'\"]+', content)
             for raw_path in file_patterns:
                 cleaned = raw_path.rstrip(",")
                 path = Path(cleaned)
@@ -283,11 +296,11 @@ class TestWorkflowConfigConsistency:
                             f"{workflow_file.name} references missing file: {cleaned}"
                         )
 
-
 class TestBackwardCompatibility:
     """Ensure removals do not break backward compatibility."""
 
-    def test_environment_variables_still_valid(self) -> None:
+    @staticmethod
+    def test_environment_variables_still_valid() -> None:
         """Env vars should not reference deleted scripts or configs."""
         for workflow_file in _get_workflow_files():
             with open(workflow_file, "r", encoding="utf-8") as handle:
@@ -302,7 +315,8 @@ class TestBackwardCompatibility:
                             f"{workflow_file.name} env var {key} references deleted script"
                         )
 
-    def test_action_inputs_valid(self) -> None:
+    @staticmethod
+    def test_action_inputs_valid() -> None:
         """Action inputs should not reference deleted files."""
         for workflow_file in _get_workflow_files():
             with open(workflow_file, "r", encoding="utf-8") as handle:
