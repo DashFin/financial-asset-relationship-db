@@ -393,12 +393,12 @@ class FormulaicAnalyzer:
         self, graph: AssetRelationshipGraph
     ) -> Dict[str, Any]:
         """
-        Calculate empirical relationships between assets based on the provided graph.
-
-        This method analyzes the asset relationship graph and computes key empirical
-        metrics for each type of relationship, returning a dictionary that maps
-        relationship names to their calculated statistics.
+        Stub for calculating empirical relationships between assets.
+        
+        Returns:
+            Empty dictionary. Actual implementation pending.
         """
+        return {}
         pass
 
     @staticmethod
