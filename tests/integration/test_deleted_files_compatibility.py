@@ -150,7 +150,7 @@ class TestDeletedLabelerConfig:
         assert isinstance(data, dict)
         assert "jobs" in data
 
-    @staticmethod
+    @ staticmethod
     def test_no_broken_labeler_action_calls() -> None:
         """Labeler action should not be invoked without config or conditions."""
         label_workflow = Path(".github/workflows/label.yml")
