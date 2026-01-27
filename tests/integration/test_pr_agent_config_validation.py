@@ -26,11 +26,6 @@ from src.visualizations.metric_visuals import visualize_metrics
 # ... other imports for a new app ...
 
 
-class AppConstants:
-    TITLE = "Financial Asset Relationship Database Visualization"
-    # ...
-
-
 if __name__ == "__main__":
     app_inst = AssetUIController()
     app_inst.create_interface().launch()
