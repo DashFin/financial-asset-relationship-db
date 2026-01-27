@@ -411,23 +411,23 @@ class FormulaicVisualizer:
         node_trace = go.Scatter(
             x=node_x,
             y=node_y,
-        mode="markers+text",
-        text=node_text,
-        textposition="top center",
-        marker=dict(
-            showscale=True,
-            colorscale="YlGnBu",
-            size=10,
-            colorbar=dict(
-                thickness=15,
-                title="Node Connections",
-                xanchor="left",
-                titleside="right",
+            mode="markers+text",
+            text=node_text,
+            textposition="top center",
+            marker=dict(
+                showscale=True,
+                colorscale="YlGnBu",
+                size=10,
+                colorbar=dict(
+                    thickness=15,
+                    title="Node Connections",
+                    xanchor="left",
+                    titleside="right",
+                ),
+                line_width=2,
             ),
-            line_width=2,
-        ),
-        hoverinfo="text",
-    )
+            hoverinfo="text",
+        )
 
     node_adjacencies = []
     for _, adjacencies in enumerate(self.G.adjacency()):
@@ -462,6 +462,7 @@ class FormulaicVisualizer:
         ),
     )
     return fig
+
     def create_metric_comparison_chart(analysis_results: Dict[str, Any]) -> go.Figure:
         """Create a chart comparing different metrics derived from formulas."""
         fig = go.Figure()
