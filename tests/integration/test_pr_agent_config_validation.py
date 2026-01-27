@@ -170,9 +170,7 @@ class TestPRAgentConfigYAMLValidity:
             if line.strip() and not line.strip().startswith("#"):
                 indent = len(line) - len(line.lstrip())
                 if indent > 0:
-                    assert indent % 2 == 0, (
-                        f"Line {i} has inconsistent indentation: {indent} spaces"
-                    )
+                    assert indent % 2 == 0, f"Line {i} has inconsistent indentation: {indent} spaces"
 
 
 class TestPRAgentConfigSecurity:
@@ -211,70 +209,27 @@ class TestPRAgentConfigSecurity:
           - Inline credentials in URLs (e.g., scheme://user:pass@host)
         """
 
-        def _iter_string_values(obj):
-            if isinstance(obj, dict):
-                for v in obj.values():
-                    yield from _iter_string_values(v)
-            elif isinstance(obj, list):
-                for v in obj:
-                    yield from _iter_string_values(v)
-            elif isinstance(obj, str):
-                yield obj
-
-        suspected = []
-
-        secret_prefixes = (
-            "sk-",
-            "AKIA",
-            "SECRET_",
-            "TOKEN_",
-        )
-        inline_cred_pattern = re.compile(r"://[^/@:\s]+:[^/@:\s]+@")
-
-        for value in _iter_string_values(pr_agent_config):
-            stripped = value.strip()
-            if not stripped:
-                continue
-
-            # Long string heuristic (possible API keys or tokens)
-            if len(stripped) >= 40:
-                suspected.append(("long_string", stripped))
-                continue
-
-            # Obvious secret-like prefixes
-            if any(stripped.startswith(p) for p in secret_prefixes):
-                suspected.append(("prefix", stripped))
-                continue
-
-            # Inline credentials in URLs
-            if inline_cred_pattern.search(stripped):
-                suspected.append(("inline_creds", stripped))
-
-        if suspected:
-            details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
-            pytest.fail(
-                f"Potential hardcoded credentials found in PR agent config:\n{details}"
-            )
-        import math
-
-        # Heuristic to detect inline creds in URLs (user:pass@)
-        re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\\s]+:[^/@\\s]+@", re.IGNORECASE)
+    def _iter_string_values(obj):
+        if isinstance(obj, dict):
+            for v in obj.values():
+                yield from _iter_string_values(v)
+        elif isinstance(obj, list):
+            for v in obj:
+                yield from _iter_string_values(v)
+        elif isinstance(obj, str):
+            yield obj
 
     @staticmethod
     def test_no_hardcoded_credentials(pr_agent_config):
         """
         Recursively scan configuration values and keys for suspected secrets.
-        - Flags high - entropy or secret - like string values.
+        - Flags high-entropy or secret-like string values.
         - Ensures sensitive keys only use safe placeholders.
         """
         import math
+        import re
 
-        # Heuristic to detect inline creds in URLs (user:pass@)
-        inline_creds_re = re.compile(
-            r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\s]+:[^/@\s]+@", re.IGNORECASE
-        )
-
-        # Common secret-like prefixes or markers
+        inline_creds_re = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\s]+:[^/@\s]+@", re.IGNORECASE)
         secret_markers = (
             "secret",
             "token",
@@ -287,6 +242,80 @@ class TestPRAgentConfigSecurity:
             "auth",
             "bearer ",
         )
+
+        def contains_inline_creds(s):
+            return bool(inline_creds_re.search(s))
+
+        def has_secret_marker(s):
+            lower = s.lower()
+            return any(marker in lower for marker in secret_markers)
+
+        def is_high_entropy(s, threshold=4.5):
+            if not s:
+                return False
+            entropy = sum(-(freq := s.count(ch) / len(s)) * math.log2(freq) for ch in set(s))
+            return entropy > threshold and len(s) > 20
+
+        violations = []
+        for value in _iter_string_values(pr_agent_config):
+            stripped = value.strip()
+            if not stripped:
+                continue
+            if contains_inline_creds(stripped):
+                violations.append(f"Inline credentials found in: {stripped}")
+            if has_secret_marker(stripped):
+                violations.append(f"Secret marker found in: {stripped}")
+            if is_high_entropy(stripped):
+                violations.append(f"High entropy string found: {stripped}")
+
+        assert not violations, "Hardcoded credentials detected:\n" + "\n".join(violations)
+
+        suspected = []
+
+        def check_string(value):
+            """
+            Analyze a string value for potential credentials (long strings, secret prefixes, inline credentials).
+            Returns a list of tuples indicating each finding type and the string value.
+            """
+            entries = []
+            stripped = value.strip()
+            # Long string heuristic (possible API keys or tokens)
+            if len(stripped) >= 40:
+                entries.append(("long_string", stripped))
+            # Obvious secret-like prefixes
+            if any(stripped.lower().startswith(p) for p in secret_markers):
+                entries.append(("prefix", stripped))
+            # Inline credentials in URLs
+            if inline_creds_re.search(stripped):
+                entries.append(("inline_creds", stripped))
+            return entries
+
+        def scan(obj, key=None):
+            """
+            Recursively scan objects (dict, list, str) for potential credentials.
+            Findings are appended to the 'suspected' list as (kind, value) tuples.
+            """
+            if isinstance(obj, dict):
+                for k, v in obj.items():
+                    scan(v)
+            elif isinstance(obj, list):
+                for item in obj:
+                    scan(item)
+            elif isinstance(obj, str):
+                # Sensitive key placeholders check
+                if key and any(marker in key.lower() for marker in secret_markers):
+                    # Allow only ${...} placeholders
+                    if not re.fullmatch(r"\$\{.*\}", obj):
+                        suspected.append(("key_secret", f"{key}: {obj}"))
+                # String content checks
+                for kind, val in check_string(obj):
+                    suspected.append((kind, val))
+
+        scan(pr_agent_config)
+
+        if suspected:
+            details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
+            pytest.fail(f"Potential hardcoded credentials found in PR agent config:\n{details}")
 
         suspected = []
 
@@ -332,11 +361,9 @@ class TestPRAgentConfigSecurity:
 
         if suspected:
             details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
-            pytest.fail(
-                f"Potential hardcoded credentials found in PR agent config:\n{details}"
-            )
+            pytest.fail(f"Potential hardcoded credentials found in PR agent config:\n{details}")
 
-        def shannon_entropy(s: str) -> float:
+        def compute_shannon_entropy(s: str) -> float:
             if not s:
                 return 0.0
             sample = s[:256]
@@ -371,7 +398,10 @@ class TestPRAgentConfigSecurity:
             if any(m in v.lower() for m in secret_markers) and len(v) >= 12:
                 return True
             # Base64/URL-safe like long strings
-            if re.fullmatch(r"[A-Za-z0-9_\-]{20,}", v) and shannon_entropy(v) >= 3.5:
+            if (
+                re.fullmatch(r"[A-Za-z0-9_\-]{20,}", v)
+                and compute_shannon_entropy(v) >= 3.5
+            ):
                 return True
             # Hex-encoded long strings (e.g., keys)
             if re.fullmatch(r"[A-Fa-f0-9]{32,}", v):
@@ -405,10 +435,6 @@ class TestPRAgentConfigSecurity:
         ]
         safe_placeholders = {None, "null", "webhook"}
 
-        def check_sensitive_keys(node, path="root"):
-            if isinstance(node, dict):
-                pass
-
     @staticmethod
     def test_no_hardcoded_secrets(pr_agent_config):
         """
@@ -426,35 +452,6 @@ class TestPRAgentConfigSecurity:
             "private_key",
         ]
 
-        allowed_placeholders = {"null", "none", "placeholder", "***"}
-
-        def value_contains_secret(val: str) -> bool:
-            low = val.lower()
-            if low in allowed_placeholders or ("${" in val and "}" in val):
-                return False
-            return any(pat in low for pat in sensitive_patterns)
-
-        def scan_dict(node: dict, path: str):
-            for k, v in node.items():
-                key_l = str(k).lower()
-                new_path = f"{path}.{k}"
-                if any(pat in key_l for pat in sensitive_patterns):
-                    assert v in allowed_placeholders, (
-                        f"Potential hardcoded credential at '{new_path}'"
-                    )
-                scan_for_secrets(v, new_path)
-
-        def scan_list(node: list, path: str):
-            for idx, item in enumerate(node):
-                scan_for_secrets(item, f"{path}[{idx}]")
-
-        def scan_for_secrets(node, path="root"):
-            if isinstance(node, dict):
-                scan_dict(node, path)
-            elif isinstance(node, list):
-                scan_list(node, path)
-            # primitives ignored
-
         safe_placeholders = {None, "null", "webhook"}
 
         def check_node(node, path=""):
@@ -463,9 +460,7 @@ class TestPRAgentConfigSecurity:
                     key_l = str(k).lower()
                     new_path = f"{path}.{k}" if path else str(k)
                     if any(p in key_l for p in sensitive_patterns):
-                        assert v in safe_placeholders, (
-                            f"Potential hardcoded credential at '{new_path}'"
-                        )
+                        assert v in safe_placeholders, f"Potential hardcoded credential at '{new_path}'"
                     check_node(v, new_path)
             elif isinstance(node, list):
                 for idx, item in enumerate(node):
