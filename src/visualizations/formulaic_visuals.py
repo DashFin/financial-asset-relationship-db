@@ -14,20 +14,20 @@ class FormulaicVisualizer:
     def __init__(self):
         self.color_scheme = {
             "Valuation": "#FF6B6B",
-    """Formulaic Visualizations Module.
+            """Formulaic Visualizations Module.
 
     This module provides tools to visualize formulaic analysis results,
     including creating dashboards, plotting reliability, and normalizing empirical relationships.
     """
 
-                "Income": "#4ECDC4",
-                "Fixed Income": "#45B7D1",
-                "Risk Management": "#96CEB4",
-                "Portfolio Theory": "#FFEAA7",
-                "Statistical Analysis": "#DDA0DD",
-                "Currency Markets": "#98D8C8",
-                "Cross-Asset": "#F7DC6F",
-            }
+            "Income": "#4ECDC4",
+            "Fixed Income": "#45B7D1",
+            "Risk Management": "#96CEB4",
+            "Portfolio Theory": "#FFEAA7",
+            "Statistical Analysis": "#DDA0DD",
+            "Currency Markets": "#98D8C8",
+            "Cross-Asset": "#F7DC6F",
+        }
 
         @staticmethod
         def create_formula_dashboard(analysis_results: Dict[str, Any]) -> go.Figure:
