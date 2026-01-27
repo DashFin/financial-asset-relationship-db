@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import type { VisualizationData } from "../types/api";
-import type { Data } from "plotly.js";
 
 // Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(() => import("react-plotly.js"), {
@@ -68,7 +67,7 @@ const MAX_EDGES = Number(process.env.NEXT_PUBLIC_MAX_EDGES) || 2000;
 export default function NetworkVisualization({
   data,
 }: NetworkVisualizationProps) {
-  const [plotData, setPlotData] = useState<Array<EdgeTrace | NodeTrace>>([]);
+  const [plotData, setPlotData] = useState<(EdgeTrace | NodeTrace)[]>([]);
   const [status, setStatus] = useState<
     "loading" | "ready" | "empty" | "tooLarge"
   >("loading");
@@ -100,6 +99,32 @@ export default function NetworkVisualization({
       );
       return;
     }
+
+    // Create node trace
+    const nodeTrace = {
+      type: "scatter3d",
+      mode: "markers+text",
+      x: nodes.map((n) => n.x),
+      y: nodes.map((n) => n.y),
+      z: nodes.map((n) => n.z),
+      text: nodes.map((n) => n.symbol),
+      hovertext: nodes.map(
+        (n) => `${n.name} (${n.symbol})<br>Class: ${n.asset_class}`,
+      ),
+      hoverinfo: "text",
+      marker: {
+        size: nodes.map((n) => n.size),
+        color: nodes.map((n) => n.color),
+        line: {
+          color: "white",
+          width: 0.5,
+        },
+      },
+      textposition: "top center",
+      textfont: {
+        size: 8,
+      },
+    };
 
     // Create node lookup map for O(1) access
     const nodeMap = new Map(nodes.map((node) => [node.id, node]));
