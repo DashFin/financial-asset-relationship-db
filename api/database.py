@@ -137,8 +137,6 @@ def _make_connector():
     connection is shared across calls; for file-backed databases, a new
     connection is created per call.
     """
-    memory_connection = None
-    memory_connection_lock = threading.Lock()
 
     def _connect() -> sqlite3.Connection:
         """
@@ -155,18 +153,19 @@ def _make_connector():
             sqlite3.Connection: A sqlite3 connection to the configured
                 DATABASE_PATH (shared for in-memory, new per call for file-backed).
         """
+        global _MEMORY_CONNECTION
+
         if _is_memory_db():
-            with memory_connection_lock:
-                nonlocal memory_connection
-                if memory_connection is None:
-                    memory_connection = sqlite3.connect(
+            with _MEMORY_CONNECTION_LOCK:
+                if _MEMORY_CONNECTION is None:
+                    _MEMORY_CONNECTION = sqlite3.connect(
                         DATABASE_PATH,
                         detect_types=sqlite3.PARSE_DECLTYPES,
                         check_same_thread=False,
                         uri=DATABASE_PATH.startswith("file:"),
                     )
-                    memory_connection.row_factory = sqlite3.Row
-            return memory_connection
+                    _MEMORY_CONNECTION.row_factory = sqlite3.Row
+            return _MEMORY_CONNECTION
 
         connection = sqlite3.connect(
             DATABASE_PATH,
