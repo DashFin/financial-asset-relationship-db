@@ -16,7 +16,7 @@ import yaml
 
 
 def _get_workflow_files() -> List[Path]:
-    """Helper to retrieve all workflow files (.yml and .yaml)."""
+    """Helper to retrieve all workflow files(.yml and .yaml)."""
     workflow_dir = Path(".github/workflows")
     if not workflow_dir.exists():
         return []
@@ -135,7 +135,7 @@ class TestRequirementsConsistency:
     """Test consistency between requirements files and workflow usage."""
 
     def test_requirements_dev_matches_workflow_installs(self):
-        """Packages installed in workflows should be in requirements-dev.txt."""
+        """Packages installed in workflows should be in requirements - dev.txt."""
         req_dev_path = Path("requirements-dev.txt")
 
         if not req_dev_path.exists():
@@ -351,7 +351,7 @@ class TestGitHubActionsEcosystem:
             pass
 
     def test_reasonable_workflow_count(self):
-        """Should not have too many workflows (maintainability)."""
+        """Should not have too many workflows(maintainability)."""
         workflow_files = _get_workflow_files()
         workflow_count = len(workflow_files)
 
