@@ -14,7 +14,7 @@ from unittest.mock import patch
 
 import pytest
 from sqlalchemy import Column, Integer, String, create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from src.data.database import (
@@ -124,9 +124,9 @@ class TestModel(Base):
     value = Column(String)
 
 
-def init_db(engine):
+def init_test_db(engine):
     """
-    Mock implementation of init_db.
+    Mock implementation of init_test_db.
     In a real app, this would call Base.metadata.create_all(engine).
     """
     Base.metadata.create_all(engine)
@@ -135,19 +135,22 @@ def init_db(engine):
 class TestDatabaseInitialization:
     """Test cases for database initialization using SQLAlchemy and Pytest."""
 
+    @staticmethod
     @pytest.fixture
-    def engine(self):
+    def engine():
         """Provides an in-memory SQLite engine for testing."""
         return create_engine("sqlite:///:memory:")
 
+    @staticmethod
     @pytest.fixture
-    def session_factory(self, engine):
+    def session_factory(engine):
         """Provides a session factory for the test engine."""
         return sessionmaker(bind=engine)
 
-    def test_init_db_creates_tables(self, engine):
-        """Test that init_db creates all registered tables."""
-        init_db(engine)
+    @staticmethod
+    def test_init_db_creates_tables(engine):
+        """Test that init_test_db creates all registered tables."""
+        init_test_db(engine)
 
         # Use updated SQLAlchemy 2.0+ inspection if available
         from sqlalchemy import inspect
@@ -155,7 +158,8 @@ class TestDatabaseInitialization:
         inspector = inspect(engine)
         assert "test_model" in inspector.get_table_names()
 
-    def test_init_db_is_idempotent(self, engine):
+    @staticmethod
+    def test_init_db_is_idempotent(engine):
         """Test that init_db can be called multiple times safely without error."""
         # Call init_db multiple times
         init_db(engine)
@@ -166,7 +170,8 @@ class TestDatabaseInitialization:
         inspector = inspect(engine)
         assert "test_model" in inspector.get_table_names()
 
-    def test_init_db_preserves_data(self, engine, session_factory):
+    @staticmethod
+    def test_init_db_preserves_data(engine, session_factory):
         """Test that calling init_db again does not wipe existing data."""
         init_db(engine)
 
@@ -188,7 +193,8 @@ class TestDatabaseInitialization:
 class TestSessionScope:
     """Test cases for transactional session scope."""
 
-    def test_session_scope_commits_on_success(self):
+    @staticmethod
+    def test_session_scope_commits_on_success():
         """Test that session scope commits changes on successful completion."""
         engine = create_engine("sqlite:///:memory:")
 

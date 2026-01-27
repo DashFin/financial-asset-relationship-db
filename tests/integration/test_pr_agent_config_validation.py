@@ -236,30 +236,6 @@ class TestPRAgentConfigSecurity:
             if not stripped:
                 continue
 
-            # Long string heuristic (possible API keys or tokens)
-            if len(stripped) >= 40:
-                suspected.append(("long_string", stripped))
-                continue
-
-            # Obvious secret-like prefixes
-            if any(stripped.startswith(p) for p in secret_prefixes):
-                suspected.append(("prefix", stripped))
-                continue
-
-            # Inline credentials in URLs
-            if inline_cred_pattern.search(stripped):
-                suspected.append(("inline_creds", stripped))
-
-        if suspected:
-            details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
-            pytest.fail(
-                f"Potential hardcoded credentials found in PR agent config:\n{details}"
-            )
-        import math
-
-        # Heuristic to detect inline creds in URLs (user:pass@)
-        re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\\s]+:[^/@\\s]+@", re.IGNORECASE)
-
     @staticmethod
     def test_no_hardcoded_credentials(pr_agent_config):
         """
@@ -287,6 +263,47 @@ class TestPRAgentConfigSecurity:
             "auth",
             "bearer ",
         )
+
+        suspected = []
+
+        def check_string(value):
+            entries = []
+            stripped = value.strip()
+            # Long string heuristic (possible API keys or tokens)
+            if len(stripped) >= 40:
+                entries.append(("long_string", stripped))
+            # Obvious secret-like prefixes
+            if any(stripped.lower().startswith(p) for p in secret_markers):
+                entries.append(("prefix", stripped))
+            # Inline credentials in URLs
+            if inline_creds_re.search(stripped):
+                entries.append(("inline_creds", stripped))
+            return entries
+
+        def scan(obj, key=None):
+            if isinstance(obj, dict):
+                for k, v in obj.items():
+                    scan(v, k)
+            elif isinstance(obj, list):
+                for item in obj:
+                    scan(item, key)
+            elif isinstance(obj, str):
+                # Sensitive key placeholders check
+                if key and any(marker in key.lower() for marker in secret_markers):
+                    # Allow only ${...} placeholders
+                    if not re.fullmatch(r"\$\{.*\}", obj):
+                        suspected.append(("key_secret", f"{key}: {obj}"))
+                # String content checks
+                for kind, val in check_string(obj):
+                    suspected.append((kind, val))
+
+        scan(pr_agent_config)
+
+        if suspected:
+            details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
+            pytest.fail(
+                f"Potential hardcoded credentials found in PR agent config:\n{details}"
+            )
 
         suspected = []
 
@@ -421,8 +438,6 @@ class TestPRAgentConfigSecurity:
             "access_key",
             "private_key",
         ]
-
-        allowed_placeholders = {"null", "none", "placeholder", "***"}
 
         safe_placeholders = {None, "null", "webhook"}
 
