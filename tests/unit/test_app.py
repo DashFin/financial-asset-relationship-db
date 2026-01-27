@@ -403,7 +403,7 @@ class TestRefreshVisualization:
     def test_refresh_visualization_with_all_filters(
         self, mock_visualize, mock_create_db
     ):
-        """Test refresh_visualization with all filter parameters."""
+        """Test refresh_visualization with 3D view and all relationships enabled."""
         mock_graph = Mock(spec=AssetRelationshipGraph)
         mock_graph.assets = {}
         mock_create_db.return_value = mock_graph
@@ -412,30 +412,31 @@ class TestRefreshVisualization:
         mock_visualize.return_value = mock_fig
 
         app = FinancialAssetApp()
-        result = app.refresh_visualization(
+        graph_viz, error_state = app.refresh_visualization(
             graph_state=mock_graph,
-            selected_asset_classes=['EQUITY', 'BOND'],
-            selected_sectors=['Technology', 'Finance'],
-            min_strength=0.5,
-            max_connections=10,
-            show_events=True
+            view_mode="3D",
+            layout_type="spring",
+            show_same_sector=True,
+            show_market_cap=True,
+            show_correlation=True,
+            show_corporate_bond=True,
+            show_commodity_currency=True,
+            show_income_comparison=True,
+            show_regulatory=True,
+            show_all_relationships=True,
+            toggle_arrows=True,
         )
 
-        assert result is mock_fig
+        assert graph_viz is mock_fig
         mock_visualize.assert_called_once()
-        call_kwargs = mock_visualize.call_args.kwargs
-        assert call_kwargs['asset_classes'] == ['EQUITY', 'BOND']
-        assert call_kwargs['sectors'] == ['Technology', 'Finance']
-        assert call_kwargs['min_strength'] == 0.5
-        assert call_kwargs['max_connections'] == 10
-        assert call_kwargs['show_regulatory_events'] is True
+        assert error_state is not None
 
     @patch('app.create_real_database')
     @patch('app.visualize_3d_graph_with_filters')
     def test_refresh_visualization_with_no_filters(
         self, mock_visualize, mock_create_db
     ):
-        """Test refresh_visualization with no filters (defaults)."""
+        """Test refresh_visualization with 3D view and all filters disabled."""
         mock_graph = Mock(spec=AssetRelationshipGraph)
         mock_graph.assets = {}
         mock_create_db.return_value = mock_graph
@@ -444,19 +445,25 @@ class TestRefreshVisualization:
         mock_visualize.return_value = mock_fig
 
         app = FinancialAssetApp()
-        result = app.refresh_visualization(
+        graph_viz, _ = app.refresh_visualization(
             graph_state=mock_graph,
-            selected_asset_classes=[],
-            selected_sectors=[],
-            min_strength=0.0,
-            max_connections=None,
-            show_events=False
+            view_mode="3D",
+            layout_type="spring",
+            show_same_sector=False,
+            show_market_cap=False,
+            show_correlation=False,
+            show_corporate_bond=False,
+            show_commodity_currency=False,
+            show_income_comparison=False,
+            show_regulatory=False,
+            show_all_relationships=False,
+            toggle_arrows=False,
         )
 
-        assert result is mock_fig
+        assert graph_viz is mock_fig
         call_kwargs = mock_visualize.call_args.kwargs
-        assert call_kwargs['asset_classes'] == []
-        assert call_kwargs['min_strength'] == 0.0
+        assert call_kwargs["show_same_sector"] is False
+        assert call_kwargs["show_all_relationships"] is False
 
     @patch('app.create_real_database')
     @patch('app.visualize_3d_graph_with_filters')
@@ -472,17 +479,25 @@ class TestRefreshVisualization:
 
         app = FinancialAssetApp()
 
-        with pytest.raises(Exception) as exc_info:
-            app.refresh_visualization(
-                graph_state=mock_graph,
-                selected_asset_classes=[],
-                selected_sectors=[],
-                min_strength=0.0,
-                max_connections=None,
-                show_events=False
-            )
+        # The method should catch the exception and return an empty figure plus an error update,
+        # not propagate the exception.
+        graph_viz, error_state = app.refresh_visualization(
+            graph_state=mock_graph,
+            view_mode="3D",
+            layout_type="spring",
+            show_same_sector=True,
+            show_market_cap=True,
+            show_correlation=True,
+            show_corporate_bond=True,
+            show_commodity_currency=True,
+            show_income_comparison=True,
+            show_regulatory=True,
+            show_all_relationships=True,
+            toggle_arrows=True,
+        )
 
-        assert "Visualization error" in str(exc_info.value)
+        assert graph_viz is not None
+        assert error_state is not None
 
 
 class TestGenerateFormulaicdAnalysis:
