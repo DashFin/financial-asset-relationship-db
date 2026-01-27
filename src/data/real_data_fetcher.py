@@ -6,6 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import yfinance as yf
 
+from src.data.sample_data import create_sample_data
 from src.logic.asset_graph import AssetRelationshipGraph
 from src.models.financial_models import (
     Asset,
@@ -154,7 +155,8 @@ class RealDataFetcher:
         """
         if self.fallback_factory:
             return self.fallback_factory()
-from src.data.sample_data import create_sample_data()
+
+
 return create_sample_data()
         """
         if self.fallback_factory is not None:
