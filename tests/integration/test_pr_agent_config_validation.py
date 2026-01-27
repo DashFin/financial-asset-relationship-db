@@ -318,7 +318,7 @@ class TestPRAgentConfigSecurity:
 
         def scan(obj):
             if isinstance(obj, dict):
-                for key, value in obj.items():
+                for _, value in obj.items():
                     scan(value)
             elif isinstance(obj, (list, tuple)):
                 for item in obj:
@@ -394,20 +394,6 @@ class TestPRAgentConfigSecurity:
         walk_values(pr_agent_config)
 
         # Enforce safe placeholders for sensitive keys
-        sensitive_patterns = [
-            "password",
-            "secret",
-            "token",
-            "api_key",
-            "apikey",
-            "access_key",
-            "private_key",
-        ]
-        safe_placeholders = {None, "null", "webhook"}
-
-        def check_sensitive_keys(node, path="root"):
-            if isinstance(node, dict):
-                pass
 
     @staticmethod
     def test_no_hardcoded_secrets(pr_agent_config):
@@ -427,12 +413,6 @@ class TestPRAgentConfigSecurity:
         ]
 
         allowed_placeholders = {"null", "none", "placeholder", "***"}
-
-        def value_contains_secret(val: str) -> bool:
-            low = val.lower()
-            if low in allowed_placeholders or ("${" in val and "}" in val):
-                return False
-            return any(pat in low for pat in sensitive_patterns)
 
         def scan_dict(node: dict, path: str):
             for k, v in node.items():
