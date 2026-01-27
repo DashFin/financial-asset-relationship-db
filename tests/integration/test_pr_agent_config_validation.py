@@ -133,17 +133,13 @@ class FinancialAssetApp:
             average_relationship_strength=metrics["average_relationship_strength"],
             relationship_density=metrics["relationship_density"],
             regulatory_event_count=metrics["regulatory_event_count"],
-            asset_class_distribution=json.dumps(
-                metrics["asset_class_distribution"], indent=2
-            ),
+            asset_class_distribution=json.dumps(metrics["asset_class_distribution"], indent=2),
         )
         for idx, (s, t, rel, strength) in enumerate(metrics["top_relationships"], 1):
             text += f"{idx}. {s} → {t} ({rel}): {strength:.1%}\n"
         return text
 
-    def update_all_metrics_outputs(
-        self, graph: AssetRelationshipGraph
-    ) -> Tuple[go.Figure, go.Figure, go.Figure, str]:
+    def update_all_metrics_outputs(self, graph: AssetRelationshipGraph) -> Tuple[go.Figure, go.Figure, go.Figure, str]:
         """Generates all metric charts and summary text."""
         f1, f2, f3 = visualize_metrics(graph)
         text = self._update_metrics_text(graph)
@@ -167,10 +163,7 @@ class AssetUIController(FinancialAssetApp):
         asset_dict["asset_class"] = asset.asset_class.value
 
         def get_rels(rel_map: Dict) -> Dict:
-            return {
-                tid: {"type": rtype, "strength": strg}
-                for tid, rtype, strg in rel_map.get(selected_asset, [])
-            }
+            return {tid: {"type": rtype, "strength": strg} for tid, rtype, strg in rel_map.get(selected_asset, [])}
 
         return asset_dict, {
             "outgoing": get_rels(graph.relationships),
@@ -187,15 +180,28 @@ class AssetUIController(FinancialAssetApp):
             choices = list(graph.assets.keys())
 
             return (
-                viz_3d, f1, f2, f3, m_text, report,
+                viz_3d,
+                f1,
+                f2,
+                f3,
+                m_text,
+                report,
                 gr.update(choices=choices, value=None),
                 gr.update(value="", visible=False),
             )
         except Exception as e:
             LOGGER.exception(AppConstants.REFRESH_OUTPUTS_ERROR)
             empty = go.Figure()
-            return (empty, empty, empty, empty, "", "", gr.update(choices=[]), 
-                    gr.update(value=f"Error: {e}", visible=True))
+            return (
+                empty,
+                empty,
+                empty,
+                empty,
+                "",
+                "",
+                gr.update(choices=[]),
+                gr.update(value=f"Error: {e}", visible=True),
+            )
 
     def refresh_visualization(self, graph_state: AssetRelationshipGraph, **kwargs) -> Tuple:
         """Filters and updates the 2D or 3D network plot."""
@@ -229,8 +235,14 @@ class AssetUIController(FinancialAssetApp):
             )
         except Exception as e:
             LOGGER.exception("Formula Error")
-            return (go.Figure(), go.Figure(), go.Figure(), gr.update(choices=[]), 
-                    "Error", gr.update(value=str(e), visible=True))
+            return (
+                go.Figure(),
+                go.Figure(),
+                go.Figure(),
+                gr.update(choices=[]),
+                "Error",
+                gr.update(value=str(e), visible=True),
+            )
 
     @staticmethod
     def _format_formula_summary(summary: Dict, results: Dict) -> str:
@@ -257,7 +269,7 @@ class AssetUIController(FinancialAssetApp):
                     with gr.Row():
                         view_mode = gr.Radio(["3D", "2D"], label="Mode", value="3D")
                         layout = gr.Radio(["spring", "circular"], label="2D Layout", visible=False)
-                    
+
                     # Mapping filters to a dict for easy passing
                     filters = {
                         "show_same_sector": gr.Checkbox(label="Sector", value=True),
@@ -280,13 +292,13 @@ class AssetUIController(FinancialAssetApp):
             refresh_btn.click(
                 self.refresh_all_outputs,
                 inputs=[graph_state],
-                outputs=[viz_plot, m_f1, m_f1, m_f1, m_text, error_box, error_box, error_box]
+                outputs=[viz_plot, m_f1, m_f1, m_f1, m_text, error_box, error_box, error_box],
             )
 
             f_btn.click(
                 self.generate_formulaic_analysis,
                 inputs=[graph_state],
-                outputs=[f_dash, f_dash, f_dash, error_box, f_sum, error_box]
+                outputs=[f_dash, f_dash, f_dash, error_box, f_sum, error_box],
             )
 
         return demo_ui
