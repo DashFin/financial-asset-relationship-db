@@ -286,7 +286,7 @@ class AssetUIController(FinancialAssetApp):
                         )
 
                     # Mapping filters to a dict for easy passing
-                    filters = {
+                    {
                         "show_same_sector": gr.Checkbox(label="Sector", value=True),
                         "show_correlation": gr.Checkbox(
                             label="Correlation", value=True
