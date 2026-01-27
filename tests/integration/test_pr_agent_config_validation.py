@@ -337,9 +337,18 @@ class TestPRAgentConfigSecurity:
                     lower_key = str(k).lower() if isinstance(k, str) else ""
                     if any(marker in lower_key for marker in secret_markers):
                         # Ensure sensitive keys use safe placeholders
-                        if not (isinstance(v, str) and (v.startswith("{{") and v.endswith("}}") or v in {"null", "none", "placeholder", "***"})):
+                        if not (
+                            isinstance(v, str)
+                            and (
+                                v.startswith("{{")
+                                and v.endswith("}}")
+                                or v in {"null", "none", "placeholder", "***"}
+                            )
+                        ):
                             if v is not None:
-                                pytest.fail(f"Sensitive key '{k}' at '{path}.{k}' must use a safe placeholder, got: {v}")
+                                pytest.fail(
+                                    f"Sensitive key '{k}' at '{path}.{k}' must use a safe placeholder, got: {v}"
+                                )
                     walk_values(v, f"{path}.{k}")
             elif isinstance(obj, list):
                 for i, item in enumerate(obj):
