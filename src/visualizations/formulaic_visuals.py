@@ -168,7 +168,7 @@ class FormulaicVisualizer:
 
         # 3. Empirical Correlation Heatmap
         #
-        correlation_matrix = self.empirical_relationships.get("correlation_matrix", {})
+        correlation_matrix = empirical_relationships.get("correlation_matrix", {})
         if correlation_matrix:
             # Convert correlation matrix to heatmap format
             assets = list(
