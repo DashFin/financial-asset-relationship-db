@@ -187,17 +187,32 @@ class AssetUIController(FinancialAssetApp):
             choices = list(graph.assets.keys())
 
             return (
-                viz_3d, f1, f2, f3, m_text, report,
+                viz_3d,
+                f1,
+                f2,
+                f3,
+                m_text,
+                report,
                 gr.update(choices=choices, value=None),
                 gr.update(value="", visible=False),
             )
         except Exception as e:
             LOGGER.exception(AppConstants.REFRESH_OUTPUTS_ERROR)
             empty = go.Figure()
-            return (empty, empty, empty, empty, "", "", gr.update(choices=[]), 
-                    gr.update(value=f"Error: {e}", visible=True))
+            return (
+                empty,
+                empty,
+                empty,
+                empty,
+                "",
+                "",
+                gr.update(choices=[]),
+                gr.update(value=f"Error: {e}", visible=True),
+            )
 
-    def refresh_visualization(self, graph_state: AssetRelationshipGraph, **kwargs) -> Tuple:
+    def refresh_visualization(
+        self, graph_state: AssetRelationshipGraph, **kwargs
+    ) -> Tuple:
         """Filters and updates the 2D or 3D network plot."""
         try:
             graph = graph_state or self.ensure_graph()
@@ -211,7 +226,9 @@ class AssetUIController(FinancialAssetApp):
             LOGGER.exception("Viz Error")
             return go.Figure(), gr.update(value=str(e), visible=True)
 
-    def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGraph]) -> Tuple:
+    def generate_formulaic_analysis(
+        self, graph_state: Optional[AssetRelationshipGraph]
+    ) -> Tuple:
         """Performs mathematical relationship extraction."""
         try:
             graph = graph_state or self.ensure_graph()
@@ -221,7 +238,9 @@ class AssetUIController(FinancialAssetApp):
 
             return (
                 visualizer.create_formula_dashboard(results),
-                visualizer.create_correlation_network(results.get("empirical_relationships", {})),
+                visualizer.create_correlation_network(
+                    results.get("empirical_relationships", {})
+                ),
                 visualizer.create_metric_comparison_chart(results),
                 gr.update(choices=[f.name for f in results.get("formulas", [])]),
                 self._format_formula_summary(results.get("summary", {}), results),
@@ -229,8 +248,14 @@ class AssetUIController(FinancialAssetApp):
             )
         except Exception as e:
             LOGGER.exception("Formula Error")
-            return (go.Figure(), go.Figure(), go.Figure(), gr.update(choices=[]), 
-                    "Error", gr.update(value=str(e), visible=True))
+            return (
+                go.Figure(),
+                go.Figure(),
+                go.Figure(),
+                gr.update(choices=[]),
+                "Error",
+                gr.update(value=str(e), visible=True),
+            )
 
     @staticmethod
     def _format_formula_summary(summary: Dict, results: Dict) -> str:
@@ -256,12 +281,16 @@ class AssetUIController(FinancialAssetApp):
                 with gr.Tab("🌐 Network"):
                     with gr.Row():
                         view_mode = gr.Radio(["3D", "2D"], label="Mode", value="3D")
-                        layout = gr.Radio(["spring", "circular"], label="2D Layout", visible=False)
-                    
+                        layout = gr.Radio(
+                            ["spring", "circular"], label="2D Layout", visible=False
+                        )
+
                     # Mapping filters to a dict for easy passing
                     filters = {
                         "show_same_sector": gr.Checkbox(label="Sector", value=True),
-                        "show_correlation": gr.Checkbox(label="Correlation", value=True),
+                        "show_correlation": gr.Checkbox(
+                            label="Correlation", value=True
+                        ),
                         "show_regulatory": gr.Checkbox(label="Regulatory", value=True),
                     }
                     viz_plot = gr.Plot()
@@ -280,13 +309,22 @@ class AssetUIController(FinancialAssetApp):
             refresh_btn.click(
                 self.refresh_all_outputs,
                 inputs=[graph_state],
-                outputs=[viz_plot, m_f1, m_f1, m_f1, m_text, error_box, error_box, error_box]
+                outputs=[
+                    viz_plot,
+                    m_f1,
+                    m_f1,
+                    m_f1,
+                    m_text,
+                    error_box,
+                    error_box,
+                    error_box,
+                ],
             )
 
             f_btn.click(
                 self.generate_formulaic_analysis,
                 inputs=[graph_state],
-                outputs=[f_dash, f_dash, f_dash, error_box, f_sum, error_box]
+                outputs=[f_dash, f_dash, f_dash, error_box, f_sum, error_box],
             )
 
         return demo_ui
