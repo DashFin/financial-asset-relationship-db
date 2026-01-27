@@ -354,7 +354,7 @@ class TestPasswordOperations:
         assert hashed != password
         assert len(hashed) > len(password)
 
-    def test_password_hash_is_deterministic_per_call(self):
+    def test_password_hash_is_not_deterministic_per_call(self):
         """Same password should produce different hashes (due to salt)."""
         password = "mypassword123"
         hash1 = get_password_hash(password)
