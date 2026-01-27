@@ -28,10 +28,12 @@ echo "2. Checking TypeScript Test Syntax..."
 
 (
     cd frontend || exit 1
-    if npx tsc --noEmit __tests__/lib/api-refactoring.test.ts 2>&1 | head -20; then
+    if npx tsc --noEmit __tests__/lib/api-refactoring.test.ts 2>&1; then
         echo "   ✓ api-refactoring.test.ts - TypeScript validation complete"
     else
+        npx tsc --noEmit __tests__/lib/api-refactoring.test.ts 2>&1 | head -20
         echo "   ✗ api-refactoring.test.ts - TypeScript validation failed"
+        exit 1
     fi
 )
 
