@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional, Tuple
 
 import gradio as gr
 import plotly.graph_objects as go
+import logic
 
 from src.analysis.formulaic_analysis import FormulaicAnalyzer
 from src.analysis.formulaic_visualizer import FormulaicVisualizer
