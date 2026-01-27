@@ -577,7 +577,7 @@ class TestEdgeCasesAndErrorHandling:
         """Test URI memory database with cache=shared parameter."""
         # Note: This tests the detection logic; actual URI handling depends on SQLite build
         uri = "file::memory:?cache=shared"
-
+    @staticmethod
         assert database._is_memory_db(uri) is True
 
     @ staticmethod
