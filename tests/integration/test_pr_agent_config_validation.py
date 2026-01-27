@@ -26,7 +26,7 @@ from src.visualizations.metric_visuals import visualize_metrics
 
 
 # Move this after class definitions or define AssetUIController first
-app_inst = AssetUIController()
+# Move this instantiation after the class definitions
 app_inst.create_interface().launch()
 
 
