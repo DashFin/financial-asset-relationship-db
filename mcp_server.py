@@ -31,8 +31,8 @@ class _ThreadSafeGraph:
 
                 def _wrapped(*args, **kwargs):
                     """
-                    Thread-safe wrapper for callable attributes that acquires the lock before
-                    invocation.
+                    Thread-safe wrapper for callable attributes that acquires the lock
+                    before invocation.
                     """
                     with self._lock:
                         return attr(*args, **kwargs)

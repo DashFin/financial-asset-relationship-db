@@ -297,7 +297,6 @@ class TestConnectWithMemoryDb:
 
         # Verify we can use the connection from different threads
         # by attempting to execute a query (would fail if check_same_thread=True)
-        import threading
 
         def query_from_thread():
             """Execute a simple query on the connection from a separate thread to test thread safety."""
@@ -388,11 +387,11 @@ class TestThreadSafety:
         self, monkeypatch, restore_database_module
     ):
         """Ensure concurrent calls to _connect() for an in-memory DB return a single shared connection (no races during first-connection creation)."""
-        import threading
 
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
 
     @staticmethod
+    connections = []
     def get_conn():
         """Worker for the concurrency test: obtain a connection and record it so we can assert all threads receive the same shared instance."""
         connections.append(reloaded_database._connect())
@@ -414,8 +413,6 @@ class TestThreadSafety:
         self, monkeypatch, restore_database_module
     ):
         """Test concurrent read/write operations on memory database."""
-        import threading
-
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
         reloaded_database = importlib.reload(database)
 
