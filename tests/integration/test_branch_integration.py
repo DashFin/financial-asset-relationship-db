@@ -108,9 +108,9 @@ class TestWorkflowConsistency:
 
             for job_name, job in workflow.get("jobs", {}).items():
                 steps = job.get("steps", [])
-                assert (
-                    len(steps) <= 3
-                ), f"{wf_file}:{job_name} has {len(steps)} steps (expected <= 3)"
+                assert len(steps) <= 3, (
+                    f"{wf_file}:{job_name} has {len(steps)} steps (expected <= 3)"
+                )
 
 
 class TestDependencyWorkflowIntegration:
@@ -184,9 +184,7 @@ class TestRemovedFilesIntegration:
         )
 
     def test_pr_agent_workflow_self_contained(self) -> None:
-        content = Path(".github/workflows/pr-agent.yml").read_text(
-            encoding="utf-8"
-        )
+        content = Path(".github/workflows/pr-agent.yml").read_text(encoding="utf-8")
 
         assert "context_chunker" not in content
         assert "fetch-context" not in content
@@ -210,12 +208,10 @@ class TestWorkflowSecurityConsistency:
 
             for pattern in dangerous_patterns:
                 if re.search(pattern, content):
-                    injection_risks.append(
-                        f"{wf_file}: pattern matched {pattern}"
-                    )
+                    injection_risks.append(f"{wf_file}: pattern matched {pattern}")
 
-        assert not injection_risks, (
-            "Potential PR injection risks found:\n" + "\n".join(injection_risks)
+        assert not injection_risks, "Potential PR injection risks found:\n" + "\n".join(
+            injection_risks
         )
 
 
@@ -235,9 +231,9 @@ class TestBranchCoherence:
                 continue
 
             line_count = len(path.read_text(encoding="utf-8").splitlines())
-            assert (
-                line_count <= max_lines
-            ), f"{wf_file} has {line_count} lines (expected <= {max_lines})"
+            assert line_count <= max_lines, (
+                f"{wf_file} has {line_count} lines (expected <= {max_lines})"
+            )
 
 
 class TestBranchQuality:
