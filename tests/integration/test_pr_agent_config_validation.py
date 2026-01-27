@@ -313,7 +313,6 @@ class TestPRAgentConfigSecurity:
             for idx, item in enumerate(node):
                 scan_for_secrets(item, f"{path}[{idx}]")
 
-
         safe_placeholders = {None, "null", "webhook"}
 
         def check_node(node, path=""):
