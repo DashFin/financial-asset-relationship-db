@@ -54,9 +54,7 @@ class TestDocumentationFilesValidation:
                 f"File {md_file.name} is suspiciously short ({len(content)} chars)"
             )
 
-    def test_markdown_has_proper_headings(
-        self, markdown_files: List[Path]
-    ) -> None:
+    def test_markdown_has_proper_headings(self, markdown_files: List[Path]) -> None:
         """Each file must contain at least one heading and start with level-1."""
         heading_pattern = re.compile(r"^(#{1,6})\s+(.+)$", re.MULTILINE)
 
@@ -67,9 +65,7 @@ class TestDocumentationFilesValidation:
             assert headings, f"File {md_file.name} has no headings"
 
             first_level = len(headings[0][0])
-            assert first_level == 1, (
-                f"File {md_file.name} first heading is not level 1"
-            )
+            assert first_level == 1, f"File {md_file.name} first heading is not level 1"
 
     def test_code_blocks_have_language_identifiers(
         self, markdown_files: List[Path]
@@ -153,9 +149,7 @@ class TestDocumentationFilesValidation:
                         f"File {md_file.name} links to non-existent file: {link_url}"
                     )
 
-    def test_no_trailing_whitespace(
-        self, markdown_files: List[Path]
-    ) -> None:
+    def test_no_trailing_whitespace(self, markdown_files: List[Path]) -> None:
         """Check markdown files for trailing whitespace."""
         for md_file in markdown_files:
             lines = md_file.read_text(encoding="utf-8").splitlines()
@@ -171,9 +165,7 @@ class TestDocumentationFilesValidation:
                 f"File {md_file.name} has trailing whitespace on lines: {bad_lines[:10]}"
             )
 
-    def test_test_summary_files_have_required_sections(
-        self, doc_root: Path
-    ) -> None:
+    def test_test_summary_files_have_required_sections(self, doc_root: Path) -> None:
         """Verify summary/generation markdown contains key terms."""
         summary_files = list(doc_root.glob("*TEST*SUMMARY*.md"))
         summary_files.extend(doc_root.glob("*GENERATION*.md"))
@@ -188,9 +180,7 @@ class TestDocumentationFilesValidation:
                 f"File {summary_file.name} doesn't appear to be a proper test summary"
             )
 
-    def test_test_reference_files_have_examples(
-        self, doc_root: Path
-    ) -> None:
+    def test_test_reference_files_have_examples(self, doc_root: Path) -> None:
         """Reference markdown files must contain runnable examples."""
         reference_files = list(doc_root.glob("*REFERENCE*.md"))
 
@@ -226,9 +216,7 @@ class TestMarkdownContentQuality:
             content = gen_file.read_text(encoding="utf-8").lower()
             found = sum(1 for kw in stats_keywords if kw in content)
 
-            assert found >= 3, (
-                f"File {gen_file.name} should contain test statistics"
-            )
+            assert found >= 3, f"File {gen_file.name} should contain test statistics"
 
     def test_comprehensive_files_are_actually_comprehensive(self) -> None:
         """COMPREHENSIVE files must be large and structured."""
