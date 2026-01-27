@@ -9,7 +9,7 @@ duplicate keys, invalid syntax, and missing required fields.
 """
 
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Any
 
 import pytest
 
