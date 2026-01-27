@@ -171,7 +171,9 @@ class TestPRAgentConfigYAMLValidity:
             if line.strip() and not line.strip().startswith("#"):
                 indent = len(line) - len(line.lstrip())
                 if indent > 0:
-                    assert indent % 2 == 0, f"Line {i} has inconsistent indentation: {indent} spaces"
+                    assert indent % 2 == 0, (
+                        f"Line {i} has inconsistent indentation: {indent} spaces"
+                    )
 
 
 class TestPRAgentConfigSecurity:
@@ -244,7 +246,9 @@ class TestPRAgentConfigSecurity:
         - Ensures sensitive keys only use safe placeholders.
         """
         # Heuristic to detect inline creds in URLs (user:pass@)
-        inline_creds_re = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\\s]+:[^/@\\s]+@", re.IGNORECASE)
+        inline_creds_re = re.compile(
+            r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\\s]+:[^/@\\s]+@", re.IGNORECASE
+        )
 
         # Common secret-like prefixes or markers
         secret_markers = (
@@ -292,7 +296,10 @@ class TestPRAgentConfigSecurity:
                 for key, val in obj.items():
                     if any(marker in key.lower() for marker in secret_markers):
                         val_stripped = str(val).strip()
-                        if not (val_stripped.startswith("{{") and val_stripped.endswith("}}")):
+                        if not (
+                            val_stripped.startswith("{{")
+                            and val_stripped.endswith("}}")
+                        ):
                             suspected.append(("unsafe_key", f"{key}: {val}"))
                     scan_config(val, f"{path}.{key}" if path else key, suspected)
             elif isinstance(obj, list):
@@ -303,7 +310,9 @@ class TestPRAgentConfigSecurity:
         suspected = scan_config(pr_agent_config)
         if suspected:
             details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
-            pytest.fail(f"Potential hardcoded credentials found in PR agent config:\n{details}")
+            pytest.fail(
+                f"Potential hardcoded credentials found in PR agent config:\n{details}"
+            )
             """Calculate Shannon entropy of a string to detect high-entropy values."""
             if not s:
                 return 0.0
@@ -367,7 +376,9 @@ class TestPRAgentConfigSecurity:
                             )
                             and v is not None
                         ):
-                            pytest.fail(f"Sensitive key '{k}' at '{path}.{k}' must use a safe placeholder, got: {v}")
+                            pytest.fail(
+                                f"Sensitive key '{k}' at '{path}.{k}' must use a safe placeholder, got: {v}"
+                            )
                     walk_values(v, f"{path}.{k}")
             elif isinstance(obj, list):
                 for i, item in enumerate(obj):
@@ -404,7 +415,9 @@ class TestPRAgentConfigSecurity:
                 key_l = str(k).lower()
                 new_path = f"{path}.{k}"
                 if any(pat in key_l for pat in sensitive_patterns):
-                    assert v in allowed_placeholders, f"Potential hardcoded credential at '{new_path}'"
+                    assert v in allowed_placeholders, (
+                        f"Potential hardcoded credential at '{new_path}'"
+                    )
                 scan_for_secrets(v, new_path)
 
         def scan_list(node: list, path: str):
@@ -421,7 +434,9 @@ class TestPRAgentConfigSecurity:
                     key_l = str(k).lower()
                     new_path = f"{path}.{k}" if path else str(k)
                     if any(p in key_l for p in sensitive_patterns):
-                        assert v in safe_placeholders, f"Potential hardcoded credential at '{new_path}'"
+                        assert v in safe_placeholders, (
+                            f"Potential hardcoded credential at '{new_path}'"
+                        )
                     check_node(v, new_path)
             elif isinstance(node, list):
                 for idx, item in enumerate(node):
