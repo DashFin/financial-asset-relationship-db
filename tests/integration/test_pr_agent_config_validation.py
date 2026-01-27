@@ -8,6 +8,7 @@ Tests the simplified PR agent configuration, ensuring:
 - Simplified configuration structure
 """
 
+import math
 import re
 from pathlib import Path
 
@@ -202,64 +203,6 @@ class TestPRAgentConfigSecurity:
     @staticmethod
     def test_config_values_have_no_hardcoded_credentials(pr_agent_config):
         """
-        Recursively scan configuration values for suspected secrets.
-
-        This inspects values (not just serialized text) and traverses nested dicts/lists.
-        The heuristic flags:
-          - Long high-entropy strings (e.g., tokens)
-          - Obvious secret prefixes/suffixes
-          - Inline credentials in URLs (e.g., scheme://user:pass@host)
-        """
-
-        def _iter_string_values(obj):
-            if isinstance(obj, dict):
-                for v in obj.values():
-                    yield from _iter_string_values(v)
-            elif isinstance(obj, list):
-                for v in obj:
-                    yield from _iter_string_values(v)
-            elif isinstance(obj, str):
-                yield obj
-
-        suspected = []
-
-        secret_prefixes = (
-            "sk-",
-            "AKIA",
-            "SECRET_",
-            "TOKEN_",
-        )
-        inline_cred_pattern = re.compile(r"://[^/@:\s]+:[^/@:\s]+@")
-
-        for value in _iter_string_values(pr_agent_config):
-            stripped = value.strip()
-            if not stripped:
-                continue
-
-            # Long string heuristic (possible API keys or tokens)
-            if len(stripped) >= 40:
-                suspected.append(("long_string", stripped))
-                continue
-
-            # Obvious secret-like prefixes
-            if any(stripped.startswith(p) for p in secret_prefixes):
-                suspected.append(("prefix", stripped))
-                continue
-
-            # Inline credentials in URLs
-            if inline_cred_pattern.search(stripped):
-                suspected.append(("inline_creds", stripped))
-
-        if suspected:
-            details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
-            pytest.fail(
-                f"Potential hardcoded credentials found in PR agent config:\n{details}"
-            )
-        import math
-
-        # Heuristic to detect inline creds in URLs (user:pass@)
-        re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\\s]+:[^/@\\s]+@", re.IGNORECASE)
-
     @staticmethod
     def test_no_hardcoded_credentials(pr_agent_config):
         """
@@ -267,14 +210,9 @@ class TestPRAgentConfigSecurity:
         - Flags high - entropy or secret - like string values.
         - Ensures sensitive keys only use safe placeholders.
         """
-        import math
-
-        # Heuristic to detect inline creds in URLs (user:pass@)
         inline_creds_re = re.compile(
             r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\s]+:[^/@\s]+@", re.IGNORECASE
         )
-
-        # Common secret-like prefixes or markers
         secret_markers = (
             "secret",
             "token",
@@ -288,43 +226,63 @@ class TestPRAgentConfigSecurity:
             "bearer ",
         )
 
-        suspected = []
+        def _detect_issue(s: str) -> str | None:
+            """Detects the type of credential issue in a string.
 
-        # Define detectors for credential heuristics
-        def detect_long_string(s):
-            if len(s) >= 40:
-                return ("long_string", s)
-
-        def detect_prefix(s):
-            for marker in secret_markers:
-                if s.lower().startswith(marker):
-                    return ("prefix", s)
-
-        def detect_inline_creds(s):
-            if inline_creds_re.search(s):
-                return ("inline_creds", s)
-
-        detectors = [detect_long_string, detect_prefix, detect_inline_creds]
-
-        def scan_value(val):
-            stripped = str(val).strip()
-            if not stripped:
-                return None
-            for detector in detectors:
-                result = detector(stripped)
-                if result:
-                    return result
+           Returns:
+                "inline_creds" if inline credentials pattern is matched,
+                "secret_marker" if the string starts or ends with known secret markers,
+                "entropy" if the string has high entropy,
+                None if no issue is found.
+            """
+            if inline_creds_re.match(s):
+                return "inline_creds"
+            lower_s = s.lower()
+            if any(lower_s.startswith(m) or lower_s.endswith(m) for m in secret_markers):
+                return "secret_marker"
+            if has_high_entropy(s):
+                return "entropy"
             return None
 
-        def scan(obj):
-            if isinstance(obj, dict):
-                for key, value in obj.items():
-                    scan(value)
-            elif isinstance(obj, (list, tuple)):
-                for item in obj:
-                    scan(item)
-            else:
-                result = scan_value(obj)
+        suspected = []
+        for value in _iter_string_values(pr_agent_config):
+            s = value.strip()
+            if not s:
+                continue
+            issue = _detect_issue(s)
+            if issue:
+                suspected.append((issue, value))
+
+        assert not suspected, f"Hardcoded credentials found: {suspected}"
+
+        def check_string(value):
+            """Checks a string for potential hardcoded credentials patterns.
+
+            Returns:
+                A tuple(issue_type, stripped_value) if a credential pattern is detected,
+                or None if no issue is found.
+            """
+            stripped = value.strip()
+            if len(stripped) >= 40:
+                return ("long_string", stripped)
+            for marker in secret_markers:
+                if stripped.startswith(marker):
+                    return ("prefix", stripped)
+            if inline_creds_re.search(stripped):
+                return ("inline_creds", stripped)
+            return None
+
+        def scan(item):
+            """Recursively scans an item(dict, list, tuple, or set) for potential hardcoded credentials by applying check_string to strings and collecting any matches."""
+            if isinstance(item, dict):
+                for k, v in item.items():
+                    scan(k)
+                    scan(v)
+            elif isinstance(item, (list, tuple, set)):
+                for elem in item:
+                    scan(elem)
+            elif isinstance(item, str):
+                result = check_string(item)
                 if result:
                     suspected.append(result)
 
@@ -336,7 +294,107 @@ class TestPRAgentConfigSecurity:
                 f"Potential hardcoded credentials found in PR agent config:\n{details}"
             )
 
+        suspected = []
+
+        def detect_suspect_value(value):
+            """Detects if a string value is suspicious based on defined rules: long length, secret markers prefix, or inline credential patterns, returning the kind and stripped value."""
+            stripped = value.strip()
+            rules = [
+                ("long_string", lambda s: len(s) >= 40),
+                ("prefix", lambda s: any(s.startswith(p) for p in secret_markers)),
+                ("inline_creds", inline_creds_re.search),
+            ]
+            for kind, check in rules:
+                if check(stripped):
+                    return kind, stripped
+            return None, None
+
+        def scan_suspects(obj):
+            """Recursively scans configuration objects for sensitive keys and ensures safe placeholders, and detects any suspicious string values to accumulate."""
+            if isinstance(obj, dict):
+                for key, val in obj.items():
+                    lower_key = key.lower() if isinstance(key, str) else ""
+                    for marker in secret_markers:
+                        if marker in lower_key and not (
+                            isinstance(val, str)
+                            and val.startswith("{{")
+                            and val.endswith("}}")
+                        ):
+                            pytest.fail(
+                                f"Sensitive key '{key}' must use a safe placeholder"
+                            )
+                    scan_suspects(val)
+            elif isinstance(obj, list):
+                for item in obj:
+                    scan_suspects(item)
+            elif isinstance(obj, str):
+                kind, val = detect_suspect_value(obj)
+                if kind:
+                    suspected.append((kind, val))
+
+        scan_suspects(pr_agent_config)
+
+        if suspected:
+            details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
+            pytest.fail(
+                f"Potential hardcoded credentials found in PR agent config:\n{details}"
+            )
+
+        suspected = []
+
+        # Define detectors for credential heuristics
+        def detect_long_string(s):
+            """Detects if the given string is long(length >= 40) and returns a detection tuple."""
+            if len(s) >= 40:
+                return ("long_string", s)
+
+        def detect_prefix(s):
+            """Checks if the string starts with any known secret markers and returns a detection tuple."""
+            for marker in secret_markers:
+                if s.lower().startswith(marker):
+                    return ("prefix", s)
+
+        def detect_inline_creds(s):
+            """Searches for inline credentials patterns in the string and returns a detection tuple."""
+            if inline_creds_re.search(s):
+                return ("inline_creds", s)
+
+        detectors = [detect_long_string, detect_prefix, detect_inline_creds]
+
+        def scan_value(val):
+            """Strips whitespace and runs all detectors on the value, returning the first detection or None."""
+            stripped = str(val).strip()
+            if not stripped:
+                return None
+            for detector in detectors:
+                result = detector(stripped)
+                if result:
+                    return result
+            return None
+
+        def scan_config(obj):
+            """Recursively scans configuration objects(dict, list, tuple) for potential hardcoded credentials."""
+            if isinstance(obj, dict):
+                for _, value in obj.items():
+                    scan_config(value)
+            elif isinstance(obj, (list, tuple)):
+                for item in obj:
+                    scan_config(item)
+            else:
+                result = scan_value(obj)
+                if result:
+                    suspected.append(result)
+
+        scan_config(pr_agent_config)
+
+        if suspected:
+            details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
+            pytest.fail(
+                f"Potential hardcoded credentials found in PR agent config:\n{details}"
+            )
+
         def shannon_entropy(s: str) -> float:
+            """Calculates the Shannon entropy of a string sample to estimate its randomness."""
             if not s:
                 return 0.0
             sample = s[:256]
@@ -394,27 +452,13 @@ class TestPRAgentConfigSecurity:
         walk_values(pr_agent_config)
 
         # Enforce safe placeholders for sensitive keys
-        sensitive_patterns = [
-            "password",
-            "secret",
-            "token",
-            "api_key",
-            "apikey",
-            "access_key",
-            "private_key",
-        ]
-        safe_placeholders = {None, "null", "webhook"}
-
-        def check_sensitive_keys(node, path="root"):
-            if isinstance(node, dict):
-                pass
 
     @staticmethod
     def test_no_hardcoded_secrets(pr_agent_config):
         """
         Traverse the parsed YAML and ensure that any key or value containing sensitive
-        indicators has a safe placeholder value (None, 'null', 'none', 'placeholder',
-        or a templated variable like '${VAR}').
+        indicators has a safe placeholder value(None, 'null', 'none', 'placeholder',
+                                                or a templated variable like '${VAR}').
         """
         sensitive_patterns = [
             "password",
@@ -427,12 +471,6 @@ class TestPRAgentConfigSecurity:
         ]
 
         allowed_placeholders = {"null", "none", "placeholder", "***"}
-
-        def value_contains_secret(val: str) -> bool:
-            low = val.lower()
-            if low in allowed_placeholders or ("${" in val and "}" in val):
-                return False
-            return any(pat in low for pat in sensitive_patterns)
 
         def scan_dict(node: dict, path: str):
             for k, v in node.items():
@@ -504,7 +542,8 @@ class TestPRAgentConfigRemovedComplexity:
         Reads the PR agent configuration file from the repository root and returns its raw text.
 
         Returns:
-            str: Raw YAML content of .github / pr - agent - config.yml.
+        """
+        str: Raw YAML content of .github/pr-agent-config.yml.
         """
         config_path = Path(".github/pr-agent-config.yml")
         with open(config_path, "r") as f:
