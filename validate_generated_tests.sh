@@ -38,6 +38,8 @@ echo "2. Checking TypeScript Test Syntax..."
         exit 1
     fi
 )
+    fi
+)
 
 echo ""
 echo "3. Test File Statistics..."
