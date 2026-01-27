@@ -35,8 +35,9 @@ if __name__ == "__main__":
 
 # Configure logging
 import logging
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+
+    level = logging.INFO,
+    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 LOGGER = logging.getLogger(__name__)
 
@@ -133,12 +134,12 @@ class FinancialAssetApp:
         """Formats network statistics into a human-readable string."""
         metrics = graph.calculate_metrics()
         text = AppConstants.NETWORK_STATISTICS_TEXT.format(
-            total_assets=metrics["total_assets"],
-            total_relationships=metrics["total_relationships"],
-            average_relationship_strength=metrics["average_relationship_strength"],
-            relationship_density=metrics["relationship_density"],
-            regulatory_event_count=metrics["regulatory_event_count"],
-            asset_class_distribution=json.dumps(
+            total_assets = metrics["total_assets"],
+            total_relationships = metrics["total_relationships"],
+            average_relationship_strength = metrics["average_relationship_strength"],
+            relationship_density = metrics["relationship_density"],
+            regulatory_event_count = metrics["regulatory_event_count"],
+            asset_class_distribution = json.dumps(
                 metrics["asset_class_distribution"], indent=2
             ),
         )
