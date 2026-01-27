@@ -138,7 +138,7 @@ class TestDeletedLabelerConfig:
         """Labeler configuration file should be deleted."""
         assert not Path(".github/labeler.yml").exists(), "labeler.yml should be deleted"
 
-    @staticmethod
+    @ staticmethod
     def test_label_workflow_still_functional() -> None:
         """Label workflow should exist and be valid YAML."""
         label_workflow = Path(".github/workflows/label.yml")
