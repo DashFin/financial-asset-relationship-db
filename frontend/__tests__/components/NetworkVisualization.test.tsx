@@ -370,8 +370,14 @@ describe("Edge Cases with Node and Edge Data", () => {
           size: 5,
         },
       ],
-      edges: [],
-    };
+      edges: [
+        {
+          source: "ZERO",
+          target: "ZERO",
+          relationship_type: "TEST",
+          strength: 0.5,
+        },
+      ],
 
     render(<NetworkVisualization data={zeroData} />);
 
@@ -396,8 +402,15 @@ describe("Edge Cases with Node and Edge Data", () => {
           size: 5,
         },
       ],
-      edges: [],
-    };
+      
+      edges: [
+        {
+          source: "NEG",
+          target: "NEG",
+          relationship_type: "TEST",
+          strength: 0.5,
+        },
+      ],
 
     render(<NetworkVisualization data={negativeData} />);
 
