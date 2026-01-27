@@ -310,7 +310,16 @@ class AssetUIController(FinancialAssetApp):
             refresh_btn.click(
                 fn=self.refresh_all_outputs,
                 inputs=[graph_state],
-                outputs=[...],
+                outputs=[
+                    viz_3d,
+                    f1,
+                    f2,
+                    f3,
+                    m_text,
+                    report,
+                    asset_dropdown_update,
+                    error_update,
+                ],
             )
 
             f_btn.click(
