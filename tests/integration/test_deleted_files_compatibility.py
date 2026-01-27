@@ -133,12 +133,12 @@ class TestDeletedLabelerConfig:
                 "Label workflow references labeler.yml without checking existence"
             )
 
-    @ staticmethod
+    @staticmethod
     def test_labeler_yml_deleted() -> None:
         """Labeler configuration file should be deleted."""
         assert not Path(".github/labeler.yml").exists(), "labeler.yml should be deleted"
 
-    @ staticmethod
+    @staticmethod
     def test_label_workflow_still_functional() -> None:
         """Label workflow should exist and be valid YAML."""
         label_workflow = Path(".github/workflows/label.yml")
@@ -150,7 +150,7 @@ class TestDeletedLabelerConfig:
         assert isinstance(data, dict)
         assert "jobs" in data
 
-    @ staticmethod
+    @staticmethod
     def test_no_broken_labeler_action_calls() -> None:
         """Labeler action should not be invoked without config or conditions."""
         label_workflow = Path(".github/workflows/label.yml")
