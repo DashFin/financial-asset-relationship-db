@@ -776,38 +776,47 @@ class TestRequirementsDevValidation:
     """Module for integration tests related to GitHub workflows, ensuring no conflicting dependencies between requirement files."""
 
     @staticmethod
-    def test_no_conflicting_dependencies():
-        """Verify there are no package version conflicts between requirements-dev.txt and requirements.txt."""
-         req_file = Path("requirements-dev.txt")
-          main_req_file = Path("requirements.txt")
+def test_no_conflicting_dependencies() -> None:
+    """Verify there are no package version conflicts between requirements-dev.txt and requirements.txt."""
+    req_file = Path("requirements-dev.txt")
+    main_req_file = Path("requirements.txt")
 
-           if not (req_file.exists() and main_req_file.exists()):
-                pytest.skip("Both requirements files needed for this test")
+    if not (req_file.exists() and main_req_file.exists()):
+        pytest.skip("Both requirements files needed for this test")
 
-            def parse_requirements(file_path):
-                """Parse a requirements file and return a dict mapping package names to version specifiers."""
-                packages = {}
-                with open(file_path, "r") as f:
-                    for line in f:
-                        line = line.strip()
-                        if line and not line.startswith("#"):
-                            pkg = line.split("==")[0].split(">=")[0].split("<=")[0]
-                            pkg = pkg.split("[")[0].strip()  # Remove extras
-                            packages[pkg.lower()] = line
-                return packages
+    def parse_requirements(file_path: Path) -> dict[str, str]:
+        """
+        Parse a requirements file and return a mapping of package names
+        to their full version specifier lines.
+        """
+        packages: dict[str, str] = {}
+        with file_path.open(encoding="utf-8") as file_handle:
+            for line in file_handle:
+                stripped = line.strip()
+                if stripped and not stripped.startswith("#"):
+                    pkg = (
+                        stripped.split("==")[0]
+                        .split(">=")[0]
+                        .split("<=")[0]
+                        .split("[")[0]
+                        .strip()
+                        .lower()
+                    )
+                    packages[pkg] = stripped
+        return packages
 
-            dev_pkgs = parse_requirements(req_file)
-            main_pkgs = parse_requirements(main_req_file)
+    dev_pkgs = parse_requirements(req_file)
+    main_pkgs = parse_requirements(main_req_file)
 
-            conflicts = []
-            for pkg, dev_spec in dev_pkgs.items():
-                if pkg in main_pkgs:
-                    main_spec = main_pkgs[pkg]
-                    if dev_spec != main_spec:
-                        conflicts.append(f"{pkg}: dev='{dev_spec}' vs main='{main_spec}'")
+    conflicts: list[str] = []
+    for pkg, dev_spec in dev_pkgs.items():
+        main_spec = main_pkgs.get(pkg)
+        if main_spec and dev_spec != main_spec:
+            conflicts.append(
+                f"{pkg}: dev='{dev_spec}' vs main='{main_spec}'",
+            )
 
-            assert len(conflicts) == 0, f"Version conflicts: {conflicts}"
-
+    assert not conflicts, f"Version conflicts: {conflicts}"
 
 class TestWorkflowDocumentationConsistency:
     """Test that workflow changes are properly documented."""
