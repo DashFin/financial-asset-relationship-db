@@ -513,16 +513,13 @@ class TestEdgeCasesAndErrorHandling:
         assert row[1] == "bob@example.com"
 
     @staticmethod
-    """Integration tests for URI-style memory databases."""
-
-    @staticmethod
     def test_uri_memory_database_with_cache_shared(monkeypatch, restore_database_module):
-        """Test URI memory database with cache=shared parameter."""
-        # Note: This tests the detection logic; actual URI handling depends on SQLite build
-        uri = "file::memory:?cache=shared"
+        """Test URI memory database with cache=shared parameter.
 
-    @staticmethod
-    assert database._is_memory_db(uri) is True
+        Note: This tests the detection logic; actual URI handling depends on the SQLite build.
+        """
+        uri = "file::memory:?cache=shared"
+        assert database._is_memory_db(uri) is True
 
     @staticmethod
     def test_uri_memory_database_persists_across_connections(monkeypatch, restore_database_module):
@@ -548,7 +545,8 @@ class TestEdgeCasesAndErrorHandling:
                 ("persistent",),
             ).fetchone()
 
-    @staticmethod
+        assert row is not None
+        assert row["username"] == "persistent"
     assert row["username"] == "persistent"
 
     @staticmethod
