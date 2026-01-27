@@ -389,15 +389,15 @@ class TestThreadSafety:
         errors = []
 
 
-        def write_user(user_id):
-            """Write a user's credentials to the memory database using a separate thread."""
-            try:
-        reloaded_database = importlib.reload(database)
-                with reloaded_database.get_connection() as conn:
-        # Reset connections before running the test
-        self.connections = []
-                        (f"user{user_id}", f"hash{user_id}"),
-
+    def write_user(user_id):
+        """Write a user's credentials to the memory database using a separate thread."""
+        try:
+            reloaded_database = importlib.reload(database)
+            with reloaded_database.get_connection() as conn:
+                _ = (f"user{user_id}", f"hash{user_id}")
+        except Exception:
+            raise
+        
             """Worker for the concurrency test: obtain a connection and record it so we can assert all threads receive the same shared instance."""
         def get_conn():
             self.connections.append(reloaded_database._connect())
