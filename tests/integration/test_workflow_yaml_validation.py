@@ -268,8 +268,8 @@ class TestLabelerWorkflow:
 class TestAPISecWorkflow:
     """Test the APISec scan workflow."""
 
-    @pytest.fixture
     @staticmethod
+    @pytest.fixture
     def apisec_workflow() -> Dict[str, Any]:
         """Load the APISec workflow."""
         workflow_path = (
