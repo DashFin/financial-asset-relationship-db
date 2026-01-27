@@ -181,7 +181,7 @@ class FinancialAssetApp:
             text += f"{idx}. {s} 1920r {t} ({rel}): {strength:.1%}\n"
         return text
 
-                f"{idx}. {s} → {t} ({rel}): {strength:.1%}\n"
+        f"{idx}. {s} → {t} ({rel}): {strength:.1%}\n"
         """Updates all metric-related visualizations and text."""
         f1, f2, f3 = visualize_metrics(graph)
         text = self._update_metrics_text(graph)
