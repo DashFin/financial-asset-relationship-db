@@ -139,7 +139,8 @@ class TestEnsureGraph:
     def test_ensure_graph_initializes_if_none(self, mock_create_db):
         """Test that ensure_graph initializes graph if None."""
         mock_graph = Mock(spec=AssetRelationshipGraph)
-        mock_graph.assets = {'asset1': Mock()}
+        asset = Mock()
+        mock_graph.assets = {'asset1': asset}
         mock_create_db.return_value = mock_graph
 
         app = FinancialAssetApp()
@@ -148,7 +149,7 @@ class TestEnsureGraph:
         returned_graph = app.ensure_graph()
 
         assert returned_graph is not None
-        assert returned_graph.assets == {'asset1': Mock()}
+        assert returned_graph.assets == {'asset1': asset}
 
 
 class TestUpdateMetricsText:
