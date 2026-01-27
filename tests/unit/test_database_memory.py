@@ -390,7 +390,6 @@ class TestThreadSafety:
 
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
 
-    @staticmethod
     connections = []
 
 
