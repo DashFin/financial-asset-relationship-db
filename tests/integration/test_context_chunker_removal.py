@@ -33,9 +33,7 @@ class TestContextChunkerRemoval:
     def test_scripts_readme_does_not_exist(self) -> None:
         """Scripts README documenting chunker should be removed."""
         scripts_readme = SCRIPTS_DIR / "README.md"
-        assert not scripts_readme.exists(), (
-            "Scripts README should have been removed"
-        )
+        assert not scripts_readme.exists(), "Scripts README should have been removed"
 
     def test_no_imports_of_context_chunker(self) -> None:
         """No Python files should import context_chunker."""
@@ -248,9 +246,7 @@ class TestNoRegressionOfFixes:
 
             for i, line in enumerate(lines, start=1):
                 if line.strip() and not line.lstrip().startswith("#"):
-                    assert "\t" not in line, (
-                        f"{workflow_file.name}:{i} uses tabs"
-                    )
+                    assert "\t" not in line, f"{workflow_file.name}:{i} uses tabs"
 
                     leading_spaces = len(line) - len(line.lstrip(" "))
                     if leading_spaces > 0:
@@ -275,17 +271,14 @@ class TestCleanCodebase:
 
             content = file_path.read_text(encoding="utf-8")
             comment_lines = [
-                line for line in content.splitlines()
-                if line.strip().startswith("#")
+                line for line in content.splitlines() if line.strip().startswith("#")
             ]
 
             chunking_comments = [
                 line for line in comment_lines if "chunk" in line.lower()
             ]
 
-            assert not chunking_comments, (
-                f"{file_path.name} has chunking comments"
-            )
+            assert not chunking_comments, f"{file_path.name} has chunking comments"
 
     def test_labeler_yml_removed(self) -> None:
         """labeler.yml should be removed."""
