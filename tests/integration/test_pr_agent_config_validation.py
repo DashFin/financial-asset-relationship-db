@@ -8,8 +8,8 @@
         - Simplified configuration structure
         """
 
-        import re
         import math
+        import re
         from pathlib import Path
 
         import pytest
@@ -207,7 +207,7 @@ class TestPRAgentConfigSecurity:
     def test_no_hardcoded_credentials(pr_agent_config):
         """
         Recursively scan configuration values and keys for suspected secrets.
-        - Flags high-entropy or secret-like string values.
+        - Flags high - entropy or secret - like string values.
         - Ensures sensitive keys only use safe placeholders.
         """
         inline_creds_re = re.compile(
@@ -259,7 +259,7 @@ class TestPRAgentConfigSecurity:
             """Checks a string for potential hardcoded credentials patterns.
 
             Returns:
-                A tuple (issue_type, stripped_value) if a credential pattern is detected,
+                A tuple(issue_type, stripped_value) if a credential pattern is detected,
                 or None if no issue is found.
             """
             stripped = value.strip()
@@ -273,7 +273,7 @@ class TestPRAgentConfigSecurity:
             return None
 
         def scan(item):
-            """Recursively scans an item (dict, list, tuple, or set) for potential hardcoded credentials by applying check_string to strings and collecting any matches."""
+            """Recursively scans an item(dict, list, tuple, or set) for potential hardcoded credentials by applying check_string to strings and collecting any matches."""
             if isinstance(item, dict):
                 for k, v in item.items():
                     scan(k)
@@ -344,7 +344,7 @@ class TestPRAgentConfigSecurity:
 
         # Define detectors for credential heuristics
         def detect_long_string(s):
-            """Detects if the given string is long (length >= 40) and returns a detection tuple."""
+            """Detects if the given string is long(length >= 40) and returns a detection tuple."""
             if len(s) >= 40:
                 return ("long_string", s)
 
@@ -373,7 +373,7 @@ class TestPRAgentConfigSecurity:
             return None
 
         def scan_config(obj):
-            """Recursively scans configuration objects (dict, list, tuple) for potential hardcoded credentials."""
+            """Recursively scans configuration objects(dict, list, tuple) for potential hardcoded credentials."""
             if isinstance(obj, dict):
                 for _, value in obj.items():
                     scan_config(value)
@@ -457,7 +457,7 @@ class TestPRAgentConfigSecurity:
     def test_no_hardcoded_secrets(pr_agent_config):
         """
         Traverse the parsed YAML and ensure that any key or value containing sensitive
-        indicators has a safe placeholder value (None, 'null', 'none', 'placeholder',
+        indicators has a safe placeholder value(None, 'null', 'none', 'placeholder',
         or a templated variable like '${VAR}').
         """
         sensitive_patterns = [
