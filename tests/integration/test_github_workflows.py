@@ -818,6 +818,7 @@ def test_no_conflicting_dependencies() -> None:
 
     assert not conflicts, f"Version conflicts: {conflicts}"
 
+
 class TestWorkflowDocumentationConsistency:
     """Test that workflow changes are properly documented."""
 
