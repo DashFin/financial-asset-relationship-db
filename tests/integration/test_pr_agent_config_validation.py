@@ -1,5 +1,8 @@
 # file: tests/integration/test_pr_agent_config_validation.py
 
+from dataclasses import asdict
+from typing import Any, Dict, Optional, Tuple
+
 import gradio as gr
 import plotly.graph_objects as go
 
@@ -117,8 +120,7 @@ class FinancialAssetApp:
     """Main application logic for the Asset Database."""
 
     def __init__(self) -> None:
-from typing import Optional, Tuple, Dict, Any
-from dataclasses import asdict
+
         self._initialize_graph()
 
     def _initialize_graph(self) -> None:
