@@ -236,7 +236,7 @@ class FormulaicVisualizer:
             )
 
         # 5. Sector Analysis
-        sector_data = self.empirical_relationships.get("sector_relationships", {})
+        sector_data = empirical_relationships.get("sector_relationships", {})
         if sector_data:
             sectors = list(sector_data.keys())[:6]  # Limit to top 6 sectors
             sector_counts = [sector_data[sector]["asset_count"] for sector in sectors]
