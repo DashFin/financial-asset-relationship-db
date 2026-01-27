@@ -263,7 +263,7 @@ class TestGetConnection:
         
         # After context, connection should be closed
         with pytest.raises(sqlite3.ProgrammingError):
-        conn.execute("SELECT 1")
+            conn.execute("SELECT 1")
 
 
 class TestExecuteFunction:
