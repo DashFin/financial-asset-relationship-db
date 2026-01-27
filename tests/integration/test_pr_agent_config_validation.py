@@ -8,6 +8,7 @@ Tests the simplified PR agent configuration, ensuring:
 - Simplified configuration structure
 """
 
+import math
 import re
 from pathlib import Path
 
@@ -263,8 +264,6 @@ class TestPRAgentConfigSecurity:
         - Flags high-entropy or secret-like string values.
         - Ensures sensitive keys only use safe placeholders.
         """
-        import math
-
         # Heuristic to detect inline creds in URLs (user:pass@)
         inline_creds_re = re.compile(
             r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\s]+:[^/@\s]+@", re.IGNORECASE
@@ -444,12 +443,12 @@ class TestPRAgentConfigRemovedComplexity:
     @staticmethod
     def pr_agent_config_content():
         """
-        Return the contents of .github / pr - agent - config.yml as a string.
+        Return the contents of .github/pr-agent-config.yml as a string.
 
         Reads the PR agent configuration file from the repository root and returns its raw text.
 
         Returns:
-            str: Raw YAML content of .github / pr - agent - config.yml.
+            str: Raw YAML content of .github/pr-agent-config.yml.
         """
         config_path = Path(".github/pr-agent-config.yml")
         with open(config_path, "r") as f:
@@ -473,7 +472,7 @@ class TestPRAgentConfigRemovedComplexity:
         Ensure no explicit LLM model identifiers appear in the raw PR agent configuration.
 
         Parameters:
-            pr_agent_config_content(str): Raw contents of .github / pr - agent - config.yml used for pattern checks.
+            pr_agent_config_content(str): Raw contents of .github/pr-agent-config.yml used for pattern checks.
         """
         assert "gpt-3.5-turbo" not in pr_agent_config_content
         assert "gpt-4" not in pr_agent_config_content
