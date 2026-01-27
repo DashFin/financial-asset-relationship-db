@@ -147,7 +147,9 @@ class FinancialAssetApp:
                 "Database initialized with %s real assets",
                 len(self.graph.assets),
             )
-            logger.info("Initialized sample database with %s assets", len(self.graph.assets))
+            logger.info(
+                "Initialized sample database with %s assets", len(self.graph.assets)
+            )
         except Exception as e:
             logger.error("%s: %s", AppConstants.INITIAL_GRAPH_ERROR, e)
             # Depending on desired behavior, could set self.graph to an empty graph
@@ -168,21 +170,15 @@ class FinancialAssetApp:
         text = AppConstants.NETWORK_STATISTICS_TEXT.format(
             total_assets=metrics["total_assets"],
             total_relationships=metrics["total_relationships"],
-            average_relationship_strength=(
-                metrics["average_relationship_strength"]
-            ),
+            average_relationship_strength=(metrics["average_relationship_strength"]),
             relationship_density=metrics["relationship_density"],
             regulatory_event_count=metrics["regulatory_event_count"],
             asset_class_distribution=json.dumps(
                 metrics["asset_class_distribution"], indent=2
             ),
         )
-        for idx, (s, t, rel, strength) in enumerate(
-            metrics["top_relationships"], 1
-        ):
-            text += (
-                f"{idx}. {s} 1920r {t} ({rel}): {strength:.1%}\n"
-            )
+        for idx, (s, t, rel, strength) in enumerate(metrics["top_relationships"], 1):
+            text += f"{idx}. {s} 1920r {t} ({rel}): {strength:.1%}\n"
         return text
 
     def update_all_metrics_outputs(self, graph: AssetRelationshipGraph):
@@ -227,7 +223,9 @@ class FinancialAssetApp:
     def refresh_all_outputs(self, graph_state: AssetRelationshipGraph):
         """Refreshes all visualizations and reports in the Gradio interface."""
         try:
-            graph = self.ensure_graph()  # Use self.ensure_graph to get the latest graph state
+            graph = (
+                self.ensure_graph()
+            )  # Use self.ensure_graph to get the latest graph state
             logger.info("Refreshing all visualization outputs")
             viz_3d = visualize_3d_graph(graph)
             f1, f2, f3, metrics_txt = self.update_all_metrics_outputs(graph)
@@ -347,17 +345,11 @@ class FinancialAssetApp:
             dashboard_fig = formulaic_visualizer.create_formula_dashboard(
                 analysis_results
             )
-            correlation_network_fig = (
-                formulaic_visualizer.create_correlation_network(
-                    analysis_results.get(
-                        "empirical_relationships", {}
-                    )
-                )
+            correlation_network_fig = formulaic_visualizer.create_correlation_network(
+                analysis_results.get("empirical_relationships", {})
             )
-            metric_comparison_fig = (
-                formulaic_visualizer.create_metric_comparison_chart(
-                    analysis_results
-                )
+            metric_comparison_fig = formulaic_visualizer.create_metric_comparison_chart(
+                analysis_results
             )
 
             # Generate formula selector options
@@ -596,9 +588,7 @@ class FinancialAssetApp:
                             gr.Markdown("")
 
                     with gr.Row():
-                        asset_info = gr.JSON(
-                            label=AppConstants.ASSET_DETAILS_LABEL
-                        )
+                        asset_info = gr.JSON(label=AppConstants.ASSET_DETAILS_LABEL)
 
                     with gr.Row():
                         asset_relationships = gr.JSON(
@@ -639,9 +629,7 @@ class FinancialAssetApp:
                                 value=None,
                                 interactive=True,
                             )
-                            formula_detail_view = gr.Plot(
-                                label="Formula Details"
-                            )
+                            formula_detail_view = gr.Plot(label="Formula Details")
 
                     with gr.Row():
                         with gr.Column(scale=1):
@@ -649,9 +637,7 @@ class FinancialAssetApp:
                                 label="Asset Correlation Network"
                             )
                         with gr.Column(scale=1):
-                            metric_comparison = gr.Plot(
-                                label="Metric Comparison Chart"
-                            )
+                            metric_comparison = gr.Plot(label="Metric Comparison Chart")
 
                     with gr.Row():
                         with gr.Column(scale=1):

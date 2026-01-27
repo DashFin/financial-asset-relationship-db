@@ -177,11 +177,13 @@ def _create_2d_relationship_traces(
             if rel_type not in relationship_groups:
                 relationship_groups[rel_type] = []
 
-            relationship_groups[rel_type].append({
-                "source_id": source_id,
-                "target_id": target_id,
-                "strength": strength,
-            })
+            relationship_groups[rel_type].append(
+                {
+                    "source_id": source_id,
+                    "target_id": target_id,
+                    "strength": strength,
+                }
+            )
 
     # Create traces for each relationship type
     for rel_type, relationships in relationship_groups.items():
@@ -322,7 +324,11 @@ def visualize_2d_graph(
     colors = []
     for asset_id in asset_ids:
         asset = graph.assets[asset_id]
-        asset_class = asset.asset_class.value if hasattr(asset.asset_class, "value") else str(asset.asset_class)
+        asset_class = (
+            asset.asset_class.value
+            if hasattr(asset.asset_class, "value")
+            else str(asset.asset_class)
+        )
 
         # Color mapping by asset class
         color_map = {
@@ -346,7 +352,9 @@ def visualize_2d_graph(
     for asset_id in asset_ids:
         asset = graph.assets[asset_id]
         hover_text = f"{asset_id}<br>Class: " + (
-            asset.asset_class.value if hasattr(asset.asset_class, "value") else str(asset.asset_class)
+            asset.asset_class.value
+            if hasattr(asset.asset_class, "value")
+            else str(asset.asset_class)
         )
         hover_texts.append(hover_text)
 

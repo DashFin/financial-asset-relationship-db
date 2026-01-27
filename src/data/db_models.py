@@ -77,9 +77,7 @@ class AssetRelationshipORM(Base):
         ),
     )
 
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     source_asset_id: Mapped[str] = mapped_column(
         ForeignKey("assets.id", ondelete="CASCADE"),
         nullable=False,
@@ -115,8 +113,7 @@ class RegulatoryEventORM(Base):
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
     asset_id: Mapped[str] = mapped_column(
-        ForeignKey("assets.id", ondelete="CASCADE"),
-        nullable=False
+        ForeignKey("assets.id", ondelete="CASCADE"), nullable=False
     )
     event_type: Mapped[str] = mapped_column(String, nullable=False)
     date: Mapped[str] = mapped_column(String, nullable=False)
@@ -127,9 +124,7 @@ class RegulatoryEventORM(Base):
         "AssetORM", back_populates="regulatory_events"
     )
     related_assets: Mapped[List["RegulatoryEventAssetORM"]] = relationship(
-        "RegulatoryEventAssetORM",
-        back_populates="event",
-        cascade="all, delete-orphan"
+        "RegulatoryEventAssetORM", back_populates="event", cascade="all, delete-orphan"
     )
 
 

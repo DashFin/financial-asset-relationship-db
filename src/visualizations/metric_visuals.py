@@ -55,10 +55,7 @@ def visualize_metrics(
             name="Impact Score",
             text=event_names,
             textposition="outside",
-            marker_color=[
-                "green" if x > 0 else "red"
-                for x in event_impacts
-            ],
+            marker_color=["green" if x > 0 else "red" for x in event_impacts],
         )
     )
     fig3.update_layout(

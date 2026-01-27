@@ -105,9 +105,7 @@ class AssetRelationshipGraph:
             r[0] == target_id and r[1] == rel_type
             for r in self.relationships[source_id]
         ):
-            self.relationships[source_id].append(
-                (target_id, rel_type, strength)
-            )
+            self.relationships[source_id].append((target_id, rel_type, strength))
 
         if bidirectional:
             if target_id not in self.relationships:
@@ -116,9 +114,7 @@ class AssetRelationshipGraph:
                 r[0] == source_id and r[1] == rel_type
                 for r in self.relationships[target_id]
             ):
-                self.relationships[target_id].append(
-                    (source_id, rel_type, strength)
-                )
+                self.relationships[target_id].append((source_id, rel_type, strength))
 
     def calculate_metrics(self) -> Dict[str, Any]:
         """Calculate network statistics and distributions."""
@@ -132,15 +128,17 @@ class AssetRelationshipGraph:
 
         effective_assets_count = max(total_assets, len(all_ids))
 
-        total_relationships = sum(
-            len(rels) for rels in self.relationships.values()
-        )
+        total_relationships = sum(len(rels) for rels in self.relationships.values())
 
         strengths = [r[2] for rels in self.relationships.values() for r in rels]
         avg_strength = sum(strengths) / len(strengths) if strengths else 0.0
 
         density = (
-            (total_relationships / (effective_assets_count * (effective_assets_count - 1)) * 100)
+            (
+                total_relationships
+                / (effective_assets_count * (effective_assets_count - 1))
+                * 100
+            )
             if effective_assets_count > 1
             else 0.0
         )
