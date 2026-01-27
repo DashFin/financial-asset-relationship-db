@@ -298,6 +298,7 @@ class TestPRAgentConfigSecurity:
         allowed_placeholders = {"null", "none", "placeholder", "***"}
 
         def scan_dict(node: dict, path: str):
+            """Recursively scans a dictionary for keys matching sensitive patterns and ensures their values are allowed placeholders, then continues scanning nested structures."""
             for k, v in node.items():
                 key_l = str(k).lower()
                 new_path = f"{path}.{k}"
@@ -308,19 +309,15 @@ class TestPRAgentConfigSecurity:
                 scan_for_secrets(v, new_path)
 
         def scan_list(node: list, path: str):
+            """Recursively scans a list for sensitive values by examining each element and delegating to scan_for_secrets."""
             for idx, item in enumerate(node):
                 scan_for_secrets(item, f"{path}[{idx}]")
 
-        def scan_for_secrets(node, path="root"):
-            if isinstance(node, dict):
-                scan_dict(node, path)
-            elif isinstance(node, list):
-                scan_list(node, path)
-            # primitives ignored
 
         safe_placeholders = {None, "null", "webhook"}
 
         def check_node(node, path=""):
+            """Recursively checks configuration nodes for sensitive keys and ensures their values are within safe placeholders."""
             if isinstance(node, dict):
                 for k, v in node.items():
                     key_l = str(k).lower()
@@ -346,6 +343,7 @@ class TestPRAgentConfigSecurity:
         - `limits['max_execution_time']` is less than or equal to 3600 seconds.
         - `limits['max_concurrent_prs']` is less than or equal to 10.
         - `limits['rate_limit_requests']` is less than or equal to 1000.
+        """
         """
         limits = pr_agent_config["limits"]
 
