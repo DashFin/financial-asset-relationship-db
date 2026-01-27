@@ -347,7 +347,9 @@ class TestEdgeCases:
         assert engine is not None
 
     def test_session_scope_with_database_error():
-        """Unit tests for the session_scope context manager and database-level integrity error handling."""
+@staticmethod
+def test_session_scope_with_database_error():
+    """Unit tests for the session_scope context manager and database-level integrity error handling."""
 
     def test_session_scope_with_database_error():
         """Test session scope behavior with database-level errors."""
