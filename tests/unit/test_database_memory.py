@@ -397,7 +397,7 @@ class TestThreadSafety:
                 _ = (f"user{user_id}", f"hash{user_id}")
         except Exception:
             raise
-        
+
             """Worker for the concurrency test: obtain a connection and record it so we can assert all threads receive the same shared instance."""
         def get_conn():
             self.connections.append(reloaded_database._connect())
