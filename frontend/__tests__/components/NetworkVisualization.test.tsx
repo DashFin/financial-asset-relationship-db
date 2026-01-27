@@ -199,12 +199,12 @@ describe("NetworkVisualization Component", () => {
       expect(
         screen.getByText(/invalid visualization data/i),
       ).toBeInTheDocument();
-  
-    await waitFor(() => {
-      expect(screen.getByTestId("mock-plot")).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByTestId("mock-plot")).toBeInTheDocument();
+      });
     });
   });
-});
 
   it("should process node coordinates", async () => {
     render(<NetworkVisualization data={mockVisualizationData} />);
