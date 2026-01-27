@@ -108,10 +108,6 @@ class FormulaicVisualizer:
             z=z, x=cols, y=rows, coloraxis="coloraxis", showscale=False
         )
         fig.add_trace(heatmap, row=2, col=1)
-                        row_label, col_label = map(str, key)
-                    elif isinstance(key, str) and "|" in key:
-                        row_label, col_label=key.split("|", 1)
-                        row_label, col_label=row_label.strip(), col_label.strip()
                     else:
                         # Skip keys we don't know how to interpret safely.
                         continue
