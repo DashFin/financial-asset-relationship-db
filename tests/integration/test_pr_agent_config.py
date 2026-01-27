@@ -474,7 +474,7 @@ class TestConfigurationConsistency:
 
     @staticmethod
     def test_all_sections_are_dictionaries(config):
-        """Top-level sections should all be dictionaries."""
+        """Top - level sections should all be dictionaries."""
         for key, value in config.items():
             if value is not None and not isinstance(
                 value, (dict, list, str, int, bool, float)

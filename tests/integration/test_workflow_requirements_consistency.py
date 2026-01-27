@@ -85,7 +85,9 @@ class TestWorkflowRequirementsConsistency:
         )
 
     @staticmethod
-    def test_pr_agent_workflow_doesnt_install_tiktoken(pr_agent_workflow: Dict[str, Any]):
+    def test_pr_agent_workflow_doesnt_install_tiktoken(
+        pr_agent_workflow: Dict[str, Any],
+    ):
         """Test that PR agent workflow no longer tries to install tiktoken."""
         workflow_str = str(pr_agent_workflow).lower()
 

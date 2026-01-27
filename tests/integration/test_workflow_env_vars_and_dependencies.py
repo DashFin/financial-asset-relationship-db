@@ -54,7 +54,6 @@ def pr_agent_config_data() -> Dict[str, Any]:
 # --- Test Classes ---
 
 
-
 class TestWorkflowEnvironmentVariables:
     """Test environment variable usage and naming in workflows."""
 
@@ -100,9 +99,7 @@ class TestWorkflowEnvironmentVariables:
         )
 
     @staticmethod
-    def test_github_token_env_properly_scoped(
-        pr_agent_workflow_data: Dict[str, Any]
-    ):
+    def test_github_token_env_properly_scoped(pr_agent_workflow_data: Dict[str, Any]):
         """Verify GITHUB_TOKEN is only used in steps that need it."""
         job = pr_agent_workflow_data["jobs"].get("pr-agent-trigger")
         assert job, "Job 'pr-agent-trigger' not found"
@@ -118,9 +115,7 @@ class TestWorkflowEnvironmentVariables:
                 )
 
     @staticmethod
-    def test_step_outputs_referenced_correctly(
-        pr_agent_workflow_data: Dict[str, Any]
-    ):
+    def test_step_outputs_referenced_correctly(pr_agent_workflow_data: Dict[str, Any]):
         """Verify step outputs are referenced with correct syntax."""
         workflow_str = yaml.dump(pr_agent_workflow_data)
 
@@ -147,7 +142,7 @@ class TestWorkflowStepDependencies:
 
     @staticmethod
     def test_checkout_before_any_code_operations(
-        pr_agent_workflow_data: Dict[str, Any]
+        pr_agent_workflow_data: Dict[str, Any],
     ):
         """Verify checkout happens before any code operations."""
         job = pr_agent_workflow_data["jobs"].get("pr-agent-trigger")
@@ -180,7 +175,7 @@ class TestWorkflowStepDependencies:
 
     @staticmethod
     def test_python_setup_before_python_commands(
-        pr_agent_workflow_data: Dict[str, Any]
+        pr_agent_workflow_data: Dict[str, Any],
     ):
         """Verify Python setup happens before Python commands."""
         job = pr_agent_workflow_data["jobs"].get("pr-agent-trigger")
@@ -209,7 +204,7 @@ class TestWorkflowStepDependencies:
 
     @staticmethod
     def test_dependencies_installed_before_tests(
-        pr_agent_workflow_data: Dict[str, Any]
+        pr_agent_workflow_data: Dict[str, Any],
     ):
         """Verify dependencies are installed before running tests."""
         job = pr_agent_workflow_data["jobs"].get("pr-agent-trigger")
@@ -235,7 +230,7 @@ class TestWorkflowStepDependencies:
 
     @staticmethod
     def test_parse_comments_before_using_action_items(
-        pr_agent_workflow_data: Dict[str, Any]
+        pr_agent_workflow_data: Dict[str, Any],
     ):
         """Verify parse comments step runs before steps that use action items."""
         job = pr_agent_workflow_data["jobs"].get("pr-agent-trigger")

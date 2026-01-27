@@ -279,7 +279,7 @@ class TestEdgeCases:
             "Document contains invalid characters. Document should not contain replacement characters (encoding issues)"
         )
 
-    @ staticmethod
+    @staticmethod
     def test_utf8_encoding():
         """Test that file is properly UTF-8 encoded."""
         try:

@@ -2,10 +2,11 @@
 Comprehensive YAML schema validation tests for GitHub Actions workflows.
 """
 
-import yaml
-import pytest
 from pathlib import Path
 from typing import List
+
+import pytest
+import yaml
 
 
 class TestWorkflowYAMLSyntax:

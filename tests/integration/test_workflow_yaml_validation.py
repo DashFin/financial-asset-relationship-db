@@ -117,7 +117,6 @@ class TestWorkflowYAMLSyntax:
                     mapping[key] = loader.construct_object(value_node, deep=deep)
                 return mapping
 
-
             class UniqueKeyLoader(yaml.SafeLoader):
                 """
                 Custom YAML loader that enforces unique keys in mappings,
@@ -608,6 +607,7 @@ class TestRequirementsDevChanges:
             # This is a recommendation, not a hard requirement
             if not has_version:
                 print(f"Info: {req} has no version pin")
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

@@ -449,6 +449,7 @@ class TestWorkflowSecurityBestPractices:
                         f"Too many write permissions in {workflow_file}: {write_perms}"
                     )
 
+
 # ... rest of code unchanged ...
 
 if __name__ == "__main__":

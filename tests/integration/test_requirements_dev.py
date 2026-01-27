@@ -97,6 +97,7 @@ class TestRequirementsFileExists:
             content = f.read()
             assert len(content) > 0
 
+
 class TestRequirementsFileFormat:
     """Test the format and structure of requirements-dev.txt."""
 

@@ -125,7 +125,6 @@ class TestDependencyWorkflowIntegration:
 
 """
 
-
         """
         Integration tests for branch coherence and workflow validation.
 
