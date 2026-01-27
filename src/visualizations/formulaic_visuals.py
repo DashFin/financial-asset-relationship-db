@@ -364,7 +364,14 @@ class FormulaicVisualizer:
             | {corr["asset2"] for corr in strongest_correlations}
         )
         if not assets:
-            assets = list(correlation_matrix.keys())
+            # Derive individual asset identifiers from correlation_matrix keys
+            asset_components = set()
+            for key in correlation_matrix.keys():
+                if isinstance(key, str) and "-" in key:
+                    part1, part2 = key.split("-", 1)
+                    asset_components.add(part1)
+                    asset_components.add(part2)
+            assets = sorted(asset_components)
         n_assets = len(assets)
         if n_assets == 0:
             positions = {}
