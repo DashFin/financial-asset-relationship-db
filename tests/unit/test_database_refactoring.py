@@ -252,8 +252,8 @@ class TestGetConnection:
             conn.execute("CREATE TABLE test (id INTEGER)")
         
         # After context, connection should be closed
-        # But database file should persist
-        assert db_file.exists()
+        with pytest.raises(sqlite3.ProgrammingError):
+        conn.execute("SELECT 1")
 
 
 class TestExecuteFunction:
