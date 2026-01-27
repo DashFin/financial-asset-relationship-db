@@ -24,7 +24,9 @@ def _get_database_url() -> str:
     """
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
-        raise ValueError("DATABASE_URL environment variable must be set before using the database")
+        raise ValueError(
+            "DATABASE_URL environment variable must be set before using the database"
+        )
     return database_url
 
 
@@ -100,15 +102,19 @@ def _is_memory_db(path: str | None = None) -> bool:
         If omitted, the configured DATABASE_PATH is used.
     Returns:
         True if the path (or configured database) is an in-memory SQLite database.
-        For example, ":memory:" or "file::memory:?cache=shared", False otherwise.
+        For example, ":memory:" or
+        "file::memory:?cache=shared", False otherwise.
     """
     target = DATABASE_PATH if path is None else path
     if target == ":memory:":
         return True
 
-    # SQLite supports URI-style memory databases such as ``file::memory:?cache=shared``.
+    # SQLite supports URI-style memory databases such as
+    # ``file::memory:?cache=shared``.
     parsed = urlparse(target)
-    if parsed.scheme == "file" and (parsed.path == ":memory:" or ":memory:" in parsed.query):
+    if parsed.scheme == "file" and (
+        parsed.path == ":memory:" or ":memory:" in parsed.query
+    ):
         return True
 
     return False
@@ -249,7 +255,8 @@ def initialize_schema() -> None:
     - `hashed_password`: TEXT, not null
     - `disabled`: INTEGER, not null, defaults to 0
     """
-    execute("""
+    execute(
+        """
         CREATE TABLE IF NOT EXISTS user_credentials (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
@@ -258,4 +265,5 @@ def initialize_schema() -> None:
             hashed_password TEXT NOT NULL,
             disabled INTEGER NOT NULL DEFAULT 0
         )
-        """)
+        """
+    )
