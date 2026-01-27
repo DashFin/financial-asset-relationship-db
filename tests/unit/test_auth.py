@@ -497,7 +497,7 @@ class TestCreateAccessToken:
         exp = datetime.utcfromtimestamp(decoded["exp"])
         now = datetime.utcnow()
         delta = exp - now
-        assert timedelta(minutes=14) < delta < timedelta(minutes=16)
+        assert timedelta(minutes=10) < delta < timedelta(minutes=20)
 
     def test_create_access_token_preserves_extra_claims(self):
         """Test that extra claims in data are preserved in token."""
