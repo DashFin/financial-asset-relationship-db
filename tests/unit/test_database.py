@@ -350,7 +350,6 @@ class TestEdgeCases:
     @staticmethod
     def test_session_scope_with_database_error():
         """Test session scope behavior with database-level errors."""
-
         engine = create_engine("sqlite:///:memory:")
 
         class TestModel(Base):

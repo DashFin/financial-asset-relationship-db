@@ -7,6 +7,7 @@ import os
 from typing import Iterator
 
 import pytest
+import threading
 
 import api.database as database
 
@@ -359,6 +360,7 @@ class TestGetConnectionWithMemoryDb:
             monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path}")
             reloaded_database = importlib.reload(database)
 
+
             reloaded_database.initialize_schema()
 
             conn_ref = None
@@ -383,8 +385,6 @@ class TestGetConnectionWithMemoryDb:
 class TestThreadSafety:
     """Tests for thread safety of memory database connections."""
 
-    """Unit tests for database memory connections ensuring thread-safety and correct behavior."""
-
     def test_memory_connection_lock_prevents_race_condition(
         self, monkeypatch, restore_database_module
     ):
@@ -392,14 +392,11 @@ class TestThreadSafety:
         import threading
 
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
-        reloaded_database = importlib.reload(database)
 
-        connections = []
-
+    @staticmethod
     def get_conn():
         """Worker for the concurrency test: obtain a connection and record it so we can assert all threads receive the same shared instance."""
-        conn = reloaded_database._connect()
-        connections.append(conn)
+        connections.append(reloaded_database._connect())
 
         # Create multiple threads trying to get connections simultaneously
         threads = [threading.Thread(target=get_conn) for _ in range(10)]
