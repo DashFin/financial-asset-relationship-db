@@ -388,6 +388,7 @@ class TestThreadSafety:
 
         errors = []
 
+
         def write_user(user_id):
             """Write a user's credentials to the memory database using a separate thread."""
             try:
@@ -397,8 +398,8 @@ class TestThreadSafety:
         self.connections = []
                         (f"user{user_id}", f"hash{user_id}"),
 
-        def get_conn():
             """Worker for the concurrency test: obtain a connection and record it so we can assert all threads receive the same shared instance."""
+        def get_conn():
             self.connections.append(reloaded_database._connect())
                     )
         # Create multiple threads writing concurrently
@@ -522,7 +523,7 @@ class TestUriMemoryDatabaseIntegration:
 
         assert database._is_memory_db(uri) is True
 
-    @staticmethod
+    @ staticmethod
     def test_uri_memory_database_persists_across_connections(monkeypatch, restore_database_module):
         """Test that URI memory databases can persist across connections when properly configured."""
         # When using :memory: directly, it should use our shared connection logic
@@ -548,7 +549,7 @@ class TestUriMemoryDatabaseIntegration:
             assert row is not None
             assert row["username"] == "persistent"
 
-    @staticmethod
+    @ staticmethod
     def test_multiple_memory_db_formats_detected_correctly(monkeypatch, restore_database_module):
         """Test that various memory database format variations are detected correctly."""
         memory_formats = [
