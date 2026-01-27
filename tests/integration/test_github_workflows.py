@@ -8,8 +8,9 @@ workflows, ensuring they are properly formatted and free of common issues like
 duplicate keys, invalid syntax, and missing required fields.
 """
 
+from collections import Counter
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 import pytest
 
@@ -658,11 +659,13 @@ class TestWorkflowStepConfiguration:
         for job_name, job_config in jobs.items():
             steps = job_config.get("steps", [])
             step_ids = [s.get("id") for s in steps if "id" in s]
-from collections import Counter
-            duplicates = [sid for sid, count in id_counts.items() if count > 1]
-            assert not duplicates, (
-                f"Job '{job_name}' in {workflow_file.name} has duplicate step IDs: {duplicates}"
-            )
+
+
+
+ duplicates = [sid for sid, count in id_counts.items() if count > 1]
+  assert not duplicates, (
+       f"Job '{job_name}' in {workflow_file.name} has duplicate step IDs: {duplicates}"
+       )
 
 
 class TestWorkflowEnvAndSecrets:
