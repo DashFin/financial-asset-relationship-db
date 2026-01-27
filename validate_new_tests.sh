@@ -6,12 +6,14 @@ echo "║       New Test Files Validation - Current Branch             ║"
 echo "╚═══════════════════════════════════════════════════════════════╝"
 echo ""
 
-# Check if test files exist
-echo "📋 Checking test files..."
-FILES=(
-    "tests/integration/test_pr_agent_config.py"
-    "tests/integration/test_workflow_simplifications.py"
-)
+ # Check if test files exist
+ echo "📋 Checking test files..."
+ FILES=(
+     "tests/integration/test_pr_agent_config.py"
+     "tests/integration/test_workflow_simplifications.py"
+ )
+ 
+exit_code=0
 
 for file in "${FILES[@]}"; do
     if [ -f "$file" ]; then
@@ -19,25 +21,25 @@ for file in "${FILES[@]}"; do
         echo "   └─ $(wc -l < "$file") lines, $(grep -c 'def test_' "$file") test methods"
     else
         echo "❌ $file - NOT FOUND"
+        exit_code=1
     fi
 done
-
-echo ""
-echo "📊 Test Statistics:"
-total_lines=$(cat "${FILES[@]}" 2>/dev/null | wc -l)
-total_tests=$(grep -h 'def test_' "${FILES[@]}" 2>/dev/null | wc -l)
-echo "   • Total lines: $total_lines"
-echo "   • Total tests: $total_tests"
-
-echo ""
+ 
+...
+ 
 echo "🔍 Checking Python syntax..."
 for file in "${FILES[@]}"; do
     if python -m py_compile "$file" 2>/dev/null; then
         echo "✅ $file - Syntax OK"
     else
         echo "❌ $file - Syntax Error"
+        exit_code=1
     fi
 done
+
+...
+
+exit $exit_code
 
 echo ""
 echo "📦 Checking dependencies..."
