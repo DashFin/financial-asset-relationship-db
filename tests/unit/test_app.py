@@ -36,9 +36,9 @@ class TestAppConstants:
         """Test that tab name constants are defined."""
         assert hasattr(AppConstants, 'TAB_3D_VISUALIZATION')
         assert hasattr(AppConstants, 'TAB_METRICS_ANALYTICS')
-        assert hasattr(AppConstants, 'TAB_FORMULAIC_ANALYSIS')
         assert hasattr(AppConstants, 'TAB_ASSET_EXPLORER')
         assert hasattr(AppConstants, 'TAB_SCHEMA_RULES')
+        assert hasattr(AppConstants, 'TAB_DOCUMENTATION')
 
     def test_markdown_descriptions_exist(self):
         """Test that all markdown description constants are defined."""
