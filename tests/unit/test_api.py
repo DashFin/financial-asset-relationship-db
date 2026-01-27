@@ -10,8 +10,7 @@ This module tests all API endpoints including:
 - Error handling and edge cases
 """
 
-from unittest.mock import PropertyMock
-from unittest.mock import patch
+from unittest.mock import PropertyMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
