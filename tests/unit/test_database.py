@@ -349,13 +349,13 @@ class TestEdgeCases:
     @staticmethod
     """Unit tests for the session_scope context manager and database-level integrity error handling."""
 
-        def test_session_scope_with_database_error():
-            """Test session scope behavior with database-level errors."""
-            from sqlalchemy.exc import IntegrityError
+    def test_session_scope_with_database_error():
+        """Test session scope behavior with database-level errors."""
+         from sqlalchemy.exc import IntegrityError
 
-            engine = create_engine("sqlite:///:memory:")
+          engine = create_engine("sqlite:///:memory:")
 
-            class TestModel(Base):
+           class TestModel(Base):
                 __tablename__ = "test_db_error"
                 id = Column(Integer, primary_key=True)
 
