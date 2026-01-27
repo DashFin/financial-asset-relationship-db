@@ -39,9 +39,6 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 LOGGER = logging.getLogger(__name__)
-    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class AppConstants:
