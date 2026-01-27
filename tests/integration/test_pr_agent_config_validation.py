@@ -202,14 +202,14 @@ class TestPRAgentConfigSecurity:
     @staticmethod
     def test_config_values_have_no_hardcoded_credentials(pr_agent_config):
         """
-    Recursively scan configuration values for suspected secrets.
+        Recursively scan configuration values for suspected secrets.
 
-    This inspects values (not just serialized text) and traverses nested dicts/lists.
-    The heuristic flags:
-      - Long high-entropy strings (e.g., tokens)
-      - Obvious secret prefixes/suffixes
-      - Inline credentials in URLs (e.g., scheme://user:pass@host)
-    """
+        This inspects values (not just serialized text) and traverses nested dicts/lists.
+        The heuristic flags:
+          - Long high-entropy strings (e.g., tokens)
+          - Obvious secret prefixes/suffixes
+          - Inline credentials in URLs (e.g., scheme://user:pass@host)
+        """
 
     def _iter_string_values(obj):
         if isinstance(obj, dict):
@@ -258,8 +258,7 @@ class TestPRAgentConfigSecurity:
             if not s:
                 return False
             entropy = sum(
-                -(freq := s.count(ch) / len(s)) * math.log2(freq)
-                for ch in set(s)
+                -(freq := s.count(ch) / len(s)) * math.log2(freq) for ch in set(s)
             )
             return entropy > threshold and len(s) > 20
 
