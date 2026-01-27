@@ -236,7 +236,7 @@ class TestGet3DVisualizationDataEnhancedComprehensive:
             'C': [('D', 'rel', 0.5)]
         }
 
-        positions, asset_ids, colors, hover_texts = graph.get_3d_visualization_data_enhanced()
+        positions, _, _, _ = graph.get_3d_visualization_data_enhanced()
 
         # Check that all points are on unit circle (distance from origin in XY plane)
         xy_distances = np.sqrt(positions[:, 0]**2 + positions[:, 1]**2)
