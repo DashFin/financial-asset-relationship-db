@@ -293,7 +293,7 @@ class AssetUIController(FinancialAssetApp):
                         ),
                         "show_regulatory": gr.Checkbox(label="Regulatory", value=True),
                     }
-                    viz_plot = gr.Plot()
+                    gr.Plot()
                     refresh_btn = gr.Button("Refresh", variant="primary")
 
                 with gr.Tab("📊 Metrics"):
