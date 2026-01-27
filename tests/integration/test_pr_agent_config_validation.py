@@ -236,6 +236,7 @@ class TestPRAgentConfigSecurity:
         inline_cred_pattern = re.compile(r"://[^/@:\s]+:[^/@:\s]+@")
 
         for value in _iter_string_values(pr_agent_config):
+
     @staticmethod
     def test_no_hardcoded_credentials(pr_agent_config):
         """
@@ -417,7 +418,6 @@ class TestPRAgentConfigSecurity:
             for idx, item in enumerate(node):
                 scan_for_secrets(item, f"{path}[{idx}]")
 
-
         safe_placeholders = {None, "null", "webhook"}
 
         def check_node(node, path=""):
@@ -464,12 +464,12 @@ class TestPRAgentConfigRemovedComplexity:
     @staticmethod
     def pr_agent_config_content():
         """
-        Return the contents of .github/pr-agent-config.yml as a string.
+        Return the contents of .github / pr - agent - config.yml as a string.
 
         Reads the PR agent configuration file from the repository root and returns its raw text.
 
         Returns:
-            str: Raw YAML content of .github/pr-agent-config.yml.
+            str: Raw YAML content of .github / pr - agent - config.yml.
         """
         config_path = Path(".github/pr-agent-config.yml")
         with open(config_path, "r") as f:
@@ -493,7 +493,7 @@ class TestPRAgentConfigRemovedComplexity:
         Ensure no explicit LLM model identifiers appear in the raw PR agent configuration.
 
         Parameters:
-            pr_agent_config_content(str): Raw contents of .github/pr-agent-config.yml used for pattern checks.
+            pr_agent_config_content(str): Raw contents of .github / pr - agent - config.yml used for pattern checks.
         """
         assert "gpt-3.5-turbo" not in pr_agent_config_content
         assert "gpt-4" not in pr_agent_config_content
