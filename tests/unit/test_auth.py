@@ -39,6 +39,7 @@ from api.auth import (
     verify_password,
     ALGORITHM,
     SECRET_KEY,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
 )
 
 
@@ -493,11 +494,12 @@ class TestCreateAccessToken:
         decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         assert decoded["sub"] == "testuser"
         
-        # Check expiry is approximately 15 minutes from now
+        # Check expiry matches configured default (with small tolerance)
         exp = datetime.utcfromtimestamp(decoded["exp"])
         now = datetime.utcnow()
         delta = exp - now
-        assert timedelta(minutes=10) < delta < timedelta(minutes=20)
+        expected = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        assert expected - timedelta(minutes=2) < delta < expected + timedelta(minutes=2)
 
     def test_create_access_token_preserves_extra_claims(self):
         """Test that extra claims in data are preserved in token."""
