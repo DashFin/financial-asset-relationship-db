@@ -221,26 +221,26 @@ class TestNoRegressionOfFixes:
             pytest.skip("PR agent workflow not found")
 
         class DuplicateKeyLoader(yaml.SafeLoader):
-                """A YAML loader that raises an error when duplicate keys are encountered in mappings."""
+            """A YAML loader that raises an error when duplicate keys are encountered in mappings."""
 
-                def construct_mapping(self, node, deep=False):
-                    """Construct a Python mapping from a YAML mapping node.
+            def construct_mapping(self, node, deep=False):
+                """Construct a Python mapping from a YAML mapping node.
 
-                    Iterates over each key-value pair in the YAML node, constructs the corresponding
-                    Python objects, and raises a ConstructorError if a duplicate key is encountered.
-                    """
-                    mapping = {}
-                    for key_node, value_node in node.value:
-                        key = self.construct_object(key_node, deep=deep)
-                        if key in mapping:
-                            raise yaml.constructor.ConstructorError(
-                                "while constructing a mapping",
-                                node.start_mark,
-                                f"found duplicate key: {key}",
-                                key_node.start_mark,
-                            )
-                        mapping[key] = self.construct_object(value_node, deep=deep)
-                    return mapping
+                Iterates over each key-value pair in the YAML node, constructs the corresponding
+                Python objects, and raises a ConstructorError if a duplicate key is encountered.
+                """
+                mapping = {}
+                for key_node, value_node in node.value:
+                    key = self.construct_object(key_node, deep=deep)
+                    if key in mapping:
+                        raise yaml.constructor.ConstructorError(
+                            "while constructing a mapping",
+                            node.start_mark,
+                            f"found duplicate key: {key}",
+                            key_node.start_mark,
+                        )
+                    mapping[key] = self.construct_object(value_node, deep=deep)
+                return mapping
 
         try:
             yaml.load(
