@@ -209,8 +209,8 @@ class FormulaicVisualizer:
                     textfont={"size": 10},
                     colorbar=dict(title="Correlation"),
                 ),
-                row=2,
-                col=1,
+                row = 2,
+                col = 1,
             )
 
         # 4. Asset Class Relationships
@@ -228,8 +228,8 @@ class FormulaicVisualizer:
                     yaxis="y",
                     offsetgroup=1,
                 ),
-                row=2,
-                col=2,
+                row = 2,
+                col = 2,
             )
 
         # 5. Sector Analysis
@@ -246,8 +246,8 @@ class FormulaicVisualizer:
                     text=sector_counts,
                     textposition="auto",
                 ),
-                row=3,
-                col=1,
+                row = 3,
+                col = 1,
             )
 
         # 6. Key Formula Examples Table
@@ -277,22 +277,22 @@ class FormulaicVisualizer:
                         height=25,
                     ),
                 ),
-                row=3,
-                col=2,
+                row = 3,
+                col = 2,
             )
 
         # Update layout
         fig.update_layout(
-            title=dict(
+            title = dict(
                 text="📊 Financial Formulaic Analysis Dashboard",
                 x=0.5,
                 font=dict(size=20, color="#2C3E50"),
             ),
-            height=1000,
-            showlegend=False,
-            plot_bgcolor="white",
-            paper_bgcolor="#F8F9FA",
-            font=dict(
+            height = 1000,
+            showlegend = False,
+            plot_bgcolor = "white",
+            paper_bgcolor = "#F8F9FA",
+            font = dict(
                 family="Arial, sans-serif",
                 size=10,
             ),
@@ -314,7 +314,7 @@ class FormulaicVisualizer:
         # Create a text-based visualization of the formula
         #
         fig.add_annotation(
-            text=(
+            text = (
                 f"<b>{formula.name}</b><br><br>"
                 f"<b>Mathematical Expression:</b><br>"
                 f"{formula.formula}<br><br>"
@@ -330,7 +330,7 @@ class FormulaicVisualizer:
             ),
         )
 
-    @staticmethod
+    @ staticmethod
     def create_correlation_network(
         empirical_relationships: Dict[str, Any],
     ) -> go.Figure:

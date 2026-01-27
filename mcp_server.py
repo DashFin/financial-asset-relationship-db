@@ -54,7 +54,9 @@ def _build_mcp_app():
     mcp = FastMCP("DashFin-Relationship-Manager")
 
     @mcp.tool()
-    def add_equity_node(asset_id: str, symbol: str, name: str, sector: str, price: float) -> str:
+    def add_equity_node(
+        asset_id: str, symbol: str, name: str, sector: str, price: float
+    ) -> str:
         """
         Validate an Equity asset and add it to the graph.
 
@@ -84,7 +86,10 @@ def _build_mcp_app():
 
             # Fallback: validation-only behavior if the graph does not expose an add API.
             # Explicitly indicate that no mutation occurred.
-            return f"Successfully validated (Graph mutation not supported): " f"{new_equity.name} ({new_equity.symbol})"
+            return (
+                f"Successfully validated (Graph mutation not supported): "
+                f"{new_equity.name} ({new_equity.symbol})"
+            )
         except ValueError as e:
             return f"Validation Error: {str(e)}"
 
