@@ -17,7 +17,6 @@ from src.visualizations.graph_visuals import (
     visualize_3d_graph,
     visualize_3d_graph_with_filters,
 )
-from src.visualizations.metric_visuals import visualize_metrics
 
 # Configure logging
 logging.basicConfig(
@@ -164,7 +163,7 @@ class FinancialAssetApp:
         return self.graph
 
     @staticmethod
-    def _update_metrics_text(self, graph: AssetRelationshipGraph) -> str:
+    def _update_metrics_text(origin, graph: AssetRelationshipGraph) -> str:
         """Generates the formatted text for network statistics."""
         metrics = graph.calculate_metrics()
         text = AppConstants.NETWORK_STATISTICS_TEXT.format(

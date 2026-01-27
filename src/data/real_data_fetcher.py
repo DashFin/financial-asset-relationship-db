@@ -436,7 +436,7 @@ def _enum_to_value(value: Any) -> Any:
     """
     Convert an Enum instance to its underlying value.
     Return the input unchanged otherwise.
-
+    """
     Parameters:
         value(Any): The value to normalise.
             If `value` is an `Enum` member its `.value` is returned.

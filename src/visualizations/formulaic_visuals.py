@@ -165,7 +165,6 @@ class FormulaicVisualizer:
                 row=1,
                 col=2,
             )
-            )
 
         # 3. Empirical Correlation Heatmap
         #
