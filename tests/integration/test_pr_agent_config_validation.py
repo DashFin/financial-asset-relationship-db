@@ -297,7 +297,7 @@ class AssetUIController(FinancialAssetApp):
                     refresh_btn = gr.Button("Refresh", variant="primary")
 
                 with gr.Tab("📊 Metrics"):
-                    m_f1 = gr.Plot()
+                    gr.Plot()
                     m_text = gr.Textbox(label="Stats", lines=10)
 
                 with gr.Tab("🧮 Formulas"):
