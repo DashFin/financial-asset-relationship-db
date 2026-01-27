@@ -387,6 +387,7 @@ class TestThreadSafety:
     connections = []
 
         errors = []
+
         def write_user(user_id):
             """Write a user's credentials to the memory database using a separate thread."""
             try:
@@ -395,8 +396,8 @@ class TestThreadSafety:
         # Reset connections before running the test
         self.connections = []
                         (f"user{user_id}", f"hash{user_id}"),
-        def get_conn():
 
+        def get_conn():
             """Worker for the concurrency test: obtain a connection and record it so we can assert all threads receive the same shared instance."""
             self.connections.append(reloaded_database._connect())
                     )
@@ -513,7 +514,7 @@ class TestEdgeCasesAndErrorHandling:
 class TestUriMemoryDatabaseIntegration:
     """Integration tests for URI-style memory databases."""
 
-    @staticmethod
+    @ staticmethod
     def test_uri_memory_database_with_cache_shared(monkeypatch, restore_database_module):
         """Test URI memory database with cache=shared parameter."""
         # Note: This tests the detection logic; actual URI handling depends on SQLite build
