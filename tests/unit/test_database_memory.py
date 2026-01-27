@@ -388,7 +388,7 @@ class TestThreadSafety:
     def test_memory_connection_lock_prevents_race_condition(
         self, monkeypatch, restore_database_module
     ):
-        """Test that the memory connection lock prevents race conditions during initialization."""
+        """Ensure concurrent calls to _connect() for an in-memory DB return a single shared connection (no races during first-connection creation)."""
         import threading
 
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
@@ -396,10 +396,10 @@ class TestThreadSafety:
 
         connections = []
 
-        def get_conn():
-            """Helper function that retrieves a connection from the reloaded database and appends it to the connections list."""
-            conn = reloaded_database._connect()
-            connections.append(conn)
+    def get_conn():
+        """Worker for the concurrency test: obtain a connection and record it so we can assert all threads receive the same shared instance."""
+        conn = reloaded_database._connect()
+        connections.append(conn)
 
         # Create multiple threads trying to get connections simultaneously
         threads = [threading.Thread(target=get_conn) for _ in range(10)]
