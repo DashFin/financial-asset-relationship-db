@@ -1,505 +1,300 @@
 """
-Validation tests for PR agent configuration changes.
-
-Tests the simplified PR agent configuration, ensuring:
-- Version downgrade from 1.1.0 to 1.0.0
-- Removal of context chunking features
-- Removal of tiktoken dependencies
-- Simplified configuration structure
+Financial Asset Relationship Database Visualization Application.
+Optimized for Python 3.12+ with standard linting and formatting.
 """
 
-import math
-import re
-from pathlib import Path
+import json
+import logging
+from dataclasses import asdict
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-import pytest
-import yaml
+import gradio as gr
+import plotly.graph_objects as go
 
+# Local source imports
+from src.analysis.formulaic_analysis import FormulaicAnalyzer
+from src.analysis.formulaic_visualizer import FormulaicVisualizer
+from src.constants import AppConstants as BaseConstants
+from src.data.real_data_fetcher import create_real_database
+from src.graph.asset_graph import AssetRelationshipGraph
+from src.logging import LOGGER
+from src.models.financial_models import Asset
+from src.reports.schema_report import generate_schema_report
+from src.visualizations.graph_2d_visuals import visualize_2d_graph
+from src.visualizations.graph_visuals import (
+    visualize_3d_graph,
+    visualize_3d_graph_with_filters,
+)
+from src.visualizations.metric_visuals import visualize_metrics
 
-class TestPRAgentConfigSimplification:
-    """Test PR agent config simplification changes."""
-
-    @staticmethod
-    @pytest.fixture
-    def pr_agent_config():
-        """
-        Load and parse the PR agent YAML configuration from .github/pr-agent-config.yml.
-
-        If the file is missing, contains invalid YAML, or does not contain a top-level mapping, the fixture will call pytest.fail to abort the test.
-
-        Returns:
-            dict: The parsed YAML content as a Python mapping.
-        """
-        config_path = Path(".github/pr-agent-config.yml")
-        if not config_path.exists():
-            pytest.fail(f"Config file not found: {config_path}")
-        with open(config_path, "r", encoding="utf-8") as f:
-            try:
-                cfg = yaml.safe_load(f)
-            except yaml.YAMLError as e:
-                pytest.fail(f"Invalid YAML in config: {e}")
-        if cfg is None or not isinstance(cfg, dict):
-            pytest.fail("Config must be a YAML mapping (dict) and not empty")
-        return cfg
-
-    @staticmethod
-    def test_version_reverted_to_1_0_0(pr_agent_config):
-        """Check that the PR agent's configured version is '1.0.0'."""
-        assert pr_agent_config["agent"]["version"] == "1.0.0"
-
-    @staticmethod
-    def test_no_context_configuration(pr_agent_config):
-        """
-        Assert that the 'agent' section does not contain a 'context' key.
-
-        The test fails if the parsed PR agent configuration includes a 'context' key under the top-level 'agent' section.
-        """
-        agent_config = pr_agent_config["agent"]
-        assert "context" not in agent_config
-
-    @staticmethod
-    def test_no_chunking_settings(pr_agent_config):
-        """
-        Assert the configuration contains no chunking-related settings.
-
-        Checks that the keys 'chunking', 'chunk_size' and 'overlap_tokens' do not appear in the serialized configuration string (case-insensitive).
-        """
-        config_str = yaml.dump(pr_agent_config)
-        assert "chunking" not in config_str.lower()
-        assert "chunk_size" not in config_str.lower()
-        assert "overlap_tokens" not in config_str.lower()
-
-    @staticmethod
-    def test_no_tiktoken_references(pr_agent_config):
-        """Verify tiktoken references removed."""
-        config_str = yaml.dump(pr_agent_config)
-        assert "tiktoken" not in config_str.lower()
-
-    @staticmethod
-    def test_no_fallback_strategies(pr_agent_config):
-        """Ensure the `limits` section does not contain a `fallback` key."""
-        limits = pr_agent_config.get("limits", {})
-        assert "fallback" not in limits
-
-    @staticmethod
-    def test_basic_config_structure_intact(pr_agent_config):
-        """Verify basic configuration sections still present."""
-        # Essential sections should remain
-        assert "agent" in pr_agent_config
-        assert "monitoring" in pr_agent_config
-        assert "actions" in pr_agent_config
-        assert "quality" in pr_agent_config
-        assert "security" in pr_agent_config
-
-    @staticmethod
-    def test_monitoring_config_present(pr_agent_config):
-        """
-        Ensure the top-level monitoring section contains the keys 'check_interval', 'max_retries', and 'timeout'.
-
-        Parameters:
-            pr_agent_config (dict): Parsed PR agent configuration mapping.
-        """
-        monitoring = pr_agent_config["monitoring"]
-        assert "check_interval" in monitoring
-        assert "max_retries" in monitoring
-        assert "timeout" in monitoring
-
-    @staticmethod
-    def test_limits_simplified(pr_agent_config):
-        """Verify limits section simplified."""
-        limits = pr_agent_config["limits"]
-
-        # Should not have complex chunking limits
-        assert "max_files_per_chunk" not in limits
-        assert "max_diff_lines" not in limits
-
-        # Should have basic limits
-        assert "max_execution_time" in limits
-        assert "max_concurrent_prs" in limits
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+LOGGER = logging.getLogger(__name__)
 
 
-class TestPRAgentConfigYAMLValidity:
-    """Test YAML validity and structure."""
+class AppConstants:
+    """Holds all application constants including labels, markdown, and messages."""
 
-    @staticmethod
-    def test_config_is_valid_yaml():
-        """
-        Fail the test if .github/pr-agent-config.yml contains invalid YAML.
+    TITLE = "Financial Asset Relationship Database Visualization"
 
-        Attempts to parse the repository file at .github/pr-agent-config.yml and fails the test with the YAML parser error when parsing fails.
-        """
-        config_path = Path(".github/pr-agent-config.yml")
-        with open(config_path, "r") as f:
-            try:
-                yaml.safe_load(f)
-            except yaml.YAMLError as e:
-                pytest.fail(f"PR agent config has invalid YAML: {e}")
+    MARKDOWN_HEADER = """
+    # 🏦 Financial Asset Relationship Network
+    A comprehensive 3D visualization of interconnected financial assets.
+    **Equities, Bonds, Commodities, Currencies, and Regulatory Events**
+    """
 
-    @staticmethod
-    def test_no_duplicate_keys():
-        """
-        Fail the test if any top-level YAML key appears more than once in the file.
+    TAB_3D_VISUALIZATION = "3D Network Visualization"
+    TAB_METRICS_ANALYTICS = "Metrics & Analytics"
+    TAB_SCHEMA_RULES = "Schema & Rules"
+    TAB_ASSET_EXPLORER = "Asset Explorer"
+    TAB_DOCUMENTATION = "Documentation"
 
-        Scans .github/pr-agent-config.yml, ignores comment lines, and for each non-comment line treats the text before the first ':' as the key; the test fails if a key is encountered more than once.
-        """
-        config_path = Path(".github/pr-agent-config.yml")
-        with open(config_path, "r") as f:
-            content = f.read()
+    ERROR_LABEL = "Error"
+    REFRESH_BUTTON_LABEL = "Refresh Visualization"
+    GENERATE_SCHEMA_BUTTON_LABEL = "Generate Schema Report"
+    SCHEMA_REPORT_LABEL = "Generate Schema Report"
+    SELECT_ASSET_LABEL = "Select Asset"
+    ASSET_DETAILS_LABEL = "Asset Details"
+    RELATED_ASSETS_LABEL = "Related Assets"
+    NETWORK_STATISTICS_LABEL = "Network Statistics"
 
-        # Simple check for obvious duplicates
-        lines = content.split("\n")
-        seen_keys = set()
-        for line in lines:
-            if ":" in line and not line.strip().startswith("#"):
-                key = line.split(":")[0].strip()
-                if key in seen_keys:
-                    pytest.fail(f"Duplicate key found: {key}")
-                seen_keys.add(key)
+    INITIAL_GRAPH_ERROR = "Failed to create sample database"
+    REFRESH_OUTPUTS_ERROR = "Error refreshing outputs"
+    APP_START_INFO = "Starting Financial Asset Relationship Database application"
+    APP_LAUNCH_INFO = "Launching Gradio interface"
+    APP_START_ERROR = "Failed to start application"
 
-    @staticmethod
-    def test_consistent_indentation():
-        """
-        Verify that every non-empty, non-comment line in the PR agent YAML uses 2-space indentation increments.
+    INTERACTIVE_3D_GRAPH_MD = """
+    ## Interactive 3D Network Graph
+    Explore relationships in 3D. Nodes represent assets; edges show strength.
+    - 🔵 Blue: Equities | 🟢 Green: Bonds | 🟠 Orange: Commodities | 🔴 Red: Currencies
+    """
 
-        Raises an AssertionError indicating the line number when a line's leading spaces are not a multiple of two.
-        """
-        config_path = Path(".github/pr-agent-config.yml")
-        with open(config_path, "r") as f:
-            lines = f.readlines()
+    NETWORK_METRICS_ANALYSIS_MD = "## Network Metrics & Analytics"
+    SCHEMA_RULES_GUIDE_MD = "## Database Schema & Business Rules"
+    DETAILED_ASSET_INFO_MD = "## Asset Explorer"
 
-        for i, line in enumerate(lines, 1):
-            if line.strip() and not line.strip().startswith("#"):
-                indent = len(line) - len(line.lstrip())
-                if indent > 0:
-                    assert indent % 2 == 0, (
-                        f"Line {i} has inconsistent indentation: {indent} spaces"
-                    )
+    DOC_MARKDOWN = """
+    ## Documentation & Help
+    ### Features
+    - **Cross-Asset Analysis**: Automatic relationship discovery
+    - **Regulatory Integration**: Corporate events impact modeling
+    - **Real-time Metrics**: Network statistics and strength analysis
+    """
+
+    NETWORK_STATISTICS_TEXT = """Network Statistics:
+Total Assets: {total_assets}
+Total Relationships: {total_relationships}
+Avg Strength: {average_relationship_strength:.3f}
+Density: {relationship_density:.2f}%
+Regulatory Events: {regulatory_event_count}
+
+Asset Class Distribution:
+{asset_class_distribution}
+
+Top Relationships:
+"""
 
 
-class TestPRAgentConfigSecurity:
-    """Test security aspects of configuration."""
+class FinancialAssetApp:
+    """Main application logic for the Asset Database."""
 
-    @staticmethod
-    @pytest.fixture
-    def pr_agent_config():
-        """
-        Load and parse the PR agent YAML configuration from .github/pr-agent-config.yml.
+    def __init__(self) -> None:
+        self.graph: Optional[AssetRelationshipGraph] = None
+        self._initialize_graph()
 
-        Returns:
-            dict: The parsed YAML content as a Python mapping.
-        """
-        config_path = Path(".github/pr-agent-config.yml")
-        if not config_path.exists():
-            pytest.fail(f"Config file not found: {config_path}")
-        with open(config_path, "r", encoding="utf-8") as f:
-            try:
-                cfg = yaml.safe_load(f)
-            except yaml.YAMLError as e:
-                pytest.fail(f"Invalid YAML in config: {e}")
-        if cfg is None or not isinstance(cfg, dict):
-            pytest.fail("Config must be a YAML mapping (dict) and not empty")
-        return cfg
+    def _initialize_graph(self) -> None:
+        """Builds the asset relationship graph from real financial data."""
+        try:
+            LOGGER.info("Initializing with data from Yahoo Finance")
+            self.graph = create_real_database()
+            LOGGER.info("Database initialized with %s assets", len(self.graph.assets))
+        except Exception as e:
+            LOGGER.error("%s: %s", AppConstants.INITIAL_GRAPH_ERROR, e)
+            raise
 
-    @staticmethod
-    def test_config_values_have_no_hardcoded_credentials(pr_agent_config):
-        """
-        Recursively scan configuration values for suspected secrets.
+    def ensure_graph(self) -> AssetRelationshipGraph:
+        """Ensures the graph is initialized before access."""
+        if self.graph is None:
+            self._initialize_graph()
+        if self.graph is None:
+            raise RuntimeError("Asset graph initialization failed")
+        return self.graph
 
-        This inspects values (not just serialized text) and traverses nested dicts/lists.
-        The heuristic flags:
-          - Long high-entropy strings (e.g., tokens)
-          - Obvious secret prefixes/suffixes
-          - Inline credentials in URLs (e.g., scheme://user:pass@host)
-        """
-
-        def _iter_string_values(obj):
-            """
-            Recursively yield all string values from nested dictionaries and lists.
-            """
-            if isinstance(obj, dict):
-                for v in obj.values():
-                    yield from _iter_string_values(v)
-            elif isinstance(obj, list):
-                for v in obj:
-                    yield from _iter_string_values(v)
-            elif isinstance(obj, str):
-                yield obj
-
-        suspected = []
-
-        secret_prefixes = (
-            "sk-",
-            "AKIA",
-            "SECRET_",
-            "TOKEN_",
+    def _update_metrics_text(self, graph: AssetRelationshipGraph) -> str:
+        """Formats network statistics into a human-readable string."""
+        metrics = graph.calculate_metrics()
+        text = AppConstants.NETWORK_STATISTICS_TEXT.format(
+            total_assets=metrics["total_assets"],
+            total_relationships=metrics["total_relationships"],
+            average_relationship_strength=metrics["average_relationship_strength"],
+            relationship_density=metrics["relationship_density"],
+            regulatory_event_count=metrics["regulatory_event_count"],
+            asset_class_distribution=json.dumps(
+                metrics["asset_class_distribution"], indent=2
+            ),
         )
-        re.compile(r"://[^/@:\\s]+:[^/@:\\s]+@")
+        for idx, (s, t, rel, strength) in enumerate(metrics["top_relationships"], 1):
+            text += f"{idx}. {s} → {t} ({rel}): {strength:.1%}\n"
+        return text
 
-        for value in _iter_string_values(pr_agent_config):
-            pass
+    def update_all_metrics_outputs(
+        self, graph: AssetRelationshipGraph
+    ) -> Tuple[go.Figure, go.Figure, go.Figure, str]:
+        """Generates all metric charts and summary text."""
+        f1, f2, f3 = visualize_metrics(graph)
+        text = self._update_metrics_text(graph)
+        return f1, f2, f3, text
+
+
+class AssetUIController(FinancialAssetApp):
+    """Controller handling UI interactions and Gradio interface construction."""
 
     @staticmethod
-    def test_no_hardcoded_credentials(pr_agent_config):
-        """
-        Recursively scan configuration values and keys for suspected secrets.
-        - Flags high-entropy or secret-like string values.
-        - Ensures sensitive keys only use safe placeholders.
-        """
-        # Heuristic to detect inline creds in URLs (user:pass@)
-        inline_creds_re = re.compile(
-            r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\\s]+:[^/@\\s]+@", re.IGNORECASE
-        )
+    def update_asset_info(
+        selected_asset: Optional[str],
+        graph: AssetRelationshipGraph,
+    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        """Returns details and relationships for a selected asset."""
+        if not selected_asset or selected_asset not in graph.assets:
+            return {}, {"outgoing": {}, "incoming": {}}
 
-        # Common secret-like prefixes or markers
-        secret_markers = (
-            "secret",
-            "token",
-            "apikey",
-            "api_key",
-            "access_key",
-            "private_key",
-            "pwd",
-            "password",
-            "auth",
-            "bearer ",
-        )
+        asset: Asset = graph.assets[selected_asset]
+        asset_dict = asdict(asset)
+        asset_dict["asset_class"] = asset.asset_class.value
 
-        def shannon_entropy(s: str) -> float:
-            # existing entropy calculation logic
-            freq = collections.Counter(s)
-            entropy = 0.0
-            for count in freq.values():
-                p = count / len(s)
-                entropy -= p * math.log2(p)
-            return entropy
-
-        def detect_secret_kind(value: str):
-            s = value.strip()
-            if not s:
-                return None
-            if len(s) >= 40:
-                return ("long_string", s)
-            if any(s.startswith(prefix) for prefix in secret_markers):
-                return ("prefix", s)
-            if inline_creds_re.search(s):
-                return ("inline_creds", s)
-            return None
-
-        def scan_config(obj, path="", suspected=None):
-            if suspected is None:
-                suspected = []
-            if isinstance(obj, str):
-                result = detect_secret_kind(obj)
-                if result:
-                    suspected.append(result)
-            elif isinstance(obj, dict):
-                for key, val in obj.items():
-                    if any(marker in key.lower() for marker in secret_markers):
-                        val_stripped = str(val).strip()
-                        if not (
-                            val_stripped.startswith("{{")
-                            and val_stripped.endswith("}}")
-                        ):
-                            suspected.append(("unsafe_key", f"{key}: {val}"))
-                    scan_config(val, f"{path}.{key}" if path else key, suspected)
-            elif isinstance(obj, list):
-                for idx, item in enumerate(obj):
-                    scan_config(item, f"{path}[{idx}]", suspected)
-            return suspected
-
-        suspected = scan_config(pr_agent_config)
-        if suspected:
-            details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
-            pytest.fail(
-                f"Potential hardcoded credentials found in PR agent config:\n{details}"
-            )
-            """Calculate Shannon entropy of a string to detect high-entropy values."""
-            if not s:
-                return 0.0
-            sample = s[:256]
-            freq = {}
-            for ch in sample:
-                freq[ch] = freq.get(ch, 0) + 1
-            ent = 0.0
-            length = len(sample)
-            for c in freq.values():
-                p = c / length
-                ent -= p * math.log2(p)
-            return ent
-
-        def looks_like_secret(val: str) -> bool:
-            """Check if a value looks like a secret based on various heuristics."""
-            v = val.strip()
-            if not v:
-                return False
-            placeholders = {
-                "<token>",
-                "<secret>",
-                "changeme",
-                "your-token-here",
-                "dummy",
-                "placeholder",
-                "null",
-                "none",
+        def get_rels(rel_map: Dict) -> Dict:
+            return {
+                tid: {"type": rtype, "strength": strg}
+                for tid, rtype, strg in rel_map.get(selected_asset, [])
             }
-            if v.lower() in placeholders:
-                return False
-            if inline_creds_re.search(v):
-                return True
-            if any(m in v.lower() for m in secret_markers) and len(v) >= 12:
-                return True
-            # Base64/URL-safe like long strings
-            if re.fullmatch(r"[A-Za-z0-9_\-]{20,}", v) and shannon_entropy(v) >= 3.5:
-                return True
-            # Hex-encoded long strings (e.g., keys)
-            if re.fullmatch(r"[A-Fa-f0-9]{32,}", v):
-                return True
-            return False
 
-        # Walk values to detect secret-like strings
-        def walk_values(obj, path="root"):
-            """Recursively walk configuration and check for secrets."""
-            if isinstance(obj, dict):
-                for k, v in obj.items():
-                    # Check if key name suggests it should contain a secret
-                    lower_key = str(k).lower() if isinstance(k, str) else ""
-                    if any(marker in lower_key for marker in secret_markers):
-                        # Ensure sensitive keys use safe placeholders
-                        if (
-                            not (
-                                isinstance(v, str)
-                                and (
-                                    v.startswith("{{")
-                                    and v.endswith("}}")
-                                    or v in {"null", "none", "placeholder", "***"}
-                                )
-                            )
-                            and v is not None
-                        ):
-                            pytest.fail(
-                                f"Sensitive key '{k}' at '{path}.{k}' must use a safe placeholder, got: {v}"
-                            )
-                    walk_values(v, f"{path}.{k}")
-            elif isinstance(obj, list):
-                for i, item in enumerate(obj):
-                    walk_values(item, f"{path}[{i}]")
-            elif isinstance(obj, str):
-                if looks_like_secret(obj):
-                    pytest.fail(f"Suspected secret value at '{path}': {obj[:20]}...")
-            # Non-string scalars ignored
+        return asset_dict, {
+            "outgoing": get_rels(graph.relationships),
+            "incoming": get_rels(graph.incoming_relationships),
+        }
 
-        walk_values(pr_agent_config)
+    def refresh_all_outputs(self, graph_state: AssetRelationshipGraph) -> Tuple:
+        """Refreshes all UI components simultaneously."""
+        try:
+            graph = graph_state or self.ensure_graph()
+            viz_3d = visualize_3d_graph(graph)
+            f1, f2, f3, m_text = self.update_all_metrics_outputs(graph)
+            report = generate_schema_report(graph)
+            choices = list(graph.assets.keys())
+
+            return (
+                viz_3d, f1, f2, f3, m_text, report,
+                gr.update(choices=choices, value=None),
+                gr.update(value="", visible=False),
+            )
+        except Exception as e:
+            LOGGER.exception(AppConstants.REFRESH_OUTPUTS_ERROR)
+            empty = go.Figure()
+            return (empty, empty, empty, empty, "", "", gr.update(choices=[]), 
+                    gr.update(value=f"Error: {e}", visible=True))
+
+    def refresh_visualization(self, graph_state: AssetRelationshipGraph, **kwargs) -> Tuple:
+        """Filters and updates the 2D or 3D network plot."""
+        try:
+            graph = graph_state or self.ensure_graph()
+            mode = kwargs.pop("view_mode", "3D")
+            if mode == "2D":
+                fig = visualize_2d_graph(graph, **kwargs)
+            else:
+                fig = visualize_3d_graph_with_filters(graph, **kwargs)
+            return fig, gr.update(visible=False)
+        except Exception as e:
+            LOGGER.exception("Viz Error")
+            return go.Figure(), gr.update(value=str(e), visible=True)
+
+    def generate_formulaic_analysis(self, graph_state: Optional[AssetRelationshipGraph]) -> Tuple:
+        """Performs mathematical relationship extraction."""
+        try:
+            graph = graph_state or self.ensure_graph()
+            analyzer = FormulaicAnalyzer()
+            visualizer = FormulaicVisualizer()
+            results = analyzer.analyze_graph(graph)
+
+            return (
+                visualizer.create_formula_dashboard(results),
+                visualizer.create_correlation_network(results.get("empirical_relationships", {})),
+                visualizer.create_metric_comparison_chart(results),
+                gr.update(choices=[f.name for f in results.get("formulas", [])]),
+                self._format_formula_summary(results.get("summary", {}), results),
+                gr.update(visible=False),
+            )
+        except Exception as e:
+            LOGGER.exception("Formula Error")
+            return (go.Figure(), go.Figure(), go.Figure(), gr.update(choices=[]), 
+                    "Error", gr.update(value=str(e), visible=True))
 
     @staticmethod
-    def test_no_hardcoded_secrets(pr_agent_config):
-        """
-        Traverse the parsed YAML and ensure that any key or value containing sensitive
-        indicators has a safe placeholder value (None, 'null', 'none', 'placeholder',
-        or a templated variable like '${VAR}').
-        """
-        sensitive_patterns = [
-            "password",
-            "secret",
-            "token",
-            "api_key",
-            "apikey",
-            "access_key",
-            "private_key",
+    def _format_formula_summary(summary: Dict, results: Dict) -> str:
+        """Builds markdown summary of formulaic analysis."""
+        lines = [
+            "**Formulaic Analysis Summary**",
+            f"Formulas: {len(results.get('formulas', []))}",
+            f"Avg R²: {summary.get('avg_r_squared', 0.0):.3f}",
         ]
+        if insights := summary.get("key_insights"):
+            lines.append("\nKey Insights:")
+            lines.extend([f"- {i}" for i in insights[:3]])
+        return "\n".join(lines)
 
-        allowed_placeholders = {"null", "none", "placeholder", "***"}
+    def create_interface(self) -> gr.Blocks:
+        """Constructs the Gradio UI."""
+        with gr.Blocks(title=AppConstants.TITLE) as demo_ui:
+            gr.Markdown(AppConstants.MARKDOWN_HEADER)
+            error_box = gr.Textbox(label="Status", visible=False)
+            graph_state = gr.State(value=self.graph)
 
-        def scan_dict(node: dict, path: str):
-            """Recursively scans a dictionary for keys containing sensitive patterns and verifies allowed placeholders."""
-            for k, v in node.items():
-                key_l = str(k).lower()
-                new_path = f"{path}.{k}"
-                if any(pat in key_l for pat in sensitive_patterns):
-                    assert v in allowed_placeholders, (
-                        f"Potential hardcoded credential at '{new_path}'"
-                    )
-                scan_for_secrets(v, new_path)
+            with gr.Tabs():
+                with gr.Tab("🌐 Network"):
+                    with gr.Row():
+                        view_mode = gr.Radio(["3D", "2D"], label="Mode", value="3D")
+                        layout = gr.Radio(["spring", "circular"], label="2D Layout", visible=False)
+                    
+                    # Mapping filters to a dict for easy passing
+                    filters = {
+                        "show_same_sector": gr.Checkbox(label="Sector", value=True),
+                        "show_correlation": gr.Checkbox(label="Correlation", value=True),
+                        "show_regulatory": gr.Checkbox(label="Regulatory", value=True),
+                    }
+                    viz_plot = gr.Plot()
+                    refresh_btn = gr.Button("Refresh", variant="primary")
 
-        def scan_list(node: list, path: str):
-            """Recursively scans a list for sensitive items by invoking scan_for_secrets on each element."""
-            for idx, item in enumerate(node):
-                scan_for_secrets(item, f"{path}[{idx}]")
+                with gr.Tab("📊 Metrics"):
+                    m_f1 = gr.Plot()
+                    m_text = gr.Textbox(label="Stats", lines=10)
 
-        safe_placeholders = {None, "null", "webhook"}
+                with gr.Tab("🧮 Formulas"):
+                    f_dash = gr.Plot()
+                    f_sum = gr.Textbox(label="Analysis Summary")
+                    f_btn = gr.Button("Analyze Formulas")
 
-        def check_node(node, path=""):
-            """Recursively checks configuration nodes for sensitive keys and ensures they use safe placeholders."""
-            if isinstance(node, dict):
-                for k, v in node.items():
-                    key_l = str(k).lower()
-                    new_path = f"{path}.{k}" if path else str(k)
-                    if any(p in key_l for p in sensitive_patterns):
-                        assert v in safe_placeholders, (
-                            f"Potential hardcoded credential at '{new_path}'"
-                        )
-                    check_node(v, new_path)
-            elif isinstance(node, list):
-                for idx, item in enumerate(node):
-                    check_node(item, f"{path}[{idx}]")
-            # primitives are ignored unless hit via a sensitive key above
+            # Event Handlers
+            refresh_btn.click(
+                self.refresh_all_outputs,
+                inputs=[graph_state],
+                outputs=[viz_plot, m_f1, m_f1, m_f1, m_text, error_box, error_box, error_box]
+            )
 
-        check_node(pr_agent_config)
+            f_btn.click(
+                self.generate_formulaic_analysis,
+                inputs=[graph_state],
+                outputs=[f_dash, f_dash, f_dash, error_box, f_sum, error_box]
+            )
 
-    @staticmethod
-    def test_safe_configuration_values(pr_agent_config):
-        """
-        Assert that key numeric limits in the PR agent configuration fall within safe bounds.
-
-        Checks that:
-        - `limits['max_execution_time']` is less than or equal to 3600 seconds.
-        - `limits['max_concurrent_prs']` is less than or equal to 10.
-        - `limits['rate_limit_requests']` is less than or equal to 1000.
-        """
-        limits = pr_agent_config["limits"]
-
-        # Check for reasonable numeric limits
-        assert limits["max_execution_time"] <= 3600, "Execution time too high"
-        assert limits["max_concurrent_prs"] <= 10, "Too many concurrent PRs"
-        assert limits["rate_limit_requests"] <= 1000, "Rate limit too high"
+        return demo_ui
 
 
-class TestPRAgentConfigRemovedComplexity:
-    """Test that complex features were properly removed."""
-
-    @pytest.fixture
-    @staticmethod
-    def pr_agent_config_content():
-        """
-        Return the contents of .github/pr-agent-config.yml as a string.
-
-        Reads the PR agent configuration file from the repository root and returns its raw text.
-
-        Returns:
-            str: Raw YAML content of .github/pr-agent-config.yml.
-        """
-        config_path = Path(".github/pr-agent-config.yml")
-        with open(config_path, "r") as f:
-            return f.read()
-
-    @staticmethod
-    def test_no_summarization_settings(pr_agent_config_content):
-        """Verify summarization settings removed."""
-        assert "summarization" not in pr_agent_config_content.lower()
-        assert "max_summary_tokens" not in pr_agent_config_content
-
-    @staticmethod
-    def test_no_token_management(pr_agent_config_content):
-        """Verify token management settings removed."""
-        assert "max_tokens" not in pr_agent_config_content
-        assert "context_length" not in pr_agent_config_content
-
-    @staticmethod
-    def test_no_llm_model_references(pr_agent_config_content):
-        """
-        Ensure no explicit LLM model identifiers appear in the raw PR agent configuration.
-
-        Parameters:
-            pr_agent_config_content(str): Raw contents of .github/pr-agent-config.yml used for pattern checks.
-        """
-        assert "gpt-3.5-turbo" not in pr_agent_config_content
-        assert "gpt-4" not in pr_agent_config_content
+if __name__ == "__main__":
+    try:
+        app_inst = AssetUIController()
+        app_inst.create_interface().launch()
+    except Exception as fatal_e:
+        LOGGER.error("Startup failed: %s", fatal_e)
