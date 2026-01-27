@@ -609,7 +609,7 @@ class TestEdgeCasesAndErrorHandling:
                 "SELECT username FROM user_credentials WHERE username = ?",
                 ("persistent",),
             ).fetchone()
-            assert row is not None
+    @staticmethod
             assert row["username"] == "persistent"
 
     @ staticmethod
