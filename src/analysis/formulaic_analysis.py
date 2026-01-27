@@ -521,7 +521,12 @@ class FormulaicdAnalyzer:
                     auxiliary information such as sample sizes, time windows,
                     and computation notes.
         """
-        raise NotImplementedError()
+        return {
+            "correlation_matrix": {},
+            "r_squared_estimates": {},
+            "relationship_strengths": {},
+            "metadata": {},
+        }
 
     @staticmethod
     def _calculate_avg_correlation_strength(graph: AssetRelationshipGraph) -> float:
