@@ -112,7 +112,6 @@ class FinancialAssetApp:
     """Main application logic for the Asset Database."""
 
     def __init__(self) -> None:
-
         self._initialize_graph()
 
     def _initialize_graph(self) -> None:
@@ -295,7 +294,9 @@ class AssetUIController(FinancialAssetApp):
                     # Mapping filters to a dict for easy passing
                     filters = {
                         "show_same_sector": gr.Checkbox(label="Sector", value=True),
-                        "show_correlation": gr.Checkbox(label="Correlation", value=True),
+                        "show_correlation": gr.Checkbox(
+                            label="Correlation", value=True
+                        ),
                         "show_regulatory": gr.Checkbox(label="Regulatory", value=True),
                     }
                     viz_plot = gr.Plot()
