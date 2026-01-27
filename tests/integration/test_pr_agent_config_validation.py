@@ -324,9 +324,9 @@ class AssetUIController(FinancialAssetApp):
 
             # Event Handlers
             refresh_btn.click(
-                outputs=[f_dash, f_corr, f_comp, formula_dropdown, f_sum, error_box],
-                inputs=[graph_state],
-                outputs=[
+                outputs = [f_dash, f_corr, f_comp, formula_dropdown, f_sum, error_box],
+                inputs = [graph_state],
+                outputs = [
                     viz_plot,
                     m_f1,
                     m_f1,
@@ -340,8 +340,8 @@ class AssetUIController(FinancialAssetApp):
 
             f_btn.click(
                 self.generate_formulaic_analysis,
-                inputs=[graph_state],
-                outputs=[f_dash, f_dash, f_dash, error_box, f_sum, error_box],
+                inputs = [graph_state],
+                outputs = [f_dash, f_dash, f_dash, error_box, f_sum, error_box],
             )
 
         return demo_ui
