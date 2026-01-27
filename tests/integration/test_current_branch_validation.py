@@ -11,7 +11,6 @@ from typing import Any, Dict, Generator, List
 import pytest
 import yaml
 
-
 # --- Helper Functions ---
 
 
@@ -75,8 +74,7 @@ class TestWorkflowModifications:
 
         step_names = [step.get("name", "") for step in steps if isinstance(step, dict)]
         assert any(
-            "parse" in name.lower() and "comment" in name.lower()
-            for name in step_names
+            "parse" in name.lower() and "comment" in name.lower() for name in step_names
         )
 
     def test_apisec_workflow_no_credential_checks(self) -> None:
