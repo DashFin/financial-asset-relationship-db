@@ -308,8 +308,14 @@ class TestPRAgentConfigSecurity:
                     lower_key = key.lower() if isinstance(key, str) else ""
                     for marker in secret_markers:
                         if marker in lower_key:
-                            if not (isinstance(val, str) and val.startswith("{{") and val.endswith("}}")):
-                                pytest.fail(f"Sensitive key '{key}' must use a safe placeholder")
+                            if not (
+                                isinstance(val, str)
+                                and val.startswith("{{")
+                                and val.endswith("}}")
+                            ):
+                                pytest.fail(
+                                    f"Sensitive key '{key}' must use a safe placeholder"
+                                )
                     scan(val)
             elif isinstance(obj, list):
                 for item in obj:
