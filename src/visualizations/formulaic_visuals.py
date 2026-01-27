@@ -14,59 +14,66 @@ class FormulaicVisualizer:
     def __init__(self):
         self.color_scheme = {
             "Valuation": "#FF6B6B",
-            "Income": "#4ECDC4",
-            "Fixed Income": "#45B7D1",
-            "Risk Management": "#96CEB4",
-            "Portfolio Theory": "#FFEAA7",
-            "Statistical Analysis": "#DDA0DD",
-            "Currency Markets": "#98D8C8",
-            "Cross-Asset": "#F7DC6F",
-        }
+    """Formulaic Visualizations Module.
 
-    def create_formula_dashboard(self, analysis_results: Dict[str, Any]) -> go.Figure:
-        """Create a comprehensive dashboard showing all formulaic relationships"""
-        formulas = analysis_results.get("formulas", [])
-        empirical_relationships = analysis_results.get("empirical_relationships", {})
+    This module provides tools to visualize formulaic analysis results,
+    including creating dashboards, plotting reliability, and normalizing empirical relationships.
+    """
 
-        fig = make_subplots(
-            rows=3,
-            cols=2,
-            subplot_titles=(
-                "Formula Categories Distribution",
-                "Formula Reliability (R-squared)",
-                "Empirical Correlation Matrix",
-                "Asset Class Relationships",
-                "Sector Analysis",
-                "Key Formula Examples",
-            ),
-        )
+                "Income": "#4ECDC4",
+                "Fixed Income": "#45B7D1",
+                "Risk Management": "#96CEB4",
+                "Portfolio Theory": "#FFEAA7",
+                "Statistical Analysis": "#DDA0DD",
+                "Currency Markets": "#98D8C8",
+                "Cross-Asset": "#F7DC6F",
+            }
 
-    def _plot_reliability(self, fig: go.Figure, formulas: Any) -> None:
-        pass
-
-    @staticmethod
-    def _normalize_empirical_relationships(
-        empirical_relationships: Any,
-    ) -> Dict[str, Dict[str, float]]:
-        """Normalize empirical_relationships into a nested dict of the form {row: {col: value}}."""
-        if not empirical_relationships:
-            return {}
-
-        matrix: Dict[str, Dict[str, float]] = {}
-
-        if isinstance(empirical_relationships, dict):
-            is_nested = all(
-                isinstance(v, dict) for v in empirical_relationships.values()
+        @staticmethod
+        def create_formula_dashboard(analysis_results: Dict[str, Any]) -> go.Figure:
+            """Create a comprehensive dashboard showing all formulaic relationships"""
+            fig = make_subplots(
+                rows=3,
+                cols=2,
+                subplot_titles=(
+                    "Formula Categories Distribution",
+                    "Formula Reliability (R-squared)",
+                    "Empirical Correlation Matrix",
+                    "Asset Class Relationships",
+                    "Sector Analysis",
+                    "Key Formula Examples",
+                ),
             )
-            if is_nested:
-                for row, cols in empirical_relationships.items():
-                    row_key = str(row)
-                    matrix[row_key] = {
-                        str(col): float(val) for col, val in cols.items()
-                    }
-            else:
-                for key, value in empirical_relationships.items():
-                    if isinstance(key, (tuple, list)) and len(key) == 2:
+
+        def _plot_reliability(self, fig: go.Figure, formulas: Any) -> None:
+            """Plot the formula reliability (R-squared) for each formula onto the dashboard figure."""
+            raise NotImplementedError()
+
+        @staticmethod
+        def _normalize_empirical_relationships(
+            empirical_relationships: Any,
+        ) -> Dict[str, Dict[str, float]]:
+            """Normalize empirical_relationships into a nested dict
+            of the form {row: {col: value}}."""
+            if not empirical_relationships:
+                return {}
+
+            matrix: Dict[str, Dict[str, float]] = {}
+
+            if isinstance(empirical_relationships, dict):
+                is_nested = all(
+                    isinstance(v, dict) for v in empirical_relationships.values()
+                )
+                if is_nested:
+                    for row, cols in empirical_relationships.items():
+                        row_key = str(row)
+                        matrix[row_key] = {
+                            str(col): float(val)
+                            for col, val in cols.items()
+                        }
+                else:
+                    for key, value in empirical_relationships.items():
+                        if isinstance(key, (tuple, list)) and len(key) == 2:
                         row, col = key
                     else:
                         parts = str(key).split("|")
@@ -77,8 +84,9 @@ class FormulaicVisualizer:
                     r, c = str(row), str(col)
                     matrix.setdefault(r, {})[c] = float(value)
                     matrix.setdefault(c, {})[r] = float(value)
-        elif hasattr(empirical_relationships, "index") and hasattr(
-            empirical_relationships, "columns"
+        elif (
+            hasattr(empirical_relationships, "index")
+            and hasattr(empirical_relationships, "columns")
         ):
             for row in empirical_relationships.index:
                 for col in empirical_relationships.columns:
@@ -497,7 +505,7 @@ class FormulaicVisualizer:
         node_y = [positions[asset][1] for asset in assets]
         node_text = assets
 
-        self.node_trace = go.Scatter(
+        node_trace = go.Scatter(
             x=node_x,
             y=node_y,
             mode="markers+text",
@@ -519,10 +527,10 @@ class FormulaicVisualizer:
         )
 
         node_adjacencies = []
-        for _, adjacencies in enumerate(self.G.adjacency()):
+        for _, adjacencies in enumerate(G.adjacency()):
             node_adjacencies.append(len(adjacencies[1]))
-        self.node_trace.marker.color = node_adjacencies
-        edge_traces.append(self.node_trace)
+        node_trace.marker.color = node_adjacencies
+        edge_traces.append(node_trace)
 
     def create_correlation_network_graph(self) -> go.Figure:
         """
