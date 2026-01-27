@@ -349,6 +349,8 @@ class TestEdgeCases:
     def test_session_scope_with_database_error():
 
 
+
+
 @staticmethod
 def test_session_scope_with_database_error():
     """Unit tests for the session_scope context manager and database-level integrity error handling."""
