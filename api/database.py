@@ -202,12 +202,12 @@ def get_connection() -> Iterator[sqlite3.Connection]:
             connection.close()
 
 
-def _cleanup_memory_connection(memory_connection):
+def _cleanup_memory_connection():
     """Clean up the memory connection when the program exits."""
-    if memory_connection is not None:
-        memory_connection.close()
-        memory_connection = None
-    return memory_connection
+    global _MEMORY_CONNECTION
+    if _MEMORY_CONNECTION is not None:
+        _MEMORY_CONNECTION.close()
+        _MEMORY_CONNECTION = None
 
 
 atexit.register(_cleanup_memory_connection)
