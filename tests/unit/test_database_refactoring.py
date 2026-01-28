@@ -510,7 +510,8 @@ class TestThreadSafety:
             except Exception as e:
                 errors.append(e)
         
-import threading
+        import threading
+        threads = [threading.Thread(target=write_user, args=(f"user{i}",)) for i in range(10)]
         for t in threads:
             t.start()
         for t in threads:
