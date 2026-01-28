@@ -427,9 +427,7 @@ class TestPRAgentConfigSecurity:
                     new_path = f"{path}.{k}"
 
                     if any(pat in key_l for pat in sensitive_patterns):
-                        assert is_allowed_placeholder(
-                            v
-                        ), f"Potential hardcoded credential at '{new_path}'"
+                        assert is_allowed_placeholder(v), f"Potential hardcoded credential at '{new_path}'"
 
                     scan_for_secrets(v, new_path)
 
@@ -444,7 +442,6 @@ class TestPRAgentConfigSecurity:
 class TestPRAgentConfigYAMLValidity:
     ...
 
-
     sensitive_patterns = [
         "password",
         "secret",
@@ -457,6 +454,7 @@ class TestPRAgentConfigYAMLValidity:
 
     allowed_placeholders = {"null", "none", "placeholder", "***"}
 
+
 # Helpers for recursive secret scanning
 
 
@@ -467,9 +465,7 @@ def scan_node(node, path: str = "root") -> None:
             new_path = f"{path}.{key}"
 
             if any(pat in key_l for pat in sensitive_patterns):
-                assert value in SAFE_PLACEHOLDERS, (
-                    f"Potential hardcoded credential at '{new_path}'"
-                )
+                assert value in SAFE_PLACEHOLDERS, f"Potential hardcoded credential at '{new_path}'"
 
             scan_node(value, new_path)
 
