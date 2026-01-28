@@ -417,7 +417,12 @@ class TestPRAgentConfigSecurity:
 
         allowed_placeholders = {"null", "none", "placeholder", "***"}
 
-        def scan_dict(node: dict, path: str):
+# At the end of test_no_hardcoded_secrets, after defining scan_dict and scan_for_secrets:
+if isinstance(pr_agent_config, dict):
+    scan_dict(pr_agent_config, "root")
+elif isinstance(pr_agent_config, (list, tuple)):
+    for i, item in enumerate(pr_agent_config):
+        scan_for_secrets(item, f"root[{i}]")
             for k, v in node.items():
                 key_l = str(k).lower()
                 new_path = f"{path}.{k}"
