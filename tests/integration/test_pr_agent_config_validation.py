@@ -484,8 +484,8 @@ def scan_node(node, path: str = "root") -> None:
     # At the end of test_no_hardcoded_secrets
     scan_node(pr_agent_config)
 
-   @staticmethod
-   def test_safe_configuration_values(pr_agent_config):
+    @staticmethod
+    def test_safe_configuration_values(pr_agent_config):
     """
     Assert that key numeric limits in the PR agent configuration fall within safe bounds.
 
