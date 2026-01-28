@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import os
+
 from typing import Any
-
-
 class ValidationResult:
     """
     Represents the result of validating a workflow YAML file.
