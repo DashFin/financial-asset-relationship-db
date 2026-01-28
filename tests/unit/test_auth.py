@@ -705,7 +705,6 @@ class TestSeedCredentialsFromEnv:
         for key in ['ADMIN_EMAIL', 'ADMIN_FULL_NAME', 'ADMIN_DISABLED']:
             monkeypatch.delenv(key, raising=False)
     
-        
         mock_repository.create_or_update_user.assert_called_once()
         call_kwargs = mock_repository.create_or_update_user.call_args.kwargs
         assert call_kwargs['username'] == 'admin'
