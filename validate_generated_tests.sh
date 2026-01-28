@@ -30,6 +30,12 @@ else
     echo "   ✗ api-refactoring.test.ts - TypeScript validation failed"
     status=1
 fi
+if npx tsc --noEmit frontend/__tests__/lib/api-refactoring.test.ts 2>&1; then
+    echo "   ✓ api-refactoring.test.ts - TypeScript validation complete"
+else
+    npx tsc --noEmit frontend/__tests__/lib/api-refactoring.test.ts 2>&1 | head -20
+    echo "   ✗ api-refactoring.test.ts - TypeScript validation failed"
+    status=1
 fi
 echo ""
 echo "4. Summary:"
