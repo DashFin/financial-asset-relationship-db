@@ -293,7 +293,7 @@ class TestPRAgentConfigSecurity:
 
     @staticmethod
     def has_inline_creds(val):
-        return inline_creds_re.search(val)
+    return re.search(r"^[A-Za-z][A-Za-z0-9+.-]*://[^/@:\s]+:[^/@\s]+@", val, re.IGNORECASE)
 
         suspected = []
 
