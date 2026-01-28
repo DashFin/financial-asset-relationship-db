@@ -671,7 +671,7 @@ def _deserialize_graph(payload: Dict[str, Any]) -> AssetRelationshipGraph:
                 item["target"],
                 item["relationship_type"],
                 float(item["strength"]),
-                bidirectional=False,
+                bidirectional = False,
             )
 
     return graph
