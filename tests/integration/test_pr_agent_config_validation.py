@@ -282,7 +282,7 @@ class TestPRAgentConfigSecurity:
               "bearer ",
             )
 
-               def has_secret_prefix(val):
+                def has_secret_prefix(val):
                     return any(val.startswith(p) for p in secret_markers)
 
                 def has_inline_creds(val):
@@ -291,6 +291,7 @@ class TestPRAgentConfigSecurity:
                 suspected = []
 
                 # Define detectors for credential heuristics
+                @staticmethod
                 def detect_long_string(s):
                     if len(s) >= 40:
                         return ("long_string", s)
@@ -302,6 +303,7 @@ class TestPRAgentConfigSecurity:
                             return ("prefix", s)
                     return None
 
+                @staticmethod
                 def detect_inline_creds(s):
                     if inline_creds_re.search(s):
                         return ("inline_creds", s)
@@ -309,6 +311,7 @@ class TestPRAgentConfigSecurity:
 
                 detectors = [detect_long_string, detect_prefix, detect_inline_creds]
 
+                @staticmethod
                 def scan_value(val):
                     stripped = str(val).strip()
                     if not stripped:
@@ -319,6 +322,7 @@ class TestPRAgentConfigSecurity:
                             return result
                     return None
 
+                @staticmethod
                 def scan(obj):
                     if isinstance(obj, dict):
                         for _, value in obj.items():
