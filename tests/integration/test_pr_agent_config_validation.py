@@ -327,9 +327,7 @@ class TestPRAgentConfigSecurity:
 
         if suspected:
             details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
-            pytest.fail(
-                f"Potential hardcoded credentials found in PR agent config:\n{details}"
-            )
+            pytest.fail(f"Potential hardcoded credentials found in PR agent config:\n{details}")
 
         def shannon_entropy(s: str) -> float:
             if not s:
@@ -454,9 +452,7 @@ class TestPRAgentConfigSecurity:
                 key_l = str(k).lower()
                 new_path = f"{path}.{k}"
                 if any(pat in key_l for pat in sensitive_patterns):
-                    assert v in allowed_placeholders, (
-                        f"Potential hardcoded credential at '{new_path}'"
-                    )
+                    assert v in allowed_placeholders, f"Potential hardcoded credential at '{new_path}'"
                 scan_for_secrets(v, new_path)
 
         def scan_list(node: list, path: str):
