@@ -705,7 +705,6 @@ class TestSeedCredentialsFromEnv:
         for key in ['ADMIN_EMAIL', 'ADMIN_FULL_NAME', 'ADMIN_DISABLED']:
             monkeypatch.delenv(key, raising=False)
     
-        with patch.dict(os.environ, env_vars, clear=False):
             _seed_credentials_from_env(mock_repository)
         
         mock_repository.create_or_update_user.assert_called_once()
