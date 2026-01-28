@@ -263,7 +263,10 @@ class TestPRAgentConfigSecurity:
         import math
 
         # Heuristic to detect inline creds in URLs (user:pass@)
-        inline_creds_re = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://[^/@:\s]+:[^/@:\s]+@", re.IGNORECASE)
+    inline_creds_re = re.compile(
+        r"^[A-Za-z][A-Za-z0-9+.-]*://[^/@:\s]+:[^/@\s]+@",
+        re.IGNORECASE,
+    )
 
         # Common secret-like prefixes or markers
         secret_markers = (
