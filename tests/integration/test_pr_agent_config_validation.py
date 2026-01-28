@@ -463,6 +463,7 @@ class TestPRAgentConfigSecurity:
 
 # Helpers for recursive secret scanning
 
+
 def scan_node(node, path: str = "root") -> None:
     if isinstance(node, dict):
         for key, value in node.items():
@@ -482,6 +483,7 @@ def scan_node(node, path: str = "root") -> None:
 
     # primitives intentionally ignored
 
+
 # Constants
 SAFE_PLACEHOLDERS = {None, "null", "webhook"}
 
@@ -489,9 +491,9 @@ SAFE_PLACEHOLDERS = {None, "null", "webhook"}
 scan_node(pr_agent_config)
 
 
-    @staticmethod
-    def test_safe_configuration_values(pr_agent_config):
-        """
+@staticmethod
+def test_safe_configuration_values(pr_agent_config):
+    """
         Assert that key numeric limits in the PR agent configuration fall within safe bounds.
 
         Checks that:
@@ -499,12 +501,12 @@ scan_node(pr_agent_config)
         - `limits['max_concurrent_prs']` is less than or equal to 10.
         - `limits['rate_limit_requests']` is less than or equal to 1000.
         """
-        limits = pr_agent_config["limits"]
+    limits = pr_agent_config["limits"]
 
-        # Check for reasonable numeric limits
-        assert limits["max_execution_time"] <= 3600, "Execution time too high"
-        assert limits["max_concurrent_prs"] <= 10, "Too many concurrent PRs"
-        assert limits["rate_limit_requests"] <= 1000, "Rate limit too high"
+    # Check for reasonable numeric limits
+    assert limits["max_execution_time"] <= 3600, "Execution time too high"
+    assert limits["max_concurrent_prs"] <= 10, "Too many concurrent PRs"
+    assert limits["rate_limit_requests"] <= 1000, "Rate limit too high"
 
 
 class TestPRAgentConfigRemovedComplexity:
