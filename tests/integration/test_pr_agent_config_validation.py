@@ -316,14 +316,14 @@ class TestPRAgentConfigSecurity:
     detectors = [detect_long_string, detect_prefix, detect_inline_creds]
 
        def scan_value(val):
-            stripped = str(val).strip()
-            if not stripped:
-                return None
-            for detector in detectors:
-                result = detector(stripped)
-                if result:
-                    return result
-            return None
+           stripped = str(val).strip()
+           if not stripped:
+               return None
+           for detector in detectors:
+               result = detector(stripped)
+               if result:
+                   return result
+           return None
 
         def scan(obj):
             if isinstance(obj, dict):
