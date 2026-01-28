@@ -339,7 +339,6 @@ class TestPRAgentConfigSecurity:
         if result:
             suspected.append(result)
 
-
     TestPRAgentConfigYAMLValidity.scan(pr_agent_config)
 
     if suspected:
@@ -347,7 +346,7 @@ class TestPRAgentConfigSecurity:
         pytest.fail(
             "Potential hardcoded credentials found in PR agent config:\n"
             f"{details}"
-         )
+        )
 
         def shannon_entropy(s: str) -> float:
             if not s:
