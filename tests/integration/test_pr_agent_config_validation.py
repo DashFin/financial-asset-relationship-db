@@ -417,16 +417,17 @@ class TestPRAgentConfigSecurity:
 
         allowed_placeholders = {"null", "none", "placeholder", "***"}
 
+
 # At the end of test_no_hardcoded_secrets, after defining scan_dict and scan_for_secrets:
 if isinstance(pr_agent_config, dict):
     scan_dict(pr_agent_config, "root")
 elif isinstance(pr_agent_config, (list, tuple)):
     for i, item in enumerate(pr_agent_config):
         scan_for_secrets(item, f"root[{i}]")
-            for k, v in node.items():
-                key_l = str(k).lower()
-                new_path = f"{path}.{k}"
-                if any(pat in key_l for pat in sensitive_patterns):
+        for k, v in node.items():
+             key_l = str(k).lower()
+              new_path = f"{path}.{k}"
+               if any(pat in key_l for pat in sensitive_patterns):
                     assert v in allowed_placeholders, f"Potential hardcoded credential at '{new_path}'"
                 scan_for_secrets(v, new_path)
 
