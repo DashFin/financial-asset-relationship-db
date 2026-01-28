@@ -249,23 +249,23 @@ class TestPRAgentConfigSecurity:
         inline_cred_pattern = re.compile(r"://[^/@:\s]+:[^/@:\s]+@")
 
         for value in _iter_string_values(pr_agent_config):
+            def classify_stripped(s: str):
+                if not s:
+                    return None
+                checks = [
+                    ("long_string", lambda x: len(x) >= 40),
+                    ("prefix", lambda x: any(x.startswith(p) for p in secret_prefixes)),
+                    ("inline_creds", lambda x: bool(inline_cred_pattern.search(x))),
+                ]
+                for kind, predicate in checks:
+                    if predicate(s):
+                        return kind
+                return None
+
             stripped = value.strip()
-            if not stripped:
-                continue
-
-            # Long string heuristic (possible API keys or tokens)
-            if len(stripped) >= 40:
-                suspected.append(("long_string", stripped))
-                continue
-
-            # Obvious secret-like prefixes
-            if any(stripped.startswith(p) for p in secret_prefixes):
-                suspected.append(("prefix", stripped))
-                continue
-
-            # Inline credentials in URLs
-            if inline_cred_pattern.search(stripped):
-                suspected.append(("inline_creds", stripped))
+            kind = classify_stripped(stripped)
+            if kind:
+                suspected.append((kind, stripped))
 
         if suspected:
             details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
@@ -344,54 +344,58 @@ class TestPRAgentConfigSecurity:
         walk_values(pr_agent_config)
 
     @staticmethod
-    def test_no_hardcoded_secrets(pr_agent_config):
-        """
-        Recursively scan for secrets in nested structures.
-        Traverse the parsed YAML and ensure that any key containing sensitive indicators
-        has a safe placeholder value (None, 'null', 'none', 'placeholder', '***', or a
-        templated variable like '${VAR}').
-        """
-        sensitive_patterns = (
-            "password",
-            "secret",
-            "token",
-            "api_key",
-            "apikey",
-            "access_key",
-            "private_key",
-        )
+    """Module for validating PR agent configuration and scanning for hardcoded secrets."""
 
-        allowed_placeholders = {None, "null", "none", "placeholder", "***"}
+        def test_no_hardcoded_secrets(pr_agent_config):
+            """
+            Recursively scan for secrets in nested structures.
+            Traverse the parsed YAML and ensure that any key containing sensitive indicators
+            has a safe placeholder value (None, 'null', 'none', 'placeholder', '***', or a
+            templated variable like '${VAR}').
+            """
+            sensitive_patterns = (
+                "password",
+                "secret",
+                "token",
+                "api_key",
+                "apikey",
+                "access_key",
+                "private_key",
+            )
 
-        templated_var_re = re.compile(r"^\$\{[A-Za-z_][A-Za-z0-9_]*\}$")
+            allowed_placeholders = {None, "null", "none", "placeholder", "***"}
 
-        def is_allowed_placeholder(v) -> bool:
-            if v in allowed_placeholders:
-                return True
-            if isinstance(v, str) and templated_var_re.match(v.strip()):
-                return True
-            return False
+            templated_var_re = re.compile(r"^\$\{[A-Za-z_][A-Za-z0-9_]*\}$")
 
-        def scan_for_secrets(node, path: str = "root") -> None:
-            if isinstance(node, dict):
-                for k, v in node.items():
-                    key_l = str(k).lower()
-                    new_path = f"{path}.{k}"
+            def is_allowed_placeholder(v) -> bool:
+                """Check if the value v is an allowed placeholder or templated variable."""
+                if v in allowed_placeholders:
+                    return True
+                if isinstance(v, str) and templated_var_re.match(v.strip()):
+                    return True
+                return False
 
-                    if any(pat in key_l for pat in sensitive_patterns):
-                        assert is_allowed_placeholder(v), (
-                            f"Potential hardcoded credential at '{new_path}'"
-                        )
+            def scan_for_secrets(node, path: str = "root") -> None:
+                """Recursively scan the node for sensitive keys and validate placeholder values."""
+                if isinstance(node, dict):
+                    for k, v in node.items():
+                        key_l = str(k).lower()
+                        new_path = f"{path}.{k}"
 
-                    scan_for_secrets(v, new_path)
+                        if any(pat in key_l for pat in sensitive_patterns):
+                            assert is_allowed_placeholder(v), (
+                                f"Potential hardcoded credential at '{new_path}'"
+                            )
 
-            elif isinstance(node, (list, tuple)):
-                for i, item in enumerate(node):
-                    scan_for_secrets(item, f"{path}[{i}]")
+                        scan_for_secrets(v, new_path)
 
-        # primitives are ignored unless they are values of sensitive keys checked above
+                elif isinstance(node, (list, tuple)):
+                    for i, item in enumerate(node):
+                        scan_for_secrets(item, f"{path}[{i}]")
 
-        scan_for_secrets(pr_agent_config)
+            # primitives are ignored unless they are values of sensitive keys checked above
+
+            scan_for_secrets(pr_agent_config)
 
 
 def test_safe_configuration_values(pr_agent_config):
