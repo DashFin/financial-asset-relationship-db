@@ -1,13 +1,11 @@
-"""
-Comprehensive YAML schema validation tests for GitHub Actions workflows.
-"""
+    """Comprehensive YAML schema validation tests for GitHub Actions workflows."""
 
-from pathlib import Path
-from typing import List
+    from pathlib import Path
+    from typing import List
 
-import pytest
-import yaml
-
+    import pytest
+    import yaml
+    import re
 
 class TestWorkflowYAMLSyntax:
     """Test basic YAML syntax and structure of workflow files."""
@@ -86,8 +84,9 @@ class TestWorkflowYAMLSyntax:
 class TestWorkflowJobs:
     """Test job definitions in workflows."""
 
+    @staticmethod
     @pytest.fixture
-    def workflows_with_jobs(self) -> List[tuple]:
+    def workflows_with_jobs() -> List[tuple]:
         """Get all workflows with their job definitions."""
         workflow_dir = Path(".github/workflows")
         workflows = []
@@ -148,14 +147,16 @@ class TestWorkflowJobs:
 class TestWorkflowSecurityAdvanced:
     """Test advanced security best practices in workflows."""
 
+    @staticmethod
     @pytest.fixture
-    def workflow_files(self) -> List[Path]:
+    def workflow_files() -> List[Path]:
         """Get all workflow YAML files."""
         workflow_dir = Path(".github/workflows")
         return list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml"))
 
     def test_no_hardcoded_secrets(self, workflow_files):
         """Test that workflows don't contain hardcoded secrets."""
+        import re
         secret_patterns = [
             r'password\s*[:=]\s*["\'](?!.*\$\{\{)[\w-]+["\']',
             r'token\s*[:=]\s*["\'](?!.*\$\{\{)[\w-]+["\']',
@@ -203,8 +204,9 @@ class TestWorkflowSecurityAdvanced:
 class TestWorkflowPerformanceOptimization:
     """Test performance optimization patterns in workflows."""
 
+    @staticmethod
     @pytest.fixture
-    def workflows_with_jobs(self) -> List[tuple]:
+    def workflows_with_jobs() -> List[tuple]:
         """Get all workflows with their job definitions."""
         workflow_dir = Path(".github/workflows")
         workflows = []

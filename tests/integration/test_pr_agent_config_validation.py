@@ -226,10 +226,6 @@ class TestPRAgentConfigYAMLValidity:
         duplicates = find_duplicates(config)
         if duplicates:
             pytest.fail(f"Duplicate keys found at paths: {', '.join(duplicates)}")
-                key = line.split(':')[0].strip()
-                if key in seen_keys:
-                    pytest.fail(f"Duplicate key found: {key}")
-                seen_keys.add(key)
 
     def test_consistent_indentation(self):
         """

@@ -247,7 +247,8 @@ class TestWorkflowSchemaCompliance:
 class TestConfigurationEdgeCases:
     """Tests for edge cases in configuration files."""
 
-    def test_pr_agent_config_handles_missing_sections_gracefully(self):
+    @staticmethod
+    def test_pr_agent_config_handles_missing_sections_gracefully():
         """
         Ensure the PR agent YAML configuration contains required top-level sections.
 
@@ -262,7 +263,8 @@ class TestConfigurationEdgeCases:
         for section in expected_sections:
             assert section in config, f"Missing section: {section}"
 
-    def test_numeric_values_in_config_are_valid(self):
+    @staticmethod
+    def test_numeric_values_in_config_are_valid():
         """
         Validate numeric fields in .github/pr-agent-config.yml.
 
@@ -286,7 +288,8 @@ class TestConfigurationEdgeCases:
             assert isinstance(rate_limit, int), "rate_limit_requests should be integer"
             assert 1 <= rate_limit <= 1000, "rate_limit_requests should be reasonable"
 
-    def test_version_strings_follow_semver(self):
+    @staticmethod
+    def test_version_strings_follow_semver():
         """
         Check that the `agent.version` value in .github/pr-agent-config.yml, if present, follows semantic versioning in the form X.Y.Z.
 
@@ -351,7 +354,8 @@ class TestConfigurationEdgeCases:
 class TestConfigurationConsistency:
     """Tests for configuration consistency across files."""
 
-    def test_python_version_consistent_across_workflows(self):
+    @staticmethod
+    def test_python_version_consistent_across_workflows():
         """Verify Python version is consistent across all workflows."""
         workflow_dir = Path(".github/workflows")
         python_versions = {}
@@ -376,7 +380,8 @@ class TestConfigurationConsistency:
                 f"Inconsistent Python versions across workflows: {python_versions}"
             )
 
-    def test_node_version_consistent_across_workflows(self):
+    @staticmethod
+    def test_node_version_consistent_across_workflows():
         """Verify Node.js version is consistent across all workflows."""
         workflow_dir = Path(".github/workflows")
         node_versions = {}
@@ -401,7 +406,8 @@ class TestConfigurationConsistency:
                 f"Inconsistent Node versions across workflows: {node_versions}"
             )
 
-    def test_checkout_action_version_consistent(self):
+    @staticmethod
+    def test_checkout_action_version_consistent():
         """
         Ensure actions/checkout versions used across workflows are consistent.
 

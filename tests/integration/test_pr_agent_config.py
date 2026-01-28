@@ -558,10 +558,7 @@ class TestEdgeCases:
     def test_no_excessively_long_values(self, config: object) -> None:
         """Configuration values should not be excessively long."""
         def check_length(obj: object, path: str = "") -> None:
-            """
-            Recursively ensure no string exceeds 10,000 characters
-            across dicts and lists.
-            """
+            """Recursively ensure no string exceeds 10,000 characters across dicts and lists."""
             if isinstance(obj, str):
                 assert len(obj) <= 10_000, (
                     f"String at '{path}' is excessively long ({len(obj)} chars)"

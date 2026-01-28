@@ -39,6 +39,7 @@ class TestDocumentationExists:
 
     @staticmethod
     @staticmethod
+    @staticmethod
     def test_file_extension():
         """Test that the file has .md extension."""
         assert DOC_FILE.suffix == ".md", "Documentation file should have .md extension"

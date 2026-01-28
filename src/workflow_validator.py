@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from typing import Any
 
 import yaml
@@ -22,9 +21,7 @@ class ValidationResult:
         errors: list[str],
         workflow_data: dict[str, Any],
     ) -> None:
-        """
-        Initialize a ValidationResult representing the outcome of validation.
-        """
+        """Initialize a ValidationResult representing the outcome of validation."""
         self.is_valid = is_valid
         self.errors = errors
         self.workflow_data = workflow_data
@@ -43,8 +40,20 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
     Returns:
         ValidationResult describing the validation outcome.
     """
+    # Whitelist check for workflow file names
+    allowed_files = {"main.yml", "build.yml", "deploy.yml"}
+    filename = os.path.basename(workflow_path)
+    if filename not in allowed_files:
+        return ValidationResult(
+            is_valid=False,
+            errors=[f"Invalid workflow filename: {filename}"],
+            workflow_data={},
+        )
+    trusted_dir = "/safe/workflows"
+    safe_path = os.path.join(trusted_dir, filename)
+
     try:
-        with open(workflow_path, encoding="utf-8") as file_handle:
+        with open(safe_path, encoding="utf-8") as file_handle:
             data = yaml.safe_load(file_handle)
 
         if data is None:

@@ -11,6 +11,10 @@ Tests ensure that:
 
 import re
 from pathlib import Path
+from typing import List
+
+code_block_pattern = re.compile(r"```(\w*)")
+markdown_files: List[Path] = list(Path().rglob("*.md"))
 
 for md_file in markdown_files:
     content = md_file.read_text(encoding="utf-8")

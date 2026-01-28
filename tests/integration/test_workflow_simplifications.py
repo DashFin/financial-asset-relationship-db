@@ -9,6 +9,7 @@ This test module specifically validates the changes made in the current branch:
 - Simplification of pr-agent-config.yml
 
 These tests ensure the simplified workflows function correctly and that
+"""
 removed complexity does not inadvertently reappear.
 """
 
@@ -314,9 +315,7 @@ class TestLabelerWorkflowSimplification:
                     )
 
     def test_no_skipped_message_step(self, labeler_workflow: Dict[str, Any]):
-        """
-        Test that there's no step to report labeler being skipped.
-        """
+        """Test that there's no step to report labeler being skipped."""
         for job in labeler_workflow.get("jobs", {}).values():
             step_names = [step.get("name", "") for step in job.get("steps", [])]
 
@@ -399,9 +398,7 @@ class TestAPISecWorkflowSimplification:
             )
 
     def test_no_skip_warning_messages(self, apisec_workflow: Dict[str, Any]):
-        """
-        Test that there are no steps warning about skipped scans.
-        """
+        """Test that there are no steps warning about skipped scans."""
         for job in apisec_workflow.get("jobs", {}).values():
             for step in job.get("steps", []):
                 run_command = step.get("run", "")
@@ -461,9 +458,7 @@ class TestPRAgentConfigSimplification:
             )
 
     def test_no_fallback_strategies(self, pr_agent_config: Dict[str, Any]):
-        """
-        Test that limits section doesn't have complex fallback strategies.
-        """
+        """Test that limits section doesn't have complex fallback strategies."""
         limits = pr_agent_config.get("limits", {})
 
         if limits:
@@ -478,9 +473,7 @@ class TestPRAgentConfigSimplification:
             )
 
     def test_no_chunking_limits(self, pr_agent_config: Dict[str, Any]):
-        """
-        Test that config doesn't have chunking-specific limits.
-        """
+        """Test that config doesn't have chunking-specific limits."""
         limits = pr_agent_config.get("limits", {})
 
         if limits:
@@ -506,9 +499,7 @@ class TestPRAgentConfigSimplification:
         assert version == "1.1.0", f"Agent version should be '1.1.0', got '{version}'"
 
     def test_config_structure_remains_valid(self, pr_agent_config: Dict[str, Any]):
-        """
-        Test that despite simplification, core config structure remains valid.
-        """
+        """Test that despite simplification, core config structure remains valid."""
         # Should still have essential sections
         assert "agent" in pr_agent_config, "Config should still have agent section"
         assert "monitoring" in pr_agent_config, (
@@ -568,9 +559,7 @@ class TestWorkflowRegressionPrevention:
     """Regression tests to prevent reintroduction of complexity."""
 
     def test_no_workflow_references_deleted_files(self):
-        """
-        Test that no workflow file references the deleted files.
-        """
+        """Test that no workflow file references the deleted files."""
         workflows_dir = Path(__file__).parent.parent.parent / ".github" / "workflows"
         workflow_files = list(workflows_dir.glob("*.yml")) + list(
             workflows_dir.glob("*.yaml")
@@ -604,7 +593,8 @@ class TestWorkflowRegressionPrevention:
                 f"{workflow_file.name} contains duplicate YAML keys: {duplicates}"
             )
 
-    def _check_duplicate_keys(self, file_path: Path) -> List[str]:
+    @staticmethod
+    def _check_duplicate_keys(file_path: Path) -> List[str]:
         """Helper to detect duplicate keys in YAML file."""
         duplicates = []
 
@@ -612,9 +602,11 @@ class TestWorkflowRegressionPrevention:
             content = f.read()
 
         class DuplicateKeySafeLoader(yaml.SafeLoader):
+            """SafeLoader subclass that tracks and detects duplicate keys in YAML mapping nodes."""
             pass
 
         def constructor_with_dup_check(loader, node):
+            """Construct a mapping from a YAML node and record any duplicate keys encountered."""
             mapping = {}
             for key_node, value_node in node.value:
                 key = loader.construct_object(key_node, deep=False)
@@ -639,9 +631,8 @@ class TestWorkflowRegressionPrevention:
         return duplicates
 
     def test_workflow_files_remain_valid_yaml(self):
-        """
-        Test that all workflow files are still valid YAML after simplification.
-        """
+        """Test that all workflow files are still valid YAML after simplification."""
+        
         workflows_dir = Path(__file__).parent.parent.parent / ".github" / "workflows"
 
         workflow_files = list(workflows_dir.glob("*.yml")) + list(

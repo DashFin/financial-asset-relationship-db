@@ -26,6 +26,9 @@ class TestValidationResult:
     @staticmethod
     def test_validation_result_creation_valid():
         """Test creating a valid ValidationResult"""
+    @staticmethod
+    def test_validation_result_creation_valid():
+        """Test creating a valid ValidationResult"""
         result = ValidationResult(True, [], {"key": "value"})
         assert result.is_valid is True
         assert result.errors == []
@@ -858,7 +861,8 @@ class TestWorkflowValidatorPerformance:
         assert result.is_valid is False
         assert elapsed < 1.0  # Should complete in less than 1 second
 
-    def test_validate_multiple_workflows_sequentially(self):
+    @staticmethod
+    def test_validate_multiple_workflows_sequentially():
         """Test validating multiple workflows in sequence"""
         workflows = []
         for i in range(10):

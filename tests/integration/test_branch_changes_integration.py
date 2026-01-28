@@ -4,7 +4,6 @@ Tests validate that all modifications work together correctly and
 don't introduce inconsistencies or broken references.
 """
 
-import os
 import re
 from collections import Counter
 from pathlib import Path
@@ -25,7 +24,8 @@ def _get_workflow_files() -> List[Path]:
 class TestWorkflowConfigurationIntegration:
     """Test integration between workflow files and their configurations."""
 
-    def test_all_workflows_have_required_permissions(self):
+    @staticmethod
+    def test_all_workflows_have_required_permissions():
         """All workflows should declare appropriate permissions."""
         for workflow_file in _get_workflow_files():
             with open(workflow_file, "r") as f:
@@ -50,7 +50,7 @@ class TestWorkflowConfigurationIntegration:
                 data = yaml.safe_load(f) or {}
 
             jobs = data.get("jobs", {})
-            for job_name, job_data in jobs.items():
+            for _, job_data in jobs.items():
                 steps = job_data.get("steps", [])
 
                 for step in steps:
@@ -75,7 +75,7 @@ class TestWorkflowConfigurationIntegration:
                             "pytest": ["setup-python", "pytest"],
                         }
 
-                        for tool, required_steps in tools_needing_setup.items():
+                        for tool, _ in tools_needing_setup.items():
                             if tool in run:
                                 # Check if setup step exists earlier
                                 # (This is a soft check - warning only)
@@ -90,7 +90,7 @@ class TestWorkflowConfigurationIntegration:
                 data = yaml.safe_load(f) or {}
 
             jobs = data.get("jobs", {})
-            for job_name, job_data in jobs.items():
+            for _, job_data in jobs.items():
                 steps = job_data.get("steps", [])
 
                 for step in steps:
@@ -114,7 +114,7 @@ class TestWorkflowConfigurationIntegration:
                 data = yaml.safe_load(f) or {}
 
             jobs = data.get("jobs", {})
-            for job_name, job_data in jobs.items():
+            for _, job_data in jobs.items():
                 steps = job_data.get("steps", [])
 
                 for step in steps:
@@ -246,15 +246,9 @@ class TestDocumentationConsistency:
 
         if changelog.exists():
             with open(changelog, "r") as f:
-                content = f.read()
+                pass
 
             # Should mention the deletions (soft requirement)
-            removed_items = [
-                "context_chunker",
-                "labeler.yml",
-                ".github/scripts/README.md",
-            ]
-
             # At least one deletion should be documented
             # (This is a documentation quality check, not strict requirement)
             pass
@@ -268,9 +262,9 @@ class TestDocumentationConsistency:
                 content = f.read()
 
             # Extract markdown links
-            links = re.findall(r"\[([^\]]+)\]\(([^\)]+)\)", content)
+            links = re.findall(r"\[([^\]]+)\]\([^\)]+\)", content)
 
-            for link_text, link_target in links:
+            for _, link_target in links:
                 # Skip external links
                 if link_target.startswith("http://") or link_target.startswith(
                     "https://"
@@ -375,7 +369,7 @@ class TestGitHubActionsEcosystem:
 
         # Each workflow should be mentioned somewhere
         for workflow in workflows:
-            workflow_mentioned = (
+            _ = (
                 workflow.lower() in all_docs_content
                 or workflow.replace("-", " ").lower() in all_docs_content
             )

@@ -121,7 +121,6 @@ class TestDependencyWorkflowIntegration:
 
         This test ensures GitHub workflows and branch changes adhere to project
         standards, avoid security issues, and remain parseable by PyYAML.
-        """
         workflow_dir = Path(".github/workflows")
         if not workflow_dir.exists():
             pytest.skip("Workflows directory not found")

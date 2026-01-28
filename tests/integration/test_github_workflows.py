@@ -1,10 +1,9 @@
-            id_counts = Counter(step_ids)
-            duplicates = [sid for sid, count in id_counts.items() if count > 1]
-            assert not duplicates, (
-                f"Job '{job_name}' in {workflow_file.name} has duplicate step IDs: {duplicates}"
-            )
-Comprehensive tests for GitHub Actions workflow files.
-
+id_counts = Counter(step_ids)
+duplicates = [sid for sid, count in id_counts.items() if count > 1]
+assert not duplicates, (
+    f"Job '{job_name}' in {workflow_file.name} has duplicate step IDs: {duplicates}"
+)
+"""Comprehensive tests for GitHub Actions workflow files.
 
 This module validates the structure, syntax, and configuration of GitHub Actions
 workflows, ensuring they are properly formatted and free of common issues like
@@ -22,7 +21,6 @@ yaml = pytest.importorskip("yaml")
 
 # Define workflows directory path used across tests
 WORKFLOWS_DIR = Path(".github") / "workflows"
-
 
 def get_workflow_files() -> List[Path]:
     """

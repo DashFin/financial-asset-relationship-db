@@ -178,7 +178,6 @@ class TestDeletedLabelerConfig:
                 assert step_if or with_config, (
                     "Labeler action used without condition or inline configuration"
                 )
-                )
 
 
 class TestDeletedScriptsReadme:
@@ -204,6 +203,7 @@ class TestDeletedScriptsReadme:
 
             assert ".github/scripts/README.md" not in content, (
                 f"{doc_file} references deleted scripts README"
+            )
             )
 
     @ staticmethod

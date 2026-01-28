@@ -99,12 +99,6 @@ class TestWorkflowYAMLSyntax:
         Uses a custom SafeLoader to reliably detect duplicates during parsing.
         """
         for workflow_file in workflow_files:
-
-            """
-            Test integration for workflow YAML validation.
-            Ensures that duplicate keys in workflow YAML files are detected and cause test failures.
-            """
-
             def no_duplicates_constructor(loader, node, deep=False):
                 """Construct a mapping from a YAML node, raising an error if duplicate keys are found."""
                 mapping = {}

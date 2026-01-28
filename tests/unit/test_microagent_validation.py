@@ -68,7 +68,6 @@ class TestMicroagentValidation:
 
         return frontmatter, body
 
-
 class TestRepoEngineerLead(TestMicroagentValidation):
     """Test cases for repo_engineer_lead.md microagent."""
 
@@ -92,12 +91,14 @@ class TestRepoEngineerLead(TestMicroagentValidation):
         _, body = self.parse_frontmatter(repo_engineer_content)
         return body
 
-    def test_file_exists(self, repo_engineer_path: Path):
+    @staticmethod
+    def test_file_exists(repo_engineer_path: Path):
         """Test that repo_engineer_lead.md exists."""
         assert repo_engineer_path.exists()
         assert repo_engineer_path.is_file()
 
-    def test_file_not_empty(self, repo_engineer_content: str):
+    @staticmethod
+    def test_file_not_empty(repo_engineer_content: str):
         """Test that repo_engineer_lead.md is not empty."""
         assert len(repo_engineer_content.strip()) > 0
 

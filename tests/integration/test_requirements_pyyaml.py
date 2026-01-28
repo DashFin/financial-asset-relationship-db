@@ -149,11 +149,11 @@ class TestRequirementsDevCompleteness:
         for line_num, line in enumerate(requirements_content.splitlines(), start=1):
             line = line.strip()
             if not line or line.startswith("#"):
-            continue
+                continue
 
-        assert pattern.match(line), (
-            f"Invalid requirement format on line {line_num}: {line}"
-        )
+            assert pattern.match(line), (
+                f"Invalid requirement format on line {line_num}: {line}"
+            )
 
     @pytest.fixture
     def requirements_content(self) -> str:

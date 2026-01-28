@@ -33,11 +33,10 @@ def summary_content() -> str:
 
 
 class TestListFormatting:
-    """
-    Test suite for markdown list formatting validation.
-    """
+    """Test suite for markdown list formatting validation."""
 
-    def test_lists_properly_formatted(self, summary_lines: List[str]):
+    @staticmethod
+    def test_lists_properly_formatted(summary_lines: List[str]):
         """
         Validate that markdown bullet list items use indentation in multiples of two spaces.
 
@@ -60,26 +59,30 @@ class TestListFormatting:
 class TestContentAccuracy:
     """Test suite for content accuracy validation."""
 
-    def test_mentions_workflow_file(self, summary_content: str):
+    @staticmethod
+    def test_mentions_workflow_file(summary_content: str):
         """Test that document mentions the pr-agent.yml workflow."""
         assert (
             "pr-agent.yml" in summary_content.lower()
             or "pr-agent" in summary_content.lower()
         ), "Document should mention pr-agent workflow"
 
-    def test_mentions_duplicate_keys_issue(self, summary_content: str):
+    @staticmethod
+    def test_mentions_duplicate_keys_issue(summary_content: str):
         """Test that document mentions the duplicate keys issue that was fixed."""
         assert "duplicate" in summary_content.lower(), (
             "Document should mention duplicate keys issue"
         )
 
-    def test_mentions_pytest(self, summary_content: str):
+    @staticmethod
+    def test_mentions_pytest(summary_content: str):
         """Test that document mentions pytest."""
         assert "pytest" in summary_content.lower(), (
             "Document should mention pytest as the testing framework"
         )
 
-    def test_has_code_examples(self, summary_content: str):
+    @staticmethod
+    def test_has_code_examples(summary_content: str):
         """
         Asserts the document contains at least one fenced code block (
         )
@@ -93,7 +96,8 @@ class TestContentAccuracy:
 class TestDocumentMaintainability:
     """Test suite for document maintainability."""
 
-    def test_line_length_reasonable(self, summary_lines: List[str]):
+    @staticmethod
+    def test_line_length_reasonable(summary_lines: List[str]):
         """
         Check that fewer than 10% of non-URL lines exceed 120 characters.
 
@@ -113,7 +117,8 @@ class TestDocumentMaintainability:
             f"Too many long lines ({len(long_lines)}), consider breaking them up"
         )
 
-    def test_has_clear_structure(self, summary_content: str):
+    @staticmethod
+    def test_has_clear_structure(summary_content: str):
         """
         Assert the markdown document has a clear hierarchical heading structure.
 
@@ -125,7 +130,8 @@ class TestDocumentMaintainability:
         assert h1_count >= 1, "Should have at least one H1 heading"
         assert h2_count >= 3, "Should have at least 3 H2 headings for organization"
 
-    def test_sections_have_content(self, summary_content: str):
+    @staticmethod
+    def test_sections_have_content(summary_content: str):
         """Test that major sections have substantial content."""
         sections = re.split(r"\n## ", summary_content)
         # Skip first section (before first H2)
@@ -183,11 +189,11 @@ class TestLinkValidation:
         headers = [
             line.lstrip("#").strip() for line in summary_lines if line.startswith("#")
         ]
-        valid_anchors: Set[str] = set(_to_gfm_anchor(header) for header in headers)
+        valid_anchors: Set[str] = {_to_gfm_anchor(header) for header in headers}
         internal_links = re.findall(r"\[([^\]]+)\]\(#([^)]+)\)", summary_content)
 
         # Check each internal link
-        for text, anchor in internal_links:
+        for _, anchor in internal_links:
             assert anchor in valid_anchors, (
                 f"Internal link to #{anchor} references non-existent header"
             )
@@ -236,7 +242,8 @@ class TestSecurityAndBestPractices:
 class TestReferenceAccuracy:
     """Test suite for reference accuracy."""
 
-    def test_test_counts_are_realistic(self, summary_content: str):
+    @staticmethod
+    def test_test_counts_are_realistic(summary_content: str):
         """
         Ensure numeric mentions of tests in the summary are realistic.
 
@@ -251,7 +258,8 @@ class TestReferenceAccuracy:
             count = int(count_str)
             assert 0 < count < 1000, f"Test count {count} seems unrealistic"
 
-    def test_file_references_are_consistent(self, summary_content: str):
+    @staticmethod
+    def test_file_references_are_consistent(summary_content: str):
         """Test suite for edge cases."""
         # Main test file should be referenced consistently
         test_file_mentions = re.findall(
@@ -268,7 +276,8 @@ class TestReferenceAccuracy:
 class TestEdgeCases:
     """Test suite for edge cases."""
 
-    def test_handles_special_characters(self, summary_content: str):
+    @staticmethod
+    def test_handles_special_characters(summary_content: str):
         """
         Fail if the document contains the Unicode replacement character U+FFFD (�).
 
@@ -288,7 +297,8 @@ class TestEdgeCases:
         except UnicodeDecodeError:
             pytest.fail("File should be valid UTF-8")
 
-    def test_consistent_line_endings(self):
+    @staticmethod
+    def test_consistent_line_endings():
         """
         Ensure the summary file uses a single line-ending style.
 

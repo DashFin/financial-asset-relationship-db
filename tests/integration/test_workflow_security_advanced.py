@@ -9,7 +9,6 @@ Focus areas:
 5. Workflow isolation and sandboxing
 """
 
-import os
 import re
 from pathlib import Path
 from typing import Any, Dict, List, Set
@@ -21,8 +20,9 @@ import yaml
 class TestWorkflowInjectionPrevention:
     """Tests for preventing injection attacks in workflows."""
 
+    @staticmethod
     @pytest.fixture
-    def all_workflows(self) -> List[Dict[str, Any]]:
+    def all_workflows() -> List[Dict[str, Any]]:
         """
         Load and parse all GitHub Actions workflow YAML files from .github/workflows.
 
@@ -146,8 +146,9 @@ class TestWorkflowInjectionPrevention:
 class TestWorkflowSecretHandling:
     """Tests for proper secret handling in workflows."""
 
+    @staticmethod
     @pytest.fixture
-    def all_workflows(self) -> List[Dict[str, Any]]:
+    def all_workflows() -> List[Dict[str, Any]]:
         """
         Load and parse all GitHub Actions workflow YAML files from .github/workflows.
 
@@ -255,6 +256,10 @@ class TestWorkflowSecretHandling:
                     if any(
                         pattern in env_name.upper() for pattern in sensitive_patterns
                     ):
+                        assert isinstance(env_value, str) and env_value.startswith("secrets."), (
+                            f"Sensitive env var {env_name} in {workflow['path']} job '{job_name}' must reference secrets."
+                        )
+                    ):
                         # Value should reference secrets
                         assert "secrets." in str(env_value), (
                             f"Sensitive env var {env_name} should use secrets in "
@@ -343,13 +348,14 @@ class TestWorkflowPermissionsHardening:
                     f"Workflow {workflow['path']} uses dangerous 'write-all' permission"
                 )
 
-    def test_third_party_actions_use_commit_sha(self, all_workflows):
+    @staticmethod
+    def test_third_party_actions_use_commit_sha(all_workflows):
         """Verify third-party actions are pinned to commit SHA."""
         for workflow in all_workflows:
             jobs = workflow["content"].get("jobs", {})
-            for job_name, job_config in jobs.items():
+            for _, job_config in jobs.items():
                 steps = job_config.get("steps", [])
-                for step_idx, step in enumerate(steps):
+                for step in steps:
                     if "uses" in step:
                         action = step["uses"]
 
@@ -396,7 +402,8 @@ class TestWorkflowSupplyChainSecurity:
     """Tests for supply chain security in workflows."""
 
     @pytest.fixture
-    def all_workflows(self) -> List[Dict[str, Any]]:
+    @staticmethod
+    def all_workflows() -> List[Dict[str, Any]]:
         """
         Collects GitHub Actions workflow files from .github/workflows.
 
@@ -493,7 +500,6 @@ class TestWorkflowSupplyChainSecurity:
                                 f"Pip installing from insecure index in {workflow['path']} "
                                 f"job '{job_name}' step {step_idx}"
                             )
-
 
 class TestWorkflowIsolationAndSandboxing:
     """Tests for workflow isolation and sandboxing."""
