@@ -308,13 +308,13 @@ class TestPRAgentConfigSecurity:
 
     @staticmethod
     def detect_inline_creds(s):
-            if inline_creds_re.search(s):
-                return ("inline_creds", s)
-            return None
+        if inline_creds_re.search(s):
+            return ("inline_creds", s)
+        return None
 
     detectors = [detect_long_string, detect_prefix, detect_inline_creds]
 
-        def scan_value(val):
+       def scan_value(val):
             stripped = str(val).strip()
             if not stripped:
                 return None
