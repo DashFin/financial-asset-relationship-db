@@ -10,8 +10,12 @@ Tests focus on:
 """
 
 import pytest
+import sqlite3
+import threading
 
+from api.database import (
     _get_database_url,
+    _resolve_sqlite_path,
     _is_memory_db,
     _connect,
     get_connection,
@@ -20,7 +24,6 @@ import pytest
     fetch_value,
     initialize_schema,
 )
-
 
 def fetch_all(query, parameters=None):
     """
