@@ -195,12 +195,11 @@ class TestUserRepositoryInstanceMethods:
             except Exception as e:
                 errors.append(e)
         
+        from concurrent.futures import ThreadPoolExecutor, wait
+
         with ThreadPoolExecutor(max_workers=10) as executor:
-        threads = [executor.submit(create_user, f"user{i}") for i in range(10)]
-        for thread in threads:
-            thread.start()
-        for thread in threads:
-            thread.join()
+            futures = [executor.submit(create_user, f"user{i}") for i in range(10)]
+            wait(futures)
         
         assert len(errors) == 0, f"Errors occurred during user creation: {errors}"
         assert repository.has_users() is True
