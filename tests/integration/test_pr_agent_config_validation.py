@@ -299,8 +299,8 @@ class TestPRAgentConfigSecurity:
 
             def detect_prefix(s):
                 for marker in secret_markers:
-                if s.lower().startswith(marker):
-                    return ("prefix", s)
+                    if s.lower().startswith(marker):
+                        return ("prefix", s)
                 return None
 
             @staticmethod
