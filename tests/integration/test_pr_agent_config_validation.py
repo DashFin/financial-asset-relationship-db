@@ -343,10 +343,7 @@ class TestPRAgentConfigSecurity:
 
     if suspected:
         details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
-        pytest.fail(
-            "Potential hardcoded credentials found in PR agent config:\n"
-            f"{details}"
-        )
+        pytest.fail("Potential hardcoded credentials found in PR agent config:\n" f"{details}")
 
         def shannon_entropy(s: str) -> float:
             if not s:
