@@ -294,33 +294,6 @@ class TestPRAgentConfigSecurity:
         def has_inline_creds(val):
             return inline_creds_re.search(val)
 
-        def scan_item(item):
-            suspects = []
-            if isinstance(item, dict):
-                for key, value in item.items():
-                    suspects.extend(scan_item(key))
-                    suspects.extend(scan_item(value))
-            elif isinstance(item, (list, tuple)):
-                for element in item:
-                    suspects.extend(scan_item(element))
-            elif isinstance(item, str):
-                stripped = item.strip()
-                if is_long_string(stripped):
-                    suspects.append(("long_string", stripped))
-                elif has_secret_prefix(stripped):
-                    suspects.append(("prefix", stripped))
-                elif has_inline_creds(stripped):
-                    suspects.append(("inline_creds", stripped))
-            return suspects
-
-        suspected = scan_item(pr_agent_config)
-
-        if suspected:
-            details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
-            pytest.fail(
-                f"Potential hardcoded credentials found in PR agent config:\n{details}"
-            )
-
         suspected = []
 
         # Define detectors for credential heuristics
