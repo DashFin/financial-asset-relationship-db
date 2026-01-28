@@ -23,12 +23,6 @@ class TestWorkflowConsistency:
 
     @pytest.fixture
     def all_workflows(self) -> Dict[str, Dict]:
-        """
-        Load a fixed set of GitHub Actions workflow files.
-
-        Returns:
-    @staticmethod
-    def all_workflows() -> Dict[str, Dict]:
         """Mapping from workflow path to parsed YAML dict."""
         workflow_files = [
             ".github/workflows/pr-agent.yml",
