@@ -743,8 +743,8 @@ class TestIntegrationScenarios:
         assert 'CORP_BOND' in rels['outgoing']
 
         # Refresh visualization
-        fig = app.refresh_visualization(mock_graph)
-        assert fig is not None
+        graph_viz, error_state = app.refresh_visualization(mock_graph)
+        assert graph_viz is not None
 
 
 class TestCreateInterface:
