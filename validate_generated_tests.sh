@@ -30,7 +30,6 @@ else
     echo "   ✗ api-refactoring.test.ts - TypeScript validation failed"
     status=1
 fi
-fi
 
 echo ""
 echo "3. Checking Python test execution..."
