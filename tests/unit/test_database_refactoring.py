@@ -9,7 +9,6 @@ Tests focus on:
 - Connection pooling and cleanup
 """
 
-import threading
 import pytest
 
     _get_database_url,
