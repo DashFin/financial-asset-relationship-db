@@ -390,6 +390,7 @@ class FormulaicAnalyzer:
         return formulas
 
     def _calculate_empirical_relationships(
+        self,
         graph: AssetRelationshipGraph,
     ) -> Dict[str, Any]:
         """
