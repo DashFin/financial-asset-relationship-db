@@ -30,7 +30,7 @@ else
     echo "   ✗ api-refactoring.test.ts - TypeScript validation failed"
     status=1
 fi
-    echo "   ✗ api-refactoring.test.ts - TypeScript validation failed"
+fi
 echo ""
 echo "4. Summary:"
 echo "   Total test files generated: 3"
