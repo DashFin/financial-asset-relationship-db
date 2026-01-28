@@ -261,8 +261,9 @@ class TestGet3DVisualizationDataEnhancedComprehensive:
         angles = np.arctan2(positions[:, 1], positions[:, 0])
         # Sort angles
         angles_sorted = np.sort(angles)
-        # Calculate differences between consecutive angles
-        angle_diffs = np.diff(angles_sorted)
+
+        # Differences between consecutive angles, including wrap-around
+        angle_diffs = np.diff(np.r_[angles_sorted, angles_sorted[0] + 2 * np.pi])
 
         # All differences should be approximately equal to 2π/n
         expected_diff = 2 * np.pi / n
