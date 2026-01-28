@@ -5,7 +5,6 @@ This module validates the codesherlock configuration file structure,
 content, and adherence to expected patterns.
 """
 
-import os
 from pathlib import Path
 from typing import Any, Dict
 
@@ -16,10 +15,7 @@ import yaml
 @pytest.fixture
 def codesherlock_config_path() -> Path:
     """
-    Get the Path to the repository's codesherlock.yaml file.
-
-    Returns:
-        path (Path): Path to codesherlock.yaml located at the repository root.
+    Return the path to the repository's codesherlock.yaml file.
     """
     repo_root = Path(__file__).parent.parent.parent
     return repo_root / "codesherlock.yaml"
