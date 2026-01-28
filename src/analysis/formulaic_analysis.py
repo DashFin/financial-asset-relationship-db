@@ -21,7 +21,7 @@ class Formula:
     r_squared: float = 0.0  # Correlation strength if applicable
 
 
-class FormulaicdAnalyzer:
+class FormulaicAnalyzer:
     """Analyzes financial data to extract and render mathematical relationships."""
 
     def __init__(self):
@@ -83,9 +83,7 @@ class FormulaicdAnalyzer:
                 name="Price-to-Earnings Ratio",
                 formula="PE = P / EPS",
                 latex=r"PE = \frac{P}{EPS}",
-                description=(
-                    "Valuation metric comparing stock price to earnings per share"
-                ),
+                description="Valuation metric comparing stock price to earnings per share",
                 variables={
                     "PE": "Price-to-Earnings Ratio",
                     "P": "Current Stock Price ($)",
