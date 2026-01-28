@@ -282,7 +282,7 @@ class TestPRAgentConfigSecurity:
               "bearer ",
             )
 
-           @staticmethod
+               def has_secret_prefix(val):
                def has_secret_prefix(val):
                     return any(val.startswith(p) for p in secret_markers)
 
