@@ -1,8 +1,9 @@
-    from __future__ import annotations
+from __future__ import annotations
 
-    from typing import Any
-    import os
-    import yaml
+import os
+from typing import Any
+
+import yaml
 
 
 class ValidationResult:

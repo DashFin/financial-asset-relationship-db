@@ -85,6 +85,7 @@ class TestRepoEngineerLead(TestMicroagentValidation):
         """Parse and return frontmatter from repo_engineer_lead.md."""
         frontmatter, _ = self.parse_frontmatter(repo_engineer_content)
         return frontmatter
+
     @pytest.fixture
     def repo_engineer_body(self, repo_engineer_content: str) -> str:
         """Return body content from repo_engineer_lead.md."""
@@ -110,9 +111,7 @@ class TestRepoEngineerLead(TestMicroagentValidation):
         assert len(body) > 0
 
     @staticmethod
-    def test_frontmatter_has_required_fields(
-        repo_engineer_frontmatter: Dict[str, Any]
-    ):
+    def test_frontmatter_has_required_fields(repo_engineer_frontmatter: Dict[str, Any]):
         """Test that frontmatter contains all required fields."""
         required_fields = ["name", "type", "version", "agent"]
         for field in required_fields:
@@ -485,6 +484,7 @@ class TestMicroagentSemantic:
 
         # Issue handling should be mentioned
         assert "issue" in body
+
 
 class TestMicroagentEdgeCases:
     """Test edge cases and error conditions."""

@@ -213,4 +213,5 @@ class TestWorkflowSimplifications:
         assert len(issue_msg) < 200, "Issue message should be a simple placeholder"
         assert len(pr_msg) < 200, "PR message should be a simple placeholder"
 
+
 # ... rest of the code unchanged ...

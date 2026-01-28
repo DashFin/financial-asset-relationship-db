@@ -95,7 +95,9 @@ class TestRequirementsDevYAMLUsage:
         ]
 
         for test_file in workflow_tests:
-            if test_file.exists() and "import yaml" in test_file.read_text(encoding="utf-8"):
+            if test_file.exists() and "import yaml" in test_file.read_text(
+                encoding="utf-8"
+            ):
                 return
 
         pytest.fail("PyYAML should be imported in workflow test files")

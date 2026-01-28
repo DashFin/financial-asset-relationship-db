@@ -82,7 +82,7 @@ class TestWorkflowConfigurationIntegration:
                                 # (This is a soft check - warning only)
                                 assert any(
                                     setup_info[0] in prev_step.get("uses", "")
-                                    for prev_step in steps[:steps.index(step)]
+                                    for prev_step in steps[: steps.index(step)]
                                 ), (
                                     f"{workflow_file.name} run uses '{tool}' without preceding setup step '{setup_info[0]}'."
                                 )
@@ -244,7 +244,9 @@ class TestDocumentationConsistency:
                         and "deprecated" not in context_text
                     ):
                         # Might still have it, which is okay if historical
-                        self.fail(f"README references removed chunking feature outside removed/deprecated context at line {line_num}: {line.strip()}")
+                        self.fail(
+                            f"README references removed chunking feature outside removed/deprecated context at line {line_num}: {line.strip()}"
+                        )
 
     def test_changelog_documents_deletions(self):
         """CHANGELOG should document deleted files and features."""

@@ -268,14 +268,14 @@ class TestWorkflowConfigConsistency:
                 "Config contains chunking settings unused by workflow"
             )
 
-    @ staticmethod
+    @staticmethod
     def test_no_missing_config_files_referenced() -> None:
         """Workflows should not reference missing config files."""
         for workflow_file in _get_workflow_files():
             with open(workflow_file, "r", encoding="utf-8") as handle:
                 content = handle.read()
 
-            file_patterns = re.findall(r'\.github/[^\s\'\"]+', content)
+            file_patterns = re.findall(r"\.github/[^\s\'\"]+", content)
             for raw_path in file_patterns:
                 cleaned = raw_path.rstrip(",")
                 path = Path(cleaned)
@@ -293,6 +293,7 @@ class TestWorkflowConfigConsistency:
                         assert "if" in line.lower() or "exists" in line.lower(), (
                             f"{workflow_file.name} references missing file: {cleaned}"
                         )
+
 
 class TestBackwardCompatibility:
     """Ensure removals do not break backward compatibility."""
