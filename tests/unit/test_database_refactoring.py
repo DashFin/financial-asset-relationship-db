@@ -202,7 +202,8 @@ class TestConnect:
             except Exception as e:
                 errors.append(e)
         
-import threading
+        import threading
+        threads = [threading.Thread(target=get_connection) for _ in range(10)]
         for t in threads:
             t.start()
         for t in threads:
