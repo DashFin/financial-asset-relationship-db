@@ -274,7 +274,8 @@ class TestExecuteFunction:
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
         from api import database
         database.DATABASE_PATH = ":memory:"
-        # Call initialize_schema() in a fixture or setup method
+        database._MEMORY_CONNECTION = None
+        initialize_schema()
         
         execute(
             "INSERT INTO user_credentials (username, hashed_password) VALUES (?, ?)",
@@ -283,7 +284,7 @@ class TestExecuteFunction:
         
         result = fetch_one("SELECT username FROM user_credentials WHERE username=?", ("testuser",))
         assert result is not None
-        assert result["username"] == "testuser"
+        assert result["username"] == "testuser""
 
     def test_execute_update_statement(self, monkeypatch):
         """Should execute UPDATE statements."""
