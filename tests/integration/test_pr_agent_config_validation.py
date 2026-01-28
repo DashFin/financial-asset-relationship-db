@@ -443,49 +443,6 @@ class TestPRAgentConfigSecurity:
         scan_for_secrets(pr_agent_config)
 
 
-class TestPRAgentConfigYAMLValidity:
-    ...
-
-    sensitive_patterns = [
-        "password",
-        "secret",
-        "token",
-        "api_key",
-        "apikey",
-        "access_key",
-        "private_key",
-    ]
-
-    allowed_placeholders = {"null", "none", "placeholder", "***"}
-
-
-# Helpers for recursive secret scanning
-
-SAFE_PLACEHOLDERS = {None, "null", "webhook"}
-
-
-def scan_node(node, path: str = "root") -> None:
-    if isinstance(node, dict):
-        for key, value in node.items():
-            key_l = str(key).lower()
-            new_path = f"{path}.{key}"
-
-            if any(pat in key_l for pat in sensitive_patterns):
-                assert value in SAFE_PLACEHOLDERS, f"Potential hardcoded credential at '{new_path}'"
-
-            scan_node(value, new_path)
-
-    elif isinstance(node, list):
-        for idx, item in enumerate(node):
-            scan_node(item, f"{path}[{idx}]")
-
-    # primitives intentionally ignored
-
-
-# At the end of test_no_hardcoded_secrets, ensure the configuration is scanned
-scan_node(pr_agent_config)
-
-
 def test_safe_configuration_values(pr_agent_config):
     """
     Assert that key numeric limits in the PR agent configuration fall within safe bounds.
