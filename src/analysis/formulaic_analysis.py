@@ -66,10 +66,14 @@ class FormulaicAnalyzer:
             "empirical_relationships": empirical_relationships,
             "formula_count": len(all_formulas),
             "categories": self._categorize_formulas(all_formulas),
-            "summary": self._generate_formula_summary(all_formulas, empirical_relationships),
+            "summary": self._generate_formula_summary(
+                all_formulas, empirical_relationships
+            ),
         }
 
-    def _extract_fundamental_formulas(self, graph: AssetRelationshipGraph) -> List[Formula]:
+    def _extract_fundamental_formulas(
+        self, graph: AssetRelationshipGraph
+    ) -> List[Formula]:
         """Extract fundamental financial formulas based on asset types"""
         formulas = []
 
@@ -95,13 +99,8 @@ class FormulaicAnalyzer:
         if self._has_dividend_stocks(graph):
             div_yield_formula = Formula(
                 name="Dividend Yield",
-                formula=(
-                    "Div_Yield = (Annual_Dividends / Price) × 100%"
-                ),
-                latex=(
-                    r"DivYield = \frac{D_{annual}}{P}"
-                    r" \times 100%"
-                ),
+                formula=("Div_Yield = (Annual_Dividends / Price) × 100%"),
+                latex=(r"DivYield = \frac{D_{annual}}{P}" r" \times 100%"),
                 description=(
                     "Percentage return from dividends relative to stock price"
                 ),
@@ -122,8 +121,7 @@ class FormulaicAnalyzer:
                 name=("Bond Yield-to-Maturity (Approximation)"),
                 formula=("YTM ≈ (C + (FV - P) / n) / ((FV + P) / 2)"),
                 latex=(
-                    r"YTM \approx \frac{C + \frac{FV - P}{n}}"
-                    r"{\frac{FV + P}{2}}"
+                    r"YTM \approx \frac{C + \frac{FV - P}{n}}" r"{\frac{FV + P}{2}}"
                 ),
                 description="Approximate yield-to-maturity for bonds",
                 variables={
@@ -159,7 +157,9 @@ class FormulaicAnalyzer:
 
         return formulas
 
-    def _analyze_correlation_patterns(self, graph: AssetRelationshipGraph) -> List[Formula]:
+    def _analyze_correlation_patterns(
+        self, graph: AssetRelationshipGraph
+    ) -> List[Formula]:
         """Analyze and formulate correlation patterns between assets"""
         formulas = []
 
@@ -186,10 +186,7 @@ class FormulaicAnalyzer:
         correlation_formula = Formula(
             name="Correlation Coefficient",
             formula="ρ = Cov(X, Y) / (σ_X × σ_Y)",
-            latex=(
-                r"\rho = \frac{Cov(X, Y)}{\sigma_X "
-                r"\times \sigma_Y}"
-            ),
+            latex=(r"\rho = \frac{Cov(X, Y)}{\sigma_X " r"\times \sigma_Y}"),
             description=("Measure of linear relationship between two variables"),
             variables={
                 "ρ": "Correlation coefficient (-1 to 1)",
@@ -205,7 +202,9 @@ class FormulaicAnalyzer:
 
         return formulas
 
-    def _extract_valuation_relationships(self, graph: AssetRelationshipGraph) -> List[Formula]:
+    def _extract_valuation_relationships(
+        self, graph: AssetRelationshipGraph
+    ) -> List[Formula]:
         """Extract valuation model relationships"""
         formulas = []
 
@@ -215,9 +214,7 @@ class FormulaicAnalyzer:
                 name="Price-to-Book Ratio",
                 formula="P/B = Market_Price / Book_Value_per_Share",
                 latex=r"P/B = \frac{P}{BV_{per\_share}}",
-                description=(
-                    "Valuation metric comparing market price to book value"
-                ),
+                description=("Valuation metric comparing market price to book value"),
                 variables={
                     "P/B": "Price-to-Book Ratio",
                     "P": "Market Price per Share ($)",
@@ -296,7 +293,9 @@ class FormulaicAnalyzer:
 
         return formulas
 
-    def _extract_portfolio_theory_formulas(self, graph: AssetRelationshipGraph) -> List[Formula]:
+    def _extract_portfolio_theory_formulas(
+        self, graph: AssetRelationshipGraph
+    ) -> List[Formula]:
         """Extract Modern Portfolio Theory formulas"""
         formulas = []
 
@@ -341,7 +340,9 @@ class FormulaicAnalyzer:
 
         return formulas
 
-    def _analyze_cross_asset_relationships(self, graph: AssetRelationshipGraph) -> List[Formula]:
+    def _analyze_cross_asset_relationships(
+        self, graph: AssetRelationshipGraph
+    ) -> List[Formula]:
         """Analyze relationships between different asset classes"""
         formulas = []
 
@@ -357,9 +358,7 @@ class FormulaicAnalyzer:
                     "EUR/GBP": "Euro to British Pound exchange rate",
                     "USD/GBP": "US Dollar to British Pound exchange rate",
                 },
-                example_calculation=(
-                    self._calculate_exchange_rate_examples(graph)
-                ),
+                example_calculation=(self._calculate_exchange_rate_examples(graph)),
                 category="Currency Markets",
                 r_squared=0.99,
             )
@@ -430,9 +429,7 @@ class FormulaicAnalyzer:
         return {
             "total_formulas": len(formulas),
             "avg_r_squared": (
-                sum(f.r_squared for f in formulas) / len(formulas)
-                if formulas
-                else 0
+                sum(f.r_squared for f in formulas) / len(formulas) if formulas else 0
             ),
             "formula_categories": self._categorize_formulas(formulas),
             "empirical_data_points": len(
@@ -442,9 +439,7 @@ class FormulaicAnalyzer:
                 f"Identified {len(formulas)} mathematical relationships",
                 f"Average correlation strength: {avg_corr_strength:.2f}",
                 "Valuation models applicable to equity assets",
-                (
-                    "Portfolio theory formulas available for multi-asset analysis"
-                ),
+                ("Portfolio theory formulas available for multi-asset analysis"),
                 (
                     "Cross-asset relationships identified between "
                     "commodities and currencies"
