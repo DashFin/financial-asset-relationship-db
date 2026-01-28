@@ -283,8 +283,8 @@ describe('API Client Refactoring Tests', () => {
           additional_fields: {},
         },
       });
-
       await api.getAssetDetail(specialId);
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith(`/api/assets/${encodeURIComponent(specialId)}`);
       expect(mockAxiosInstance.get).toHaveBeenCalledWith(`/api/assets/${specialId}`);
     });
 
