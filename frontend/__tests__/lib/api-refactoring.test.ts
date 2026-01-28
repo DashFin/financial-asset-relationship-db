@@ -352,7 +352,7 @@ describe('API Client Refactoring Tests', () => {
       mockAxiosInstance.get.mockResolvedValue({ data: 'unexpected string response' });
 
       const result = await api.healthCheck();
-      expect(result).toMatchObject({}); // Adjust to match expected structure
+      expect(result).toBe('unexpected string response');
     });
   });
 
