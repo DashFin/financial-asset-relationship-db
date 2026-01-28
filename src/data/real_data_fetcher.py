@@ -75,10 +75,14 @@ class RealDataFetcher:
                 logger.exception("Failed to load cached dataset; proceeding with standard fetch")
 
         if not self.enable_network:
-            logger.info("Network fetching disabled. Using fallback dataset if available.")
+            logger.info(
+                "Network fetching disabled. Using fallback dataset if available."
+            )
             return self._fallback()
 
-        logger.info("Creating database with real financial data from Yahoo Finance")
+        logger.info(
+            "Creating database with real financial data from Yahoo Finance"
+        )
         graph = AssetRelationshipGraph()
 
         try:
@@ -106,12 +110,19 @@ class RealDataFetcher:
 
                 try:
                     cache_dir = os.path.dirname(self.cache_path)
-                    with tempfile.NamedTemporaryFile("wb", dir=cache_dir, delete=False) as tmp_file:
+                    with tempfile.NamedTemporaryFile(
+                        "wb",
+                        dir=cache_dir,
+                        delete=False,
+                    ) as tmp_file:
                         tmp_path = tmp_file.name
                         _save_to_cache(graph, Path(tmp_path))
                     os.replace(tmp_path, self.cache_path)
                 except Exception:
-                    logger.exception("Failed to persist dataset cache to %s", self.cache_path)
+                    logger.exception(
+                        "Failed to persist dataset cache to %s",
+                        self.cache_path,
+                    )
 
             logger.info(
                 "Real database created with %s assets and %s relationships",
@@ -237,8 +248,12 @@ class RealDataFetcher:
                     asset_class=AssetClass.FIXED_INCOME,
                     sector=sector,
                     price=current_price,
-                    yield_to_maturity=info.get("yield", 0.03),  # Default 3% if not available
-                    coupon_rate=info.get("yield", 0.025),  # Approximate
+                    yield_to_maturity=info.get(
+                        "yield", 0.03
+                    ),  # Default 3% if not available
+                    coupon_rate=info.get(
+                        "yield", 0.025
+                    ),  # Approximate
                     maturity_date="2035-01-01",  # Approximate for ETFs
                     credit_rating=rating,
                     issuer_id=issuer_id,
@@ -275,7 +290,11 @@ class RealDataFetcher:
 
                 # Calculate simple volatility from recent data
                 hist_week = ticker.history(period="5d")
-                volatility = float(hist_week["Close"].pct_change().std()) if len(hist_week) > 1 else 0.20
+                volatility = (
+                    float(hist_week["Close"].pct_change().std())
+                    if len(hist_week) > 1
+                    else 0.20
+                )
 
                 commodity = Commodity(
                     id=symbol.replace("=F", "_FUTURE"),
@@ -375,7 +394,10 @@ class RealDataFetcher:
             asset_id="XOM",
             event_type=RegulatoryActivity.SEC_FILING,
             date="2024-10-01",
-            description=("10-K Filing - Increased oil reserves and sustainability initiatives"),
+            description=(
+                "10-K Filing - Increased oil reserves and "
+                "sustainability initiatives"
+            ),
             impact_score=0.05,
             related_assets=["CL_FUTURE"],  # Related to oil futures
         )
@@ -458,8 +480,14 @@ def _serialize_graph(graph: AssetRelationshipGraph) -> Dict[str, Any]:
               incoming relationships
     """
     return {
-        "assets": [_serialize_dataclass(asset) for asset in graph.assets.values()],
-        "regulatory_events": [_serialize_dataclass(event) for event in graph.regulatory_events],
+        "assets": [
+            _serialize_dataclass(asset)
+            for asset in graph.assets.values()
+        ],
+        "regulatory_events": [
+            _serialize_dataclass(event)
+            for event in graph.regulatory_events
+        ],
         "relationships": {
             source: [
                 {

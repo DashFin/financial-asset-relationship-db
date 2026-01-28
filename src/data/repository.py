@@ -59,7 +59,9 @@ class AssetGraphRepository:
     def list_assets(self) -> List[Asset]:
         """Return all assets as dataclass instances ordered by id."""
 
-        result = self.session.execute(select(AssetORM).order_by(AssetORM.id)).scalars().all()
+        result = self.session.execute(
+            select(AssetORM).order_by(AssetORM.id)
+        ).scalars().all()
         return [self._to_asset_model(record) for record in result]
 
     def get_assets_map(self) -> Dict[str, Asset]:
@@ -123,7 +125,12 @@ class AssetGraphRepository:
             for rel in result
         ]
 
-    def get_relationship(self, source_id: str, target_id: str, rel_type: str) -> Optional[RelationshipRecord]:
+    def get_relationship(
+        self,
+        source_id: str,
+        target_id: str,
+        rel_type: str,
+    ) -> Optional[RelationshipRecord]:
         """Fetch a single relationship if it exists."""
 
         stmt = select(AssetRelationshipORM).where(
@@ -142,7 +149,12 @@ class AssetGraphRepository:
             bidirectional=relationship.bidirectional,
         )
 
-    def delete_relationship(self, source_id: str, target_id: str, rel_type: str) -> None:
+    def delete_relationship(
+        self,
+        source_id: str,
+        target_id: str,
+        rel_type: str,
+    ) -> None:
         """Remove a relationship."""
 
         stmt = select(AssetRelationshipORM).where(
@@ -198,21 +210,26 @@ class AssetGraphRepository:
         instance.
 
         This method always updates the common Asset fields
-        (id/symbol/name/class/sector/price/etc.).
+        (id/symbol/name/class/sector/price/etc).
 
-        It also clears and repopulates optional, asset-class-specific columns
-        by reading attributes from `asset` via `getattr(..., None)` so that
-        missing attributes are written as NULL.
+        It also clears and repopulates optional,
+        asset-class-specific columns by reading attributes from `asset`
+        via `getattr(..., None)`
+        so that missing attributes are written as NULL.
 
-        This prevents stale values from remaining in the database when an
-        asset's type/available fields change between updates.
+        This prevents stale values from remaining in the database
+        when an asset's type/available fields change between updates.
         """
         orm.symbol = asset.symbol
         orm.name = asset.name
         orm.asset_class = asset.asset_class.value
         orm.sector = asset.sector
         orm.price = float(asset.price)
-        orm.market_cap = float(asset.market_cap) if asset.market_cap is not None else None
+        orm.market_cap = (
+            float(asset.market_cap)
+            if asset.market_cap is not None
+            else None
+        )
         orm.currency = asset.currency
 
         # Reset all optional fields to avoid stale values

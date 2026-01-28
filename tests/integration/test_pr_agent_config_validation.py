@@ -444,22 +444,18 @@ class TestPRAgentConfigSecurity:
         for i, item in enumerate(val):
             scan_for_secrets(item, f"{path}[{i}]")
     # For non-container values, the check is already performed by scan_dict
-        """
-        Traverse the parsed YAML and ensure that any key or value containing sensitive
-        indicators has a safe placeholder value (None, 'null', 'none', 'placeholder',
-        or a templated variable like '${VAR}').
-        """
-        sensitive_patterns = [
-            "password",
-            "secret",
-            "token",
-            "api_key",
-            "apikey",
-            "access_key",
-            "private_key",
-        ]
 
-        allowed_placeholders = {"null", "none", "placeholder", "***"}
+    sensitive_patterns = [
+        "password",
+        "secret",
+        "token",
+        "api_key",
+        "apikey",
+        "access_key",
+        "private_key",
+    ]
+
+    allowed_placeholders = {"null", "none", "placeholder", "***"}
 
 # Helpers for recursive secret scanning
 
