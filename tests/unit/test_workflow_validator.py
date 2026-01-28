@@ -760,8 +760,8 @@ class TestValidationResultBehavior:
             "Simple error",
             "Error with 'quotes'",
             'Error with "double quotes"',
-            "Error with unicode: 你好", "Error with newline
-            character",
+            "Error with unicode: 你好",
+            "Error with newline\ncharacter",
         ]
         result = ValidationResult(False, errors, {})
         assert len(result.errors) == 5
