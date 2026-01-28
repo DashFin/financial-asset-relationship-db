@@ -14,6 +14,19 @@ from pathlib import Path
 import pytest
 import yaml
 
+INLINE_CREDS_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*://[^/@:\s]+:[^/@\s]+@", re.IGNORECASE)
+SECRET_MARKERS = (
+    "secret",
+    "token",
+    "apikey",
+    "api_key",
+    "access_key",
+    "private_key",
+    "pwd",
+    "password",
+    "auth",
+    "bearer",
+)
 
 class TestPRAgentConfigSimplification:
     """Test PR agent config simplification changes."""
@@ -261,109 +274,15 @@ class TestPRAgentConfigSecurity:
     def test_no_hardcoded_credentials(pr_agent_config):
         """
         Recursively scan configuration values and keys for suspected secrets.
-        - Flags high - entropy or secret - like string values.
+        - Flags high-entropy or secret-like string values.
         - Ensures sensitive keys only use safe placeholders.
         """
         import math
 
-        # Heuristic to detect inline creds in URLs (user:pass@)
+        # Module-level / shared compiled regexes and markers (defined below)
+        # These are module-level constants declared outside classes further down in the file.
+        # We'll reference them indirectly here by using the module-level names.
 
-    inline_creds_re = re.compile(
-        r"^[A-Za-z][A-Za-z0-9+.-]*://[^/@:\s]+:[^/@\s]+@",
-        re.IGNORECASE,
-    )
-
-    # Common secret-like prefixes or markers
-    secret_markers = (
-        "secret",
-        "token",
-        "apikey",
-        "api_key",
-        "access_key",
-        "private_key",
-        "pwd",
-        "password",
-        "auth",
-        "bearer ",
-    )
-
-    @staticmethod
-    def has_secret_prefix(val):
-        return any(val.startswith(p) for p in secret_markers)
-
-    @staticmethod
-    def has_inline_creds(val):
-        return re.search(
-            r"^[A-Za-z][A-Za-z0-9+.-]*://[^/@:\s]+:[^/@\s]+@", val, re.IGNORECASE
-        )
-
-    suspected = []
-
-    # Define detectors for credential heuristics
-    @staticmethod
-    def detect_long_string(s):
-        if len(s) >= 40:
-            return ("long_string", s)
-        return None
-
-    @staticmethod
-    def detect_prefix(s):
-        secret_markers = (
-            "secret",
-            "token",
-            "apikey",
-            "api_key",
-            "access_key",
-            "private_key",
-            "pwd",
-            "password",
-            "auth",
-            "bearer ",
-        )
-        for marker in secret_markers:
-            if s.lower().startswith(marker):
-                return ("prefix", s)
-        return None
-
-    @staticmethod
-    def detect_inline_creds(s):
-        if inline_creds_re.search(s):
-            return ("inline_creds", s)
-        return None
-
-    detectors = [detect_long_string, detect_prefix, detect_inline_creds]
-
-    @staticmethod
-    def scan_value(val):
-        stripped = str(val).strip()
-        if not stripped:
-            return None
-        for detector in detectors:
-            result = detector(stripped)
-            if result:
-                return result
-        return None
-
-    @staticmethod
-    def scan(obj):
-        if isinstance(obj, dict):
-            for _, value in obj.items():
-                TestPRAgentConfigYAMLValidity.scan(value)
-        elif isinstance(obj, (list, tuple)):
-            for item in obj:
-                TestPRAgentConfigYAMLValidity.scan(item)
-        else:
-            result = TestPRAgentConfigYAMLValidity.scan_value(obj)
-            if result:
-                suspected.append(result)
-
-    TestPRAgentConfigYAMLValidity.scan(pr_agent_config)
-
-    if suspected:
-        details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
-        pytest.fail(
-            f"Potential hardcoded credentials found in PR agent config:\n{details}"
-        )
 
         def shannon_entropy(s: str) -> float:
             if not s:
@@ -395,9 +314,9 @@ class TestPRAgentConfigSecurity:
             }
             if v.lower() in placeholders:
                 return False
-            if inline_creds_re.search(v):
+            if INLINE_CREDS_RE.search(v):
                 return True
-            if any(m in v.lower() for m in secret_markers) and len(v) >= 12:
+            if any(m in v.lower() for m in SECRET_MARKERS) and len(v) >= 12:
                 return True
             # Base64/URL-safe like long strings
             if re.fullmatch(r"[A-Za-z0-9_\-]{20,}", v) and shannon_entropy(v) >= 3.5:
@@ -496,12 +415,12 @@ class TestPRAgentConfigRemovedComplexity:
     @staticmethod
     def pr_agent_config_content():
         """
-        Return the contents of .github / pr - agent - config.yml as a string.
+        Return the contents of .github/pr-agent-config.yml as a string.
 
         Reads the PR agent configuration file from the repository root and returns its raw text.
 
         Returns:
-            str: Raw YAML content of .github / pr - agent - config.yml.
+            str: Raw YAML content of .github/pr-agent-config.yml.
         """
         config_path = Path(".github/pr-agent-config.yml")
         with open(config_path, "r") as f:
@@ -525,7 +444,7 @@ class TestPRAgentConfigRemovedComplexity:
         Ensure no explicit LLM model identifiers appear in the raw PR agent configuration.
 
         Parameters:
-            pr_agent_config_content(str): Raw contents of .github / pr - agent - config.yml used for pattern checks.
+            pr_agent_config_content(str): Raw contents of .github/pr-agent-config.yml used for pattern checks.
         """
         assert "gpt-3.5-turbo" not in pr_agent_config_content
         assert "gpt-4" not in pr_agent_config_content
