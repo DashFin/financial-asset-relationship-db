@@ -23,7 +23,7 @@ exit_code=0
 for file in "${FILES[@]}"; do
     if [ -f "$file" ]; then
         echo "✅ $file"
-        echo "   └─ $(wc -l <"$file") lines, $(grep -c 'def test_' "$file") test methods"
+        echo "   └─ $(wc -l <"$file") lines, $(grep -c 'def test_' "$file" || true) test methods"
     else
         echo "❌ $file - NOT FOUND"
         exit_code=1
