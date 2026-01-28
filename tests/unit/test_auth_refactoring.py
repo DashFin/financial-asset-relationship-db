@@ -201,7 +201,7 @@ class TestUserRepositoryInstanceMethods:
         for thread in threads:
             thread.join()
         
-        assert len(errors) == 0
+        assert len(errors) == 0, f"Errors occurred during user creation: {errors}"
         assert repository.has_users() is True
 
 
