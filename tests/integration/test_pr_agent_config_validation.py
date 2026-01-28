@@ -315,29 +315,31 @@ class TestPRAgentConfigSecurity:
 
     detectors = [detect_long_string, detect_prefix, detect_inline_creds]
 
-       def scan_value(val):
-           stripped = str(val).strip()
-           if not stripped:
-               return None
-           for detector in detectors:
-               result = detector(stripped)
-               if result:
-                   return result
-           return None
+    @staticmethod
+    def scan_value(val):
+        stripped = str(val).strip()
+        if not stripped:
+            return None
+        for detector in detectors:
+            result = detector(stripped)
+            if result:
+                return result
+        return None
 
-        def scan(obj):
-            if isinstance(obj, dict):
-                for _, value in obj.items():
-                    scan(value)
-            elif isinstance(obj, (list, tuple)):
-                for item in obj:
-                    scan(item)
-            else:
-                result = scan_value(obj)
-                if result:
-                    suspected.append(result)
+    @staticmethod
+    def scan(obj):
+        if isinstance(obj, dict):
+            for _, value in obj.items():
+                TestPRAgentConfigYAMLValidity.scan(value)
+        elif isinstance(obj, (list, tuple)):
+            for item in obj:
+                TestPRAgentConfigYAMLValidity.scan(item)
+        else:
+            result = TestPRAgentConfigYAMLValidity.scan_value(obj)
+            if result:
+                suspected.append(result)
 
-        scan(pr_agent_config)
+    scan(pr_agent_config)
 
             if suspected:
                 details = "\n".join(f"{kind}: {val}" for kind, val in suspected)
