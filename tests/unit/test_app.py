@@ -87,7 +87,7 @@ class TestFinancialAssetAppInitialization:
         mock_create_db.return_value = mock_graph
 
         with patch('app.logger') as mock_logger:
-            app = FinancialAssetApp()
+            FinancialAssetApp()
 
             # Check that logger was called with asset count
             assert mock_logger.info.called
