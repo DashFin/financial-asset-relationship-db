@@ -284,8 +284,8 @@ describe('API Client Refactoring Tests', () => {
         },
       });
       await api.getAssetDetail(specialId);
+      await api.getAssetDetail(specialId);
       expect(mockAxiosInstance.get).toHaveBeenCalledWith(`/api/assets/${encodeURIComponent(specialId)}`);
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith(`/api/assets/${specialId}`);
     });
 
     it('should handle very large numbers in metrics', async () => {
