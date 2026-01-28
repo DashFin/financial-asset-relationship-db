@@ -204,9 +204,8 @@ class TestDeletedScriptsReadme:
             assert ".github/scripts/README.md" not in content, (
                 f"{doc_file} references deleted scripts README"
             )
-            )
 
-    @ staticmethod
+    @staticmethod
     def test_no_orphaned_script_documentation() -> None:
         """Documentation should not provide instructions for deleted scripts."""
         for doc_file in Path(".").glob("*.md"):

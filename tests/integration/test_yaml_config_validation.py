@@ -212,7 +212,8 @@ class TestWorkflowSchemaCompliance:
                         f"Job '{job_id}' steps must be a list in {workflow['path']}"
                     )
 
-    def test_step_definitions_valid(self, all_workflows):
+    @staticmethod
+    def test_step_definitions_valid(all_workflows):
         """
         Assert that every workflow step has a valid step definition: each step must include either the `uses` key or the `run` key, and must not include both.
 

@@ -25,9 +25,7 @@ class TestPyYAMLDependencyAddition:
 
     @pytest.fixture
     def requirements_lines(self, requirements_content: str) -> List[str]:
-        """
-        Extract non-empty, non-comment lines from a requirements file.
-        """
+        """Extract non-empty, non-comment lines from a requirements file."""
         return [
             line.strip()
             for line in requirements_content.splitlines()
@@ -97,13 +95,13 @@ class TestRequirementsDevYAMLUsage:
         ]
 
         for test_file in workflow_tests:
-            if test_file.exists():
-                if "import yaml" in test_file.read_text(encoding="utf-8"):
-                    return
+            if test_file.exists() and "import yaml" in test_file.read_text(encoding="utf-8"):
+                return
 
         pytest.fail("PyYAML should be imported in workflow test files")
 
-    def test_yaml_files_exist_in_repo(self) -> None:
+    @staticmethod
+    def test_yaml_files_exist_in_repo() -> None:
         """Ensure YAML workflow files exist in .github/workflows."""
         workflows_dir = Path(".github/workflows")
 

@@ -157,7 +157,6 @@ class TestWorkflowSecurityAdvanced:
 
     def test_no_hardcoded_secrets(self, workflow_files):
         """Test that workflows don't contain hardcoded secrets."""
-        import re
 
         secret_patterns = [
             r'password\s*[:=]\s*["\'](?!.*\$\{\{)[\w-]+["\']',
@@ -259,8 +258,8 @@ class TestWorkflowPerformanceOptimization:
 class TestWorkflowTriggerValidation:
     """Test workflow trigger configurations."""
 
-    @pytest.fixture
     @staticmethod
+    @pytest.fixture
     def workflow_files() -> List[Path]:
         """Get all workflow YAML files."""
         workflow_dir = Path(".github/workflows")

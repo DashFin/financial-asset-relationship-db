@@ -44,7 +44,8 @@ class TestWorkflowYAMLSyntax:
         """Get all workflow YAML files."""
         return _get_workflow_files()
 
-    def test_all_workflows_are_valid_yaml(self, workflow_files):
+    @staticmethod
+    def test_all_workflows_are_valid_yaml(workflow_files):
         """All workflow files should be valid YAML."""
         assert len(workflow_files) > 0, "No workflow files found"
 
@@ -59,7 +60,8 @@ class TestWorkflowYAMLSyntax:
             except yaml.YAMLError as e:
                 pytest.fail(f"Invalid YAML in {workflow_file.name}: {e}")
 
-    def test_workflows_have_no_tabs(self, workflow_files):
+    @staticmethod
+    def test_workflows_have_no_tabs(workflow_files):
         """Workflow files should use spaces, not tabs."""
         for workflow_file in workflow_files:
             with open(workflow_file, "r", encoding="utf-8") as f:
@@ -69,7 +71,8 @@ class TestWorkflowYAMLSyntax:
                 f"{workflow_file.name} contains tabs (should use spaces for indentation)"
             )
 
-    def test_workflows_use_consistent_indentation(self, workflow_files):
+    @staticmethod
+    def test_workflows_use_consistent_indentation(workflow_files):
         """Workflow files should use consistent indentation (2 spaces)."""
         for workflow_file in workflow_files:
             with open(workflow_file, "r", encoding="utf-8") as f:
@@ -84,7 +87,8 @@ class TestWorkflowYAMLSyntax:
                             f"{workflow_file.name}:{i} has odd indentation ({leading_spaces} spaces)"
                         )
 
-    def test_workflows_have_no_trailing_whitespace(self, workflow_files):
+    @staticmethod
+    def test_workflows_have_no_trailing_whitespace(workflow_files):
         """Workflow files should not have trailing whitespace."""
         for workflow_file in workflow_files:
             with open(workflow_file, "r", encoding="utf-8") as f:
@@ -104,14 +108,16 @@ class TestWorkflowGitHubActionsSchema:
         """Fixture to provide loaded workflow data for schema tests."""
         return _get_workflow_data()
 
-    def test_workflows_have_name(self, workflow_data):
+    @staticmethod
+    def test_workflows_have_name(workflow_data):
         """All workflows should have a name field."""
         for filename, data in workflow_data.items():
             assert "name" in data, f"{filename} missing 'name' field"
             assert isinstance(data["name"], str), f"{filename} name should be string"
             assert len(data["name"]) > 0, f"{filename} name is empty"
 
-    def test_workflows_have_trigger(self, workflow_data):
+    @staticmethod
+    def test_workflows_have_trigger(workflow_data):
         """All workflows should have at least one trigger."""
         valid_triggers = {
             "on",
@@ -145,14 +151,16 @@ class TestWorkflowGitHubActionsSchema:
                     f"{filename} has no valid triggers in dict"
                 )
 
-    def test_workflows_have_jobs(self, workflow_data):
+    @staticmethod
+    def test_workflows_have_jobs(workflow_data):
         """All workflows should define at least one job."""
         for filename, data in workflow_data.items():
             assert "jobs" in data, f"{filename} missing 'jobs' section"
             assert isinstance(data["jobs"], dict), f"{filename} jobs should be dict"
             assert len(data["jobs"]) > 0, f"{filename} has no jobs defined"
 
-    def test_jobs_have_runs_on(self, workflow_data):
+    @staticmethod
+    def test_jobs_have_runs_on(workflow_data):
         """All jobs should specify runs-on."""
         for filename, data in workflow_data.items():
             jobs = data.get("jobs", {})
@@ -179,12 +187,10 @@ class TestWorkflowGitHubActionsSchema:
 
                 if isinstance(runs_on, str):
                     # Can be expression or literal
-                    if not runs_on.startswith("${{"):
+                    if not runs_on.startswith("${{" ):
                         assert any(runner in runs_on for runner in valid_runners), (
-                            f"{filename} job '{job_name}' has invalid runs-on: {runs_on}"
-                        )
-
-    def test_jobs_have_steps_or_uses(self, workflow_data):
+    @staticmethod
+    def test_jobs_have_steps_or_uses(workflow_data):
         """Jobs should have either steps or uses (for reusable workflows)."""
         for filename, data in workflow_data.items():
             jobs = data.get("jobs", {})
@@ -205,14 +211,10 @@ class TestWorkflowGitHubActionsSchema:
                         f"{filename} job '{job_name}' has empty steps"
                     )
 
-
-"""
-Integration tests for GitHub workflow YAML schema and security.
-
-This module contains tests to verify that workflow files conform to the expected schema
-and do not include hardcoded secrets or other security vulnerabilities.
-"""
-
+# Integration tests for GitHub workflow YAML schema and security.
+#
+# This module contains tests to verify that workflow files conform to the expected schema
+# and do not include hardcoded secrets or other security vulnerabilities.
 
 class TestWorkflowSecurity:
     """Security-focused tests for GitHub workflows."""
@@ -223,6 +225,7 @@ class TestWorkflowSecurity:
         """Retrieve all workflow files for security tests."""
         return _get_workflow_files()
 
-    def test_no_hardcoded_secrets(self, workflow_files):
+    @staticmethod
+    def test_no_hardcoded_secrets(workflow_files):
         """Workflows should not contain hardcoded secrets."""
         warnings.warn("Workflows should not contain hardcoded secrets.")

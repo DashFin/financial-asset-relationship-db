@@ -1,8 +1,8 @@
-from __future__ import annotations
+    from __future__ import annotations
 
-import os
-from typing import Any
-
+    from typing import Any
+    import os
+    import yaml
 
 
 class ValidationResult:
@@ -40,8 +40,20 @@ def validate_workflow(workflow_path: str) -> ValidationResult:
     Returns:
         ValidationResult describing the validation outcome.
     """
+    # Whitelist validation for workflow filenames
+    allowed_files = {"workflow1.yml", "workflow2.yml"}
+    trusted_dir = "/trusted/workflows"
+    filename = os.path.basename(workflow_path)
+    if filename not in allowed_files:
+        return ValidationResult(
+            is_valid=False,
+            errors=[f"Invalid workflow file: {filename}"],
+            workflow_data={},
+        )
+    safe_path = os.path.join(trusted_dir, filename)
+
     try:
-        with open(workflow_path, encoding="utf-8") as file_handle:
+        with open(safe_path, encoding="utf-8") as file_handle:
             data = yaml.safe_load(file_handle)
 
         if data is None:

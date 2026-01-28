@@ -259,7 +259,6 @@ class TestWorkflowSecretHandling:
                         assert isinstance(env_value, str) and env_value.startswith("secrets."), (
                             f"Sensitive env var {env_name} in {workflow['path']} job '{job_name}' must reference secrets."
                         )
-                    ):
                         # Value should reference secrets
                         assert "secrets." in str(env_value), (
                             f"Sensitive env var {env_name} should use secrets in "

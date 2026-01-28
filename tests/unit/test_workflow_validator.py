@@ -26,10 +26,6 @@ class TestValidationResult:
     @staticmethod
     def test_validation_result_creation_valid():
         """Test creating a valid ValidationResult"""
-
-    @staticmethod
-    def test_validation_result_creation_valid():
-        """Test creating a valid ValidationResult"""
         result = ValidationResult(True, [], {"key": "value"})
         assert result.is_valid is True
         assert result.errors == []
@@ -55,7 +51,8 @@ class TestValidationResult:
 class TestValidateWorkflow:
     """Test suite for validate_workflow function"""
 
-    def test_valid_minimal_workflow_file(self):
+    @staticmethod
+    def test_valid_minimal_workflow_file():
         """Test validation of a minimal valid workflow file"""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write(
@@ -721,7 +718,8 @@ jobs:
 class TestValidationResultBehavior:
     """Test ValidationResult behavior and edge cases"""
 
-    def test_validation_result_with_multiple_errors(self):
+    @staticmethod
+    def test_validation_result_with_multiple_errors():
         """Test ValidationResult with multiple error messages"""
         errors = ["Error 1", "Error 2", "Error 3", "Error 4"]
         result = ValidationResult(False, errors, {})
@@ -729,14 +727,16 @@ class TestValidationResultBehavior:
         assert result.errors[0] == "Error 1"
         assert result.errors[-1] == "Error 4"
 
-    def test_validation_result_with_empty_error_list(self):
+    @staticmethod
+    def test_validation_result_with_empty_error_list():
         """Test valid ValidationResult with empty error list"""
         result = ValidationResult(True, [], {"jobs": {}})
         assert result.is_valid is True
         assert result.errors == []
         assert isinstance(result.errors, list)
 
-    def test_validation_result_preserves_complex_workflow_data(self):
+    @staticmethod
+    def test_validation_result_preserves_complex_workflow_data():
         """Test that ValidationResult preserves complex nested workflow data"""
         complex_data = {
             "name": "Complex",
@@ -753,23 +753,25 @@ class TestValidationResultBehavior:
         assert result.workflow_data == complex_data
         assert result.workflow_data["jobs"]["job1"]["env"]["NODE_ENV"] == "test"
 
-    def test_validation_result_error_message_types(self):
+    @staticmethod
+    def test_validation_result_error_message_types():
         """Test that error messages can be various string types"""
         errors = [
             "Simple error",
             "Error with 'quotes'",
             'Error with "double quotes"',
             "Error with unicode: 你好",
-            "Error with newline\ncharacter",
+            "Error with newline
+character",
         ]
         result = ValidationResult(False, errors, {})
         assert len(result.errors) == 5
 
-
 class TestWorkflowValidatorSecurityScenarios:
     """Test security-related scenarios and potential exploits"""
 
-    def test_workflow_with_extremely_deep_nesting(self):
+    @staticmethod
+    def test_workflow_with_extremely_deep_nesting():
         """Test workflow with extremely deep nesting (YAML bomb prevention)"""
         # Create a deeply nested structure
         nested = "jobs:\n"
@@ -788,7 +790,8 @@ class TestWorkflowValidatorSecurityScenarios:
             finally:
                 Path(f.name).unlink()
 
-    def test_workflow_with_suspicious_filenames(self):
+    @staticmethod
+    def test_workflow_with_suspicious_filenames():
         """Test workflow validation with suspicious filename patterns"""
         suspicious_names = [
             "../../../etc/passwd.yml",
@@ -801,7 +804,8 @@ class TestWorkflowValidatorSecurityScenarios:
             result = validate_workflow(name)
             assert result.is_valid is False
 
-    def test_workflow_with_large_file_size(self):
+    @staticmethod
+    def test_workflow_with_large_file_size():
         """Test validation of very large workflow file"""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write("name: Large\non: push\njobs:\n")
@@ -820,7 +824,8 @@ class TestWorkflowValidatorSecurityScenarios:
             finally:
                 Path(f.name).unlink()
 
-    def test_workflow_with_yaml_injection_attempts(self):
+    @staticmethod
+    def test_workflow_with_yaml_injection_attempts():
         """Test workflow with potential YAML injection patterns"""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write(
@@ -831,7 +836,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - run: "echo 'safe'"
+      - run: \"echo 'safe'\"
       - run: '; rm -rf /'
       - run: "$(malicious command)"
       - run: "`backdoor`"
@@ -894,7 +899,8 @@ jobs:
             for workflow in workflows:
                 Path(workflow).unlink()
 
-    def test_workflow_with_minimal_memory_footprint(self):
+    @staticmethod
+    def test_workflow_with_minimal_memory_footprint():
         """Test that validation doesn't consume excessive memory"""
         # Create a workflow with moderate size
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:

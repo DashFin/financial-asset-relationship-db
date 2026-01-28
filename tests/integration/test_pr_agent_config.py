@@ -552,7 +552,6 @@ class TestEdgeCases:
                 assert isinstance(value, list), (
                     f"Empty section '{key}' should be a list"
                 )
-
     # Integration tests for the PR agent configuration module to enforce constraints on configuration values.
 
     def test_no_excessively_long_values(self, config: object) -> None:

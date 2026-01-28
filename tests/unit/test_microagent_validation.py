@@ -85,7 +85,6 @@ class TestRepoEngineerLead(TestMicroagentValidation):
         """Parse and return frontmatter from repo_engineer_lead.md."""
         frontmatter, _ = self.parse_frontmatter(repo_engineer_content)
         return frontmatter
-
     @pytest.fixture
     def repo_engineer_body(self, repo_engineer_content: str) -> str:
         """Return body content from repo_engineer_lead.md."""
@@ -110,8 +109,9 @@ class TestRepoEngineerLead(TestMicroagentValidation):
         assert isinstance(frontmatter, dict)
         assert len(body) > 0
 
+    @staticmethod
     def test_frontmatter_has_required_fields(
-        self, repo_engineer_frontmatter: Dict[str, Any]
+        repo_engineer_frontmatter: Dict[str, Any]
     ):
         """Test that frontmatter contains all required fields."""
         required_fields = ["name", "type", "version", "agent"]
@@ -403,28 +403,32 @@ class TestMicroagentSemantic:
         with open(repo_engineer_path, encoding="utf-8") as f:
             return f.read()
 
-    def test_autonomous_nature_described(self, repo_engineer_content: str):
+    @staticmethod
+    def test_autonomous_nature_described(repo_engineer_content: str):
         """Test that autonomous nature is described."""
         body_lower = repo_engineer_content.lower()
         assert "autonomous" in body_lower or "automated" in body_lower, (
             "Should describe autonomous/automated nature"
         )
 
-    def test_describes_summary_and_plan(self, repo_engineer_content: str):
+    @staticmethod
+    def test_describes_summary_and_plan(repo_engineer_content: str):
         """Test that summary and planning is described."""
         body_lower = repo_engineer_content.lower()
         assert "summary" in body_lower and "plan" in body_lower, (
             "Should mention creating summaries and plans"
         )
 
-    def test_describes_reviewer_interaction(self, repo_engineer_content: str):
+    @staticmethod
+    def test_describes_reviewer_interaction(repo_engineer_content: str):
         """Test that reviewer interaction is described."""
         body_lower = repo_engineer_content.lower()
         assert any(
             term in body_lower for term in ["reviewer", "contributor", "comment"]
         ), "Should describe interaction with reviewers and contributors"
 
-    def test_describes_commit_process(self, repo_engineer_content: str):
+    @staticmethod
+    def test_describes_commit_process(repo_engineer_content: str):
         """Test that commit process is described."""
         body_lower = repo_engineer_content.lower()
         assert "commit" in body_lower, "Should describe commit process"
@@ -433,19 +437,22 @@ class TestMicroagentSemantic:
             term in body_lower for term in ["commit any changes", "commit changes"]
         ), "Should explain committing changes"
 
-    def test_describes_post_explanation(self, repo_engineer_content: str):
+    @staticmethod
+    def test_describes_post_explanation(repo_engineer_content: str):
         """Test that posting explanations is described."""
         body_lower = repo_engineer_content.lower()
         assert "post" in body_lower or "explain" in body_lower, (
             "Should mention posting explanations"
         )
 
-    def test_describes_efficiency_focus(self, repo_engineer_content: str):
+    @staticmethod
+    def test_describes_efficiency_focus(repo_engineer_content: str):
         """Test that efficiency focus is described."""
         body_lower = repo_engineer_content.lower()
         assert "efficiency" in body_lower, "Should mention efficiency in code fixes"
 
-    def test_proper_grammar_and_punctuation(self, repo_engineer_content: str):
+    @staticmethod
+    def test_proper_grammar_and_punctuation(repo_engineer_content: str):
         """Test basic grammar and punctuation."""
         # Extract body after frontmatter
         content = repo_engineer_content.lstrip()
@@ -465,7 +472,8 @@ class TestMicroagentSemantic:
         assert ".." not in body, "Should not have double periods"
         assert "  ." not in body, "Should not have space before period"
 
-    def test_consistent_terminology(self, repo_engineer_content: str):
+    @staticmethod
+    def test_consistent_terminology(repo_engineer_content: str):
         """Test that terminology is used consistently."""
         body = repo_engineer_content.lower()
 
@@ -477,7 +485,6 @@ class TestMicroagentSemantic:
 
         # Issue handling should be mentioned
         assert "issue" in body
-
 
 class TestMicroagentEdgeCases:
     """Test edge cases and error conditions."""

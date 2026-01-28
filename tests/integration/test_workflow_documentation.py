@@ -64,13 +64,16 @@ class TestDocumentationStructure:
                 return f.read()
         except FileNotFoundError:
             pytest.fail(f"Documentation file not found: {DOC_FILE}")
+        return None
 
-    def test_has_overview(self, section_headers: List[str]):
+    @staticmethod
+    def test_has_overview(section_headers: List[str]):
         """Test that there's an Overview section."""
         overview = [h for h in section_headers if "overview" in h.lower()]
         assert len(overview) > 0, "Should have an Overview section"
 
-    def test_has_generated_files_section(self, section_headers: List[str]):
+    @staticmethod
+    def test_has_generated_files_section(section_headers: List[str]):
         """
         Ensure the document includes at least one markdown header referencing generated files.
 
@@ -84,7 +87,8 @@ class TestDocumentationStructure:
         ]
         assert len(generated) > 0, "Should have a section about generated files"
 
-    def test_has_running_section(self, section_headers: List[str]):
+    @staticmethod
+    def test_has_running_section(section_headers: List[str]):
         """
         Verify the documentation includes at least one header related to running tests.
 
@@ -96,7 +100,8 @@ class TestDocumentationStructure:
         running = [h for h in section_headers if "run" in h.lower()]
         assert len(running) > 0, "Should have a section about running tests"
 
-    def test_has_sufficient_sections(self, section_headers: List[str]):
+    @staticmethod
+    def test_has_sufficient_sections(section_headers: List[str]):
         """
         Ensure the documentation contains at least five major markdown section headers.
 

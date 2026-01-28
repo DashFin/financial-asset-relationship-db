@@ -86,6 +86,10 @@ class TestGetWorkflowFiles:
             result = get_workflow_files()
             assert len(result) == 1
             assert result[0].name == "test.yaml"
+        ):
+            result = get_workflow_files()
+            assert len(result) == 1
+            assert result[0].name == "test.yaml"
         workflows_dir = tmp_path / "workflows"
         workflows_dir.mkdir()
 

@@ -530,6 +530,7 @@ class TestPRAgentConfigRemovedComplexity:
         """
         Return the contents of .github / pr - agent - config.yml as a string.
 
+        """
         Reads the PR agent configuration file from the repository root and returns its raw text.
 
         Returns:

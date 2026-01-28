@@ -43,7 +43,8 @@ class TestWorkflowConfigurationIntegration:
                     f"{workflow_file.name} uses secrets but doesn't declare permissions"
                 )
 
-    def test_workflow_dependencies_available(self):
+    @staticmethod
+    def test_workflow_dependencies_available():
         """Workflows should only depend on available actions and tools."""
         for workflow_file in _get_workflow_files():
             with open(workflow_file, "r") as f:
@@ -75,11 +76,16 @@ class TestWorkflowConfigurationIntegration:
                             "pytest": ["setup-python", "pytest"],
                         }
 
-                        for tool, _ in tools_needing_setup.items():
+                        for tool, setup_info in tools_needing_setup.items():
                             if tool in run:
                                 # Check if setup step exists earlier
                                 # (This is a soft check - warning only)
-                                pass
+                                assert any(
+                                    setup_info[0] in prev_step.get("uses", "")
+                                    for prev_step in steps[:steps.index(step)]
+                                ), (
+                                    f"{workflow_file.name} run uses '{tool}' without preceding setup step '{setup_info[0]}'."
+                                )
 
     def test_consistent_python_versions(self):
         """Python versions should be consistent across workflows."""
@@ -174,9 +180,9 @@ class TestRequirementsConsistency:
                         if pkg_name.lower() not in skip_packages:
                             # Should be in requirements-dev or be optional
                             if pkg_name.lower() not in dev_packages:
-                                # This might be intentional (like tiktoken being optional)
-                                # so we just warn
-                                pass
+                                pytest.fail(
+                                    f"Package '{pkg_name}' installed in workflow '{workflow_file}' not in requirements-dev.txt"
+                                )
 
     def test_no_duplicate_dependencies(self):
         """Requirements files should not have duplicate dependencies."""
@@ -238,20 +244,19 @@ class TestDocumentationConsistency:
                         and "deprecated" not in context_text
                     ):
                         # Might still have it, which is okay if historical
-                        pass
+                        self.fail(f"README references removed chunking feature outside removed/deprecated context at line {line_num}: {line.strip()}")
 
     def test_changelog_documents_deletions(self):
         """CHANGELOG should document deleted files and features."""
         changelog = Path("CHANGELOG.md")
 
         if changelog.exists():
-            with open(changelog, "r") as f:
+            with open(changelog, "r"):
                 pass
 
             # Should mention the deletions (soft requirement)
             # At least one deletion should be documented
             # (This is a documentation quality check, not strict requirement)
-            pass
 
     def test_no_broken_internal_links(self):
         """Markdown files should not have broken internal links."""
@@ -341,7 +346,6 @@ class TestGitHubActionsEcosystem:
 
             # File name should somewhat match workflow name
             # (This is a soft check)
-            pass
 
     def test_reasonable_workflow_count(self):
         """Should not have too many workflows(maintainability)."""
@@ -376,4 +380,3 @@ class TestGitHubActionsEcosystem:
 
             # This is a soft requirement (not all workflows need docs)
             # but it's good practice
-            pass
