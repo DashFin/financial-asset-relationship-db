@@ -39,15 +39,6 @@ class TestPRAgentConfigSimplification:
         if cfg is None or not isinstance(cfg, dict):
             pytest.fail("Config must be a YAML mapping (dict) and not empty")
         return cfg
-            pytest.fail(f"Config file not found: {config_path}")
-        with open(config_path, 'r', encoding='utf-8') as f:
-            try:
-                cfg = yaml.safe_load(f)
-            except yaml.YAMLError as e:
-                pytest.fail(f"Invalid YAML in config: {e}")
-        if cfg is None or not isinstance(cfg, dict):
-            pytest.fail("Config must be a YAML mapping (dict) and not empty")
-        return cfg
 
     def test_version_reverted_to_1_0_0(self, pr_agent_config):
         """Check that the PR agent's configured version is '1.0.0'."""
@@ -152,8 +143,8 @@ class TestPRAgentConfigYAMLValidity:
 
                     # Most YAML keys here are scalars (strings). For safety, fall back
                     # to string representation for unhashable keys.
-                        key_id = repr(key)
-                        is_hashable = False
+                    key_id = repr(key)
+                    is_hashable = False
 
                     if key_id in seen:
                         # Use the key node mark for precise location info.
@@ -235,10 +226,6 @@ class TestPRAgentConfigYAMLValidity:
         duplicates = find_duplicates(config)
         if duplicates:
             pytest.fail(f"Duplicate keys found at paths: {', '.join(duplicates)}")
-                key = line.split(':')[0].strip()
-                if key in seen_keys:
-                    pytest.fail(f"Duplicate key found: {key}")
-                seen_keys.add(key)
 
     def test_consistent_indentation(self):
         """
@@ -279,13 +266,15 @@ class TestPRAgentConfigSecurity:
 
         Returns:
             The parsed YAML content as a Python mapping or sequence (typically a dict), or `None` if the file is empty.
+        """
+
     def test_no_hardcoded_credentials(self, pr_agent_config):
         """
         Recursively scan configuration values for suspected secrets.
 
         This inspects values(not just serialized text) and traverses nested dicts / lists.
         The heuristic flags:
-          """
+
         Load and parse the PR agent YAML configuration from .github/pr-agent-config.yml.
 
         If the file is missing, contains invalid YAML, or the top-level content is not a mapping, this fixture fails test collection. Empty files return None.
@@ -294,8 +283,8 @@ class TestPRAgentConfigSecurity:
             The parsed YAML content (typically a dict) or `None` if the file is empty.
         """
         - Long high - entropy strings(e.g., tokens)
-          - Obvious secret prefixes / suffixes
-          - Inline credentials in URLs(e.g., scheme: // user:pass @ host)
+        - Obvious secret prefixes / suffixes
+        - Inline credentials in URLs(e.g., scheme: // user:pass @ host)
         """
         import re
         import math
@@ -543,6 +532,7 @@ class TestPRAgentConfigRemovedComplexity:
         """
         Return the contents of .github / pr - agent - config.yml as a string.
 
+        """
         Reads the PR agent configuration file from the repository root and returns its raw text.
 
         Returns:
