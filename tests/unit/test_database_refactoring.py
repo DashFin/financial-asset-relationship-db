@@ -12,7 +12,6 @@ Tests focus on:
 import pytest
 
     _get_database_url,
-    _resolve_sqlite_path,
     _is_memory_db,
     _connect,
     get_connection,
