@@ -521,7 +521,51 @@ def _serialize_graph(graph: AssetRelationshipGraph) -> Dict[str, Any]:
               relationships, each entry containing "source",
               "relationship_type", and "strength"
     """
+    incoming = getattr(graph, "incoming_relationships", None)
+    if incoming is None:
+        # Derive incoming relationships from outgoing relationships.
+        derived: Dict[str, List[Dict[str, Any]]] = {}
+        for source, rels in graph.relationships.items():
+            for target, rel_type, strength in rels:
+                derived.setdefault(target, []).append(
+                    {
+                        "source": source,
+                        "relationship_type": rel_type,
+                        "strength": strength,
+                    }
+                )
+        incoming_relationships = derived
+    else:
+        incoming_relationships = {
+            target: [
+                {
+                    "source": source,
+                    "relationship_type": rel_type,
+                    "strength": strength,
+                }
+                for source, rel_type, strength in rels
+            ]
+            for target, rels in incoming.items()
+        }
+
     return {
+        "assets": [_serialize_dataclass(asset) for asset in graph.assets.values()],
+        "regulatory_events": [
+            _serialize_dataclass(event) for event in graph.regulatory_events
+        ],
+        "relationships": {
+            source: [
+                {
+                    "target": target,
+                    "relationship_type": rel_type,
+                    "strength": strength,
+                }
+                for target, rel_type, strength in rels
+            ]
+            for source, rels in graph.relationships.items()
+        },
+        "incoming_relationships": incoming_relationships,
+    }
         "assets": [_serialize_dataclass(asset) for asset in graph.assets.values()],
         "regulatory_events": [
             _serialize_dataclass(event) for event in graph.regulatory_events
