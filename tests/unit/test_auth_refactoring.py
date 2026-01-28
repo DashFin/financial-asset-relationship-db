@@ -558,6 +558,7 @@ class TestEdgeCasesAndBoundaryConditions:
         )
         user = repository.get_user("user")
         assert user.disabled is True
+        assert user.disabled is True
 
     def test_concurrent_user_creation(self, repository):
         """Should handle concurrent user creation safely."""
