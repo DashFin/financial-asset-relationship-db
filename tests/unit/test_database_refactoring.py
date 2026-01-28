@@ -215,33 +215,37 @@ class TestConnect:
 class TestGetConnection:
     """Test get_connection context manager."""
 
-    def test_get_connection_yields_connection(self, monkeypatch):
-        """Should yield a valid connection."""
-        @pytest.fixture
-    def setup_database(monkeypatch):
+    @pytest.fixture
+    def setup_memory_database(self, monkeypatch):
+        """Configure an in-memory SQLite database for tests."""
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
         from api import database
+
         database.DATABASE_PATH = ":memory:"
-        
+        database._MEMORY_CONNECTION = None
+        return database
+
+    def test_get_connection_yields_connection(self, setup_memory_database):
+        """Should yield a valid SQLite connection."""
+        from api.database import get_connection
+
         with get_connection() as conn:
             assert isinstance(conn, sqlite3.Connection)
 
-    def test_get_connection_keeps_memory_db_open(self, monkeypatch):
+    def test_get_connection_keeps_memory_db_open(self, setup_memory_database):
         """Should not close memory database connections."""
-        monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
-        from api import database
-        database.DATABASE_PATH = ":memory:"
-        database._MEMORY_CONNECTION = None
-        
+        from api.database import get_connection
+
         with get_connection() as conn:
-            # Create a table to verify connection persists
             conn.execute("CREATE TABLE test (id INTEGER)")
-        
+
         # Connection should still be usable
         with get_connection() as conn:
-            cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            cursor = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            )
             tables = [row[0] for row in cursor.fetchall()]
-            assert 'test' in tables
+            assert "test" in tables
 
     def test_get_connection_closes_file_db(self, monkeypatch, tmp_path):
         """Should close file-based database connections."""
@@ -266,7 +270,7 @@ class TestExecuteFunction:
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
         from api import database
         database.DATABASE_PATH = ":memory:"
-        initialize_schema()
+        # Call initialize_schema() in a fixture or setup method
         
         execute(
             "INSERT INTO user_credentials (username, hashed_password) VALUES (?, ?)",
