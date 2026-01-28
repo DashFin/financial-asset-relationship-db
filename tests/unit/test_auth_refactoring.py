@@ -224,7 +224,9 @@ class TestCreateOrUpdateUserParameterNames:
         repository.create_or_update_user(
             username="test",
             hashed_password="hash",
-            email="test@example.com"  # New parameter name
+            email="test@example.com",
+            full_name=None,
+            disabled=False
         )
         user = repository.get_user("test")
         assert user.email == "test@example.com"
