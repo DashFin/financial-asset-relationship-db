@@ -471,7 +471,7 @@ class TestThreadSafety:
             except Exception as e:
                 errors.append(e)
         
-        threads = [threading.Thread(target=read_user) for _ in range(20)]
+import threading
         for t in threads:
             t.start()
         for t in threads:
