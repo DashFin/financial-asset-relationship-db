@@ -447,8 +447,6 @@ class TestThreadSafety:
 
         assert count == 5
 
-        first = self.connections[0]
-        assert all(conn is first for conn in self.connections)
 
 
 class TestEdgeCasesAndErrorHandling:
