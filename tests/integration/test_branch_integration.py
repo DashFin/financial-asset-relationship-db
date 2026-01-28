@@ -111,10 +111,12 @@ class TestWorkflowConsistency:
 class TestDependencyWorkflowIntegration:
     """Test that dependencies support workflow needs."""
 
+    def test_workflows_parse_with_pyyaml(self) -> None:
         """Verify PyYAML parses workflows and branch coherence.
 
         This test ensures GitHub workflows and branch changes adhere to project
         standards, avoid security issues, and remain parseable by PyYAML.
+        """
         workflow_dir = Path(".github/workflows")
         if not workflow_dir.exists():
             pytest.skip("Workflows directory not found")
