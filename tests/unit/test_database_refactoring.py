@@ -281,7 +281,7 @@ class TestExecuteFunction:
         
         result = fetch_one("SELECT username FROM user_credentials WHERE username=?", ("testuser",))
         assert result is not None
-        assert result["username"] == "testuser""
+        assert result["username"] == "testuser"
 
     def test_execute_update_statement(self, monkeypatch):
         """Should execute UPDATE statements."""
