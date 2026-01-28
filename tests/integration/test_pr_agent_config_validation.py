@@ -461,47 +461,33 @@ class TestPRAgentConfigSecurity:
 
         allowed_placeholders = {"null", "none", "placeholder", "***"}
 
+# Helpers for recursive secret scanning
 
-# At the end of test_no_hardcoded_secrets, after defining scan_dict and scan_for_secrets:
-if isinstance(pr_agent_config, dict):
-    scan_dict(pr_agent_config, "root")
-elif isinstance(pr_agent_config, (list, tuple)):
-    for i, item in enumerate(pr_agent_config):
-        scan_for_secrets(item, f"root[{i}]")
-        for k, v in node.items():
-             key_l = str(k).lower()
-              new_path = f"{path}.{k}"
-               if any(pat in key_l for pat in sensitive_patterns):
-                    assert v in allowed_placeholders, f"Potential hardcoded credential at '{new_path}'"
-                scan_for_secrets(v, new_path)
+def scan_node(node, path: str = "root") -> None:
+    if isinstance(node, dict):
+        for key, value in node.items():
+            key_l = str(key).lower()
+            new_path = f"{path}.{key}"
 
-        def scan_list(node: list, path: str):
-            for idx, item in enumerate(node):
-                scan_for_secrets(item, f"{path}[{idx}]")
+            if any(pat in key_l for pat in sensitive_patterns):
+                assert value in SAFE_PLACEHOLDERS, (
+                    f"Potential hardcoded credential at '{new_path}'"
+                )
 
-        def scan_for_secrets(node, path="root"):
-            if isinstance(node, dict):
-                scan_dict(node, path)
-            elif isinstance(node, list):
-                scan_list(node, path)
-            # primitives ignored
+            scan_node(value, new_path)
 
-        safe_placeholders = {None, "null", "webhook"}
+    elif isinstance(node, list):
+        for idx, item in enumerate(node):
+            scan_node(item, f"{path}[{idx}]")
 
-        def check_node(node, path=""):
-            if isinstance(node, dict):
-                for k, v in node.items():
-                    key_l = str(k).lower()
-                    new_path = f"{path}.{k}" if path else str(k)
-                    if any(p in key_l for p in sensitive_patterns):
-                        assert v in safe_placeholders, f"Potential hardcoded credential at '{new_path}'"
-                    check_node(v, new_path)
-            elif isinstance(node, list):
-                for idx, item in enumerate(node):
-                    check_node(item, f"{path}[{idx}]")
-            # primitives are ignored unless hit via a sensitive key above
+    # primitives intentionally ignored
 
-        check_node(pr_agent_config)
+# Constants
+SAFE_PLACEHOLDERS = {None, "null", "webhook"}
+
+# At the end of test_no_hardcoded_secrets
+scan_node(pr_agent_config)
+
 
     @staticmethod
     def test_safe_configuration_values(pr_agent_config):
