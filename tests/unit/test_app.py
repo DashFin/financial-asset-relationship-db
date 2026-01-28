@@ -209,7 +209,11 @@ class TestUpdateMetricsText:
 
     @patch('app.create_real_database')
     def test_update_metrics_text_includes_asset_class_distribution(self, mock_create_db):
-        """Test that metrics text includes asset class distribution."""
+        """
+        Verifies that _update_metrics_text includes the asset class distribution within the formatted metrics string.
+        
+        Mocks graph metrics to include an `asset_class_distribution` and asserts the resulting text contains expected asset class keys (e.g., `EQUITY`, `FIXED_INCOME`) indicating the distribution is present and formatted.
+        """
         mock_graph = Mock(spec=AssetRelationshipGraph)
         mock_graph.assets = {}
         mock_create_db.return_value = mock_graph

@@ -201,7 +201,14 @@ class TestWorkflowActions:
 
     @pytest.mark.parametrize("workflow_file", get_workflow_files())
     def test_workflow_actions_have_versions(self, workflow_file: Path):
-        """Ensure every external action referenced by a workflow step is pinned to a specific version."""
+        """
+        Ensure external actions referenced by workflow steps are pinned to a fixed version.
+        
+        Validates that each external `uses:` reference in the workflow's job steps includes a ref (e.g., `@v1`, `@v2.3.4`, or `@<commit-sha>`) and that the ref is not a floating branch name such as `main`, `master`, `latest`, or `stable`.
+        
+        Parameters:
+            workflow_file (Path): Path to the workflow YAML file being validated.
+        """
         config = load_yaml_safe(workflow_file)
         jobs = config.get("jobs", {})
 

@@ -75,7 +75,9 @@ class TestIsTruthyHelper:
         assert _is_truthy(None) is False
 
     def test_is_truthy_with_empty_string(self):
-        """Should return False for empty string."""
+        """
+        Check handling of empty and whitespace-only strings by _is_truthy.
+        """
         assert _is_truthy("") is False
         assert _is_truthy("   ") is False
 
@@ -115,10 +117,10 @@ class TestUserRepositoryInstanceMethods:
     @pytest.fixture
     def repository(self):
         """
-        Provide a fresh UserRepository with an initialized database schema for a test.
+        Create a fresh UserRepository with an initialized database schema for tests.
         
         Returns:
-            UserRepository: A new repository instance after the database schema has been initialized.
+            UserRepository: A new repository instance whose database schema has been initialized.
         """
         initialize_schema()
         return UserRepository()
@@ -126,15 +128,10 @@ class TestUserRepositoryInstanceMethods:
     @pytest.fixture
     def sample_user_data(self):
         """
-        Return a sample user payload used by tests.
+        Provide a sample user payload for tests.
         
         Returns:
-            dict: A user dictionary with the following keys:
-                - username (str): "testuser"
-                - hashed_password (str): hashed form of "password123"
-                - email (str): "test@example.com"
-                - full_name (str): "Test User"
-                - disabled (bool): False
+            dict: A user dictionary with keys `username`, `hashed_password`, `email`, `full_name`, and `disabled`. `hashed_password` is the hashed form of the string "password123".
         """
         return {
             "username": "testuser",
@@ -181,9 +178,13 @@ class TestUserRepositoryInstanceMethods:
         
         def create_user(username):
             """
-            Create or update a user in the repository using the shared sample_user_data with the provided username.
+            Create or update a user in the repository using the module's sample_user_data with the given username.
             
-            This function copies the module-level `sample_user_data`, replaces its "username" with the given value, and calls `repository.create_or_update_user` to persist the user. If an exception occurs, it is appended to the module-level `errors` list.
+            Parameters:
+                username (str): Username to set on the copied sample_user_data before persisting.
+            
+            Notes:
+                On exception, the raised exception is appended to the module-level `errors` list.
             """
             try:
                 data = sample_user_data.copy()
@@ -192,11 +193,12 @@ class TestUserRepositoryInstanceMethods:
             except Exception as e:
                 errors.append(e)
         
-        from concurrent.futures import ThreadPoolExecutor, wait
-
         with ThreadPoolExecutor(max_workers=10) as executor:
-            futures = [executor.submit(create_user, f"user{i}") for i in range(10)]
-            wait(futures)
+        threads = [executor.submit(create_user, f"user{i}") for i in range(10)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
         
         assert len(errors) == 0, f"Errors occurred during user creation: {errors}"
         assert repository.has_users() is True
@@ -208,10 +210,10 @@ class TestCreateOrUpdateUserParameterNames:
     @pytest.fixture
     def repository(self):
         """
-        Provide a fresh UserRepository with an initialized database schema for tests.
+        Create a UserRepository whose database schema has been initialized for testing.
         
         Returns:
-            UserRepository: A new repository instance backed by a freshly initialized schema.
+            UserRepository: Repository instance backed by a freshly initialized schema.
         """
         initialize_schema()
         return UserRepository()
@@ -270,10 +272,10 @@ class TestSeedCredentialsFromEnv:
     @pytest.fixture
     def repository(self):
         """
-        Provide a fresh UserRepository with an initialized database schema for tests.
+        Create a UserRepository whose database schema has been initialized for testing.
         
         Returns:
-            UserRepository: A new repository instance backed by a freshly initialized schema.
+            UserRepository: Repository instance backed by a freshly initialized schema.
         """
         initialize_schema()
         return UserRepository()
@@ -323,7 +325,12 @@ class TestSeedCredentialsFromEnv:
         assert user.disabled is True
 
     def test_seed_updates_existing_user(self, repository, monkeypatch):
-        """Should update existing user when seeding."""
+        """
+        Ensure seeding credentials from environment updates an existing user.
+        
+        Creates an initial user, sets ADMIN_USERNAME/ADMIN_PASSWORD/ADMIN_EMAIL in the environment,
+        calls _seed_credentials_from_env(repository), and asserts the stored user's email and password are updated.
+        """
         # Create initial user
         repository.create_or_update_user(
             username="admin",
@@ -398,10 +405,12 @@ class TestAuthenticateUserFunction:
     @pytest.fixture
     def repository(self):
         """
-        Create a UserRepository instance initialized with a single test user.
+        Create a UserRepository pre-populated with a single test user "testuser".
+        
+        The repository contains a user with username "testuser", email "test@example.com", a hashed password corresponding to "password123", and disabled set to False.
         
         Returns:
-            UserRepository: repository containing a pre-created user with username "testuser", email "test@example.com", and a hashed password.
+            UserRepository: repository containing the pre-created user.
         """
         initialize_schema()
         repo = UserRepository()
@@ -426,7 +435,11 @@ class TestAuthenticateUserFunction:
         assert user is False
 
     def test_authenticate_with_nonexistent_user(self, repository):
-        """Should reject nonexistent user."""
+        """
+        Verify authentication fails for a username that does not exist.
+        
+        Asserts that calling `authenticate_user` with a nonexistent username and any password returns `False`.
+        """
         user = authenticate_user("nonexistent", "password123", repository)
         assert user is False
 
@@ -494,10 +507,10 @@ class TestEdgeCasesAndBoundaryConditions:
     @pytest.fixture
     def repository(self):
         """
-        Initialize the database schema and return a new UserRepository instance.
+        Initialize the database schema and provide a fresh repository connected to it.
         
         Returns:
-            UserRepository: A new repository backed by a freshly initialized schema.
+            A UserRepository connected to the initialized schema.
         """
         initialize_schema()
         return UserRepository()
@@ -565,7 +578,7 @@ class TestEdgeCasesAndBoundaryConditions:
             """
             Create ten users in the module-level repository.
             
-            Each created user has username "user0" through "user9" and a hashed_password value of "hash".
+            Creates users with usernames "user0" through "user9", each assigned a hashed_password of "hash".
             """
             for i in range(10):
                 repository.create_or_update_user(
@@ -594,7 +607,9 @@ class TestSecurityConfiguration:
         assert len(SECRET_KEY) > 0
 
     def test_algorithm_constant(self):
-        """ALGORITHM should be set correctly."""
+        """
+        Assert that the authentication algorithm constant equals "HS256".
+        """
         from api.auth import ALGORITHM
         assert ALGORITHM == "HS256"
 

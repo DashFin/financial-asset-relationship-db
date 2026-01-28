@@ -218,10 +218,10 @@ class TestUserRepository:
     @pytest.fixture
     def mock_fetch_one(self):
         """
-        Provide a patched mock for api.auth.fetch_one.
+        Provide a patched Mock for api.auth.fetch_one.
         
         Returns:
-            mock (unittest.mock.Mock): The mock object that replaces api.auth.fetch_one for the duration of the fixture.
+            mock (unittest.mock.Mock): Mock object that replaces api.auth.fetch_one.
         """
         with patch('api.auth.fetch_one') as mock:
             yield mock
@@ -229,10 +229,10 @@ class TestUserRepository:
     @pytest.fixture
     def mock_fetch_value(self):
         """
-        Provide a patched `api.auth.fetch_value` mock for tests.
+        Provide a patched `api.auth.fetch_value` for tests.
         
         Yields:
-            mock: The patched `fetch_value` mock object created by `unittest.mock.patch`.
+            unittest.mock.Mock: The mock object created by `unittest.mock.patch('api.auth.fetch_value')`.
         """
         with patch('api.auth.fetch_value') as mock:
             yield mock
@@ -251,10 +251,10 @@ class TestUserRepository:
     @pytest.fixture
     def repository(self):
         """
-        Instantiate a new UserRepository.
+        Create a new UserRepository instance.
         
         Returns:
-            repository (UserRepository): A new UserRepository instance.
+            UserRepository: A new UserRepository instance.
         """
         return UserRepository()
 

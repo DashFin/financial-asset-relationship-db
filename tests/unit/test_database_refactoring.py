@@ -191,10 +191,10 @@ class TestConnect:
         
         def get_connection():
             """
-            Attempts to obtain a database connection and record the outcome.
+            Obtain a database connection and record the result in module-level trackers.
             
-            If a connection is obtained, appends it to the module-level `connections` list.
-            If an error occurs while obtaining a connection, appends the exception to the module-level `errors` list.
+            On success, appends the acquired sqlite3.Connection to the module-level `connections` list.
+            On failure, appends the raised Exception to the module-level `errors` list.
             """
             try:
                 conn = _connect()
@@ -219,7 +219,15 @@ class TestGetConnection:
 
     @pytest.fixture
     def setup_memory_database(self, monkeypatch):
-        """Configure an in-memory SQLite database for tests."""
+        """
+        Configure the api.database module to use an in-memory SQLite database for tests.
+        
+        Sets the DATABASE_URL environment variable to an in-memory SQLite URI, sets
+        database.DATABASE_PATH to ":memory:", and resets database._MEMORY_CONNECTION.
+        
+        Returns:
+            module: The imported api.database module configured for in-memory use.
+        """
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
         from api import database
 
@@ -341,9 +349,9 @@ class TestFetchFunctions:
     @pytest.fixture
     def setup_test_data(self, monkeypatch):
         """
-        Create an in-memory test database, initialize its schema, and insert three sample user credential rows.
+        Create an in-memory SQLite test database, initialize its schema, and populate it with three sample user credential rows.
         
-        The function sets the environment's DATABASE_URL to an in-memory SQLite, configures the module to use the in-memory path, runs schema initialization, and inserts users: "user1", "user2", and "user3".
+        After calling this fixture the database is configured for in-memory use and contains users "user1", "user2", and "user3" with corresponding hashed passwords and emails.
         """
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
         from api import database
@@ -492,13 +500,12 @@ class TestThreadSafety:
         
         def write_user(username):
             """
-            Insert a user into the `user_credentials` table with a generated hashed password.
+            Insert a new user into the `user_credentials` table with a generated hashed password.
+            
+            Generates a hashed password of the form `hash_<username>` and inserts a row with the given username and that hashed password into `user_credentials`. On exception, the error is appended to the module-level `errors` list and the exception is not re-raised.
             
             Parameters:
-                username (str): The username to insert. The function generates a hashed password using the username (e.g., "hash_<username>") and stores it in the `hashed_password` column.
-            
-            Notes:
-                On error, the raised exception is appended to the module-level `errors` list; the function does not re-raise the exception.
+                username (str): The username to insert; used to construct the stored hashed password.
             """
             try:
                 execute(
