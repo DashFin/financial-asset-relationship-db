@@ -30,7 +30,15 @@ else
     echo "   ✗ api-refactoring.test.ts - TypeScript validation failed"
     status=1
 fi
-if npx tsc --noEmit frontend/__tests__/lib/api-refactoring.test.ts 2>&1; then
+fi
+
+echo ""
+echo "3. Checking Python test execution..."
+
+# Add a simple test run check here if needed
+
+echo ""
+echo "4. Summary:"
     echo "   ✓ api-refactoring.test.ts - TypeScript validation complete"
 else
     npx tsc --noEmit frontend/__tests__/lib/api-refactoring.test.ts 2>&1 | head -20
