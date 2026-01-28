@@ -284,7 +284,6 @@ describe('API Client Refactoring Tests', () => {
         },
       });
       await api.getAssetDetail(specialId);
-      await api.getAssetDetail(specialId);
       expect(mockAxiosInstance.get).toHaveBeenCalledWith(`/api/assets/${encodeURIComponent(specialId)}`);
     });
 
