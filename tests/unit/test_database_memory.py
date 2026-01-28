@@ -449,7 +449,6 @@ class TestEdgeCasesAndErrorHandling:
         reloaded_database = importlib.reload(database)
 
         reloaded_database.initialize_schema()
-
         # Use execute to insert data
         reloaded_database.execute(
             "INSERT INTO user_credentials (username, hashed_password) VALUES (?, ?)",
