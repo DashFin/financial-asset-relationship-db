@@ -306,6 +306,18 @@ class TestPRAgentConfigSecurity:
 
     @staticmethod
     def detect_prefix(s):
+        secret_markers = (
+            "secret",
+            "token",
+            "apikey",
+            "api_key",
+            "access_key",
+            "private_key",
+            "pwd",
+            "password",
+            "auth",
+            "bearer ",
+        )
         for marker in secret_markers:
             if s.lower().startswith(marker):
                 return ("prefix", s)
