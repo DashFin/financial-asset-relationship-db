@@ -603,7 +603,11 @@ class TestAssetRelationshipGraphConsistency:
     """Test consistency and determinism of the graph methods."""
 
     def test_repeated_calls_same_result(self):
-        """Test that calling method multiple times returns same result."""
+        """
+        Verify that repeated calls to get_3d_visualization_data_enhanced produce identical outputs.
+        
+        Asserts that the positions arrays are numerically equal (within tolerance) and that the asset IDs, colors, and hover text lists are exactly equal between successive calls.
+        """
         graph = AssetRelationshipGraph()
         graph.relationships = {
             'A': [('B', 'rel', 0.5)],
